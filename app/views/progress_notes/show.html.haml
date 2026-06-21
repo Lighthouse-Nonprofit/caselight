@@ -1,0 +1,99 @@
+.row
+  .col-xs-12
+    .ibox
+      .ibox-title
+        %h5= @progress_note.date.strftime('%d %B, %Y')
+        .ibox-tools
+          %a.collapse-link
+            .btn.btn-outline.btn-primary
+              %i.fa.fa-chevron-up
+          - if can? :manage, ProgressNote
+            = link_to edit_client_progress_note_path(@client, @progress_note), class: "btn btn-outline btn-success #{ability_to_update(ProgressNote)}" do
+              = fa_icon('pencil')
+            = link_to [@client, @progress_note], method: 'delete', data: { confirm: t('.are_you_sure') }, class: "btn btn-outline btn-danger #{ability_to_delete(ProgressNote)}" do
+              = fa_icon('trash')
+      .ibox-content
+        .row
+          .col-xs-12
+            %table.table.table-bordered
+              %tr
+                %td.spacing-first-col
+                  = t('.child')
+                %td
+                  %strong
+                    = @progress_note.client
+              %tr
+                %td.spacing-first-col
+                  = t('.staff')
+                %td
+                  %strong
+                    = @progress_note.user
+              %tr
+                %td.spacing-first-col
+                  = t('.progress_note_type')
+                %td
+                  %strong
+                    = @progress_note.progress_note_type
+              %tr
+                %td.spacing-first-col
+                  = t('.location')
+                %td
+                  %strong
+                    = @progress_note.location
+              %tr
+                %td.spacing-first-col
+                  = t('.other_location')
+                %td
+                  %strong
+                    = @progress_note.other_location
+              %tr
+                %td.spacing-first-col
+                  = t('.interventions')
+                %td
+                  %strong
+                    - if @progress_note.interventions.any?
+                      = @progress_note.interventions.pluck(:action).join(', ')
+              %tr
+                %td.spacing-first-col
+                  = t('.material')
+                %td
+                  %strong
+                    = @progress_note.material
+              %tr
+                %td.spacing-first-col
+                  = t('.goals_addressed')
+                %td
+                  %strong
+                    - if @progress_note.assessment_domains.any?
+                      = @progress_note.assessment_domains.pluck(:goal).join(', ')
+              %tr
+                %td.spacing-first-col
+                  = t('.response')
+                %td
+                  %strong
+                    = @progress_note.response.html_safe
+
+              %tr
+                %td.spacing-first-col
+                  = t('.additional_notes')
+                %td
+                  %strong
+                    = @progress_note.additional_note.html_safe
+            - if @progress_note.attachments.any?
+              %table.table.table-bordered.attachments
+                %tr
+                  %td.text-center{ colspan: 3 }
+                    %h4= t('.attachments')
+                %tr
+                  %td.text-center
+                    %strong= t('.title')
+                  %td
+                - @progress_note.attachments.each do |attachment|
+                  %tr
+                    %td= original_filename(attachment)
+                    %td.text-center= link_to preview_or_download(attachment), attachment.file.url, class: 'btn btn-info btn-sm btn-download'
+
+      .ibox-footer
+        .row
+          .col-xs-12
+            = link_to t('.back'), client_progress_notes_path(@client), class: 'btn btn-default btn-back'

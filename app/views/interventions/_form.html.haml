@@ -1,0 +1,16 @@
+= simple_form_for(intervention ||= Intervention.new) do |f|
+  .modal.fade{id: "interventionModal-#{intervention.id}", "aria-labelledby" => "interventionModal-#{intervention.id}Label", :role => "dialog", :tabindex => "-1"}
+    .modal-dialog{:role => "document"}
+      .modal-content
+        .modal-header
+          %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          %h4.modal-title{ id: "interventionModal-#{intervention.id}Label" }= t('.intervention')
+        .modal-body
+          = error_notification(f)
+          .form-inputs
+            = f.input :action, label: t('.action')
+        .modal-footer
+          .pull-left
+            = f.submit t('.save') , class: 'btn btn-primary form-btn'
+            %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"}= t('.cancel')

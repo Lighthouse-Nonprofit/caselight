@@ -1,0 +1,15 @@
+body[id='progress_notes-show'] {
+  h3 small a {
+    margin: 0 5px;
+  }
+
+  .btn-back {
+    min-width: 100px;
+  }
+
+  .attachments {
+    .btn-download {
+      min-width: 138px;
+    }
+  }
+}

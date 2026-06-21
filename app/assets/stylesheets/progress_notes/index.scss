@@ -1,0 +1,44 @@
+body[id='progress_notes-index'] {
+  .btn-links {
+    margin-bottom: 20px;
+  }
+
+  .btn-back {
+    margin-top: 15px;
+    min-width: 100px;
+  }
+
+  .order {
+    float: right;
+  }
+
+  table.progress-notes {
+    margin-bottom: 0;
+  }
+
+  td.manage a {
+    margin: 0 5px;
+  }
+
+  table.progress-notes {
+    th, td {
+      min-width: 210px !important;
+    }
+  }
+
+  .date_filter {
+    padding: 6px;
+  }
+
+  .dataTables_scrollBody {
+    max-height: 500px !important;
+  }
+
+  .btn-back-default {
+    min-width: 100px;
+  }
+
+  table.progress-notes tbody tr:hover {
+    cursor: pointer;
+  }
+}

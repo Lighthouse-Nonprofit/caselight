@@ -1,0 +1,69 @@
+= simple_form_for([@client, @survey]) do |f|
+  .ibox-content
+    = f.error_notification
+    .row
+      .col-xs-12
+        .alert.alert-warning.visible-xs-block
+          %p
+            %strong= "#{t('.note')}: "
+          %p= t('.strongly_disagree')
+          - (1..4).each do |num|
+            %p
+              %span.margin-static
+              %input{ type: 'radio', disabled: 'disabled', class: 'i-checks' }= num
+          %p= t('.strongly_agree')
+
+        .alert.alert-warning.hidden-xs
+          %strong.score-evaluation= "#{t('.note')}: "
+          %span= t('.strongly_disagree')
+          - (1..4).each do |num|
+            %span.margin-static
+              %input{ type: 'radio', disabled: 'disabled', class: 'i-checks' }= num
+          %span.strongly-agree= t('.strongly_agree')
+    .row
+      .col-xs-12.col-sm-6
+        = f.input :user, disabled: true, input_html: { value: @client.user.name, class: 'user-name' }, label: t('.user_id')
+      .col-xs-12.question-block
+        = f.label :listening_score, t('.listening_score')
+        .radio-score
+          = f.collection_radio_buttons :listening_score, [[1, 1], [2,2], [3,3], [4,4]], :first, :last, item_wrapper_class: 'inline' do |cb|
+            = radio_button_color(cb)
+      .col-xs-12.question-block
+        = f.label :problem_solving_score, t('.problem_solving_score')
+        .radio-score
+          = f.collection_radio_buttons :problem_solving_score, [[1, 1], [2,2], [3,3], [4,4]], :first, :last, item_wrapper_class: 'inline', label: t('.problem_solving_score') do |cb|
+            = radio_button_color(cb)
+      .col-xs-12.question-block
+        = f.label :getting_in_touch_score, t('.getting_in_touch_score')
+        .radio-score
+          = f.collection_radio_buttons :getting_in_touch_score, [[1, 1], [2,2], [3,3], [4,4]], :first, :last do |cb|
+            = radio_button_color(cb)
+      .col-xs-12.question-block
+        = f.label :trust_score, t('.trust_score')
+        .radio-score
+          = f.collection_radio_buttons :trust_score, [[1, 1], [2,2], [3,3], [4,4]], :first, :last do |cb|
+            = radio_button_color(cb)
+      .col-xs-12.question-block
+        = f.label :difficulty_help_score, t('.difficulty_help_score')
+        .radio-score
+          = f.collection_radio_buttons :difficulty_help_score, [[1, 1], [2,2], [3,3], [4,4]], :first, :last do |cb|
+            = radio_button_color(cb)
+      .col-xs-12.question-block
+        = f.label :support_score, t('.support_score')
+        .radio-score
+          = f.collection_radio_buttons :support_score, [[1, 1], [2,2], [3,3], [4,4]], :first, :last do |cb|
+            = radio_button_color(cb)
+      .col-xs-12.question-block
+        = f.label :family_need_score, t('.family_need_score')
+        .radio-score
+          = f.collection_radio_buttons :family_need_score, [[1, 1], [2,2], [3,3], [4,4]], :first, :last do |cb|
+            = radio_button_color(cb)
+      .col-xs-12.question-block
+        = f.label :care_score, t('.care_score')
+        .radio-score
+          = f.collection_radio_buttons :care_score, [[1, 1], [2,2], [3,3], [4,4]], :first, :last do |cb|
+            = radio_button_color(cb)
+
+  .ibox-footer
+    = f.submit t('save'), class: 'btn btn-primary form-btn survey-submit'
+    = link_to t('cancel'), client_surveys_path(@client), class: 'btn btn-default form-btn'

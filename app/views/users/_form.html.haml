@@ -1,0 +1,41 @@
+= simple_form_for(@user) do |f|
+  .ibox-content
+    = error_notification(f)
+    .form-inputs
+      .row
+        .col-xs-12.col-sm-6.col-md-4= f.input :first_name, label: t('.first_name')
+        .col-xs-12.col-sm-6.col-md-4= f.input :last_name, label: t('.last_name')
+        .col-xs-12.col-sm-6.col-md-4.form-group.date.optional.user_date_of_birth
+          %label.date.optional.control-label{ for: 'user_date_of_birth' }
+            = t('.date_of_birth')
+          .input-group.date
+            = f.text_field :date_of_birth, class: 'date optional form-control date-picker', type: 'text', name: 'user[date_of_birth]', id: 'user_date_of_birth'
+            %span.input-group-addon
+              %i.fa.fa-calendar-check-o
+        .col-xs-12.col-sm-6.col-md-4= f.input :email, required: true, label: t('.email')
+        - unless @user.persisted?
+          .col-xs-12.col-sm-6.col-md-4= f.input :password, required: true, label: t('.password')
+          .col-xs-12.col-sm-6.col-md-4= f.input :password_confirmation, required: true, label: t('.password_confirmation')
+        .col-xs-12.col-sm-6.col-md-4= f.input :mobile, label: t('.mobile')
+        .col-xs-12.col-sm-6.col-md-4= f.input :roles, collection: User::ROLES, label_method: lambda { |val| val.titleize }, label: t('.roles')
+        .col-xs-12.col-sm-6.col-md-4= f.input :manager_id, collection: @managers.map{ |u| [u.name, u.id] }
+        .col-xs-12.col-sm-6.col-md-4= f.input :job_title, label: t('.job_title')
+        .col-xs-12.col-sm-6.col-md-4= f.association :province, collection: @province, label: t('.province')
+        .col-xs-12.col-sm-6.col-md-4= f.association :department, collection: @department, label: t('.department')
+        .col-xs-12.col-sm-6.col-md-4.form-group.date.optional.user_start_date
+          %label.date.optional.control-label{ for: 'user_start_date' }= t('.start_date')
+          .input-group.date
+            = f.text_field :start_date, class: 'date optional form-control date-picker', type: 'text', name: 'user[start_date]', id: 'user_start_date'
+            %span.input-group-addon
+              %i.fa.fa-calendar-check-o
+        .col-xs-12.col-sm-6.col-md-4
+          .i-checks.calendar-integration
+            %label= t('.calendar_integration')
+            = f.input :calendar_integration, as: :radio_buttons, collection: [['Yes', true],['No', false]], label: false
+        .col-xs-12.col-sm-6.col-md-4= f.input :pin_number, label: t('.pin_number')
+  .ibox-footer
+    = f.submit t('save'), class: 'btn btn-primary form-btn'
+    - if @user.persisted?
+      = link_to t('cancel'), user_path(@user), class: 'btn btn-outline btn-default form-btn'
+    - else
+      = link_to t('cancel'), users_path, class: 'btn btn-outline btn-default form-btn'

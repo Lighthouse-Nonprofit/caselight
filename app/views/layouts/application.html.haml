@@ -1,0 +1,34 @@
+!!!
+%html
+  %head
+    %meta{:charset => "utf-8"}
+    %meta{:content => "IE=edge", "http-equiv" => "X-UA-Compatible"}
+    %meta{:content => "width=device-width, initial-scale=1", :name => "viewport"}
+    %meta{:content => "", :name => "description"}
+    %meta{:content => "", :name => "author"}
+
+    %title= current_organization.try(:short_name) == 'mho'?  "Mother's Heart Cambodia" : "OSCaR - Open Source Case-management and Record-keeping"
+    = stylesheet_link_tag    'application', media: 'all'
+    = csrf_meta_tags
+
+  %body{id: "#{controller_name}-#{params[:action]}", class: "pace-done #{authorized_body}"}
+    = render 'layouts/identifier' if Rails.env.staging?
+    #wrapper{ data: flash_alert }
+      = render 'layouts/side_menu' if user_signed_in?
+      - if user_signed_in?
+        #page-wrapper.gray-bg
+          = render 'layouts/top_navbar'
+          .min-margin-layout.padding-bottom
+            = render 'layouts/alert'
+            = yield
+          = render 'layouts/footer'
+          - unless current_user.program_warning?
+            = render 'program_streams/program_stream_warning'
+      - else
+        #page-wrapper.gray-bg.no-margin
+          = render 'layouts/top_navbar'
+          = yield
+          .padding-bottom
+            = render 'layouts/footer'
+
+    = javascript_include_tag 'application'

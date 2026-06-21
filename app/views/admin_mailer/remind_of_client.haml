@@ -1,0 +1,14 @@
+%p Dear Admins,
+%p= "There #{'is'.pluralize(@clients.count)} #{pluralize(@clients.count, 'client')} #{'has'.pluralize(@clients.count)} been in Emergency Care program for #{@day} days."
+%p
+  = "Click"
+  = link_to 'here', clients_url('client_grid[status]':'Active EC', 'client_grid[case_type]':'EC', 'client_grid[placement_date]': [(Date.today-@day.to_i).strftime('%Y-%m-%d'), (Date.today-@day.to_i).strftime('%Y-%m-%d')], subdomain: Organization.current.short_name), target: :_blank
+  = "to see the list of Client."
+%p To check client detail, please click the link below.
+- @clients.each do |client|
+  - name = client.name.blank? ? 'Unknown' : client.name
+  %p= link_to name, client_url(client, subdomain: Organization.current.short_name), target: :_blank
+
+%p Thanks,
+
+%p OSCaR Team

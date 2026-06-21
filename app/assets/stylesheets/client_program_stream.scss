@@ -1,0 +1,17 @@
+.file-details-cell {
+  .explorer-caption {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media only screen and (max-width: 500px) {
+    .explorer-caption {
+      width: 200px;
+    }
+  }
+  @media only screen and (min-width: 600px) {
+    .explorer-caption {
+      width: 400px;
+    }
+  }
+}

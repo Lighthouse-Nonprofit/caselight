@@ -1,0 +1,99 @@
+.row
+  .col-xs-12
+    .ibox
+      .ibox-title
+        %h5= "#{t('.history')} #{@cases.first.case_type} "
+        .ibox-tools
+          = link_to client_path(@client) do
+            .btn.btn-outline.btn-default.button
+              = t('.back')
+      .ibox-content
+        .row
+          - @cases.each do |case_history|
+            .col-xs-12.col-md-6
+              .ibox.border-left-right.border-bottom
+                .ibox-title
+                  %h5= t('.exit_date')
+                  %span.label.label-info
+                    = case_history.exit_date.strftime('%B %d, %Y')
+                  .ibox-tools
+                    - if can? :manage, Case
+                      - if current_user.admin? || current_user.manager?
+                        %small
+                          = link_to edit_client_case_path(case_history.client, case_history) do
+                            .btn.btn-outline.btn-success
+                              = fa_icon('pencil')
+                .ibox-content
+                  %table.table.table-bordered
+                    / %tr
+                    /   %td.spacing-first-col.border-right
+                    /     = t('.exit_status')
+                    /   %td
+                    /     %strong
+                    /       = case_history.status
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.exit_note')
+                      %td
+                        %strong
+                          = case_history.exit_note
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.start_date')
+                      %td
+                        %strong
+                          = case_history.start_date.strftime('%B %d, %Y') if case_history.start_date
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.carer_names')
+                      %td
+                        %strong
+                          = case_history.carer_names
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.carer_address')
+                      %td
+                        %strong
+                          = case_history.carer_address
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.province')
+                      %td
+                        %strong
+                          = case_history.province.name if case_history.province
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.carer_phone_number')
+                      %td
+                        %strong
+                          = case_history.carer_phone_number.phony_formatted(normalize: :KH, format: :international) if case_history.carer_phone_number
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = "#{t('.support_amount')}"
+                      %td
+                        %strong
+                          = number_to_currency(case_history.support_amount)
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.support_note')
+                      %td
+                        %strong
+                          = case_history.support_note
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.ongoing_partner')
+                      %td
+                        %strong
+                          = partner case_history.partner if case_history.partner
+                    %tr
+                      %td.spacing-first-col.border-right
+                        = t('.family')
+                      %td
+                        %strong
+                          = family case_history.family if case_history.family
+                    %tr.border-bottom
+                      %td.spacing-first-col.border-right 
+                        = t('.family_preservation')
+                      %td
+                        %strong
+                          = human_boolean(case_history.family_preservation)

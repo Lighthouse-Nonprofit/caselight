@@ -1,0 +1,43 @@
+body[id='families-index'] {
+  #family-search-form {
+    margin-top: 20px;
+  }
+
+  ul.family-clients-list, ul.family-members-list {
+    padding-left: 20px;
+  }
+  td.manage a {
+    margin: 0 5px;
+    text-decoration: none;
+  }
+
+  .popover-content{
+    max-height: 150px;
+    overflow-y: scroll;
+  }
+
+  table.families {
+    margin-bottom: 0;
+    th, td {
+      min-width: 200px !important;
+    }
+    th.name, td.name {
+      min-width: 250px !important;
+    }
+    th.significant_family_member_count, td.significant_family_member_count {
+      min-width: 275px !important;
+    }
+  }
+
+  .date_filter {
+    padding: 6px;
+  }
+
+  .dataTables_scrollBody {
+    max-height: 500px !important;
+  }
+
+  table.families tbody tr:hover {
+    cursor: pointer;
+  }
+}

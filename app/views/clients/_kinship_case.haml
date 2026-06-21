@@ -1,0 +1,79 @@
+- if kc.present?
+  .col-xs-12.col-sm-12.col-md-6.case#case
+    .ibox
+      .ibox-title
+        %h5= t('.kinship_case.kinship_care')
+        .ibox-tools
+          - if can? :manage, Case
+            - if current_user.admin? || current_user.case_worker? || current_user.kc_manager? || current_user.manager?
+              %small
+                = link_to edit_client_case_path(kc.client, kc) do
+                  .btn.btn-outline.btn-success
+                    = t('.edit_btn')
+                - unless @client.cases.exclude_referred.latest_kinship.exited
+                  %button.btn.btn-outline.btn-warning{"data-target" => '#exit-from-case', "data-toggle" => 'modal'}
+                    = t('.exit_btn')
+      .ibox-content
+        %section.overflow-case
+          %table.table.table-bordered
+            %tr
+              %td.spacing-first-col
+                = t('.start_date')
+              %td
+                %strong
+                  = kc.start_date.strftime('%B %d, %Y') if kc.start_date
+            %tr
+              %td.spacing-first-col
+                = t('.carer_names')
+              %td
+                %strong
+                  = kc.carer_names
+            %tr
+              %td.spacing-first-col
+                = t('.carer_address')
+              %td
+                %strong
+                  = kc.carer_address
+            %tr
+              %td.spacing-first-col
+                = t('.province')
+              %td
+                %strong
+                  = kc.province.name if kc.province
+            %tr
+              %td.spacing-first-col
+                = t('.carer_phone_number')
+              %td
+                %strong
+                  = kc.carer_phone_number.phony_formatted(normalize: :KH, format: :international) if kc.carer_phone_number
+            %tr
+              %td.spacing-first-col
+                = t('.support_amount')
+              %td
+                %strong
+                  = number_to_currency(kc.support_amount)
+            %tr
+              %td.spacing-first-col
+                = t('.support_note')
+              %td
+                %strong
+                  = kc.support_note
+            %tr
+              %td.spacing-first-col
+                = t('.ongoing_partner')
+              %td
+                %strong
+                  = partner kc.partner if kc.partner
+            %tr
+              %td.spacing-first-col
+                = t('.family')
+              %td
+                %strong
+                  = family kc.family if kc.family
+            %tr
+              %td.spacing-first-col
+                = t('.family_preservation')
+              %td
+                %strong
+                  = human_boolean(kc.family_preservation)
+  = render 'exit_case_form', client_case: @client.cases.exclude_referred.latest_kinship, exit_from_cif: false

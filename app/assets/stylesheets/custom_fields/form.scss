@@ -1,0 +1,31 @@
+body[id='custom_fields-new'],
+body[id='custom_fields-create'],
+body[id='custom_fields-edit'],
+body[id='custom_fields-update'] {
+  .help-block {
+    color: #a94442;
+  }
+  .disabled {
+    color: inherit !important;
+  }
+
+  #livesearch {
+    position: absolute;
+    border: 1px solid #18a689;
+    background-color: white;
+    z-index: 9999;
+    margin-top:-15px;
+    padding-bottom: 10px;
+    visibility: hidden;
+  }
+
+  #livesearch li {
+    list-style-type: none;
+    padding: 10px 10px 20px 10px;
+  }
+
+  ul li.has-error {
+    background-color: #fbe3e4 !important;
+    border: 1px solid #fbc2c4;
+  }
+}

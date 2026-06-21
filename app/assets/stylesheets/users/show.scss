@@ -1,0 +1,79 @@
+ body[id='users-show'] {
+  .user-detail {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  .small-btn-margin {
+    margin-top: 8px;
+    padding: 4px;
+  }
+
+  .filters, .btn-apply-filter {
+    display: none;
+  }
+
+  .datagrid-actions {
+    padding: 10px 0;
+  }
+
+  input.manage.string_filter {
+    display: none;
+  }
+
+  td.manage a {
+    margin: 0 5px;
+    text-decoration: none;
+  }
+
+  .h3-header {
+    margin: 0;
+    width: 87%;
+  }
+
+  small.top-right-icon {
+    position: absolute;
+    top: 16px;
+    right: 30px;
+
+    i {
+      font-size: 24px;
+      padding-top: 5px;
+    }
+  }
+
+  td.spacing-first-col {
+    width: 217px;
+  }
+
+  .pushing-top {
+    margin-top: 15px;
+  }
+
+  .pushing-bottom {
+    margin-bottom: 15px;
+  }
+
+  .dataTables_scrollBody {
+    max-height: 500px !important;
+  }
+
+  .tooltip-demo {
+    margin: 2px 0;
+  }
+
+  .label.label-default {
+    line-height: 2.2;
+    margin-right: 3px;
+  }
+
+  table.clients tbody tr:hover {
+    cursor: pointer;
+  }
+
+  .scrollable-dropdown-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+  }
+}

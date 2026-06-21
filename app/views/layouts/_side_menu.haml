@@ -1,0 +1,126 @@
+%nav.navbar-default.navbar-static-side{:role => "navigation"}
+  .sidebar-collapse
+    %ul#side-menu.nav.metismenu
+      %li.nav-header
+        .dropdown.profile-element
+          .image-wrapper.text-center
+            = link_to root_path do
+              = image_tag(Organization.current.logo, class: 'img-circle')
+          %hr.line-border
+          %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
+            %span.clear
+              %span.block.m-t-xs
+                %strong.font-bold= current_user.name
+              %span.text-muted.text-xs.block
+                = current_user.roles
+                %b.caret
+          %ul.dropdown-menu.animated.fadeInRight.m-t-xs
+            %li
+              = link_to t('.edit_profile'), edit_user_registration_path
+            %li.divider
+            %li
+              = link_to t('.log_out'), destroy_user_session_path, method: :delete
+        .logo-element.custom
+          = link_to root_path do
+            = image_tag(Organization.current.logo, class: 'log-min img-responsive')
+      - if user_signed_in?
+        %li{class: "#{active_menu('dashboards')}"}
+          = link_to root_path do
+            %i.fa.fa-th-large
+            %span.nav-label= t('.dashboards')
+
+        %li{class: clients_menu_active}
+          = link_to clients_path do
+            = fa_icon('child')
+            %span.nav-label= t('.clients')
+            %span.label.label-primary.pull-right= @client_count
+        - if can? :read, Family
+          %li{class: families_menu_active}
+            = link_to families_path do
+              = fa_icon('users')
+              %span.nav-label= t('.families')
+              %span.label.label-primary.pull-right= @family_count
+
+        - if can? :read, Partner
+          %li{class: partners_menu_active}
+            = link_to partners_path do
+              = fa_icon('handshake-o')
+              %span.nav-label= t('.partners')
+              %span.label.label-primary.pull-right= @partner_count
+
+        - if can? :read, User
+          %li{class: users_menu_active}
+            = link_to users_path do
+              = fa_icon('address-book-o')
+              %span.nav-label= t('.users')
+              %span.label.label-primary.pull-right= @user_count
+
+        %li
+          %a#manage{href: "#"}
+            %i.fa.fa-cogs
+            %span.nav-label= t('.manage')
+            %span.fa.arrow
+          %ul.nav.nav-second-level
+            %li{ class: active_menu('agencies') }
+              = link_to t('.agencies'), agencies_path
+            - if can? :read, :all
+              %li{ class: active_menu('departments') }
+                = link_to t('.departments'), departments_path
+              %li{ class: active_menu('domains') }
+                = link_to t('.domains'), domains_path
+              %li{ class: active_menu('domain_groups') }
+                = link_to t('.domain_groups'), domain_groups_path
+              %li{ class: active_menu('donors') }
+                = link_to t('.donors'), donors_path
+              %li{ class: active_menu('provinces') }
+                = link_to t('.provinces'), provinces_path
+              %li{ class: active_menu('referral_sources') }
+                = link_to t('.referral_sources'), referral_sources_path
+              %li{ class: active_menu('quantitative_types') }
+                = link_to t('.quantitative_types'), quantitative_types_path
+              %li{ class: active_menu('stages', 'able_screening_questions') }
+                = link_to t('.able_screening_questions'), able_screens_question_submissions_stages_path
+              %li
+                %a#pro-nav{href: "#"}
+                  = t('.progress_note')
+                  %span.fa.arrow
+                %ul.nav.nav-third-level
+                  %li{ class: active_menu('interventions') }
+                    = link_to t('.interventions'), interventions_path
+                  %li{ class: active_menu('locations') }
+                    = link_to t('.locations'), locations_path
+                  %li{ class: active_menu('materials') }
+                    = link_to t('.materials'), materials_path
+                  %li{ class: active_menu('progress_note_types') }
+                    = link_to t('.progress_note_types'), progress_note_types_path
+              %li{ class: active_menu('custom_fields') }
+                = link_to t('.custom_fields'), custom_fields_path
+              %li{ class: active_menu('program_streams') }
+                - if current_user.program_warning?
+                  = link_to t('.program_streams'), program_streams_path
+                - else
+                  %a{"data-target" => "#warning-program", "data-toggle" => "modal", :type => "button"}=t('.program_streams')
+              %li{ class: active_menu('changelogs') }
+                = link_to t('.release_logs'), changelogs_path
+            - else
+              - if can? :read, CustomField
+                %li{ class: active_menu('custom_fields') }
+                  = link_to t('.custom_fields'), custom_fields_path
+              - if can? :read, ProgramStream
+                %li{ class: active_menu('program_streams') }
+                  - if current_user.program_warning?
+                    = link_to t('.program_streams'), program_streams_path
+                  - else
+                    %a{"data-target" => "#warning-program", "data-toggle" => "modal", :type => "button"}=t('.program_streams')
+              - if can? :read, ReferralSource
+                %li{ class: active_menu('referral_sources') }
+                  = link_to t('.referral_sources'), referral_sources_path
+        - if can? :read, DataTracker
+          %li{ class: active_menu('data_trackers') }
+            = link_to data_trackers_path do
+              = fa_icon('area-chart')
+              %span.nav-label= t('.changelogs')
+        %li
+          = link_to thredded_path, target: '_blank' do
+            = fa_icon('question-circle')
+            %span.nav-label= t('faq')

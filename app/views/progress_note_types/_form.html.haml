@@ -1,0 +1,16 @@
+= simple_form_for(progress_note_type ||= ProgressNoteType.new) do |f|
+  .modal.fade{id: "progress_note_typeModal-#{progress_note_type.id}", "aria-labelledby" => "progress_note_typeModal-#{progress_note_type.id}Label", :role => "dialog", :tabindex => "-1"}
+    .modal-dialog{:role => "document"}
+      .modal-content
+        .modal-header
+          %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          %h4.modal-title{ id: "progress_note_typeModal-#{progress_note_type.id}Label" }= t('.progress_note_type')
+        .modal-body
+          = error_notification(f)
+          .form-inputs
+            = f.input :note_type, label: t('.note_type')
+        .modal-footer
+          .pull-left
+            = f.submit t('.save') , class: 'btn btn-primary form-btn'
+            %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"}= t('.cancel')

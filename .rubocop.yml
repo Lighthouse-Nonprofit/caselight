@@ -1,0 +1,47 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  Exclude:
+    - 'bin/**/*'
+    - 'config/**/*'
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'test/**/*'
+    - 'public/**/*'
+    - 'log/**/*'
+    - 'lib/tasks/*'
+    - 'app/services/importer.rb'
+    - 'db/**/*'
+    - 'spec/**/*'
+    - 'app/grids/*'
+    - 'Guardfile'
+    - 'Gemfile'
+    - 'Capfile'
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+
+Style/WordArray:
+  Enabled: false
+Style/SafeNavigation:
+  Enabled: false
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+Security/Eval:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+FrozenStringLiteralComment:
+  Enabled: false
+LineLength:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/ExtraSpacing:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Style/ConditionalAssignment:
+  Enabled: false

@@ -1,0 +1,56 @@
+body[id='clients-index'] {
+  @import 'iCheck/custom';
+  @import 'clients/client_grid';
+  #client-search-form {
+    margin-top: 16px;
+  }
+
+  .highcharts-legend-item path{
+    cursor: pointer;
+  }
+  #client-statistic{
+    margin-left: 10px;
+  }
+  #client-statistic-body{
+    display: none;
+    margin-bottom: 0;
+  }
+
+  .domain-filter-search {
+    margin-bottom: 16px;
+  }
+
+  .datagrid-filter label{
+    vertical-align: top;
+    padding-top: 5px;
+  }
+  .domain-filter {
+    margin: 10px 0;
+  }
+  #client-search-domain{
+    margin-bottom: 20px;
+  }
+
+  .select2-container.dynamic_filter{
+    width: 30%;
+    float: left;
+    margin-right: 5px;
+  }
+  .dynamic_filter.value{
+    width: 32%;
+    float: left;
+  }
+
+  .date_filter {
+    padding: 6px;
+  }
+
+  @media screen and (max-width: 700px){
+    .client-option {
+      a {
+        display: inline-block;
+        margin-top: 8px;
+      }
+    }
+  } 
+}

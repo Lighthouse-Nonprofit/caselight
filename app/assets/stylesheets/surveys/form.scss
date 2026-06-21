@@ -1,0 +1,84 @@
+body[id='surveys-new'],
+body[id='surveys-create'],
+body[id='surveys-edit'],
+body[id='surveys-update'] {
+
+  .question-block {
+    margin-bottom: 20px;
+    display: block;
+    .radio-score {
+      padding-top: 10px;
+    }
+  }
+
+  .radio-score {
+    span {
+      margin-right: 20px;
+    }
+
+    .iradio_square-red {
+      margin-right: 10px
+    }
+
+    .iradio_square-orange {
+      margin-right: 10px
+    }
+
+    .iradio_square-brown {
+      margin-right: 10px
+    }
+  }
+
+  .score_four{
+    background-color: black !important;
+  }
+
+  .form-group.radio_buttons {
+    padding: 10px;
+  }
+  @-moz-document url-prefix(){
+    .radio.inline label {
+      display: inline;
+      margin-left: 5px;
+    }
+    .radio.inline label input{
+      margin-top: -3px;
+    }
+  }
+  .margin-static{
+    margin-left: 15px;
+    margin-top: -3px;
+  }
+  .user-name{
+    color: #999a9b !important;
+  }
+
+  .iradio_square-green{
+    margin-right: 10px;
+  }
+  .strongly-agree {
+    margin-left: 20px;
+  }
+
+  .score-evaluation {
+    margin-right: 20px;
+  }
+
+  label.radio_buttons {
+    color: inherit;
+    display: block;
+  }
+  .radio.inline {
+    display: inline;
+    margin-right: 30px;
+  }
+  .errors {
+    border: 1px solid red;
+  }
+
+  @media (min-width: 321px) and (max-width: 767px) {
+    .radio.inline {
+      margin-right: 10px;
+    }
+  }
+}

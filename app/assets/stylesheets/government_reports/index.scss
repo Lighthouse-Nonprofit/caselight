@@ -1,0 +1,17 @@
+body[id=government_reports-index] {
+  .reports {
+    margin-top: 15px;
+    td.action {
+      word-spacing: 5px;
+      a {
+        text-decoration: none;
+      }
+    }
+  }
+  .margin-left{
+    margin-left: 5px;
+  }
+  .btn-form{
+    width: 110px;
+  }
+}

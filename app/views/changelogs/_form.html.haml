@@ -1,0 +1,26 @@
+= simple_form_for(changelog ||= Changelog.new) do |f|
+  .modal.fade{id: "changelogModal-#{changelog.id}", "aria-labelledby" => "changelogModal-#{changelog.id}Label", :role => "dialog", :tabindex => "-1"}
+    .modal-dialog{:role => "document"}
+      .modal-content
+        .modal-header
+          %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+            %span{"aria-hidden" => "true"} ×
+          %h4.modal-title{ id: "changelogModal-#{changelog.id}Label" }= t('.releaselog')
+        .modal-body
+          = error_notification(f)
+          .row
+            .col-xs-12.col-sm-3
+              .form-group
+                = f.input :change_version, label: false, input_html: { placeholder: t('.change_version') }
+          .row
+            .col-xs-12
+              #changelog_type
+                .form-group
+                  = f.simple_fields_for :changelog_types do |changelog_type|
+                    = render 'changelog_type_fields', f: changelog_type
+                  .links
+                    = link_to_add_association t('.add_change'), f, :changelog_types, class: 'btn btn-outline btn-primary'
+        .modal-footer
+          .pull-left
+            = f.submit t('.save') , class: 'btn btn-primary form-btn'
+            %button.btn.btn-outline.btn-default{"data-dismiss" => "modal", :type => "button"}= t('.cancel')

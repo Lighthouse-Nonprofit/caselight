@@ -1,0 +1,93 @@
+.row
+  .col-xs-12.partner
+    .btn-group.small-btn-margin
+      %button.btn-sm.btn.btn-success.dropdown-toggle{ 'data-toggle' => 'dropdown', class: ('disabled' if @group_partner_custom_fields.empty?) }
+        = t('.additional_forms')
+        %span.caret
+      %ul.dropdown-menu.scrollable-dropdown-menu
+        - @group_partner_custom_fields.each do |_, partner_custom_fields|
+          %li= link_to partner_custom_fields.first.custom_field.form_title, partner_custom_field_properties_path(@partner, custom_field_id: partner_custom_fields.first.custom_field_id)
+
+    - if can? :manage, CustomFieldProperty
+      .btn-group.small-btn-margin
+        %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-toggle' => 'dropdown', class: ('disabled' if @free_partner_forms.empty?) }
+          = t('.add_form')
+          %span.caret
+        %ul.dropdown-menu.scrollable-dropdown-menu
+          - @free_partner_forms.each do |custom_field|
+            %li= link_to custom_field.form_title, new_partner_custom_field_property_path(@partner, custom_field_id: custom_field)
+    .ibox.mini-margin
+      .ibox-title
+        %h5
+          = "#{t('.general_info')} #{@partner.name}"
+          = "(#{@partner.organisation_type})" if @partner.organisation_type.present?
+        .ibox-tools
+          %a.collapse-link
+            .btn.btn-outline.btn-primary
+              %i.fa.fa-chevron-up
+          - if can? :manage, Partner
+            %small
+              = link_to edit_partner_path(@partner) do
+                .btn.btn-outline.btn-success
+                  %i.fa.fa-pencil
+              = remove_link(@partner, {partner_case: @partner.cases_count}, 'btn-md')
+
+      .ibox-content
+        .row.partner-summary
+          .col-sm-12
+            %table.table.table-bordered
+              %tr
+                %td.spacing-first-col
+                  = t('.address')
+                %td
+                  %strong
+                    = @partner.address
+              %tr
+                %td.spacing-first-col
+                  = t('.contact_name')
+                %td
+                  %strong
+                    = @partner.contact_person_name
+              %tr
+                %td.spacing-first-col
+                  = t('.contact_email')
+                %td
+                  %strong
+                    = mail_to @partner.contact_person_email
+              %tr
+                %td.spacing-first-col
+                  = t('.contact_mobile')
+                %td
+                  %strong
+                    = @partner.contact_person_mobile.phony_formatted(normalize: :KH, format: :international) if @partner.contact_person_mobile
+              %tr
+                %td.spacing-first-col
+                  = t('.affiliation')
+                %td
+                  %strong
+                    = @partner.affiliation
+              %tr
+                %td.spacing-first-col
+                  = t('.engagement')
+                %td
+                  %strong
+                    = @partner.engagement
+              %tr
+                %td.spacing-first-col
+                  = t('.background')
+                %td
+                  %strong
+                    = @partner.background
+              %tr
+                %td.spacing-first-col
+                  = t('.start_date')
+                %td
+                  %strong
+                    = date_format(@partner.start_date)
+
+              %tr
+                %td.spacing-first-col
+                  = t('.province')
+                %td
+                  %strong
+                    = @partner.province.try(:name)

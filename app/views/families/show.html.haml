@@ -1,0 +1,149 @@
+.row
+  .col-xs-12.family
+    .btn-group.small-btn-margin
+      %button.btn-sm.btn.btn-success.dropdown-toggle{ 'data-toggle' => 'dropdown', class: ('disabled' if @group_family_custom_fields.empty?) }
+        = t('.additional_forms')
+        %span.caret
+      %ul.dropdown-menu.scrollable-dropdown-menu
+        - @group_family_custom_fields.each do |_, family_custom_fields|
+          %li= link_to family_custom_fields.first.custom_field.form_title, family_custom_field_properties_path(@family, custom_field_id: family_custom_fields.first.custom_field_id)
+
+    - if can? :manage, CustomFieldProperty
+      .btn-group.small-btn-margin
+        %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-toggle' => 'dropdown', class: ('disabled' if @free_family_forms.empty?) }
+          = t('.add_form')
+          %span.caret
+        %ul.dropdown-menu.scrollable-dropdown-menu
+          - @free_family_forms.each do |custom_field|
+            %li= link_to custom_field.form_title, new_family_custom_field_property_path(@family, custom_field_id: custom_field)
+
+    .ibox.mini-margin
+      .ibox-title
+        %h5= "#{t('.general_info')} #{@family.name}"
+        .ibox-tools
+          %a.collapse-link
+            .btn.btn-outline.btn-primary
+              %i.fa.fa-chevron-up
+          - if can? :manage, Family
+            %small
+              = link_to edit_family_path(@family) do
+                .btn.btn-outline.btn-success
+                  %i.fa.fa-pencil
+              = remove_link(@family, {family_case: @family.cases_count}, 'btn-md')
+
+      .ibox-content
+        .row.family-summary
+          .col-sm-12
+            %table.table.table-bordered
+              %tr
+                %td.spacing-first-col
+                  = t('.code')
+                %td
+                  %strong
+                    = @family.code
+              %tr
+                %td.spacing-first-col
+                  = t('.case_history')
+                %td
+                  %strong
+                    = family_case_history(@family)
+              %tr
+                %td.spacing-first-col
+                  = t('.address')
+                %td
+                  %strong
+                    = @family.address
+
+              %tr
+                %td.spacing-first-col
+                  = t('.member_count')
+                %td
+                  %strong
+                    = pluralize(@family.member_count, 'Person')
+
+              %tr
+                %td.spacing-first-col
+                  = t('.caregiver_information')
+                %td
+                  %strong
+                    = @family.caregiver_information
+
+              %tr
+                %td.spacing-first-col
+                  = t('.significant_family_member_count')
+                %td
+                  %strong
+                    = @family.significant_family_member_count
+
+              %tr
+                %td.spacing-first-col
+                  = t('.household_income')
+                %td
+                  %strong
+                    = number_to_currency @family.household_income
+
+              %tr
+                %td.spacing-first-col
+                  = "#{t('.dependable_income')}?"
+                %td
+                  %strong
+                    = human_boolean(@family.dependable_income)
+
+              %tr
+                %td.spacing-first-col
+                  = t('.female_children_count')
+                %td
+                  %strong
+                    = @family.female_children_count.to_i
+
+              %tr
+                %td.spacing-first-col
+                  = t('.male_children_count')
+                %td
+                  %strong
+                    = @family.male_children_count.to_i
+
+              %tr
+                %td.spacing-first-col
+                  = t('.female_adult_count')
+                %td
+                  %strong
+                    = @family.female_adult_count.to_i
+
+              %tr
+                %td.spacing-first-col
+                  = t('.male_adult_count')
+                %td
+                  %strong
+                    = @family.male_adult_count.to_i
+              %tr
+                %td.spacing-first-col
+                  = t('.contract_date')
+                %td
+                  %strong
+                    = date_format(@family.contract_date)
+
+              %tr
+                %td.spacing-first-col
+                  = t('.province')
+                %td
+                  %strong
+                    = @family.province.try(:name)
+
+              %tr
+                %td.spacing-first-col
+                  = t('.family_type')
+                %td
+                  %strong
+                    = @family.family_type.titleize
+.row
+  .col-xs-12.clients
+    .ibox
+      .ibox-title
+        %h5= @results
+        %span.label.label-info= t('.results')
+      .ibox-content
+        .clients-table
+          = datagrid_table @client_grid, html: { class: 'table table-bordered table-striped table-hover clients'}
+      .ibox-footer.text-center
+        = paginate @client_grid.assets

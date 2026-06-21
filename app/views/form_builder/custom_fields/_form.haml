@@ -1,0 +1,28 @@
+= simple_form_for(@custom_field, html: {id: 'custom_field'}) do |f|
+  .ibox-content
+    .row
+      .col-xs-12.col-sm-6
+        = f.input :entity_type, collection: CustomField::ENTITY_TYPES, label: t('.type'), disabled: used_custom_form?(@custom_field), include_blank: false
+      .col-xs-12.col-sm-6
+        = f.input :form_title, label: t('.form_title'), disabled: used_custom_form?(@custom_field), input_html: { list: 'livesearch', autocomplete: 'off' }
+        %ul.nav
+          #livesearch{ data: { 'preview-translation': t('.preview'), 'copy-translation': t('.copy') }}
+      .col-xs-12.col-sm-6
+        = f.input :frequency, collection: CustomField::FREQUENCIES, label: t('.frequency')
+        %p.frequency-note.hidden
+          %i
+            %span.main This needs to be done once every
+            %span.frequency
+      .col-xs-12.col-sm-6
+        = f.input :time_of_frequency, label: t('.time_of_frequency')
+    = f.input :fields, as: :hidden
+    = hidden_field_tag :custom_field_id, @custom_field.id
+    .build-wrap{ 'data-fields': @custom_field.fields || ''}
+    - if f.object.errors[:fields].any?
+      %span.help-block= f.object.errors[:fields].first
+  .ibox-footer
+    = f.submit t('save'), class: 'btn btn-primary form-btn', id: 'custom-field-submit'
+    - if @custom_field.persisted?
+      = link_to t('cancel'), custom_field_path(@custom_field), class: 'btn btn-default form-btn'
+    - else
+      = link_to t('cancel'), custom_fields_path(), class: 'btn btn-default form-btn'

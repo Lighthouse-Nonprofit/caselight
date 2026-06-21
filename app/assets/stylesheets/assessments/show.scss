@@ -1,0 +1,20 @@
+body[id=assessments-show] {
+  .domain-detail {
+    background-color: #f5f5f5;
+    width: 380px;
+  }
+
+  .domain-score {
+    margin-top: 10px;
+    .label {
+      display: inline-block;
+      font-size: 16px;
+    }
+  }
+  .button {
+    min-width: 100px;
+  }
+  .margin-asse{
+    margin-top: -18px;
+  }
+}

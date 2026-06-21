@@ -1,0 +1,18 @@
+body[id='custom_fields-show'] {
+  .frmb li {
+    border: 1px solid #cacaca;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  .field-actions {
+    visibility: hidden;
+  }
+  #frmb-0-cb-wrap {
+    visibility: hidden;
+  }
+
+  .hide-custom-field {
+    pointer-events: none;
+    opacity: 0.8;
+  }
+}

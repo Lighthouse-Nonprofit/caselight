@@ -1,0 +1,26 @@
+body[id='tasks-index'] {
+  table {
+    margin-bottom: 0;
+    td {
+      width: 200px;
+    }
+    .task-name {
+      min-width: 200px;
+    }
+  }
+  .btn-width{
+    width: 110px;
+  }
+  .margin-icon a{
+    margin-left: 5px;
+  }
+  .panel-heading {
+    h5 {
+      color: #fff;
+    }
+  }
+  #filtered_by_user .select2-container {
+    min-width: 180px;
+    margin-left: 10px;
+  }
+}

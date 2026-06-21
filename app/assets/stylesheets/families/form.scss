@@ -1,0 +1,33 @@
+body[id='families-new'],
+body[id='families-create'],
+body[id='families-edit'],
+body[id='families-update'] {
+  margin-bottom: 50px;
+
+  .icheckbox_square-green{
+    margin-right: 10px;
+  }
+
+  .i-checks {
+    label {
+      padding-left: 0;
+    }
+
+    .iradio_square-green {
+      margin-right: 5px;
+    }
+  }
+
+  .i-checks.checkbox, .i-checks.dependable-income {
+    span.radio {
+      display: inline-block;
+      margin-right: 20px;
+    }
+  }
+
+  @media screen and (max-width: 991px) {
+    .family_dependable_income {
+      padding-top: 0;
+    }
+  }
+}

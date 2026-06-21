@@ -1,0 +1,43 @@
+# docker-compose.yml - OSCaR pilot stack.
+# Datastores are NOT published to the host network; only the reverse proxy
+# (Caddy, on the host) talks to the app on 127.0.0.1:3000. Keeps the security
+# group at zero inbound for the data tier. See OPERATIONS.md and SECURITY.md.
+
+services:
+  db:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes: [pg:/var/lib/postgresql/data]
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:3.6        # matches Mongoid 5.2; do not jump to Mongo 4+
+    volumes: [mongo:/data/db]
+    restart: unless-stopped
+
+  redis:
+    image: redis:5
+    volumes: [redis:/data]
+    restart: unless-stopped
+
+  app:
+    build: .
+    env_file: .env
+    depends_on: [db, mongo, redis]
+    ports: ["127.0.0.1:3000:3000"]
+    restart: unless-stopped
+
+  sidekiq:
+    build: .
+    env_file: .env
+    depends_on: [db, mongo, redis]
+    command: bundle exec sidekiq -e production
+    restart: unless-stopped
+
+volumes:
+  pg: {}
+  mongo: {}
+  redis: {}

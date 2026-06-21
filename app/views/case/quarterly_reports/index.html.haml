@@ -1,0 +1,11 @@
+.row
+  .col-sm-12
+    .ibox
+      .ibox-title
+        %h5= "#{t('.legacy_quarterly_reports_for')} #{entity_name(@case.client)}"
+        .ibox-tools
+          = link_to t('.back'), client_path(@case.client), { class: 'btn btn-default button btn-back-default' }
+      .ibox-content
+        = datagrid_table @quarterly_reports_grid, html: {class: 'table table-bordered table-striped table-hover pushing-top quarterly-reports'}
+
+        = paginate @quarterly_reports_grid.assets

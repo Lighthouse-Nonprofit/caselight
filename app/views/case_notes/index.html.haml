@@ -1,0 +1,74 @@
+.row
+  .col-xs-12
+    .ibox
+      .ibox-title
+        %h5= "#{t('.case_note_lists')} #{@client.name}"
+        .ibox-tools
+          = link_to t('.back'), client_path(@client), { class: 'btn btn-default btn-back-default button' }
+          - if can? :create, CaseNote
+            = link_to t('.new_case_note'), new_client_case_note_path(@client), { class: 'btn btn-primary button' }
+      .ibox-content
+        - @case_notes.each do |case_note|
+          .panel.panel-info
+            .panel-heading
+              .row
+                .col-xs-5
+                  %h3= "#{t('.present')} #{case_note.attendee}"
+                .col-xs-7.text-right
+                  %h4
+                    = t('.case_note_on')
+                    = case_note.meeting_date.strftime('%B %d, %Y') if case_note.meeting_date
+                    - if can? :manage, CaseNote
+                      = edit_link(@client, case_note)
+
+            .panel-body
+              - case_note.case_note_domain_groups.each do |cdg|
+                - if cdg.note.present?
+                  .ibox.border-left-right.border-bottom
+                    .ibox-title
+                      %h5= cdg.domain_group.domain_identities
+                      - if case_note.assessment_id.present?
+                        .ibox-tools
+                          - cdg.domain_group.domains.each do |domain|
+                            - ad = domain.assessment_domains.find_by(assessment_id: case_note.assessment_id)
+                            - next if ad.nil?
+                            %a.collapse-link
+                              %label.margin-score{class: "label label-#{ad.score_color_class} label-lg"}= ad.score
+                    .ibox-content
+                      .row
+                        .col-xs-12
+                          .panel.panel-default
+                            .panel-heading
+                              %h4= t('.note')
+                            .panel-body
+                              = cdg.note
+                        - if cdg.completed_tasks.any?
+                          .col-xs-12.col-sm-6
+                            .panel.panel-default
+                              .panel-heading
+                                %h4= t('.completed_tasks')
+                              .panel-body.no-padding
+                                %ul.list-group
+                                  - cdg.completed_tasks.each_with_index do |task, index|
+                                    %li.list-group-item
+                                      = "#{index + 1}. "
+                                      = task.name
+                        .col-xs-12.col-sm-6
+                          %p
+                            %strong= "#{t('.goal')} :"
+                          %ul
+                            - cdg.domain_group.domains.each do |domain|
+                              - assessment_domain = domain.assessment_domains.find_by(assessment_id: case_note.assessment_id)
+                              - if assessment_domain.present?
+                                - goal = assessment_domain.goal
+                                %li= goal
+                        - if cdg.attachments.any?
+                          .col-xs-12.col-sm-6
+                            .panel.panel-default
+                              .panel-heading
+                                %h4= t('.attachments')
+                              .panel-body
+                                = render 'attachment', cdg: cdg
+      .ibox-footer
+        .text-center
+          = paginate @case_notes
