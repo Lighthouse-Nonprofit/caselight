@@ -28,6 +28,11 @@ services:
     env_file: .env
     depends_on: [db, mongo, redis]
     ports: ["127.0.0.1:3000:3000"]
+    # Persist locally-stored documents (CarrierWave :file -> public/uploads) across
+    # rebuilds/redeploys. Without this, every `docker compose build && up` wipes them.
+    # The named volume lives on the host's (encrypted) EBS volume; cover it in EBS
+    # snapshots. Shared with sidekiq so background jobs see the same files.
+    volumes: [uploads:/app/public/uploads]
     restart: unless-stopped
 
   sidekiq:
@@ -35,9 +40,11 @@ services:
     env_file: .env
     depends_on: [db, mongo, redis]
     command: bundle exec sidekiq -e production
+    volumes: [uploads:/app/public/uploads]
     restart: unless-stopped
 
 volumes:
   pg: {}
   mongo: {}
   redis: {}
+  uploads: {}
