@@ -1,8 +1,9 @@
 // Basic Colors
-$navy: #1ab394;       // Primary color
+$navy: #1F3A5F;       // Primary color (Lighthouse deep navy)
+$amber: #E8A33D;      // Accent / beacon highlight (sidebar active + badges)
 $dark-gray: #c2c2c2;  // Default color
-$blue: #1c84c6;       // Success color
-$lazur: #23c6c8;      // Info color
+$blue: #2C6E9B;       // Success color
+$lazur: #2C6E9B;      // Info color (harbor blue — in-palette, replaces stock cyan)
 $yellow: #f8ac59;     // Warrning color
 $red: #ED5565;        // Danger color
 
@@ -34,6 +35,6 @@ $boxed-backgound: image-url('patterns/shattered.png');
 $btn-border-radius: 3px;
 
 //Navigation
-$nav-bg: #2F4050;
+$nav-bg: #16273D;
 $nav-profil-pattern: image-url("patterns/header-profile-skin-2.png");
 $nav-text-color: #a7b1c2;

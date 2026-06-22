@@ -183,7 +183,7 @@ namespace :slo4home do
     end
   end
 
-  desc 'Seed one synthetic SLO for HOME demo family (1 Family + 2 adults + 1 child) with sample values. Idempotent.'
+  desc 'Seed synthetic SLO for HOME demo households (10 families, mixed compositions) with sample values, enrollments + trackings. Idempotent.'
   task seed_demo_family: :environment do
     tenant = ENV['TENANT'] || 'cases'
 
@@ -400,7 +400,26 @@ namespace :slo4home do
           members: [['Sami', 'Haddad', 'male', Date.new(1990, 5, 12), :adult], ['Layal', 'Haddad', 'female', Date.new(1992, 8, 27), :adult]] },
         { code: 'SLO-DEMO-5', name: 'Pham Household (DEMO)', addr: '12 Marsh St, San Luis Obispo, CA 93401',
           counts: { male_adult_count: 1, female_adult_count: 0, male_children_count: 0, female_children_count: 0 },
-          members: [['Bao', 'Pham', 'male', Date.new(1955, 9, 9), :adult]] }
+          members: [['Bao', 'Pham', 'male', Date.new(1955, 9, 9), :adult]] },
+        { code: 'SLO-DEMO-6', name: 'Al-Rashid Family (DEMO)', addr: '521 Higuera St, San Luis Obispo, CA 93401',
+          counts: { male_adult_count: 1, female_adult_count: 1, male_children_count: 2, female_children_count: 1 },
+          members: [['Khalid', 'Al-Rashid', 'male', Date.new(1980, 2, 14), :adult], ['Fatima', 'Al-Rashid', 'female', Date.new(1986, 6, 9), :adult],
+                    ['Omar', 'Al-Rashid', 'male', Date.new(2011, 4, 5), :child], ['Yara', 'Al-Rashid', 'female', Date.new(2013, 12, 1), :child],
+                    ['Tariq', 'Al-Rashid', 'male', Date.new(2016, 7, 19), :child]] },
+        { code: 'SLO-DEMO-7', name: 'Nguyen Household (DEMO)', addr: '340 Pismo St, San Luis Obispo, CA 93401',
+          counts: { male_adult_count: 0, female_adult_count: 1, male_children_count: 1, female_children_count: 1 },
+          members: [['Linh', 'Nguyen', 'female', Date.new(1988, 3, 22), :adult],
+                    ['Duc', 'Nguyen', 'male', Date.new(2012, 10, 10), :child], ['Kim', 'Nguyen', 'female', Date.new(2015, 5, 5), :child]] },
+        { code: 'SLO-DEMO-8', name: 'Mwangi Household (DEMO)', addr: '210 Broad St, San Luis Obispo, CA 93401',
+          counts: { male_adult_count: 1, female_adult_count: 1, male_children_count: 0, female_children_count: 0 },
+          members: [['Joseph', 'Mwangi', 'male', Date.new(1991, 1, 15), :adult], ['Grace', 'Mwangi', 'female', Date.new(1994, 9, 30), :adult]] },
+        { code: 'SLO-DEMO-9', name: 'Castillo Household (DEMO)', addr: '75 Buchon St, San Luis Obispo, CA 93401',
+          counts: { male_adult_count: 0, female_adult_count: 1, male_children_count: 0, female_children_count: 0 },
+          members: [['Rosa', 'Castillo', 'female', Date.new(1957, 11, 2), :adult]] },
+        { code: 'SLO-DEMO-10', name: 'Diallo Family (DEMO)', addr: '1450 Monterey St, San Luis Obispo, CA 93401',
+          counts: { male_adult_count: 1, female_adult_count: 0, male_children_count: 1, female_children_count: 1 },
+          members: [['Mamadou', 'Diallo', 'male', Date.new(1983, 8, 8), :adult],
+                    ['Ibrahim', 'Diallo', 'male', Date.new(2010, 2, 2), :child], ['Aissatou', 'Diallo', 'female', Date.new(2014, 11, 11), :child]] }
       ]
 
       extra_households.each do |h|
@@ -570,6 +589,199 @@ namespace :slo4home do
     end
   end
 
-  desc 'Run seed_taxonomy, seed_programs, then seed_demo_family.'
-  task seed_all: %i[seed_taxonomy seed_programs seed_demo_family]
+  desc 'Replace the legacy child-welfare assessment Domains with SLO for HOME resettlement life-domains (English). Idempotent.'
+  task seed_domains: :environment do
+    tenant = ENV['TENANT'] || 'cases'
+
+    # Build the description HTML in the same shape the original CSI domains used
+    # (Goal / Sample questions / Score interpretations), but English-only and
+    # framed around the household & individual self-sufficiency, not "the child".
+    desc_html = lambda do |goal, questions, scores|
+      q = questions.map { |x| "<li>#{x}</li>" }.join
+      s = scores.each_with_index.map { |txt, i| "<p><b>#{i + 1}:</b> #{txt}</p>" }.join
+      "<p><b>Goal:</b> #{goal}</p>" \
+        "<p><b>Sample questions:</b></p><ul>#{q}</ul>" \
+        "<hr><p><b>Score interpretations</b> (1 = in crisis &rarr; 4 = self-sufficient):</p>#{s}"
+    end
+
+    # Group names are prefixed 1.-6. so DomainGroup's default_scope(order: name)
+    # renders them in this intended order; the prefix also keeps the name a stable
+    # idempotency key.
+    groups = [
+      '1. Housing & Basic Needs',
+      '2. Economic Self-Sufficiency',
+      '3. Language & Education',
+      '4. Health & Well-Being',
+      '5. Legal & Immigration',
+      '6. Community & Safety'
+    ]
+
+    domains = [
+      { name: '1A', identity: 'Housing Stability', group: groups[0],
+        goal: 'The household has safe, stable, affordable housing.',
+        questions: ['What is the household\'s current housing situation?',
+                    'Is the rent affordable relative to income?',
+                    'Is the housing safe and adequate for the family size?',
+                    'Is the lease or tenancy secure?'],
+        scores: ['In crisis — homeless or in emergency / temporary shelter.',
+                 'At risk — housed but unstable: at risk of eviction, overcrowded, or unaffordable.',
+                 'Stable — safe, adequate housing with a secure lease; rent is manageable.',
+                 'Self-sufficient — housing is stable, affordable, and maintained without ongoing assistance.'] },
+      { name: '1B', identity: 'Food Security', group: groups[0],
+        goal: 'The household has reliable access to enough nutritious food.',
+        questions: ['Does the household have enough food throughout the month?',
+                    'Are they enrolled in CalFresh / food assistance if eligible?',
+                    'Can they shop for and prepare culturally appropriate food?'],
+        scores: ['In crisis — frequently goes without enough food; relies on emergency food aid.',
+                 'At risk — often runs short of food before the month\'s end.',
+                 'Stable — generally has enough food, sometimes with benefit support.',
+                 'Self-sufficient — reliably affords adequate, nutritious food without assistance.'] },
+      { name: '2A', identity: 'Employment', group: groups[1],
+        goal: 'Working-age adults are employed at a level that supports self-sufficiency.',
+        questions: ['Are working-age adults employed?',
+                    'Is work authorization in place?',
+                    'Does the job match their skills and provide adequate hours and wages?',
+                    'What are the main barriers to employment?'],
+        scores: ['In crisis — no employment and significant barriers (no work authorization, no income).',
+                 'At risk — underemployed or unstable work, or in active job search / training.',
+                 'Stable — employed with steady hours covering most needs.',
+                 'Self-sufficient — stable employment with wages meeting household needs and room to advance.'] },
+      { name: '2B', identity: 'Income & Financial Management', group: groups[1],
+        goal: 'The household has sufficient, well-managed income to meet its needs.',
+        questions: ['Does income cover monthly expenses?',
+                    'Does the household have a bank account and a budget?',
+                    'Is there any savings, or mounting debt?'],
+        scores: ['In crisis — income far below expenses; no banking or budgeting.',
+                 'At risk — income barely covers needs; little to no savings; growing debt.',
+                 'Stable — income meets expenses; basic budgeting and banking in place.',
+                 'Self-sufficient — income comfortably meets needs; manages a budget and builds savings.'] },
+      { name: '3A', identity: 'English Language Proficiency', group: groups[2],
+        goal: 'Household members can communicate in English sufficiently for daily life and work.',
+        questions: ['What is the member\'s English level (speaking and reading)?',
+                    'Are they enrolled in ESL?',
+                    'Can they handle daily tasks (appointments, shopping, work) in English, or do they need an interpreter?'],
+        scores: ['In crisis — no functional English; fully dependent on interpreters.',
+                 'At risk — very limited English; needs an interpreter for most interactions.',
+                 'Stable — functional English for daily needs; building skills through ESL.',
+                 'Self-sufficient — communicates effectively in English for daily life and work.'] },
+      { name: '3B', identity: 'Education & Training', group: groups[2],
+        goal: 'Household members are progressing toward their educational and vocational goals.',
+        questions: ['Are children enrolled in and attending school?',
+                    'Are adults pursuing a GED, vocational training, or credential recognition?',
+                    'What are the educational goals and barriers?'],
+        scores: ['In crisis — children not enrolled, or adults have no access to needed education.',
+                 'At risk — inconsistent attendance or stalled progress toward goals.',
+                 'Stable — children enrolled and attending; adults engaged in relevant training.',
+                 'Self-sufficient — on track with educational / vocational goals; credentials recognized or in progress.'] },
+      { name: '4A', identity: 'Physical Health & Healthcare Access', group: groups[3],
+        goal: 'Household members are healthy and connected to the healthcare they need.',
+        questions: ['Are members enrolled in health coverage (e.g., Medi-Cal)?',
+                    'Do they have a primary care provider?',
+                    'Are chronic conditions managed and immunizations up to date?'],
+        scores: ['In crisis — untreated serious health needs; no coverage or provider.',
+                 'At risk — limited access; gaps in coverage or unmanaged conditions.',
+                 'Stable — enrolled in coverage with a provider; routine needs met.',
+                 'Self-sufficient — members are healthy, insured, and independently manage their care.'] },
+      { name: '4B', identity: 'Mental Health & Well-Being', group: groups[3],
+        goal: 'Household members are coping well and have support for their emotional well-being.',
+        questions: ['How are members coping with stress, trauma, or adjustment?',
+                    'Are there signs of distress affecting daily functioning?',
+                    'Are culturally appropriate mental-health supports and a support network available?'],
+        scores: ['In crisis — severe distress or a safety concern; no support in place.',
+                 'At risk — notable distress affecting daily functioning; little support.',
+                 'Stable — coping adequately; supports available when needed.',
+                 'Self-sufficient — emotionally resilient with strong coping skills and a support network.'] },
+      { name: '5A', identity: 'Immigration Status', group: groups[4],
+        goal: 'Household members have secure immigration status and are progressing on next steps.',
+        questions: ['What is each member\'s current status?',
+                    'Are documents in order and applications (asylum, adjustment, work authorization, reunification) on track?',
+                    'Is legal representation in place?'],
+        scores: ['In crisis — status in jeopardy; missed deadlines; no representation.',
+                 'At risk — status temporary or uncertain; key applications pending or delayed.',
+                 'Stable — status secure for now; applications filed and progressing.',
+                 'Self-sufficient — stable long-term status (e.g., LPR), or a clear, on-track path with representation.'] },
+      { name: '5B', identity: 'Public Benefits', group: groups[4],
+        goal: 'The household receives the benefits it is eligible for and manages recertification.',
+        questions: ['Which benefits is the household enrolled in (RCA, CalFresh, Medi-Cal, CalWORKs, SSI)?',
+                    'Are they receiving everything they qualify for?',
+                    'Are recertification dates tracked and met?'],
+        scores: ['In crisis — eligible but unenrolled; no access to needed benefits.',
+                 'At risk — partially enrolled; at risk of lapse or missed recertifications.',
+                 'Stable — enrolled in eligible benefits; recertifications generally on time.',
+                 'Self-sufficient — benefits managed independently, or no longer needed due to self-sufficiency.'] },
+      { name: '6A', identity: 'Community Integration & Social Support', group: groups[5],
+        goal: 'The household is building social connections and navigating the community independently.',
+        questions: ['Does the household have social or community connections?',
+                    'Can they use transportation and access local services?',
+                    'Are they connected to a cultural or faith community?'],
+        scores: ['In crisis — isolated; unable to navigate the community or access services.',
+                 'At risk — few connections; heavily reliant on the case manager for navigation.',
+                 'Stable — building connections; navigating most services with some support.',
+                 'Self-sufficient — well-connected; navigates community and services independently.'] },
+      { name: '6B', identity: 'Personal Safety', group: groups[5],
+        goal: 'Household members are safe from harm at home and in the community.',
+        questions: ['Are there any safety concerns at home or in the community?',
+                    'Any experience of violence, exploitation, or discrimination?',
+                    'Do members know how to access help in an emergency?'],
+        scores: ['In crisis — an immediate safety threat (violence, exploitation, unsafe environment).',
+                 'At risk — ongoing safety concerns; limited knowledge of how to get help.',
+                 'Stable — generally safe; aware of emergency resources.',
+                 'Self-sufficient — safe and secure; confident accessing help if needed.'] }
+    ]
+
+    Apartment::Tenant.switch(tenant) do
+      keep_names = domains.map { |d| d[:name] }
+      created = updated = 0
+
+      group_records = {}
+      groups.each { |gname| group_records[gname] = DomainGroup.find_or_create_by!(name: gname) }
+
+      domains.each do |d|
+        dom = Domain.find_or_initialize_by(name: d[:name])
+        was_new = dom.new_record?
+        dom.identity      = d[:identity]
+        dom.domain_group  = group_records[d[:group]] # association assign -> counter_cache stays correct
+        dom.description    = desc_html.call(d[:goal], d[:questions], d[:scores])
+        dom.score_1_color = 'danger'
+        dom.score_2_color = 'warning'
+        dom.score_3_color = 'info'
+        dom.score_4_color = 'primary'
+        dom.save!
+        was_new ? (created += 1) : (updated += 1)
+        puts "  #{was_new ? '+' : '~'} #{d[:name]}  #{d[:identity]}  (#{d[:group]})"
+      end
+
+      # Remove any leftover legacy domains not in the resettlement set, but only
+      # if nothing references them (assessments/tasks/program links). Our 1A-6B
+      # names match the originals, so normally there are none.
+      removed = 0
+      Domain.where.not(name: keep_names).find_each do |old|
+        if old.assessment_domains.exists? || old.tasks.exists? || old.domain_program_streams.exists?
+          puts "  ! kept legacy #{old.name}/#{old.identity} (still referenced)"
+        else
+          old.destroy
+          removed += 1
+          puts "  - removed legacy domain #{old.name}/#{old.identity}"
+        end
+      end
+
+      # Drop the now-empty legacy domain groups (the old numeric "1".."6").
+      groups_removed = 0
+      DomainGroup.where.not(name: groups).find_each do |g|
+        if g.domains.exists?
+          puts "  ! kept legacy group #{g.name} (still has domains)"
+        else
+          g.destroy
+          groups_removed += 1
+          puts "  - removed legacy group #{g.name}"
+        end
+      end
+
+      puts "slo4home:seed_domains [tenant=#{tenant}]: #{created} created, #{updated} updated, " \
+           "#{removed} legacy domains removed, #{groups_removed} legacy groups removed (of #{domains.size})."
+    end
+  end
+
+  desc 'Run seed_taxonomy, seed_programs, seed_domains, then seed_demo_family.'
+  task seed_all: %i[seed_taxonomy seed_programs seed_domains seed_demo_family]
 end

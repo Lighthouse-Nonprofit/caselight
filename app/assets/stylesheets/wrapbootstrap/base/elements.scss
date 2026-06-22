@@ -132,8 +132,8 @@
 /* PAGINATIN */
 
 .pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus {
-  background-color: #1ab394;
-  border-color: #1ab394;
+  background-color: #1F3A5F;
+  border-color: #1F3A5F;
   color: white;
   cursor: default;
   z-index: 2;
@@ -153,23 +153,23 @@
 /* TOOLTIPS */
 
 .tooltip-inner {
-  background-color: #2F4050;
+  background-color: #16273D;
 }
 
 .tooltip.top .tooltip-arrow {
-  border-top-color: #2F4050;
+  border-top-color: #16273D;
 }
 
 .tooltip.right .tooltip-arrow {
-  border-right-color: #2F4050;
+  border-right-color: #16273D;
 }
 
 .tooltip.bottom .tooltip-arrow {
-  border-bottom-color: #2F4050;
+  border-bottom-color: #16273D;
 }
 
 .tooltip.left .tooltip-arrow {
-  border-left-color: #2F4050;
+  border-left-color: #16273D;
 }
 
 /* EASY PIE CHART*/
@@ -995,7 +995,7 @@ div.dt-button-info {
   display: block;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid #1AB394;
+  border: 2px solid #1F3A5F;
   border-radius: 3px;
 }
 
@@ -1028,7 +1028,7 @@ div.dt-button-info {
 .onoffswitch-inner:before {
   content: "ON";
   padding-left: 7px;
-  background-color: #1AB394;
+  background-color: #1F3A5F;
   color: #FFFFFF;
 }
 
@@ -1045,7 +1045,7 @@ div.dt-button-info {
   width: 18px;
   margin: 0;
   background: #FFFFFF;
-  border: 2px solid #1AB394;
+  border: 2px solid #1F3A5F;
   border-radius: 3px;
   position: absolute;
   top: 0;

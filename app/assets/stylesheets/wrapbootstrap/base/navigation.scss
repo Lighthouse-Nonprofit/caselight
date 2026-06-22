@@ -162,8 +162,15 @@
 }
 
 .nav > li.active {
-  border-left: 4px solid darken($navy, 2%);
+  border-left: 4px solid $amber;
   background: darken($nav-bg, 3%);
+}
+
+// Amber beacon accents stand out against the dark-navy sidebar — a navy
+// primary badge would otherwise vanish into the navy background.
+#side-menu .label-primary {
+  background-color: $amber;
+  color: #16273D;
 }
 
 .nav.nav-second-level > li.active {
@@ -296,7 +303,7 @@ body.mini-navbar .navbar-default .nav > li > .nav-second-level li a {
 }
 
 .navbar-default .special_link a:hover {
-  background: #17987e !important;
+  background: #16273D !important;
   color: white;
 }
 
@@ -548,7 +555,7 @@ body.canvas-menu.mini-navbar .navbar-default .nav li .profile-element a span {
 
 body.canvas-menu nav.navbar-static-side {
   z-index: 2001;
-  background: #2f4050;
+  background: #16273D;
   height: 100%;
   position: fixed;
   display: none;

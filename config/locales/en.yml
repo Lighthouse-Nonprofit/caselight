@@ -686,8 +686,9 @@ en:
       add_new_group: Add Group
       advanced_search: Advanced Search
       assessments: Assessments
-      csi_domain_scores: CSI Domain Scores
+      csi_domain_scores: Domain Scores
       delete_group: Delete
+      export_program_data: Export Program Data
       export_to_xls: Export to XLS
       no_results: No Result Found
       reset: Reset
@@ -1003,9 +1004,10 @@ en:
       assessments: Assessments
       case_statistics: Case Statistics
       client_amount: Client Amounts
-      csi_domain_scores: CSI Domain Scores
+      csi_domain_scores: Domain Scores
       domain_score: Domain Scores
       end: Loading end!
+      export_program_data: Export Program Data
       export_to_xls: Export to XLS
       load: Loading more...
       reports: Reports
@@ -2597,7 +2599,7 @@ en:
       log_out: Log out
       manage: Manage
       materials: Equipment/Materials
-      partners: Community Partners
+      partners: Partners
       program_streams: Program Streams
       progress_note: Progress Note
       progress_note_types: Types of Note
