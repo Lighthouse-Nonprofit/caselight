@@ -5,7 +5,7 @@
         %span.show-name
           = @client.name
         - if @client.status
-          %span.show-status= status_style(@client.status)
+          %span.show-status= status_style(@client.status.to_s.sub(/\AActive .*/, "Active"))
         .client-info
           = @client.slug
           = @client.gender.titleize
@@ -151,8 +151,6 @@
           - if can_read_client_progress_note?
             = link_to client_progress_notes_path(@client) do
               %span.btn-sm.btn.btn-warning.small-btn-margin= t('.progress_note')
-          - if can? :manage, AbleScreeningQuestion
-            = able_screen_link(@client)
           = render('client_answers')
 
           .btn-group.small-btn-margin
@@ -199,24 +197,6 @@
             %table.table.table-bordered
               %tr
                 %td.spacing-first-col
-                  = t('.local_given_name')
-                %td
-                  %strong
-                    = @client.local_given_name
-              %tr
-                %td.spacing-first-col
-                  = t('.local_family_name')
-                %td
-                  %strong
-                    = @client.local_family_name
-              %tr
-                %td.spacing-first-col
-                  = t('.kid_id')
-                %td
-                  %strong
-                    = @client.kid_id
-              %tr
-                %td.spacing-first-col
                   = t('.families')
                 %td
                   %strong
@@ -226,12 +206,6 @@
                           = link_to family(family), family_path(family)
                         - else
                           = family(family)
-              %tr
-                %td.spacing-first-col
-                  = t('.donor')
-                %td
-                  %strong
-                    = @client.donor_name
               %tr
                 %td.spacing-first-col
                   = t('.address')
@@ -253,62 +227,8 @@
                 %td
                   %strong
                     = @client.birth_province
-              %tr
-                %td.spacing-first-col
-                  = t('.time_in_care')
-                %td
-                  %strong
-                    = @client.time_in_care
-              %tr
-                %td.spacing-first-col
-                  = t('.follow_up_date')
-                %td
-                  %strong
-                    = date_format(@client.follow_up_date)
-              %tr
-                %td.spacing-first-col
-                  = t('.referral_source')
-                %td
-                  %strong
-                    = @client.referral_source
-              %tr
-                %td.spacing-first-col
-                  = t('.referral_phone')
-                %td
-                  %strong
-                    = @client.referral_phone
-              %tr
-                %td.spacing-first-col
-                  = t('.live_with')
-                %td
-                  %strong
-                    = @client.live_with
-              %tr
-                %td.spacing-first-col
-                  = t('.id_poor')
-                %td
-                  %strong
-                    = @client.id_poor
           .col-sm-12.col-md-6.second-table
             %table.table.table-bordered
-              %tr
-                %td.spacing-first-col
-                  = t('.received_by')
-                %td
-                  %strong
-                    = user @client.received_by
-              %tr
-                %td.spacing-first-col
-                  = t('.followed_up_by')
-                %td
-                  %strong
-                    = user @client.followed_up_by
-              %tr
-                %td.spacing-first-col
-                  = t('.initial_referral_date')
-                %td
-                  %strong
-                    = @client.referral_date
               %tr
                 %td.spacing-first-col
                   = t('.school_name')
@@ -321,24 +241,6 @@
                 %td
                   %strong
                     = @client.grade
-              %tr
-                %td.spacing-first-col
-                  = "#{t('.has_been_in_orphanage')}?"
-                %td
-                  %strong
-                    = human_boolean(@client.has_been_in_orphanage)
-              %tr
-                %td.spacing-first-col
-                  = "#{t('.able_state')}"
-                %td
-                  %strong
-                    = @client.able_state
-              %tr
-                %td.spacing-first-col
-                  = "#{t('.has_been_in_government_care')}?"
-                %td
-                  %strong
-                    = human_boolean(@client.has_been_in_government_care)
               %tr
                 %td.spacing-first-col
                   = t('.relevant_referral_information')

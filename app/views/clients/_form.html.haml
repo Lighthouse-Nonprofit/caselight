@@ -9,7 +9,6 @@
         .col-xs-12.col-sm-6.col-md-4= f.input :local_given_name, label: t('.local_given_name')
         .col-xs-12.col-sm-6.col-md-4= f.input :local_family_name, label: t('.local_family_name')
         .col-xs-12.col-sm-6.col-md-4= f.input :gender, collection: [['Male', 'male'], ['Female', 'female']], label: t('.gender')
-        .col-xs-12.col-sm-6.col-md-4= f.input :kid_id, label: t('.kid_id')
         .col-xs-12.col-sm-6.col-md-4.form-group.date.optional.client_date_of_birth
           %label.date.optional.control-label{ for: 'client_date_of_birth' }= t('.date_of_birth')
           #client-birthdate.input-group.date
@@ -24,11 +23,6 @@
           = f.association :donor, collection: @donors, label: t('.donor')
         - if f.object.current_address.present?
           .col-xs-12.col-sm-6.col-md-4= f.input :current_address, input_html: { rows: '6' }, label: t('.current_address')
-        .col-xs-12.col-sm-6.col-md-4= f.input :house_number, label: t('.house_number')
-        .col-xs-12.col-sm-6.col-md-4= f.input :street_number, label: t('.street_number')
-        .col-xs-12.col-sm-6.col-md-4= f.input :village, label: t('.village')
-        .col-xs-12.col-sm-6.col-md-4= f.input :commune, label: t('.commune')
-        .col-xs-12.col-sm-6.col-md-4= f.input :district, label: t('.district')
         .col-xs-12.col-sm-6.col-md-4= f.association :users, collection: @users, label: t('.case_worker_or_staff'), include_blank: false, multiple: true
 
         .col-xs-12.col-sm-6.col-md-4= f.input :received_by_id, collection: @users, label: t('.received_by')
@@ -52,19 +46,7 @@
         .col-xs-12.col-sm-6.col-md-4
           = f.input :referral_phone, label: t('.referral_phone')
         .col-xs-12.col-sm-6.col-md-4
-          .i-checks.has-been-in-orphanage
-            %label= "#{t('.has_been_in_orphanage')}?"
-            = f.input :has_been_in_orphanage, as: :radio_buttons, collection: [['Yes', true],['No', false]], label: false
-        .col-xs-12.col-sm-6.col-md-4
-          .i-checks.has-been-in-government-care
-            %label= "#{t('.has_been_in_government_care')}?"
-            = f.input :has_been_in_government_care, as: :radio_buttons, collection: [['Yes', true],['No', false]], label: false
-        .col-xs-12.col-sm-6.col-md-4
-          = f.input :able_state, collection: Client::ABLE_STATES, label: t('.able_state')
-        .col-xs-12.col-sm-6.col-md-4
           = f.input :live_with, label: t('.live_with')
-        .col-xs-12.col-sm-6.col-md-4
-          = f.input :id_poor, label: t('.id_poor')
         - if @client.exit_date_was.present?
           .col-xs-12.col-sm-6.col-md-4.form-group.date.optional{ class: ('has-error' if f.error :exit_date) }
             %label.date.optional.control-label
@@ -83,11 +65,6 @@
         .col-xs-12.col-md-8
           = f.input :relevant_referral_information, input_html: { rows: '5' }, label: t('.relevant_referral_information')
 
-      - QuantitativeType.all.each do |qt|
-        .row
-          .col-xs-12.col-md-8
-            %label{ title: qt.name }= qt.name
-            = f.association :quantitative_cases, collection: qt.quantitative_cases, multiple: true, label_method: :value, value_method: :id, label: false, input_html: { class: able_related_info(qt.name) }
 
   .ibox-footer
     %button.btn.btn-primary.form-btn#submit-button{ type: 'button' }

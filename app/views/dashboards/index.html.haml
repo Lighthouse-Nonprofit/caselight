@@ -1,7 +1,72 @@
 #home-index
   .row
-    = render 'client'
+    .col-lg-12
+      %h2.m-t-none.m-b-xs Resettlement Dashboard
+      %p.text-muted Households and individuals across active resettlement programs.
   .row
-    - if can? :read, Family
-      = render 'family'
-    = render 'third_party'
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center
+          %h1.font-bold.m-b-none= Family.count
+          %small.text-muted HOUSEHOLDS
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center
+          %h1.font-bold.m-b-none= Client.count
+          %small.text-muted INDIVIDUALS
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center
+          %h1.font-bold.m-b-none= ClientEnrollment.where(status: 'Active').count
+          %small.text-muted ACTIVE PROGRAM ENROLLMENTS
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center
+          %h1.font-bold.m-b-none= ProgramStream.count
+          %small.text-muted PROGRAMS OFFERED
+  .row
+    .col-lg-6
+      .ibox
+        .ibox-title
+          %h5 Active enrollments by program
+        .ibox-content
+          %table.table.table-striped.m-b-none
+            %tbody
+              - ProgramStream.order(:name).each do |ps|
+                %tr
+                  %td= ps.name
+                  %td.text-right
+                    %span.label.label-primary= ps.client_enrollments.where(status: 'Active').count
+    .col-lg-6
+      .ibox
+        .ibox-title
+          %h5 Households
+        .ibox-content
+          %table.table.table-striped.m-b-none
+            %tbody
+              - Family.order(:name).each do |fam|
+                %tr
+                  %td= link_to fam.name, family_path(fam)
+                  %td.text-right= pluralize(fam.clients.count, 'member')
+  .row
+    .col-lg-12
+      .ibox
+        .ibox-title
+          %h5 Recent program activity
+        .ibox-content
+          %table.table.table-striped.m-b-none
+            %thead
+              %tr
+                %th Individual
+                %th Program
+                %th Update
+                %th.text-right Logged
+            %tbody
+              - ClientEnrollmentTracking.order(created_at: :desc).limit(8).each do |cet|
+                - ce = cet.client_enrollment
+                - next if ce.nil?
+                %tr
+                  %td= [ce.client.try(:given_name), ce.client.try(:family_name)].compact.join(' ')
+                  %td= ce.program_stream.try(:name)
+                  %td= cet.tracking.try(:name)
+                  %td.text-right= cet.created_at.strftime('%b %d, %Y')

@@ -31,7 +31,7 @@
 
         %li{class: clients_menu_active}
           = link_to clients_path do
-            = fa_icon('child')
+            = fa_icon('user')
             %span.nav-label= t('.clients')
             %span.label.label-primary.pull-right= @client_count
         - if can? :read, Family
@@ -72,14 +72,10 @@
                 = link_to t('.domain_groups'), domain_groups_path
               %li{ class: active_menu('donors') }
                 = link_to t('.donors'), donors_path
-              %li{ class: active_menu('provinces') }
-                = link_to t('.provinces'), provinces_path
               %li{ class: active_menu('referral_sources') }
                 = link_to t('.referral_sources'), referral_sources_path
               %li{ class: active_menu('quantitative_types') }
                 = link_to t('.quantitative_types'), quantitative_types_path
-              %li{ class: active_menu('stages', 'able_screening_questions') }
-                = link_to t('.able_screening_questions'), able_screens_question_submissions_stages_path
               %li
                 %a#pro-nav{href: "#"}
                   = t('.progress_note')

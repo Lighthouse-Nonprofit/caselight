@@ -2,7 +2,7 @@
   .col-xs-12.col-sm-12.col-md-6.case#case
     .ibox
       .ibox-title
-        %h5= t('.foster_case.foster_care')
+        %h5 Resettlement Case
         .ibox-tools
           - if can? :manage, Case
             - if current_user.admin? || current_user.case_worker? || current_user.fc_manager? || current_user.manager?
@@ -17,63 +17,33 @@
         %section.overflow-case
           %table.table.table-bordered
             %tr
-              %td.spacing-first-col
-                = t('.start_date')
+              %td.spacing-first-col Intake Date
               %td
                 %strong
                   = fc.start_date.strftime('%B %d, %Y') if fc.start_date
             %tr
-              %td.spacing-first-col
-                = t('.carer_names')
-              %td
-                %strong
-                  = fc.carer_names
-            %tr
-              %td.spacing-first-col
-                = t('.carer_address')
-              %td
-                %strong
-                  = fc.carer_address
-            %tr
-              %td.spacing-first-col
-                = t('.province')
-              %td
-                %strong
-                  = fc.province.name if fc.province
-            %tr
-              %td.spacing-first-col
-                = t('.carer_phone_number')
-              %td
-                %strong
-                  = fc.carer_phone_number.phony_formatted(normalize: :KH, format: :international) if fc.carer_phone_number
-            %tr
-              %td.spacing-first-col
-                = t('.support_amount')
-              %td
-                %strong
-                  = number_to_currency(fc.support_amount)
-            %tr
-              %td.spacing-first-col
-                = t('.support_note')
-              %td
-                %strong
-                  = fc.support_note
-            %tr
-              %td.spacing-first-col
-                = t('.ongoing_partner')
-              %td
-                %strong
-                  = partner fc.partner if fc.partner
-            %tr
-              %td.spacing-first-col
-                = t('.family')
+              %td.spacing-first-col Household
               %td
                 %strong
                   = family fc.family if fc.family
             %tr
-              %td.spacing-first-col
-                = t('.family_preservation')
+              %td.spacing-first-col Case Manager
               %td
                 %strong
-                  = human_boolean(fc.family_preservation)
+                  = @client.users.map(&:name).join(', ')
+            %tr
+              %td.spacing-first-col Status
+              %td
+                %strong
+                  = @client.status.to_s.sub(/\AActive .*/, 'Active')
+          %h5.m-t-sm.m-b-xs Enrolled programs
+          %table.table.table-striped
+            - @client.client_enrollments.includes(:program_stream).order(:enrollment_date).each do |ce|
+              %tr
+                %td= ce.program_stream.try(:name)
+                %td.text-right
+                  %span.label.label-primary= ce.status
+            - if @client.client_enrollments.empty?
+              %tr
+                %td.text-muted Not yet enrolled in a program.
   = render 'exit_case_form', client_case: @client.cases.exclude_referred.latest_foster, exit_from_cif: false

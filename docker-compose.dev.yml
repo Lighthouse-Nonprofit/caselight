@@ -1,0 +1,32 @@
+# docker-compose.dev.yml - local development overlay for CaseLight.
+#
+# Deliberately NOT named docker-compose.override.yml. That name is auto-merged by
+# `docker compose up`, which would silently flip the PRODUCTION box into dev mode
+# (source-mounted, development env) the moment it pulls the repo. This overlay is
+# loaded only when you ask for it explicitly:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# The Makefile wraps that as `make dev`. The box runs plain `docker compose up`
+# and never sees this file.
+
+services:
+  app:
+    # Live-mount the source so edits apply without a rebuild. Gems live in the
+    # image at /usr/local/bundle and are not shadowed by this mount.
+    volumes:
+      - .:/app
+    # Host port 3000 is commonly taken by other local services (e.g. Open WebUI),
+    # so publish the dev app on 3001 instead. !override REPLACES the base compose
+    # ports list -- Compose merges sequences by default, which would re-add :3000
+    # and keep conflicting. Container still listens on 3000; browse cases.localhost:3001.
+    ports: !override
+      - "127.0.0.1:3001:3000"
+    command: bundle exec thin start -a 0.0.0.0 -p 3000 -e development
+    stdin_open: true   # attach for byebug/pry: docker attach <container>
+    tty: true
+
+  sidekiq:
+    volumes:
+      - .:/app
+    command: bundle exec sidekiq -e development

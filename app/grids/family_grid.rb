@@ -15,7 +15,7 @@ class FamilyGrid
     scope.family_id_like(value)
   end
 
-  filter(:family_type, :enum, select: [['Birth Family', 'birth_family'], %w(Emergency emergency), %w(Foster foster), %w(Inactive inactive), %w(Kinship kinship)], header: -> { I18n.t('datagrid.columns.families.family_type') }) do |value, scope|
+  filter(:family_type, :enum, select: [['Household', 'birth_family'], ['Priority Intake', 'emergency'], ['Sponsor Household', 'foster'], ['Closed', 'inactive'], ['Active', 'kinship']], header: -> { I18n.t('datagrid.columns.families.family_type') }) do |value, scope|
     scope.by_family_type(value)
   end
 
@@ -64,7 +64,7 @@ class FamilyGrid
   column(:name, html: false, header: -> { I18n.t('datagrid.columns.families.name') })
 
   column(:family_type, header: -> { I18n.t('datagrid.columns.families.family_type') }) do |object|
-    object.family_type.titleize
+    { 'birth_family' => 'Household', 'emergency' => 'Priority Intake', 'foster' => 'Sponsor Household', 'inactive' => 'Closed', 'kinship' => 'Active' }[object.family_type] || object.family_type.to_s.titleize
   end
 
   column(:case_history, html: true, header: -> { I18n.t('datagrid.columns.families.case_history') }) do |object|
