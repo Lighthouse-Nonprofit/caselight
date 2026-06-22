@@ -378,6 +378,55 @@ namespace :slo4home do
         'Current Status' => 'Asylum seeker', 'Attorney or Representative' => 'Self', 'Application Type' => 'Asylum'
       }, { 'Milestone' => 'Filed', 'Milestone Date' => '2025-03-02', 'Notes' => 'I-589 filed.' })
 
+      # --- Additional synthetic households for demo variety (a large family, a couple, a single elder) ---
+      mk_member = lambda do |fam_obj, given, last, gender, dob, addr|
+        c = Client.find_or_initialize_by(given_name: given, family_name: last)
+        c.assign_attributes(gender: gender, date_of_birth: dob, current_address: addr)
+        c.users = [admin] if c.users.empty?
+        c.save!
+        Case.create!(family: fam_obj, client: c) unless Case.where(family_id: fam_obj.id, client_id: c.id).exists?
+        fill.call(c, 'Client', 'Member: Wellness & Goals', { 'Individual Summary and Goals' => 'Synthetic demo record.' })
+        c
+      end
+
+      extra_households = [
+        { code: 'SLO-DEMO-3', name: 'Okonkwo Family (DEMO)', addr: '47 Higuera St, San Luis Obispo, CA 93401',
+          counts: { male_adult_count: 1, female_adult_count: 1, male_children_count: 2, female_children_count: 1 },
+          members: [['Emeka', 'Okonkwo', 'male', Date.new(1982, 7, 3), :adult], ['Ngozi', 'Okonkwo', 'female', Date.new(1985, 11, 19), :adult],
+                    ['Chidi', 'Okonkwo', 'male', Date.new(2012, 3, 8), :child], ['Amara', 'Okonkwo', 'female', Date.new(2014, 6, 22), :child],
+                    ['Obi', 'Okonkwo', 'male', Date.new(2017, 1, 30), :child]] },
+        { code: 'SLO-DEMO-4', name: 'Haddad Household (DEMO)', addr: '929 Chorro St, San Luis Obispo, CA 93401',
+          counts: { male_adult_count: 1, female_adult_count: 1, male_children_count: 0, female_children_count: 0 },
+          members: [['Sami', 'Haddad', 'male', Date.new(1990, 5, 12), :adult], ['Layal', 'Haddad', 'female', Date.new(1992, 8, 27), :adult]] },
+        { code: 'SLO-DEMO-5', name: 'Pham Household (DEMO)', addr: '12 Marsh St, San Luis Obispo, CA 93401',
+          counts: { male_adult_count: 1, female_adult_count: 0, male_children_count: 0, female_children_count: 0 },
+          members: [['Bao', 'Pham', 'male', Date.new(1955, 9, 9), :adult]] }
+      ]
+
+      extra_households.each do |h|
+        f2 = Family.find_or_initialize_by(code: h[:code])
+        f2.assign_attributes({ name: h[:name], family_type: 'kinship', address: h[:addr],
+                               caregiver_information: 'Synthetic demo household.', case_history: 'SYNTHETIC DATA ONLY.',
+                               household_income: 0, dependable_income: false }.merge(h[:counts]))
+        f2.save!
+        head = true
+        h[:members].each do |given, last, gender, dob, kind|
+          c = mk_member.call(f2, given, last, gender, dob, h[:addr])
+          if kind == :adult
+            if head
+              enroll.call(c, 'Housing', Date.new(2025, 1, 10), { 'Move-in Date' => '2025-01-10', 'Housing Type' => 'Apartment', 'Address' => h[:addr], 'Monthly Rent (USD)' => '1500' }, { 'Housing Status' => 'Stable', 'Rent Paid This Month' => 'Yes', 'Notes' => 'Synthetic.' })
+              enroll.call(c, 'Benefits', Date.new(2025, 1, 11), { 'Benefits Enrolled' => ['CalFresh', 'Medi-Cal'], 'Case Number' => "SLO-#{h[:code]}" }, { 'Benefit' => 'CalFresh', 'Status' => 'Active', 'Notes' => 'Synthetic.' })
+              head = false
+            end
+            enroll.call(c, 'Employment', Date.new(2025, 1, 15), { 'Work Authorization' => 'EAD', 'Job-Readiness Stage' => 'Job Search' }, { 'Status' => 'Searching', 'Notes' => 'Synthetic.' })
+            enroll.call(c, 'Immigration / Legal', Date.new(2025, 1, 12), { 'Current Status' => 'Refugee', 'Application Type' => 'Adjustment (I-485)' }, { 'Milestone' => 'Filed', 'Notes' => 'Synthetic.' })
+          else
+            enroll.call(c, 'K-12 Education', Date.new(2025, 1, 8), { 'School' => 'Local Elementary', 'Grade' => '2nd', 'Enrollment Date' => '2025-01-08' }, { 'Attendance' => 'Good', 'Notes' => 'Synthetic.' })
+          end
+        end
+        puts "Family: #{f2.name} (id=#{f2.id}, code=#{f2.code}) members=#{h[:members].size}"
+      end
+
       puts "\nslo4home:seed_demo_family done in tenant '#{tenant}'."
     end
   end
