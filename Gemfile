@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '7.0.8.7'
+gem 'rails', '7.1.5.1'
 gem 'nokogiri', '~> 1.16'
 gem 'loofah', '~> 2.3'
 gem 'rails-html-sanitizer', '~> 1.4'
@@ -66,7 +66,7 @@ gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'browser',                '~> 2.1'
 gem 'whenever',               '~> 0.9.4'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
-gem 'paper_trail', '~> 12.0'
+gem 'paper_trail', '~> 15.0'
 gem 'carrierwave',            '~> 1.1.0'
 gem 'mini_magick',            '~> 4.5'
 gem 'chartkick',              '~> 2.0', '>= 2.0.2'
@@ -84,7 +84,7 @@ gem 'sidekiq',                '~> 4.1.0'
 # wire version >= 7/8 (server 4.0/4.2). 2.19.x still supports the 3.6 server (wire 6). The Mongo
 # server bump (3.6 -> modern) is deferred to the Rails 7 / mongoid 8 rung, which forces it.
 gem 'mongo', '~> 2.19.0'
-gem 'mongoid', '~> 7.0'
+gem 'mongoid', '~> 8.0'
 
 group :development, :test do
   gem 'pry'
@@ -115,7 +115,9 @@ group :development do
 end
 
 group :test do
-  gem 'database_cleaner',     '~> 1.5', '>= 1.5.1'
+  # database_cleaner 2.0 split into adapter gems; the AR adapter supports Rails 7.1 (1.99 called
+  # the removed ActiveRecord::SchemaMigration.table_name). Provides the DatabaseCleaner constant.
+  gem 'database_cleaner-active_record', '~> 2.0'
   gem 'guard-rspec',          '~> 4.6'
   gem 'json_spec',            '~> 1.1', '>= 1.1.4'
   gem 'shoulda-matchers'

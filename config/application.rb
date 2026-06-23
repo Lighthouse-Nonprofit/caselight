@@ -1,11 +1,19 @@
 require File.expand_path('../boot', __FILE__)
 
-# Rails 6.0/6.1 reference ActiveSupport::LoggerThreadSafeLevel::Logger, but concurrent-ruby
-# 1.3.5+ no longer transitively requires Ruby's stdlib Logger, so it is an uninitialized
-# constant at boot. Require it explicitly before Rails loads. (Fixed upstream in Rails 7.1.)
-require "logger"
+# require "logger" lives in config/boot.rb (loaded earliest by every entry point) for the
+# concurrent-ruby/Logger boot NameError on Rails 7.0.
 
-require "rails/all"
+# Load only the frameworks CaseLight uses, instead of `require "rails/all"`. Omitting
+# action_text, active_storage, action_cable, action_mailbox: they're unused, and on Rails 7.1
+# their *.esm.js assets (ES modules) break the uglifier precompile ("Uglifier::Error" on
+# actiontext.esm.js — uglifier can't parse import/export).
+require "rails"
+require "active_record/railtie"
+require "active_job/railtie"
+require "action_controller/railtie"
+require "action_view/railtie"
+require "action_mailer/railtie"
+require "sprockets/railtie"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.

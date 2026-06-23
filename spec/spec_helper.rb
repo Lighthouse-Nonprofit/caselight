@@ -5,7 +5,7 @@ require 'shoulda/matchers'
 require 'factory_bot'
 require 'ffaker'
 require 'capybara/rails'
-require 'database_cleaner'
+require 'database_cleaner/active_record'
 require 'rspec/active_model/mocks'
 require 'mongoid-rspec'
 Dir[Rails.root.join('spec/supports/**/*.rb')].each { |f| require f }
