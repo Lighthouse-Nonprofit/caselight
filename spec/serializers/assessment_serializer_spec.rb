@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe AssessmentSerializer, type: :serializer do
   let(:assessment) { create(:assessment) }
-  let(:serializer) { AssessmentSerializer.new(assessment).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(assessment, serializer: AssessmentSerializer, adapter: :json).to_json }
 
   it 'should be have attribute assessment as root path' do
     expect(serializer).to have_json_size(1)

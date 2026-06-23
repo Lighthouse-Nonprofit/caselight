@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe CaseSerializer, type: :serializer do
   let(:client_case) { create(:case)}
-  let(:serializer) { CaseSerializer.new(client_case).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(client_case, serializer: CaseSerializer, adapter: :json).to_json }
 
   it 'should be have attribute case as root path' do
     expect(serializer).to have_json_size(1)

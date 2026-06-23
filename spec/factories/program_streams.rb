@@ -6,8 +6,8 @@ FactoryBot.define do
   factory :program_stream do
     sequence(:name)  { |n| "#{FFaker::Name.name}-#{n}" }
     rules { rule_condition }
-    enrollment default_field
-    exit_program default_field
-    quantity 10
+    enrollment { default_field }
+    exit_program { default_field }
+    quantity { 10 }
   end
 end

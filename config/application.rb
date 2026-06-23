@@ -20,11 +20,6 @@ require 'warden'
 
 module CifWeb
   class Application < Rails::Application
-    # Stay on the classic autoloader for the Rails 6.0 rung; the app relies on
-    # config.autoload_paths (lib, app/classes/**). The zeitwerk migration is deferred to
-    # the 7.0 rung, where :classic is removed. (`config.autoloader` exists in 6.0/6.1 only.)
-    config.autoloader = :classic
-
     config.middleware.use Apartment::Elevators::Subdomain
     config.middleware.insert_before Warden::Manager, Apartment::Elevators::Subdomain
     # Settings in config/environments/* take precedence over those specified here.
@@ -41,10 +36,10 @@ module CifWeb
     config.i18n.available_locales = [:en]
     config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '**', '*.{rb,yml}')]
 
-    # Autoload path
-    config.autoload_paths << "#{Rails.root}/lib"
-    config.autoload_paths << Rails.root.join('app/classes/**')
-
+    # Rails 7 (zeitwerk) auto-registers every app/* dir as an autoload root, so app/classes is
+    # managed automatically (advanced_searches/ -> AdvancedSearches namespace). The old explicit
+    # paths are gone: lib has no .rb files, and the `app/classes/**` glob is invalid under zeitwerk
+    # (it manages app/classes as a single namespaced root, not one root per nested dir).
 
     # Override rails template engine: erb to haml
     config.generators do |g|

@@ -1,12 +1,10 @@
-# Dockerfile - CaseLight (Ruby 2.7.8 / Rails 5.2.8.1), mid-upgrade toward 7.1.
+# Dockerfile - CaseLight (Ruby 3.3 / Rails 7.x), modernized off the EOL 2.3.3/4.2.2 stack.
 # The build, not the run, is where you will spend time. See OPERATIONS.md.
 
-FROM ruby:2.7.8
+FROM ruby:3.3
 
-# ruby:2.7.8 is Debian Bullseye, whose apt mirrors are still live, so a normal
-# install works — no archive sources / --force-yes dance the Ruby 2.3 (Jessie)
-# image needed. Only libpq-dev (for the pg gem) is required; gcc/make/git ship
-# in the base image.
+# ruby:3.3 is Debian Bookworm (current stable), apt mirrors live — normal install.
+# Only libpq-dev (for the pg gem) is required; gcc/make/git ship in the base image.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libpq-dev \
  && rm -rf /var/lib/apt/lists/*
@@ -18,9 +16,8 @@ RUN curl -fsSL https://nodejs.org/dist/v8.17.0/node-v8.17.0-linux-x64.tar.xz \
 
 WORKDIR /app
 
-# Bundler 2.1.4 matches the lockfile's BUNDLED WITH and is the ruby:2.7.8 image default;
-# install it explicitly so the build stays deterministic if the base image changes.
-RUN gem install bundler -v '2.1.4' --no-document
+# Use the bundler that ships with ruby:3.3 (2.5.x) — it reads the lockfile and is current
+# for Ruby 3.3 (the old 2.1.4 pin was for the Ruby 2.3 era).
 
 COPY Gemfile Gemfile.lock ./
 # Build-time bundle groups to skip. Default (prod) skips development+test -> a lean

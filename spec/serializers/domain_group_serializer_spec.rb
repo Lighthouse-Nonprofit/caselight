@@ -3,7 +3,7 @@ require 'spec_helper'
 describe DomainGroupSerializer, type: :serializer do
   let(:domain_group) { create(:domain_group) }
   let!(:domains) { create_list(:domain, 2, domain_group: domain_group)}
-  let(:serializer) { DomainGroupSerializer.new(domain_group).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(domain_group, serializer: DomainGroupSerializer, adapter: :json).to_json }
 
   it 'should be have attribute domain_group as root path' do
     expect(serializer).to have_json_size(1)

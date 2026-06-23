@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe ProvinceSerializer, type: :serializer do
   let!(:province) { create(:province)}
-  let(:serializer) { ProvinceSerializer.new(province).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(province, serializer: ProvinceSerializer, adapter: :json).to_json }
 
   it 'should be have attribute provinces as root path' do
     expect(serializer).to have_json_size(1)

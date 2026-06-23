@@ -35,8 +35,9 @@ Rails.application.configure do
   # Apache or NGINX already handles this.
   config.serve_static_files = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
-  # Compress JavaScripts and CSS.
-  config.assets.js_compressor = :uglifier
+  # Compress JavaScripts and CSS. harmony: true lets uglifier minify ES6 (some bundled/vendored
+  # JS now uses `const`/arrow fns); without it precompile aborts on "Unexpected token: keyword (const)".
+  config.assets.js_compressor = Uglifier.new(harmony: true)
   # config.assets.css_compressor = :sass
 
 

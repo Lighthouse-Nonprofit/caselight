@@ -1,17 +1,17 @@
 FactoryBot.define do
   factory :task do
-    name FFaker::Name.name
-    completion_date FFaker::Time.date
+    name { FFaker::Name.name }
+    completion_date { FFaker::Time.date }
     association :case_note_domain_group, factory: :case_note_domain_group
     association :domain, factory: :domain
     association :client, factory: :client
 
     trait :incomplete do
-      completed false
+      completed { false }
     end
 
     trait :complete do
-      completed true
+      completed { true }
     end
 
     before(:create) do |client|

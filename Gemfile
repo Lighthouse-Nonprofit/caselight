@@ -1,22 +1,17 @@
 source 'https://rubygems.org'
 
-gem 'rails', '6.1.7.10'
-gem 'nokogiri', '~> 1.15.0'
+gem 'rails', '7.0.8.7'
+gem 'nokogiri', '~> 1.16'
 gem 'loofah', '~> 2.3'
 gem 'rails-html-sanitizer', '~> 1.4'
-gem 'json', '~> 2.3.0'
+gem 'json', '>= 2.3'
 gem 'tilt', '~> 2.0'
-# ffi 1.17+ requires Ruby >= 3.0; cap it for Ruby 2.7.8 (transitive dep via listen/rb-inotify).
-gem 'ffi', '< 1.17'
-# concurrent-ruby 1.3.5 dropped the stdlib Logger require that Rails 6.0/6.1's
-# ActiveSupport::LoggerThreadSafeLevel depends on -> uninitialized-constant NameError at boot.
-# Cap below 1.3.5 (the require "logger" in application.rb covers the app; this covers rails CLI/rake too).
-gem 'concurrent-ruby', '1.3.4'
+# ffi + concurrent-ruby unpinned on Ruby 3.3 (the < 1.17 / 1.3.4 caps were for Ruby 2.7). The
+# require "logger" in application.rb still guards the concurrent-ruby/Logger boot NameError (Rails 7.0).
 gem 'erubis'
-# Rails 6.1's postgresql adapter requires pg >= 1.1 (the old 0.18.4 pin no longer activates).
-# Cap below 1.6 (1.6+ require Ruby 3.0); pg 1.5.x runs on Ruby 2.7 and still supports the
-# pinned PostgreSQL 9.6 server (libpq 9.3+).
-gem 'pg', '~> 1.5.0'
+# Rails 7's postgresql adapter requires pg >= 1.1; pg 1.5/1.6 run on Ruby 3.3 and still support
+# the pinned PostgreSQL 9.6 server (libpq 9.3+).
+gem 'pg', '~> 1.5'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 # sass-rails 5.1.0 relaxed the railties cap to allow Rails 6 while still using ruby-sass
@@ -36,12 +31,13 @@ gem 'haml', '~> 5.2'
 gem 'haml-rails', '~> 2.0'
 gem 'dotenv-rails', '~> 2.2'
 gem 'roo',                    '~> 2.2'
-gem 'fog'
-gem 's3'
+# fog-aws only (was the `fog` meta-gem): fog pulls every provider, and fog-rackspace 0.1.6
+# fails to load on Ruby 3.3. carrierwave's optional S3 path uses provider 'AWS' = fog-aws.
+gem 'fog-aws'
 gem 'ffaker',                 '~> 2.1.0'
-gem 'draper', '~> 3.0'
+gem 'draper', '~> 4.0'
 gem 'datagrid',               '~> 1.4.2'
-gem 'active_model_serializers'
+gem 'active_model_serializers', '~> 0.10.0'
 gem 'sinatra', '~> 2.0', require: false
 gem 'rack-cors',              require: 'rack/cors'
 gem 'rails-erd'
@@ -50,7 +46,9 @@ gem 'typhoeus'
 gem 'foreman',                '~> 0.87'
 gem 'cancancan', '~> 3.0'
 gem 'pundit', '~> 2.0'
-gem 'tinymce-rails',          '~> 4.5.6'
+# ~> 4.5 (not 4.5.6): stays on the TinyMCE 4 editor (the app's init JS is v4) but allows a later
+# 4.x gem that uses File.exist? — 4.5.7 calls File.exists?, removed in Ruby 3.2.
+gem 'tinymce-rails',          '~> 4.5'
 gem 'bootstrap-datepicker-rails', '~> 1.5'
 # select2-rails (~> 3.5.9.3) removed: it pins thor ~> 0.14, which conflicts with railties 6.1
 # (thor ~> 1.0), and its only 6.1-compatible line is select2-rails 4.x = select2 v4 JS — a breaking
@@ -74,10 +72,8 @@ gem 'mini_magick',            '~> 4.5'
 gem 'chartkick',              '~> 2.0', '>= 2.0.2'
 gem 'font-awesome-rails',     '~> 4.7'
 gem 'spreadsheet',            '~> 1.1.3'
-# 2.4.0 fixes the Rails 5.2 ActiveRecord::Migrator.schema_migrations_table_name removal;
-# 2.10+ uses Array#any?(pattern) (Ruby 2.5+) which breaks on Ruby 2.3.3 — so cap below 2.10
-# until the Ruby bump. Resolves to 2.9.0.
-gem 'ros-apartment', '>= 2.4.0', '< 2.10.0', require: 'apartment'
+# ros-apartment 3.x supports Rails 7.0/7.1; on Ruby 3.3 the 3.1+ Ruby-version caps no longer bind.
+gem 'ros-apartment', '~> 3.1', require: 'apartment'
 gem 'dropzonejs-rails',       '~> 0.7.3'
 # bourbon (~> 4.2) + neat (~> 1.8) removed: they were imported in application.scss but no
 # mixins/functions were ever used, and bourbon 4.x pins thor ~> 0.19, which conflicts with
@@ -92,14 +88,16 @@ gem 'mongoid', '~> 7.0'
 
 group :development, :test do
   gem 'pry'
-  gem 'rspec-rails', '~> 3.5'
-  gem 'factory_bot_rails', '~> 4.8'
+  # Test stack bumped for Rails 7.0 / Ruby 3.3 (the old caps don't support either):
+  gem 'rspec-rails', '~> 6.0'        # was ~> 3.5
+  gem 'factory_bot_rails', '~> 6.0'  # was ~> 4.8
   gem 'launchy',              '~> 2.4', '>= 2.4.3'
-  gem 'capybara',             '~> 2.5'
-  gem 'poltergeist',          '~> 1.9.0'
+  gem 'capybara',             '~> 3.0' # was ~> 2.5
+  # poltergeist (~> 1.9.0) removed: PhantomJS is dead and the gem doesn't run on Ruby 3.3. The
+  # feature specs that used it were already deferred to a cuprite port (see REMOVED-FEATURES.md).
   gem 'shoulda-whenever',     '~> 0.0.2'
-  gem 'bullet', '~> 6.0'
-  gem 'mongoid-rspec', '< 4.2'
+  gem 'bullet', '~> 7.0'             # was ~> 6.0 (6.x rejects ActiveRecord 7.0)
+  gem 'mongoid-rspec', '~> 4.1'      # was < 4.2
 end
 
 group :staging, :demo, :production do
