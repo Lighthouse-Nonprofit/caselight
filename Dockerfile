@@ -36,7 +36,10 @@ COPY Gemfile Gemfile.lock ./
 # arg ("staging demo production") so rspec/capybara/factories are baked in and survive
 # rebuilds, giving a repeatable per-rung test loop for the Rails upgrade.
 ARG BUNDLE_WITHOUT="development test"
-RUN bundle install --jobs 4 --retry 3 --without ${BUNDLE_WITHOUT}
+# `bundle _2.1.4_` pins the RubyGems version selector: the ruby:2.3.3 image ships bundler
+# 1.14.6 as a default gem and RubyGems 2.5 does NOT auto-select by the lock's BUNDLED WITH,
+# so a bare `bundle` would run 1.14.6 and choke on the Bundler-2 lockfile.
+RUN bundle _2.1.4_ install --jobs 4 --retry 3 --without ${BUNDLE_WITHOUT}
 
 COPY . .
 
@@ -64,7 +67,7 @@ RUN SECRET_KEY_BASE=dummy RAILS_ENV=production PRECOMPILE_ASSETS=true \
     ASSET_SYNC_ENABLED=false \
     AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
     FOG_DIRECTORY=dummy FOG_REGION=us-east-1 \
-    bundle exec rake assets:precompile
+    bundle _2.1.4_ exec rake assets:precompile
 
 EXPOSE 3000
-CMD ["bundle", "exec", "thin", "start", "-a", "0.0.0.0", "-p", "3000", "-e", "production"]
+CMD ["bundle", "_2.1.4_", "exec", "thin", "start", "-a", "0.0.0.0", "-p", "3000", "-e", "production"]
