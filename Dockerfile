@@ -25,8 +25,10 @@ RUN curl -fsSL https://nodejs.org/dist/v8.17.0/node-v8.17.0-linux-x64.tar.xz \
 
 WORKDIR /app
 
-# Bundler 1.x matches the lockfile era. Do not bundle update.
-RUN gem install bundler -v '1.17.3'
+# Bundler 2.1.4 — newest that still runs on Ruby 2.3.3 / RubyGems 2.5, and its
+# backtracking resolver is required to resolve the Rails 5.x dependency graph
+# (Bundler 1.17 could not). The lockfile is Bundler 2 format.
+RUN gem install bundler -v '2.1.4'
 
 COPY Gemfile Gemfile.lock ./
 # Build-time bundle groups to skip. Default (prod) skips development+test -> a lean

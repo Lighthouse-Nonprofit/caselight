@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :task do
     name FFaker::Name.name
     completion_date FFaker::Time.date
@@ -15,7 +15,7 @@ FactoryGirl.define do
     end
 
     before(:create) do |client|
-      client.users << FactoryGirl.create(:user)
+      client.users << FactoryBot.create(:user)
     end
   end
 end

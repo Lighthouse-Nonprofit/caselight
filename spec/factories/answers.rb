@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :answer do
     description "MyString"
     able_screening_question nil

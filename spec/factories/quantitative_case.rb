@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :quantitative_case do
     value FFaker::Lorem.sentence
     association :quantitative_type, factory: :quantitative_type

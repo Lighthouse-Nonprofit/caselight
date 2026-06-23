@@ -2,7 +2,7 @@ ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails_helper'
 require 'shoulda/matchers'
-require 'factory_girl'
+require 'factory_bot'
 require 'ffaker'
 require 'capybara/rails'
 require 'database_cleaner'
@@ -44,7 +44,7 @@ end
 RSpec.configure do |config|
   config.include Mongoid::Matchers
   config.include Warden::Test::Helpers
-  config.include FactoryGirl::Syntax::Methods
+  config.include FactoryBot::Syntax::Methods
   config.include JsonSpec::Helpers
   config.include FeatureHelper
   config.include Select2
