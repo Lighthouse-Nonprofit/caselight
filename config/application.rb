@@ -1,8 +1,5 @@
 require File.expand_path('../boot', __FILE__)
 
-# require "logger" lives in config/boot.rb (loaded earliest by every entry point) for the
-# concurrent-ruby/Logger boot NameError on Rails 7.0.
-
 # Load only the frameworks CaseLight uses, instead of `require "rails/all"`. Omitting
 # action_text, active_storage, action_cable, action_mailbox: they're unused, and on Rails 7.1
 # their *.esm.js assets (ES modules) break the uglifier precompile ("Uglifier::Error" on
@@ -28,6 +25,9 @@ require 'warden'
 
 module CifWeb
   class Application < Rails::Application
+    # Use the Rails 7.1 cache serialization format (the 6.1 default is deprecated, removed in 7.2).
+    config.active_support.cache_format_version = 7.1
+
     config.middleware.use Apartment::Elevators::Subdomain
     config.middleware.insert_before Warden::Manager, Apartment::Elevators::Subdomain
     # Settings in config/environments/* take precedence over those specified here.
