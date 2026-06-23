@@ -8,7 +8,7 @@ class LeaveProgramsController < AdminController
   end
 
   def update
-    if @leave_program.update_attributes(leave_program_params)
+    if @leave_program.update(leave_program_params)
       add_more_attachments(@leave_program)
       redirect_to client_client_enrollment_leave_program_path(@client, @enrollment, @leave_program), notice: t('.successfully_updated')
     else

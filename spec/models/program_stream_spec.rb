@@ -93,7 +93,7 @@ end
 #   default_fields = [{"max"=>"5", "min"=>"1", "name"=>"age", "type"=>"number", "label"=>"age", "required"=>true, "className"=>"form-control"}, {"name"=>"description", "type"=>"text", "label"=>"description", "subtype"=>"text", "required"=>true, "className"=>"form-control"}]
 #
 #   it 'return Enrollment cannot remove field since it already in use' do
-#     program_stream.update_attributes(enrollment: default_fields)
+#     program_stream.update(enrollment: default_fields)
 #     expect(program_stream.errors.full_messages).to include("Enrollment e-mail cannot be removed/updated since it is already in use.")
 #   end
 #

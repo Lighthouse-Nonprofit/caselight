@@ -47,7 +47,7 @@ class UsersController < AdminController
   end
 
   def update
-    if @user.update_attributes(user_params)
+    if @user.update(user_params)
       redirect_to @user, notice: t('.successfully_updated')
     else
       render :edit
@@ -71,7 +71,7 @@ class UsersController < AdminController
 
   def disable
     @user = User.find(params[:user_id])
-    redirect_to users_path, notice: t('.successfully_disable') if @user.update_attributes(disable: !@user.disable)
+    redirect_to users_path, notice: t('.successfully_disable') if @user.update(disable: !@user.disable)
   end
 
   private

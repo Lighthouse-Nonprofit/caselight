@@ -33,7 +33,7 @@ class AssessmentsController < AdminController
     params[:assessment][:assessment_domains_attributes].each do |assessment_domain|
       add_more_attachments(assessment_domain.second[:attachments], assessment_domain.second[:id])
     end
-    if @assessment.update_attributes(assessment_params)
+    if @assessment.update(assessment_params)
       @assessment.update(updated_at: DateTime.now)
       @assessment.assessment_domains.update_all(assessment_id: @assessment.id)
       redirect_to client_assessment_path(@client, @assessment), notice: t('.successfully_updated')

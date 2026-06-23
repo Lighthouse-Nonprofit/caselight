@@ -26,7 +26,7 @@ class DomainsController < AdminController
   end
 
   def update
-    if @domain.update_attributes(domain_params)
+    if @domain.update(domain_params)
       redirect_to domains_path, notice: t('.successfully_updated')
     else
       render :edit

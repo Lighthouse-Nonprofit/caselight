@@ -32,7 +32,7 @@ class CaseNotesController < AdminController
 
   def update
     authorize @case_note
-    if @case_note.update_attributes(case_note_params) && @case_note.save
+    if @case_note.update(case_note_params) && @case_note.save
       params[:case_note][:case_note_domain_groups_attributes].each do |d|
         add_more_attachments(d.second[:attachments], d.second[:id])
       end

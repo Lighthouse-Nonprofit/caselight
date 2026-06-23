@@ -30,7 +30,7 @@ class Client::TasksController < AdminController
   end
 
   def update
-    if @task.update_attributes(task_params)
+    if @task.update(task_params)
       redirect_to client_tasks_path(@client), notice: t('.successfully_updated')
     else
       render :edit

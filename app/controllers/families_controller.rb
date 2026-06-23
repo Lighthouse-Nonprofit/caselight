@@ -46,7 +46,7 @@ class FamiliesController < AdminController
     if client_associations.any? && @family.is_case?
       redirect_to request.referrer, alert: t('.not_allowed_to_detach_clients')
     else
-      if @family.update_attributes(family_params)
+      if @family.update(family_params)
         redirect_to @family, notice: t('.successfully_updated')
       else
         render :edit

@@ -33,7 +33,7 @@ class CustomFieldPropertiesController < AdminController
 
   def update
     authorize! :update, @custom_field_property
-    if @custom_field_property.update_attributes(custom_field_property_params)
+    if @custom_field_property.update(custom_field_property_params)
       add_more_attachments(@custom_field_property)
       redirect_to polymorphic_path([@custom_formable, CustomFieldProperty], custom_field_id: @custom_field), notice: t('.successfully_updated')
     else

@@ -26,7 +26,7 @@ describe Tracking, 'validate remove field' do
 
   it 'return cannot remove or update' do
     fields = [{"name"=>"email", "type"=>"text", "label"=>"e-mail", "subtype"=>"email", "required"=>true, "className"=>"form-control"}, {"max"=>"5", "min"=>"1", "name"=>"age", "type"=>"number", "label"=>"age", "required"=>true, "className"=>"form-control"}]
-    tracking.update_attributes(fields: fields)
+    tracking.update(fields: fields)
     expect(tracking.errors.full_messages).to include("Fields description cannot be removed/updated since it is already in use.")
   end
 end

@@ -18,7 +18,7 @@ class QuantitativeTypesController < AdminController
   end
 
   def update
-    if @quantitative_type.update_attributes(quantitative_type_params)
+    if @quantitative_type.update(quantitative_type_params)
       redirect_to quantitative_types_path, notice: t('.successfully_updated')
     else
       redirect_to quantitative_types_path, alert: t('.failed_update')

@@ -18,7 +18,7 @@ class DomainGroupsController < AdminController
   end
 
   def update
-    if @domain_group.update_attributes(domain_group_params)
+    if @domain_group.update(domain_group_params)
       redirect_to domain_groups_path, notice: t('.successfully_updated')
     else
       redirect_to domain_groups_path, alert: t('.failed_update')

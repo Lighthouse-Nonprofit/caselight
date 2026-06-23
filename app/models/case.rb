@@ -104,9 +104,9 @@ class Case < ActiveRecord::Base
     c = Client.find(client.id)
     if new_record? && c.cases.exclude_referred.active.size > 1
       c.cases.exclude_referred.update_all(current: false)
-      c.cases.exclude_referred.last.update_attributes(current: true)
+      c.cases.exclude_referred.last.update(current: true)
     elsif c.cases.exclude_referred.active.size == 1 && c.cases.exclude_referred.active.first.ec? && !c.cases.exclude_referred.active.first.current?
-      c.cases.exclude_referred.first.update_attributes(current: true)
+      c.cases.exclude_referred.first.update(current: true)
     end
   end
 
@@ -137,7 +137,7 @@ class Case < ActiveRecord::Base
   end
 
   def update_client_code
-    client.update_attributes(code: generate_client_code) if client.code.blank? && not_ec?
+    client.update(code: generate_client_code) if client.code.blank? && not_ec?
   end
 
   def generate_client_code

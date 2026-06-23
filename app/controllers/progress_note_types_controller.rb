@@ -18,7 +18,7 @@ class ProgressNoteTypesController < AdminController
   end
 
   def update
-    if @progress_note_type.update_attributes(progress_note_type_params)
+    if @progress_note_type.update(progress_note_type_params)
       redirect_to progress_note_types_path, notice: t('.successfully_updated')
     else
       redirect_to progress_note_types_path, alert: t('.failed_update')

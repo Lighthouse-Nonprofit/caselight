@@ -20,7 +20,7 @@ class ProgramStream < ActiveRecord::Base
 
   after_save :set_program_completed
 
-  scope  :ordered,     ->         { order('lower(name) ASC') }
+  scope  :ordered,     ->         { order(Arel.sql('lower(name) ASC')) }
   scope  :complete,    ->         { where(completed: true) }
   scope  :ordered_by,  ->(column) { order(column) }
   scope  :name_like,   ->(value)  { where(name: value) }

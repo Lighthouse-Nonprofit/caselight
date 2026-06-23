@@ -26,7 +26,7 @@ class ClientEnrolledProgramsController < AdminController
   end
 
   def update
-    if @client_enrollment.update_attributes(client_enrollment_params)
+    if @client_enrollment.update(client_enrollment_params)
       add_more_attachments(@client_enrollment)
       redirect_to client_client_enrolled_program_path(@client, @client_enrollment, program_stream_id: @program_stream), notice: t('.successfully_updated')
     else

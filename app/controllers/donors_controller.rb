@@ -18,7 +18,7 @@ class DonorsController < AdminController
   end
 
   def update
-    if @donor.update_attributes(donor_params)
+    if @donor.update(donor_params)
       redirect_to donors_path, notice: t('.successfully_updated')
     else
       redirect_to donors_path, alert: t('.failed_update')

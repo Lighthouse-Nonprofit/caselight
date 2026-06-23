@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '6.0.6.1'
+gem 'rails', '6.1.7.10'
 gem 'nokogiri', '~> 1.15.0'
 gem 'loofah', '~> 2.3'
 gem 'rails-html-sanitizer', '~> 1.4'
@@ -13,7 +13,10 @@ gem 'ffi', '< 1.17'
 # Cap below 1.3.5 (the require "logger" in application.rb covers the app; this covers rails CLI/rake too).
 gem 'concurrent-ruby', '1.3.4'
 gem 'erubis'
-gem 'pg'
+# Rails 6.1's postgresql adapter requires pg >= 1.1 (the old 0.18.4 pin no longer activates).
+# Cap below 1.6 (1.6+ require Ruby 3.0); pg 1.5.x runs on Ruby 2.7 and still supports the
+# pinned PostgreSQL 9.6 server (libpq 9.3+).
+gem 'pg', '~> 1.5.0'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 # sass-rails 5.1.0 relaxed the railties cap to allow Rails 6 while still using ruby-sass
@@ -27,7 +30,10 @@ gem 'jbuilder',               '~> 2.0'
 gem 'simple_form', '~> 4.0'
 gem 'bootstrap-sass',         '~> 3.3.5'
 gem 'devise', '~> 4.4'
-gem 'haml-rails', '~> 1.0'
+# haml-rails 2.x gives Rails 6 compatibility; pin haml itself to 5.2 — haml 6 is a parser
+# rewrite that risks breaking the app's many .haml views. (haml 6 migration is its own future step.)
+gem 'haml', '~> 5.2'
+gem 'haml-rails', '~> 2.0'
 gem 'dotenv-rails', '~> 2.2'
 gem 'roo',                    '~> 2.2'
 gem 'fog'
@@ -46,7 +52,11 @@ gem 'cancancan', '~> 3.0'
 gem 'pundit', '~> 2.0'
 gem 'tinymce-rails',          '~> 4.5.6'
 gem 'bootstrap-datepicker-rails', '~> 1.5'
-gem 'select2-rails',          '~> 3.5.9.3'
+# select2-rails (~> 3.5.9.3) removed: it pins thor ~> 0.14, which conflicts with railties 6.1
+# (thor ~> 1.0), and its only 6.1-compatible line is select2-rails 4.x = select2 v4 JS — a breaking
+# API change the app's v3 usage (select2-selecting/removed events, .select2('val'), #select2-chosen)
+# can't take. The v3 assets (select2.js / select2.scss / select2-bootstrap.css / images) are now
+# vendored under vendor/assets, so `//= require select2` and `@import 'select2'` still resolve.
 gem 'jquery-validation-rails'
 gem 'fullcalendar-rails',     '~> 3.2.0.0'
 gem 'momentjs-rails',         '~> 2.17.1'
@@ -58,7 +68,7 @@ gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'browser',                '~> 2.1'
 gem 'whenever',               '~> 0.9.4'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
-gem 'paper_trail', '~> 10.0'
+gem 'paper_trail', '~> 12.0'
 gem 'carrierwave',            '~> 1.1.0'
 gem 'mini_magick',            '~> 4.5'
 gem 'chartkick',              '~> 2.0', '>= 2.0.2'

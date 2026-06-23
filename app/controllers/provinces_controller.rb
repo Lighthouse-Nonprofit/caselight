@@ -18,7 +18,7 @@ class ProvincesController < AdminController
   end
 
   def update
-    if @province.update_attributes(province_params)
+    if @province.update(province_params)
       redirect_to provinces_path, notice: t('.successfully_updated')
     else
       redirect_to provinces_path, alert: t('.failed_update')

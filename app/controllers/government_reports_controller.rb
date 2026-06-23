@@ -37,7 +37,7 @@ class GovernmentReportsController < AdminController
   end
 
   def update
-    if @government_report.update_attributes(government_report_params)
+    if @government_report.update(government_report_params)
       redirect_to client_government_reports_path(@client), notice: t('.successfully_updated')
     else
       render :edit

@@ -91,9 +91,9 @@ class Client < ActiveRecord::Base
   scope :start_with_code,             ->(value) { where('clients.code iLIKE ?', "#{value}%") }
   scope :find_by_family_id,           ->(value) { joins(cases: :family).where('families.id = ?', value).distinct }
   scope :status_like,                 ->        { CLIENT_STATUSES }
-  scope :is_received_by,              ->        { joins(:received_by).pluck("CONCAT(users.first_name, ' ' , users.last_name)", 'users.id').uniq }
+  scope :is_received_by,              ->        { joins(:received_by).pluck(Arel.sql("CONCAT(users.first_name, ' ' , users.last_name)"), 'users.id').uniq }
   scope :referral_source_is,          ->        { joins(:referral_source).pluck('referral_sources.name', 'referral_sources.id').uniq }
-  scope :is_followed_up_by,           ->        { joins(:followed_up_by).pluck("CONCAT(users.first_name, ' ' , users.last_name)", 'users.id').uniq }
+  scope :is_followed_up_by,           ->        { joins(:followed_up_by).pluck(Arel.sql("CONCAT(users.first_name, ' ' , users.last_name)"), 'users.id').uniq }
   scope :province_is,                 ->        { joins(:province).pluck('provinces.name', 'provinces.id').uniq }
   scope :accepted,                    ->        { where(state: 'accepted') }
   scope :rejected,                    ->        { where(state: 'rejected') }
