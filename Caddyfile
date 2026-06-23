@@ -1,0 +1,18 @@
+# Caddyfile — TLS-terminating reverse proxy for CaseLight.
+#
+# Runs as the Dockerized "caddy" service (docker-compose.yml, "proxy" profile). Set APP_HOST
+# in .env to your public hostname (e.g. cases.example.org). Caddy then auto-provisions and
+# renews a Let's Encrypt certificate for it.
+#
+# Requirements to go live:
+#   - DNS: an A record for APP_HOST pointing at this box's public (Elastic) IP.
+#   - Security group: inbound 80 and 443 open (80 is needed for the ACME HTTP challenge + the
+#     HTTP->HTTPS redirect Caddy adds automatically).
+#   - APP_HOST set in .env, then: docker compose --profile proxy up -d caddy
+#
+# With APP_HOST unset it falls back to localhost (local use only; no public cert is requested).
+
+{$APP_HOST:localhost} {
+	encode zstd gzip
+	reverse_proxy app:3000
+}
