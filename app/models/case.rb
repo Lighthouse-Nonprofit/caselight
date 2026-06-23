@@ -33,6 +33,9 @@ class Case < ActiveRecord::Base
   before_validation :set_attributes, if: -> { new_record? && start_date.nil? }
 
   def set_attributes
+    # belongs_to :family is optional, so guard against a nil family — this whole callback
+    # derives Case attributes from the family and is a no-op without one.
+    return unless family
     if family.inactive? || family.birth_family?
       self.exited    = true
       self.exit_date = Date.today

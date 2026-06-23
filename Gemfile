@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rails', '5.2.8.1'
-gem 'nokogiri', '~> 1.8.5'
+gem 'nokogiri', '~> 1.15.0'
 gem 'loofah', '~> 2.3.1'
 gem 'rails-html-sanitizer', '~> 1.0.4'
 gem 'json', '~> 2.3.0'
