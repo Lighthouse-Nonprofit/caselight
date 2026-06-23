@@ -22,6 +22,10 @@ class ClientHistory
   after_save :create_client_custom_field_property_history, if: 'object.key?("custom_field_property_ids")'
 
   def self.initial(client)
+    # Reload a fresh instance: on Rails 5, has_many :through caches (client.family_ids,
+    # case_ids, etc.) can be stale-empty when this runs inside an after_save, so the history
+    # would omit them. A fresh load queries the current associations.
+    client = Client.find(client.id)
     attributes = client.attributes
     attributes = attributes.merge('quantitative_case_ids' => client.quantitative_case_ids) if client.quantitative_case_ids.any?
     attributes = attributes.merge('agency_ids' => client.agency_ids) if client.agency_ids.any?

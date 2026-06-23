@@ -10,7 +10,7 @@ describe AdvancedSearches::ClientAdvancedSearch, 'Method' do
         {:id=>"given_name", :field=>"given_name", :type=>"string", :input=>"text", :operator=>"equal", :value=>"test"},
         {:id=>"code", :field=>"code", :type=>"integer", :input=>"text", :operator=>"greater", :value=>"1000"}
       ]
-    }
+    }.with_indifferent_access
     clients = AdvancedSearches::ClientAdvancedSearch.new(rules, Client.all).filter
 
     expect(clients).to include(client_2, client_3)
@@ -22,7 +22,7 @@ describe AdvancedSearches::ClientAdvancedSearch, 'Method' do
         {:id=>"given_name", :field=>"given_name", :type=>"string", :input=>"text", :operator=>"equal", :value=>"test"},
         {:id=>"code", :field=>"code", :type=>"integer", :input=>"text", :operator=>"greater", :value=>"100"}
       ]
-    }
+    }.with_indifferent_access
     clients = AdvancedSearches::ClientAdvancedSearch.new(rules, Client.all).filter
     expect(clients).to include(client, client_2, client_3, client_4)
   end

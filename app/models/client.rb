@@ -3,7 +3,9 @@ class Client < ActiveRecord::Base
   include NextClientEnrollmentTracking
   extend FriendlyId
 
-  attr_reader :assessments_count
+  # NOTE: `attr_reader :assessments_count` was removed in the Rails 5 upgrade. It shadowed the
+  # counter_cache column reader with an always-nil @ivar; Rails 5's increment! uses public_send,
+  # so the dead reader caused "undefined method `-' for nil" on every Assessment create.
   attr_accessor :assessment_id
   attr_accessor :organization, :case_type
 
