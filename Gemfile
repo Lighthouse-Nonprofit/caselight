@@ -80,11 +80,6 @@ end
 group :development do
   gem 'letter_opener',        '~> 1.4.1'
   gem 'rubocop',              '~> 0.47.1', require: false
-  gem 'capistrano-rails',     '~> 1.1.1'
-  gem 'capistrano-passenger', '~> 0.1.1'
-  gem 'capistrano-rvm',       '~> 0.1.2'
-  gem 'capistrano-sidekiq',   github: 'seuros/capistrano-sidekiq'
-  gem 'capistrano-foreman'
 end
 
 group :test do

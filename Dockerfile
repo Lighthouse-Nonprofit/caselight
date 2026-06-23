@@ -29,7 +29,12 @@ WORKDIR /app
 RUN gem install bundler -v '1.17.3'
 
 COPY Gemfile Gemfile.lock ./
-RUN bundle install --jobs 4 --retry 3 --without development test
+# Build-time bundle groups to skip. Default (prod) skips development+test -> a lean
+# runtime image. The dev/test image overrides this via the docker-compose.dev.yml build
+# arg ("staging demo production") so rspec/capybara/factories are baked in and survive
+# rebuilds, giving a repeatable per-rung test loop for the Rails upgrade.
+ARG BUNDLE_WITHOUT="development test"
+RUN bundle install --jobs 4 --retry 3 --without ${BUNDLE_WITHOUT}
 
 COPY . .
 
