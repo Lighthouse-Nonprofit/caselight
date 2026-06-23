@@ -5,24 +5,28 @@ Case-management and Record-keeping), maintained by **Lighthouse Nonprofit Techno
 for nonprofit case management — tracking clients, families, programs, assessments, and
 case notes.
 
-## Honest status
+## Status
 
-CaseLight does **not** modernize the underlying application. The app is still
-**Ruby 2.3.3 and Rails 4.2** — both end-of-life — inherited from upstream OSCaR. What this
-fork adds today is the operational layer *around* that EOL stack:
+CaseLight runs a **modernized, supported stack**. The application was migrated off the
+end-of-life **Ruby 2.3.3 / Rails 4.2** it inherited from upstream OSCaR up to current,
+maintained versions:
 
-- **Containerized deployment** that isolates the legacy Ruby/Rails toolchain so it never
-  has to be installed on, or fought with, a modern host OS. The EOL runtime lives only
-  inside a pinned Docker image.
-- A **documented, security-conscious deployment posture**: secrets stay out of the image
-  and out of git, services bind to localhost behind a reverse proxy, and per-deploy
-  secrets are generated rather than shipped.
-- **English-only** UI (upstream shipped English + Khmer).
-- **Local asset-serving fixes** so the app renders correctly when self-hosted, without
-  external object storage.
+- **Ruby 3.3.11 / Rails 7.1.5.1** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
+  6.1 → 7.0 → 7.1), each step verified green before the next. Zeitwerk autoloading and a
+  modern gem set throughout (Mongoid 8, ros-apartment 3.4, active_model_serializers 0.10,
+  paper_trail 15, factory_bot 6, …).
+- **MongoDB 6.0** for change/audit history (was 3.6), **PostgreSQL 9.6** as the primary
+  store, **Redis + Sidekiq** for background jobs.
+- **Containerized deployment** so the runtime lives only inside a pinned Docker image and
+  the host OS never has to carry the toolchain.
+- A **security-conscious posture**: secrets stay out of the image and out of git, services
+  bind to localhost behind a reverse proxy, and per-deploy secrets are generated rather
+  than shipped.
+- **English-only** UI (upstream shipped English + Khmer) and **local asset-serving** so the
+  app renders correctly self-hosted, without external object storage.
 
-Modernizing the Ruby/Rails stack itself is **ongoing future work** — it is not something
-this fork has done yet. Please do not read "containerized / hardened" as "modern stack."
+Intentionally **not** carried over from upstream for the current pilot scope: the Khmer
+locale, the Thredded community forum, and the v1 mobile API.
 
 ## Credits & license
 
@@ -40,10 +44,10 @@ your fork's source accordingly.
 
 | Component | Version | Notes |
 |---|---|---|
-| Ruby | 2.3.3 | EOL; runs only inside the Docker image |
-| Rails | 4.2 | EOL |
-| PostgreSQL | 9.6 | primary relational store |
-| MongoDB | 3.6 | change / audit history |
+| Ruby | 3.3.11 | runs inside the Docker image (`ruby:3.3`, Debian Bookworm) |
+| Rails | 7.1.5.1 | |
+| PostgreSQL | 9.6 | primary relational store (pg 1.6) |
+| MongoDB | 6.0 | change / audit history (Mongoid 8.1) |
 | Redis + Sidekiq | redis 5 / sidekiq 4 | background jobs |
 | App server | thin | behind a reverse proxy |
 
@@ -62,7 +66,7 @@ cp .env.example .env
 #      DATABASE_PASSWORD=$(openssl rand -hex 24)
 #    Edit .env accordingly. .env is gitignored — never commit it.
 
-# 2. Build the image (compiles the pinned EOL gems; the first build is slow).
+# 2. Build the image (compiles native gems; the first build is slow).
 docker compose build
 
 # 3. Start the datastores, then create + migrate the database.
@@ -89,6 +93,7 @@ tenant → seed → up); tune the `TENANT_SHORT` / `TENANT_FULL` values at the t
 
 - Secrets live only in `.env`, which is gitignored; the image ships none.
 - The app binds to localhost — expose it only via a TLS reverse proxy.
-- This is an end-of-life stack. Keep it isolated inside the container, behind a proxy, and
-  patched at the edges (host OS, proxy, TLS). Treat stack modernization as the priority for
-  any production use beyond a pilot.
+- The stack is current (Ruby 3.3 / Rails 7.1), but still runs containerized for isolation and
+  reproducibility. Keep the edges patched (host OS, proxy, TLS) and rebuild the image to pick
+  up gem/security updates. PostgreSQL is still pinned at 9.6 — plan a bump (→ 14+) before any
+  production use beyond the pilot.
