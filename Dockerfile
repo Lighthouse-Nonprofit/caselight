@@ -25,10 +25,13 @@ RUN curl -fsSL https://nodejs.org/dist/v8.17.0/node-v8.17.0-linux-x64.tar.xz \
 
 WORKDIR /app
 
-# Bundler 2.1.4 — newest that still runs on Ruby 2.3.3 / RubyGems 2.5, and its
-# backtracking resolver is required to resolve the Rails 5.x dependency graph
-# (Bundler 1.17 could not). The lockfile is Bundler 2 format.
-RUN gem install bundler -v '2.1.4'
+# Bundler 2.1.4 — newest that still runs on Ruby 2.3.3 / RubyGems 2.5; its backtracking resolver
+# is required to resolve the Rails 5.x dependency graph (Bundler 1.17 could not), and the lockfile
+# is Bundler 2 format. The image's preinstalled bundler 1.14.6 cannot be uninstalled, and
+# `bundle exec` would otherwise load it and choke on the Bundler-2 lockfile, so BUNDLER_VERSION
+# pins every bundle invocation (install / exec / runtime) to 2.1.4.
+RUN gem install bundler -v '2.1.4' --no-document
+ENV BUNDLER_VERSION=2.1.4
 
 COPY Gemfile Gemfile.lock ./
 # Build-time bundle groups to skip. Default (prod) skips development+test -> a lean
@@ -36,10 +39,7 @@ COPY Gemfile Gemfile.lock ./
 # arg ("staging demo production") so rspec/capybara/factories are baked in and survive
 # rebuilds, giving a repeatable per-rung test loop for the Rails upgrade.
 ARG BUNDLE_WITHOUT="development test"
-# `bundle _2.1.4_` pins the RubyGems version selector: the ruby:2.3.3 image ships bundler
-# 1.14.6 as a default gem and RubyGems 2.5 does NOT auto-select by the lock's BUNDLED WITH,
-# so a bare `bundle` would run 1.14.6 and choke on the Bundler-2 lockfile.
-RUN bundle _2.1.4_ install --jobs 4 --retry 3 --without ${BUNDLE_WITHOUT}
+RUN bundle install --jobs 4 --retry 3 --without ${BUNDLE_WITHOUT}
 
 COPY . .
 
@@ -67,7 +67,7 @@ RUN SECRET_KEY_BASE=dummy RAILS_ENV=production PRECOMPILE_ASSETS=true \
     ASSET_SYNC_ENABLED=false \
     AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
     FOG_DIRECTORY=dummy FOG_REGION=us-east-1 \
-    bundle _2.1.4_ exec rake assets:precompile
+    bundle exec rake assets:precompile
 
 EXPOSE 3000
-CMD ["bundle", "_2.1.4_", "exec", "thin", "start", "-a", "0.0.0.0", "-p", "3000", "-e", "production"]
+CMD ["bundle", "exec", "thin", "start", "-a", "0.0.0.0", "-p", "3000", "-e", "production"]
