@@ -42,3 +42,9 @@ services:
     volumes:
       - .:/app
     command: bundle exec sidekiq -e development
+
+  # Dev runs PostgreSQL 17. The base compose (and the prod box) stay on 9.6 until prod's own
+  # dump/restore migration, so overriding here keeps dev ahead without touching prod. The dev
+  # caselight_pg volume was migrated 9.6 -> 17 via pg_dump (PG17 client) | pg_restore.
+  db:
+    image: postgres:17
