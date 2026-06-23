@@ -15,7 +15,10 @@ class CustomFieldProperty < ActiveRecord::Base
 
   after_save :create_client_history, if: :client_form?
 
-  validates :custom_field_id, presence: true
+  # Validate the association (present whether or not it's persisted) rather than the FK id:
+  # factory_bot 6's use_parent_strategy builds (doesn't save) associations, so a built record
+  # has a custom_field but no custom_field_id yet. Equivalent at runtime.
+  validates :custom_field, presence: true
 
   validate do |obj|
     CustomFormPresentValidator.new(obj, 'custom_field', 'fields').validate

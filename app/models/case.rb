@@ -16,8 +16,8 @@ class Case < ActiveRecord::Base
   scope :most_recents,   -> { order('created_at desc') }
   scope :active,         -> { where(exited: false) }
   scope :inactive,       -> { where(exited: true) }
-  scope :with_reports,   -> { joins(:quarterly_reports).uniq }
-  scope :with_contracts, -> { joins(:case_contracts).uniq }
+  scope :with_reports,   -> { joins(:quarterly_reports).distinct }
+  scope :with_contracts, -> { joins(:case_contracts).distinct }
   scope :case_types,     -> { exclude_referred.pluck(:case_type).uniq }
   scope :currents,       -> { active.where(current: true) }
   scope :exclude_referred, -> { where.not(case_type: 'Referred') }
@@ -33,6 +33,9 @@ class Case < ActiveRecord::Base
   before_validation :set_attributes, if: -> { new_record? && start_date.nil? }
 
   def set_attributes
+    # belongs_to :family is optional, so guard against a nil family — this whole callback
+    # derives Case attributes from the family and is a no-op without one.
+    return unless family
     if family.inactive? || family.birth_family?
       self.exited    = true
       self.exit_date = Date.today
@@ -101,9 +104,9 @@ class Case < ActiveRecord::Base
     c = Client.find(client.id)
     if new_record? && c.cases.exclude_referred.active.size > 1
       c.cases.exclude_referred.update_all(current: false)
-      c.cases.exclude_referred.last.update_attributes(current: true)
+      c.cases.exclude_referred.last.update(current: true)
     elsif c.cases.exclude_referred.active.size == 1 && c.cases.exclude_referred.active.first.ec? && !c.cases.exclude_referred.active.first.current?
-      c.cases.exclude_referred.first.update_attributes(current: true)
+      c.cases.exclude_referred.first.update(current: true)
     end
   end
 
@@ -134,7 +137,7 @@ class Case < ActiveRecord::Base
   end
 
   def update_client_code
-    client.update_attributes(code: generate_client_code) if client.code.blank? && not_ec?
+    client.update(code: generate_client_code) if client.code.blank? && not_ec?
   end
 
   def generate_client_code

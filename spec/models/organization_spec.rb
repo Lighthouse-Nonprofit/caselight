@@ -36,8 +36,10 @@ RSpec.describe Organization, type: :model do
 
       it 'built a tanent' do
         org = Organization.create_and_build_tanent(short_name: 'testing2', full_name: 'Testing')
-        tanent = Apartment::Tenant.switch!(org.short_name)
-        expect(tanent).to include(org.short_name)
+        Apartment::Tenant.switch!(org.short_name)
+        # ros-apartment's switch! no longer returns the search_path string; assert the
+        # active tenant instead (the meaningful outcome).
+        expect(Apartment::Tenant.current).to eq(org.short_name)
       end
     end
     context 'Fail' do

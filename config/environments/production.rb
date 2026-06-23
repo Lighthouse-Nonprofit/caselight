@@ -4,6 +4,17 @@ Rails.application.configure do
   # Code is not reloaded between requests.
   config.cache_classes = true
 
+  # Rails 6 host authorization (ActionDispatch::HostAuthorization) 403s requests whose Host
+  # header isn't allow-listed. The pilot is multi-tenant by subdomain on one box behind a proxy.
+  # Set APP_HOST in the box .env (e.g. "caselight.example.org") to allow it + its subdomains; if
+  # unset, leave host auth unenforced so a bare-IP / proxied deploy still serves.
+  if ENV['APP_HOST'].present?
+    config.hosts << ENV['APP_HOST']
+    config.hosts << ".#{ENV['APP_HOST']}"
+  else
+    config.hosts.clear
+  end
+
   # Eager load code on boot. This eager loads most of Rails and
   # your application in memory, allowing both threaded web servers
   # and those relying on copy on write to perform better.
@@ -24,8 +35,9 @@ Rails.application.configure do
   # Apache or NGINX already handles this.
   config.serve_static_files = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
-  # Compress JavaScripts and CSS.
-  config.assets.js_compressor = :uglifier
+  # Compress JavaScripts and CSS. harmony: true lets uglifier minify ES6 (some bundled/vendored
+  # JS now uses `const`/arrow fns); without it precompile aborts on "Unexpected token: keyword (const)".
+  config.assets.js_compressor = Uglifier.new(harmony: true)
   # config.assets.css_compressor = :sass
 
 

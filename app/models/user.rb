@@ -12,7 +12,6 @@ class User < ActiveRecord::Base
 
   has_paper_trail
 
-  include DeviseTokenAuth::Concerns::User
 
   belongs_to :province,   counter_cache: true
   belongs_to :department, counter_cache: true
@@ -24,9 +23,9 @@ class User < ActiveRecord::Base
   has_many :clients, through: :case_worker_clients
   has_many :case_worker_tasks, dependent: :destroy
   has_many :tasks, through: :case_worker_tasks
-  has_many :calendars
   has_many :visits,  dependent: :destroy
   has_many :visit_clients,  dependent: :destroy
+  has_many :calendars, dependent: :destroy
   has_many :custom_field_properties, as: :custom_formable, dependent: :destroy
   has_many :custom_fields, through: :custom_field_properties, as: :custom_formable
 
@@ -43,7 +42,7 @@ class User < ActiveRecord::Base
   scope :case_workers,    ->        { where(roles: 'case worker') }
   scope :admins,          ->        { where(roles: 'admin') }
   scope :province_are,    ->        { joins(:province).pluck('provinces.name', 'provinces.id').uniq }
-  scope :has_clients,     ->        { joins(:clients).without_json_fields.uniq }
+  scope :has_clients,     ->        { joins(:clients).without_json_fields.distinct }
   scope :managers,        ->        { where(roles: MANAGERS) }
   scope :able_managers,   ->        { where(roles: 'able manager') }
   scope :ec_managers,     ->        { where(roles: 'ec manager') }
@@ -53,8 +52,8 @@ class User < ActiveRecord::Base
   scope :staff_performances,         -> { where(staff_performance_notification: true) }
 
   before_save :assign_as_admin
-  before_save :set_manager_ids, if: 'manager_id_changed?'
-  after_save :reset_manager, if: 'roles_changed?'
+  before_save :set_manager_ids, if: :manager_id_changed?
+  after_save :reset_manager, if: :saved_change_to_roles?
 
   ROLES.each do |role|
     define_method("#{role.parameterize.underscore}?") do
@@ -171,7 +170,10 @@ class User < ActiveRecord::Base
   end
 
   def reset_manager
-    if roles_change.last == 'case worker' || roles_change.last == 'strategic overviewer'
+    # In an after_save, Rails 5.2 deprecated the pre-save dirty API (roles_change) in favor of the
+    # post-save API; saved_change_to_roles returns [old, new] for the just-completed save (or nil).
+    new_role = saved_change_to_roles&.last
+    if new_role == 'case worker' || new_role == 'strategic overviewer'
       User.where(manager_id: self).map{|u| u.update(manager_id: nil)}
     end
   end

@@ -53,6 +53,11 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
+  # Rails 6+ ActionDispatch::HostAuthorization 403s any Host not in the allow-list, which trips on
+  # the multi-tenant subdomain hosts (cases.lvh.me, cases.localhost, etc.). It adds little value on a
+  # local dev box, so disable it here — any host reaches the app. (Canonical dev URL: cases.lvh.me:3001.)
+  config.hosts.clear
+
   config.action_mailer.default_url_options = { host: 'lvh.me', port: 3000 }
   config.action_mailer.delivery_method = :letter_opener
 

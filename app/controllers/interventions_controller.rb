@@ -18,7 +18,7 @@ class InterventionsController < AdminController
   end
 
   def update
-    if @intervention.update_attributes(intervention_params)
+    if @intervention.update(intervention_params)
       redirect_to interventions_path, notice: t('.successfully_updated')
     else
       redirect_to interventions_path, alert: t('.failed_update')

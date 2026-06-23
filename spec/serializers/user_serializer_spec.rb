@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
   let(:user) { create(:user) }
-  let(:serializer) { UserSerializer.new(user).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(user, serializer: UserSerializer, adapter: :json).to_json }
 
   it 'should be have attribute users as root path' do
     expect(serializer).to have_json_size(1)

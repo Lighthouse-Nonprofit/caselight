@@ -18,7 +18,7 @@ class DepartmentsController < AdminController
   end
 
   def update
-    if @department.update_attributes(department_params)
+    if @department.update(department_params)
       redirect_to departments_path, notice: t('.successfully_updated')
     else
       redirect_to departments_path, alert: t('.failed_update')

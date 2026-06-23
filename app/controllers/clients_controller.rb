@@ -67,7 +67,7 @@ class ClientsController < AdminController
   end
 
   def update
-    if @client.update_attributes(client_params)
+    if @client.update(client_params)
       if params[:client][:assessment_id]
         @assessment = Assessment.find(params[:client][:assessment_id])
         redirect_to client_assessment_path(@client, @assessment), notice: t('.assessment_successfully_created')
@@ -135,6 +135,9 @@ class ClientsController < AdminController
   end
 
   def initial_visit_client
+    # Rails 5.1's recognize_path calls #encoding on its argument, so a nil referrer (direct
+    # navigation / bookmark / no Referer header) raises NoMethodError instead of being ignored.
+    return unless request.referrer.present?
     referrer = Rails.application.routes.recognize_path(request.referrer)
     return unless referrer.present?
     white_list_referrers = %w(clients client_advanced_searches)

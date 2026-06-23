@@ -28,7 +28,7 @@ module AbleScreens
       end
 
       def update
-        if @stage.update_attributes(stage_params)
+        if @stage.update(stage_params)
           redirect_to able_screens_question_submissions_stages_url, notice: t('.successfully_updated')
         else
           render :edit

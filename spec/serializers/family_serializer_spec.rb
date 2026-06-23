@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe FamilySerializer, type: :serializer do
   let(:family) { create(:family) }
-  let(:serializer) { FamilySerializer.new(family).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(family, serializer: FamilySerializer, adapter: :json).to_json }
 
   it 'should be have attribute family as root path' do
     expect(serializer).to have_json_size(1)

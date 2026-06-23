@@ -40,7 +40,7 @@ class PartnersController < AdminController
   end
 
   def update
-    if @partner.update_attributes(partner_params)
+    if @partner.update(partner_params)
       redirect_to @partner, notice: t('.successfully_updated')
     else
       render :edit

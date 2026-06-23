@@ -29,7 +29,7 @@ class SurveysController < AdminController
   end
 
   def update
-    if @survey.update_attributes(survey_params)
+    if @survey.update(survey_params)
       redirect_to client_survey_path(@client, @survey), notice: t('.successfully_updated')
     else
       render :edit

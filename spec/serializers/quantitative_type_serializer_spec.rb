@@ -3,7 +3,7 @@ require 'spec_helper'
 describe DomainGroupSerializer, type: :serializer do
   let(:quantitative_type) { create(:quantitative_type) }
   let!(:quantitative_case) { create(:quantitative_case, quantitative_type: quantitative_type)}
-  let(:serializer) { QuantitativeTypeSerializer.new(quantitative_type).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(quantitative_type, serializer: QuantitativeTypeSerializer, adapter: :json).to_json }
 
   it 'should be have attribute quantitative_type as root path' do
     expect(serializer).to have_json_size(1)

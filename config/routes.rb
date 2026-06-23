@@ -11,15 +11,14 @@ Rails.application.routes.draw do
   end
 
   get '/dashboards'     => 'dashboards#index'
-  get '/redirect'       => 'calendars#redirect', as: 'redirect'
-  get '/callback'       => 'calendars#callback', as: 'callback'
-  get '/calendar/sync'  => 'calendars#sync'
-
-  resources :calendars
-
-  mount Thredded::Engine => '/forum'
 
   get '/quantitative_data' => 'clients#quantitative_case'
+
+  # Google Calendar sync (re-added on upgrade/rails-7.1; see REMOVED-FEATURES.md).
+  get '/redirect'      => 'calendars#redirect', as: 'redirect'
+  get '/callback'      => 'calendars#callback', as: 'callback'
+  get '/calendar/sync' => 'calendars#sync'
+  resources :calendars
 
   resources :agencies, except: [:show] do
     get 'version' => 'agencies#version'
@@ -167,9 +166,16 @@ Rails.application.routes.draw do
 
   resources :notifications, only: [:index]
 
+  # NOTE: the versioned mobile API (namespace :v1) + devise_token_auth were removed on
+  # branch upgrade/rails-7.1 (see REMOVED-FEATURES.md). These remaining /api endpoints are
+  # AJAX helpers the WEB UI depends on (duplicate detection, dynamic form fields, advanced
+  # search filters, query builder) — keep them.
   namespace :api do
-    mount_devise_token_auth_for 'User', at: '/v1/auth', skip: [:passwords]
     resources :form_builder_attachments, only: :destroy
+
+    resources :calendars do
+      get :find_event, on: :collection
+    end
 
     resources :clients do
       get :compare, on: :collection
@@ -187,9 +193,6 @@ Rails.application.routes.draw do
         get :get_exit_program_field
       end
     end
-    resources :calendars do
-      get :find_event, on: :collection
-    end
     resources :program_stream_add_rule, only: [] do
       collection do
         get :get_fields
@@ -200,35 +203,6 @@ Rails.application.routes.draw do
       get :enrollment_fields
       get :exit_program_fields
       get :tracking_fields
-    end
-
-    namespace :v1, default: { format: :json } do
-      resources :organizations, only: [:index]
-      resources :domain_groups, only: [:index]
-      resources :departments, only: [:index]
-      resources :families, only: [:index, :create, :update]
-      resources :users, only: [:index, :show]
-      resources :clients, except: [:edit, :new] do
-        get :compare, on: :collection
-        resources :assessments, only: [:create, :update, :destroy, :delete]
-        resources :case_notes, only: [:create, :update, :delete, :destroy]
-        resources :custom_field_properties, only: [:create, :update, :destroy]
-
-        scope module: 'client_tasks' do
-          resources :tasks, only: [:create, :update, :destroy]
-        end
-        resources :client_enrollments, only: [:create, :update] do
-          resources :client_enrollment_trackings, only: [:create, :update]
-          resources :leave_programs, only: [:create, :update]
-        end
-      end
-      resources :program_streams, only: [:index]
-      resources :provinces, only: [:index]
-      resources :donors, only: [:index]
-      resources :agencies, only: [:index]
-      resources :referral_sources, only: [:index]
-      resources :domains, only: [:index]
-      resources :quantitative_types, only: [:index]
     end
   end
 

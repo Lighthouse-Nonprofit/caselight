@@ -18,7 +18,7 @@ class MaterialsController < AdminController
   end
 
   def update
-    if @material.update_attributes(material_params)
+    if @material.update(material_params)
       redirect_to materials_path, notice: t('.successfully_updated')
     else
       redirect_to materials_path, alert: t('.failed_update')

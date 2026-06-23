@@ -1,35 +1,31 @@
-# Dockerfile - OSCaR (Ruby 2.3.3 / Rails 4.2.2), pinned to its EOL toolchain.
-# Goal: isolate the ancient stack so the host OS never has to compile Ruby 2.3.
+# Dockerfile - CaseLight (Ruby 3.3 / Rails 7.x), modernized off the EOL 2.3.3/4.2.2 stack.
 # The build, not the run, is where you will spend time. See OPERATIONS.md.
 
-FROM ruby:2.3.3
+FROM ruby:3.3
 
-# The ruby:2.3.3 image is Debian Jessie; its apt mirrors are archived AND the
-# archive's GPG signing keys are now expired (KEYEXPIRED / NO_PUBKEY). So apt
-# can fetch but refuses to install unauthenticated pkgs under -y. --force-yes is
-# apt's own prescribed override (this apt is 1.0.x); it installs whatever libpq
-# the pinned Jessie archive serves (9.4.x, matches pg 0.18.4) — no version bump.
-RUN printf 'deb http://archive.debian.org/debian jessie main\n\
-deb http://archive.debian.org/debian-security jessie/updates main\n' \
-      > /etc/apt/sources.list \
- && printf 'Acquire::Check-Valid-Until "false";\n' \
-      > /etc/apt/apt.conf.d/10no-check-valid-until \
- && apt-get update \
- && apt-get install -y --force-yes --no-install-recommends libpq-dev \
+# ruby:3.3 is Debian Bookworm (current stable), apt mirrors live — normal install.
+# Only libpq-dev (for the pg gem) is required; gcc/make/git ship in the base image.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libpq-dev \
  && rm -rf /var/lib/apt/lists/*
 
-# Node is needed only for execjs asset precompilation. Binary tarball avoids
-# the dead Jessie apt repos entirely.
+# Node is needed only for execjs asset precompilation. Binary tarball keeps the
+# version pinned and independent of apt.
 RUN curl -fsSL https://nodejs.org/dist/v8.17.0/node-v8.17.0-linux-x64.tar.xz \
       | tar -xJ -C /usr/local --strip-components=1
 
 WORKDIR /app
 
-# Bundler 1.x matches the lockfile era. Do not bundle update.
-RUN gem install bundler -v '1.17.3'
+# Use the bundler that ships with ruby:3.3 (2.5.x) — it reads the lockfile and is current
+# for Ruby 3.3 (the old 2.1.4 pin was for the Ruby 2.3 era).
 
 COPY Gemfile Gemfile.lock ./
-RUN bundle install --jobs 4 --retry 3 --without development test
+# Build-time bundle groups to skip. Default (prod) skips development+test -> a lean
+# runtime image. The dev/test image overrides this via the docker-compose.dev.yml build
+# arg ("staging demo production") so rspec/capybara/factories are baked in and survive
+# rebuilds, giving a repeatable per-rung test loop for the Rails upgrade.
+ARG BUNDLE_WITHOUT="development test"
+RUN bundle install --jobs 4 --retry 3 --without ${BUNDLE_WITHOUT}
 
 COPY . .
 

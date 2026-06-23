@@ -5,7 +5,7 @@
         .dropdown.profile-element
           .image-wrapper.text-center
             = link_to root_path do
-              = image_tag(Organization.current.logo, class: 'img-circle')
+              = image_tag(Organization.current.logo.url, class: 'img-circle')
           %hr.line-border
           %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
             %span.clear
@@ -22,7 +22,7 @@
               = link_to t('.log_out'), destroy_user_session_path, method: :delete
         .logo-element.custom
           = link_to root_path do
-            = image_tag(Organization.current.logo, class: 'log-min img-responsive')
+            = image_tag(Organization.current.logo.url, class: 'log-min img-responsive')
       - if user_signed_in?
         %li{class: "#{active_menu('dashboards')}"}
           = link_to root_path do
@@ -116,7 +116,3 @@
             = link_to data_trackers_path do
               = fa_icon('area-chart')
               %span.nav-label= t('.changelogs')
-        %li
-          = link_to thredded_path, target: '_blank' do
-            = fa_icon('question-circle')
-            %span.nav-label= t('faq')

@@ -10,11 +10,11 @@ RSpec.describe Stage, type: :model do
     it { is_expected.to validate_numericality_of(:from_age) }
     it { is_expected.to validate_numericality_of(:to_age) }
     it 'should validate uniqueness of to_age scoped to from_age' do
-      FactoryGirl.create(:stage)
+      FactoryBot.create(:stage)
       should validate_uniqueness_of(:to_age).scoped_to(:from_age)
     end
     it 'should validate numericality of to_age to be greater than from_age' do
-      stage = FactoryGirl.create(:stage)
+      stage = FactoryBot.create(:stage)
       expect(stage.to_age).to be > stage.from_age
     end
   end

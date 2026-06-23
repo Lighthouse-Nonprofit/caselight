@@ -14,7 +14,7 @@ class UserReminder
   private
 
   def remind_case_workers(org)
-    case_workers = User.without_json_fields.joins(:tasks).merge(Task.overdue_incomplete).uniq
+    case_workers = User.without_json_fields.joins(:tasks).merge(Task.overdue_incomplete).distinct
     case_workers.each do |case_worker|
       CaseWorkerWorker.perform_async(case_worker.id, org.short_name)
     end
@@ -22,7 +22,7 @@ class UserReminder
 
   def remind_manager_and_admin(org)
     main_manager_id = 0
-    case_workers_by_manager = User.without_json_fields.joins(:tasks).merge(Task.overdue_incomplete).uniq.group_by(&:manager_id)
+    case_workers_by_manager = User.without_json_fields.joins(:tasks).merge(Task.overdue_incomplete).distinct.group_by(&:manager_id)
     case_workers_by_manager.each do |manager_id, case_workers|
       if manager_id.present?
         manager = User.find manager_id

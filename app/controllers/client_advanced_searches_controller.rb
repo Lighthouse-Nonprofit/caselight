@@ -41,7 +41,7 @@ class ClientAdvancedSearchesController < AdminController
   end
 
   def get_custom_form
-    @custom_fields  = CustomField.joins(:custom_field_properties).client_forms.order_by_form_title.uniq
+    @custom_fields  = CustomField.joins(:custom_field_properties).client_forms.order_by_form_title.distinct
   end
 
   def program_stream_fields
@@ -54,7 +54,7 @@ class ClientAdvancedSearchesController < AdminController
   end
 
   def get_program_streams
-    @program_streams = ProgramStream.complete.joins(:client_enrollments).order(:name).uniq
+    @program_streams = ProgramStream.complete.joins(:client_enrollments).order(:name).distinct
   end
 
   def program_stream_values

@@ -37,7 +37,7 @@
                                   .row
                                     .col-xs-12.text-center.able-screening-image
                                       - if answer_builder.object.has_image?
-                                        = image_tag(answer_builder.object.able_screening_question.attachments.first.try(:image).try(:thumb))
+                                        = image_tag(answer_builder.object.able_screening_question.attachments.first.try(:image).try(:thumb).try(:url))
                                       - else
                                         .image-default
                                           = image_tag('image-placeholder.png')

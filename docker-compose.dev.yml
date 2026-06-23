@@ -12,6 +12,14 @@
 
 services:
   app:
+    # Build the dev/test image with ALL gem groups (rspec/capybara/factory_bot) baked in,
+    # so the test suite survives rebuilds (a repeatable per-rung loop for the Rails upgrade).
+    # Overrides the Dockerfile's prod default of `--without development test`; here we skip
+    # only the prod-only groups. The box build does NOT pass this arg, so prod stays lean.
+    build:
+      context: .
+      args:
+        BUNDLE_WITHOUT: "staging demo production"
     # Live-mount the source so edits apply without a rebuild. Gems live in the
     # image at /usr/local/bundle and are not shadowed by this mount.
     volumes:
@@ -27,6 +35,10 @@ services:
     tty: true
 
   sidekiq:
+    build:
+      context: .
+      args:
+        BUNDLE_WITHOUT: "staging demo production"
     volumes:
       - .:/app
     command: bundle exec sidekiq -e development

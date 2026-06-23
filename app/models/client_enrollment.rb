@@ -43,7 +43,7 @@ class ClientEnrollment < ActiveRecord::Base
   def set_client_status
     client = Client.find self.client_id
     client_status = 'Active' unless client.cases.exclude_referred.currents.present?
-    client.update_attributes(status: client_status) if client_status.present?
+    client.update(status: client_status) if client_status.present?
   end
 
   def get_form_builder_attachment(value)

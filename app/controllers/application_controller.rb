@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  include Pundit
+  include Pundit::Authorization
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :null_session, if: proc { |c| c.request.format == 'application/json' }
@@ -30,19 +30,13 @@ class ApplicationController < ActionController::Base
   private
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:account_update) << :first_name
-    devise_parameter_sanitizer.for(:account_update) << :last_name
-    devise_parameter_sanitizer.for(:account_update) << :date_of_birth
-    devise_parameter_sanitizer.for(:account_update) << :job_title
-    devise_parameter_sanitizer.for(:account_update) << :department_id
-    devise_parameter_sanitizer.for(:account_update) << :start_date
-    devise_parameter_sanitizer.for(:account_update) << :province_id
-    devise_parameter_sanitizer.for(:account_update) << :mobile
-    devise_parameter_sanitizer.for(:account_update) << :task_notify
-    devise_parameter_sanitizer.for(:account_update) << :calendar_integration
-    devise_parameter_sanitizer.for(:account_update) << :pin_number
-    devise_parameter_sanitizer.for(:account_update) << :program_warning
-    devise_parameter_sanitizer.for(:account_update) << :staff_performance_notification
+    # Devise 4 (Rails 5) replaced the `.for(scope) << :attr` sanitizer API with
+    # `.permit(scope, keys: [...])`. Same allow-list, current idiom.
+    devise_parameter_sanitizer.permit(:account_update, keys: [
+      :first_name, :last_name, :date_of_birth, :job_title, :department_id,
+      :start_date, :province_id, :mobile, :task_notify, :calendar_integration,
+      :pin_number, :program_warning, :staff_performance_notification
+    ])
   end
 
   def find_association

@@ -34,7 +34,7 @@ class Client::TasksController < AdminController
   def update
     find_calendars(@task)
 
-    if @task.update_attributes(task_params)
+    if @task.update(task_params)
       Calendar.update_tasks(@calendars, task_params) if current_user.calendar_integration? && @calendars.present?
 
       redirect_to client_tasks_path(@client), notice: t('.successfully_updated')
@@ -97,6 +97,6 @@ class Client::TasksController < AdminController
     title      = "#{domain.name} - #{task_name}"
     start_date = task.completion_date
     end_date   = (start_date + 1.day).to_s
-    @calendars  = Calendar.where(title: title, start_date: start_date, end_date: end_date)
+    @calendars = Calendar.where(title: title, start_date: start_date, end_date: end_date)
   end
 end

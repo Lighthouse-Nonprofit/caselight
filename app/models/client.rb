@@ -3,7 +3,9 @@ class Client < ActiveRecord::Base
   include NextClientEnrollmentTracking
   extend FriendlyId
 
-  attr_reader :assessments_count
+  # NOTE: `attr_reader :assessments_count` was removed in the Rails 5 upgrade. It shadowed the
+  # counter_cache column reader with an always-nil @ivar; Rails 5's increment! uses public_send,
+  # so the dead reader caused "undefined method `-' for nil" on every Assessment create.
   attr_accessor :assessment_id
   attr_accessor :organization, :case_type
 
@@ -46,8 +48,11 @@ class Client < ActiveRecord::Base
   accepts_nested_attributes_for :tasks
   accepts_nested_attributes_for :answers
 
-  has_many :families,       through: :cases
+  # Rails 5.1 requires the through-association to be declared before the association that goes
+  # through it (5.0 resolved this lazily); `:cases` must come before `:families, through: :cases`,
+  # else `client.family_ids` raises ActiveRecord::HasManyThroughOrderError.
   has_many :cases,          dependent: :destroy
+  has_many :families,       through: :cases
   has_many :case_notes,     dependent: :destroy
   has_many :assessments,    dependent: :destroy
   # has_many :surveys,        dependent: :destroy
@@ -58,7 +63,7 @@ class Client < ActiveRecord::Base
   validates :rejected_note, presence: true, on: :update, if: :reject?
   validates :exit_date, presence: true, on: :update, if: :exit_ngo?
   validates :exit_note, presence: true, on: :update, if: :exit_ngo?
-  validates :kid_id, uniqueness: { case_sensitive: false }, if: 'kid_id.present?'
+  validates :kid_id, uniqueness: { case_sensitive: false }, if: -> { kid_id.present? }
   validates :user_ids, presence: true
 
   after_update :reset_tasks_of_users
@@ -84,11 +89,11 @@ class Client < ActiveRecord::Base
   scope :slug_like,                   ->(value) { where('clients.slug iLIKE ?', "%#{value}%") }
   scope :kid_id_like,                 ->(value) { where('clients.kid_id iLIKE ?', "%#{value}%") }
   scope :start_with_code,             ->(value) { where('clients.code iLIKE ?', "#{value}%") }
-  scope :find_by_family_id,           ->(value) { joins(cases: :family).where('families.id = ?', value).uniq }
+  scope :find_by_family_id,           ->(value) { joins(cases: :family).where('families.id = ?', value).distinct }
   scope :status_like,                 ->        { CLIENT_STATUSES }
-  scope :is_received_by,              ->        { joins(:received_by).pluck("CONCAT(users.first_name, ' ' , users.last_name)", 'users.id').uniq }
+  scope :is_received_by,              ->        { joins(:received_by).pluck(Arel.sql("CONCAT(users.first_name, ' ' , users.last_name)"), 'users.id').uniq }
   scope :referral_source_is,          ->        { joins(:referral_source).pluck('referral_sources.name', 'referral_sources.id').uniq }
-  scope :is_followed_up_by,           ->        { joins(:followed_up_by).pluck("CONCAT(users.first_name, ' ' , users.last_name)", 'users.id').uniq }
+  scope :is_followed_up_by,           ->        { joins(:followed_up_by).pluck(Arel.sql("CONCAT(users.first_name, ' ' , users.last_name)"), 'users.id').uniq }
   scope :province_is,                 ->        { joins(:province).pluck('provinces.name', 'provinces.id').uniq }
   scope :accepted,                    ->        { where(state: 'accepted') }
   scope :rejected,                    ->        { where(state: 'rejected') }
@@ -268,7 +273,11 @@ class Client < ActiveRecord::Base
   end
 
   def set_slug_as_alias
-    paper_trail.without_versioning { |obj| obj.update_attributes(slug: "#{Organization.current.try(:short_name)}-#{id}") }
+    # paper_trail 10 removed RecordTrail#without_versioning; disable versioning for the block
+    # via PaperTrail.request(enabled: false). (update_attributes -> update for Rails 6.)
+    PaperTrail.request(enabled: false) do
+      update(slug: "#{Organization.current.try(:short_name)}-#{id}")
+    end
   end
 
   def set_able_status

@@ -20,11 +20,18 @@ class ProgramStream < ActiveRecord::Base
 
   after_save :set_program_completed
 
-  scope  :ordered,     ->         { order('lower(name) ASC') }
+  scope  :ordered,     ->         { order(Arel.sql('lower(name) ASC')) }
   scope  :complete,    ->         { where(completed: true) }
   scope  :ordered_by,  ->(column) { order(column) }
-  scope  :filter,      ->(value)  { where(id: value) }
   scope  :name_like,   ->(value)  { where(name: value) }
+
+  # `filter` cannot be a scope on Ruby 2.6+: ActiveRecord::Relation now defines #filter
+  # (an Enumerable alias for select), so `scope :filter` raises a dangerous-name ArgumentError
+  # at class load. A class method preserves ProgramStream.filter(value) and matches the
+  # `def self.filter` pattern already used in Client and Task.
+  def self.filter(value)
+    where(id: value)
+  end
 
   def self.inactive_enrollments(client)
     joins(:client_enrollments).where("client_id = ? AND client_enrollments.created_at = (SELECT MAX(client_enrollments.created_at) FROM client_enrollments WHERE client_enrollments.program_stream_id = program_streams.id AND client_enrollments.client_id = #{client.id}) AND client_enrollments.status = 'Exited' ", client.id).ordered
@@ -35,7 +42,7 @@ class ProgramStream < ActiveRecord::Base
   end
 
   def self.without_status_by(client)
-    ids = includes(:client_enrollments).where(client_enrollments: { client_id: client.id }).order('client_enrollments.status ASC', :name).uniq.collect(&:id)
+    ids = includes(:client_enrollments).where(client_enrollments: { client_id: client.id }).order('client_enrollments.status ASC', :name).distinct.collect(&:id)
     where.not(id: ids).ordered
   end
 

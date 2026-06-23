@@ -19,6 +19,11 @@ class CustomField < ActiveRecord::Base
   validates :fields, presence: true
   validate  :uniq_fields, :field_label, if: -> { fields.present? }
 
+  # Rails 5 jsonb no longer auto-parses a JSON String on assign (Rails 4.2 did). The form
+  # builder submits `fields` as a JSON string, so parse it before validations run -- every
+  # fields-accessing method then sees an Array (seeds/API already pass an Array).
+  before_validation :parse_string_fields
+
   # before_save :set_time_of_frequency
   before_save :set_ngo_name, if: -> { ngo_name.blank? }
 
@@ -49,6 +54,10 @@ class CustomField < ActiveRecord::Base
 
   def presence_of_fields
     errors.add(:fields, "can't be blank")
+  end
+
+  def parse_string_fields
+    self.fields = (JSON.parse(fields) rescue []) if fields.is_a?(String)
   end
 
   def uniq_fields

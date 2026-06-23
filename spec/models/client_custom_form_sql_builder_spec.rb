@@ -1,7 +1,7 @@
 describe AdvancedSearches::ClientCustomFormSqlBuilder, 'Method' do
   fields = [{"name"=>"checkbox-group-1499057633702", "type"=>"checkbox-group", "label"=>"Health check", "values"=>[{"label"=>"Excellent", "value"=>"Excellent", "selected"=>true}, {"label"=>"Good", "value"=>"Good"}, {"label"=>"Bad", "value"=>"Bad"}], "className"=>"checkbox-group"}, {"name"=>"number-1499057693908", "type"=>"number", "label"=>"Age", "className"=>"form-control"}, {"name"=>"text-1499057762900", "type"=>"text", "label"=>"Discription", "subtype"=>"text", "className"=>"form-control"}, {"name"=>"date-1499057826083", "type"=>"date", "label"=>"Start Date", "className"=>"calendar"}]
 
-  properties = {"Age"=>"12", "Start Date"=>"2017-07-03", "Discription"=>"Testing 1", "Health check"=>["Excellent"]}.to_json
+  properties = {"Age"=>"12", "Start Date"=>"2017-07-03", "Discription"=>"Testing 1", "Health check"=>["Excellent"]}
 
   let!(:custom_form) { create(:custom_field, fields: fields) }
   let!(:client) { create(:client) }

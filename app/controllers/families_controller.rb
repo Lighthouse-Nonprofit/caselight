@@ -35,8 +35,8 @@ class FamiliesController < AdminController
     @free_family_forms          = CustomField.family_forms.not_used_forms(custom_field_ids).order_by_form_title
     @group_family_custom_fields = @family.custom_field_properties.group_by(&:custom_field_id)
     @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(family_id: @family.id))
-    @results = @client_grid.assets.uniq.size
-    @client_grid.scope { |scope| scope.page(params[:page]).per(5).uniq }
+    @results = @client_grid.assets.distinct.size
+    @client_grid.scope { |scope| scope.page(params[:page]).per(5).distinct }
   end
 
   def edit
@@ -46,7 +46,7 @@ class FamiliesController < AdminController
     if client_associations.any? && @family.is_case?
       redirect_to request.referrer, alert: t('.not_allowed_to_detach_clients')
     else
-      if @family.update_attributes(family_params)
+      if @family.update(family_params)
         redirect_to @family, notice: t('.successfully_updated')
       else
         render :edit
@@ -86,7 +86,7 @@ class FamiliesController < AdminController
   end
 
   def find_association
-    @clients  = Client.accessible_by(current_ability).joins('LEFT OUTER JOIN cases ON cases.client_id = clients.id').where('cases.family_id = ? OR (clients.status = ? AND clients.state = ?)', @family.id, 'Referred', 'accepted').order(:given_name, :family_name).uniq
+    @clients  = Client.accessible_by(current_ability).joins('LEFT OUTER JOIN cases ON cases.client_id = clients.id').where('cases.family_id = ? OR (clients.status = ? AND clients.state = ?)', @family.id, 'Referred', 'accepted').order(:given_name, :family_name).distinct
     @province = Province.order(:name)
   end
 

@@ -1,6 +1,4 @@
 module ApplicationHelper
-  Thredded::ApplicationHelper
-
   def flash_alert
     if notice
       { 'message-type': 'notice', 'message': notice }
@@ -42,7 +40,9 @@ module ApplicationHelper
   end
 
   def current_url(new_params)
-    url_for params: params.merge(new_params)
+    # Rails 5 cannot serialize raw ActionController::Parameters nested in url_for options
+    # ("unable to convert unpermitted parameters to hash"); sanitize to a plain hash first.
+    url_for params: params.to_unsafe_h.merge(new_params)
   end
 
   def remove_link(object, associated_objects = {}, btn_size = 'btn-xs')

@@ -1,5 +1,5 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :question_group do
-    name "MyString"
+    name { "MyString" }
   end
 end

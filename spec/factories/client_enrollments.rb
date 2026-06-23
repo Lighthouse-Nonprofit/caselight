@@ -1,7 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :client_enrollment do
-    enrollment_date FFaker::Time.date
-    properties { {"e-mail"=>"test@example.com", "age"=>"3", "description"=>"this is testing"}.to_json }
+    enrollment_date { FFaker::Time.date }
+    properties { {"e-mail"=>"test@example.com", "age"=>"3", "description"=>"this is testing"} }
     association :client, factory: :client
     association :program_stream, factory: :program_stream
   end

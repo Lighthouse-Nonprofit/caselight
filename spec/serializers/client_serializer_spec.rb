@@ -3,7 +3,7 @@ require 'spec_helper'
 describe ClientSerializer, type: :serializer do
   let(:user) { create(:user) }
   let(:client) { create(:client, users: [user]) }
-  let(:serializer) { ClientSerializer.new(client).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(client, serializer: ClientSerializer, adapter: :json).to_json }
 
   it 'should be have attribute client as root path' do
     expect(serializer).to have_json_size(1)

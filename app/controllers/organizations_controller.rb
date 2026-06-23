@@ -6,6 +6,7 @@ class OrganizationsController < ApplicationController
 
   def robots
     robots = File.read(Rails.root + "config/robots/#{Rails.env}.txt")
-    render text: robots, layout: false, content_type: 'text/plain'
+    # Rails 5.1 deprecated `render text:`; `render plain:` sets a text/plain content type.
+    render plain: robots, layout: false
   end
 end

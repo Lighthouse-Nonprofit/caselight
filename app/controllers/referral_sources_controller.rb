@@ -18,7 +18,7 @@ class ReferralSourcesController < AdminController
   end
 
   def update
-    if @referral_source.update_attributes(referral_source_params)
+    if @referral_source.update(referral_source_params)
       redirect_to referral_sources_path, notice: t('.successfully_updated')
     else
       redirect_to referral_sources_path, alert: t('.failed_update')

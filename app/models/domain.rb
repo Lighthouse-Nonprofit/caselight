@@ -16,5 +16,8 @@ class Domain < ActiveRecord::Base
 
   scope :assessment_domains_by_assessment_id, ->(id) { joins(:assessment_domains).where('assessment_domains.assessment_id = ?', id) }
 
+  # Rails 7.1 requires every enum to be backed by a DB column or an explicit attribute type;
+  # domain_score_colors is a virtual color-mapping lookup (no column), so declare its type.
+  attribute :domain_score_colors, :string
   enum domain_score_colors: { danger: 'Red', warning: 'Yellow', info: 'Blue', primary: 'Green' }
 end

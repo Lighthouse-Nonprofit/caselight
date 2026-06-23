@@ -8,7 +8,6 @@
 //= require jquery.validate.additional-methods
 //= require jquery.nicescroll.min
 //= require dataTables/jquery.dataTables
-//= require thredded
 //= require select2
 //= require cocoon
 //= require image_upload_previewer/image_upload_previewer
@@ -59,10 +58,10 @@
 //= require assessments/form
 //= require tasks/form
 //= require tasks/index
+//= require calendars/index
 //= require dashboards/index
 //= require case_notes/form
 //= require cases/form
-//= require calendars/index
 //= require admin/tasks
 //= require clients/index
 //= require report_creator

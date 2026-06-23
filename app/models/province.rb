@@ -7,9 +7,9 @@ class Province < ActiveRecord::Base
 
   has_paper_trail
 
-  scope :has_clients,  -> { joins(:clients).uniq }
+  scope :has_clients,  -> { joins(:clients).distinct }
 
-  scope :birth_places, -> { joins('RIGHT JOIN clients ON clients.birth_province_id = Provinces.id').uniq }
+  scope :birth_places, -> { joins('RIGHT JOIN clients ON clients.birth_province_id = Provinces.id').distinct }
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
 

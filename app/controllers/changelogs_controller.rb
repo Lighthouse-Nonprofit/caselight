@@ -18,7 +18,7 @@ class ChangelogsController < AdminController
   end
 
   def update
-    if @changelog.update_attributes(changelog_params)
+    if @changelog.update(changelog_params)
       redirect_to changelogs_path, notice: t('.successfully_updated')
     else
       redirect_to changelogs_path, alert: t('.failed_update')

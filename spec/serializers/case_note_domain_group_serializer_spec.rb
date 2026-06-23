@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe CaseNoteDomainGroupSerializer, type: :serializer do
   let(:case_note_domain_group) { create(:case_note_domain_group) }
-  let(:serializer) { CaseNoteDomainGroupSerializer.new(case_note_domain_group).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(case_note_domain_group, serializer: CaseNoteDomainGroupSerializer, adapter: :json).to_json }
 
   it 'should be have attribute case_note_domain_group as root path' do
     expect(serializer).to have_json_size(1)

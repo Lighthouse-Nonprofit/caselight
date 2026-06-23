@@ -18,7 +18,7 @@ class LocationsController < AdminController
   end
 
   def update
-    if @location.update_attributes(location_params)
+    if @location.update(location_params)
       redirect_to locations_path, notice: t('.successfully_updated')
     else
       redirect_to locations_path, alert: t('.failed_update')

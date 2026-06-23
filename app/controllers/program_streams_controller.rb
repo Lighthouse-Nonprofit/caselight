@@ -49,7 +49,7 @@ class ProgramStreamsController < AdminController
 
   def update
     begin
-      if @program_stream.update_attributes(program_stream_params)
+      if @program_stream.update(program_stream_params)
         redirect_to program_stream_path(@program_stream), notice: t('.successfully_updated')
       else
         render :edit

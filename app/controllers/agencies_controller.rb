@@ -18,7 +18,7 @@ class AgenciesController < AdminController
   end
 
   def update
-    if @agency.update_attributes(agency_params)
+    if @agency.update(agency_params)
       redirect_to agencies_path, notice: t('.successfully_updated')
     else
       redirect_to agencies_path, alert: t('.failed_update')

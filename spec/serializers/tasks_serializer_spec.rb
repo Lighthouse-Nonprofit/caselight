@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe TaskSerializer, type: :serializer do
   let(:task) { create(:task) }
-  let(:serializer) { TaskSerializer.new(task).to_json }
+  let(:serializer) { ActiveModelSerializers::SerializableResource.new(task, serializer: TaskSerializer, adapter: :json).to_json }
 
   it 'should be have attribute task as root path' do
     expect(serializer).to have_json_size(1)

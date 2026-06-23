@@ -24,7 +24,9 @@ class ClientSerializer < ActiveModel::Serializer
   end
 
   def emergency_care
-    CaseSerializer.new(object.cases.active.latest_emergency).serializable_hash
+    # AMS 0.10 raises on Serializer.new(nil) (0.9 tolerated it); guard when there is no active case.
+    client_case = object.cases.active.latest_emergency
+    client_case ? CaseSerializer.new(client_case).serializable_hash : {}
   end
 
   def organization
@@ -32,16 +34,16 @@ class ClientSerializer < ActiveModel::Serializer
   end
 
   def additional_form
-    custom_fields = object.custom_fields.uniq.sort_by(&:form_title)
+    custom_fields = object.custom_fields.distinct.sort_by(&:form_title)
     custom_fields.map do |custom_field|
       custom_field.as_json.merge(custom_field_properties: custom_field.custom_field_properties.where(custom_formable_id: object.id).as_json)
     end
   end
 
   def tasks
-    overdue_tasks   = ActiveModel::ArraySerializer.new(object.tasks.overdue_incomplete, each_serializer: TaskSerializer)
-    today_tasks     = ActiveModel::ArraySerializer.new(object.tasks.today_incomplete, each_serializer: TaskSerializer)
-    upcoming_tasks  = ActiveModel::ArraySerializer.new(object.tasks.incomplete.upcoming, each_serializer: TaskSerializer)
+    overdue_tasks   = ActiveModelSerializers::SerializableResource.new(object.tasks.overdue_incomplete, each_serializer: TaskSerializer, adapter: :attributes).as_json
+    today_tasks     = ActiveModelSerializers::SerializableResource.new(object.tasks.today_incomplete, each_serializer: TaskSerializer, adapter: :attributes).as_json
+    upcoming_tasks  = ActiveModelSerializers::SerializableResource.new(object.tasks.incomplete.upcoming, each_serializer: TaskSerializer, adapter: :attributes).as_json
     { overdue: overdue_tasks, today: today_tasks, upcoming: upcoming_tasks }
   end
 
@@ -50,11 +52,13 @@ class ClientSerializer < ActiveModel::Serializer
   end
 
   def foster_care
-    CaseSerializer.new(object.cases.active.latest_foster).serializable_hash
+    client_case = object.cases.active.latest_foster
+    client_case ? CaseSerializer.new(client_case).serializable_hash : {}
   end
 
   def kinship_care
-    CaseSerializer.new(object.cases.active.latest_kinship).serializable_hash
+    client_case = object.cases.active.latest_kinship
+    client_case ? CaseSerializer.new(client_case).serializable_hash : {}
   end
 
   def assessments

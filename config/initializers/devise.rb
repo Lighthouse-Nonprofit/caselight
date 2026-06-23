@@ -16,8 +16,11 @@ Devise.setup do |config|
 
   # Configure the class responsible to send e-mails.
   # config.mailer = 'Devise::Mailer'
-  config.mailer.class_eval do
-    helper :subdomain
+  # Add the subdomain helper to Devise's mailer (multi-tenant email links). Under zeitwerk
+  # (Rails 7), Devise::Mailer can't be referenced during this initializer — that raises
+  # "uninitialized constant Devise::Mailer" — so defer the reopening to a to_prepare block.
+  Rails.application.config.to_prepare do
+    Devise::Mailer.class_eval { helper :subdomain }
   end
 
   # ==> ORM configuration

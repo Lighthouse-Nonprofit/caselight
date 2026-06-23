@@ -11,7 +11,7 @@
                 %th{"data-toggle" => "true"}= entity_title_custom_field
                 %th{"data-hide" => "all"}= t('.form')
                 - @entity_custom_field_notifcation.each do |entity|
-                  - entity.custom_fields.uniq.each do |custom_field|
+                  - entity.custom_fields.distinct.each do |custom_field|
                     - if custom_field.frequency.present?
                       - if entity.next_custom_field_date(entity, custom_field) == Date.today
                         %th{"data-hide" => "all"}
@@ -19,7 +19,7 @@
               - @entity_custom_field_notifcation.each do |entity|
                 %tr
                   %td= entity_name(entity)
-                  - entity.custom_fields.uniq.each do |custom_field|
+                  - entity.custom_fields.distinct.each do |custom_field|
                     - if custom_field.frequency.present?
                       - if entity.next_custom_field_date(entity, custom_field) == Date.today
                         %td= entity_custom_field_url(entity, custom_field)

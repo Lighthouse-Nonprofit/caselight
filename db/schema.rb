@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170824021544) do
+ActiveRecord::Schema.define(version: 20260623000001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,10 +25,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "updated_at",        null: false
     t.boolean  "alert_manager"
     t.integer  "question_group_id"
+    t.index ["question_group_id"], name: "index_able_screening_questions_on_question_group_id", using: :btree
+    t.index ["stage_id"], name: "index_able_screening_questions_on_stage_id", using: :btree
   end
-
-  add_index "able_screening_questions", ["question_group_id"], name: "index_able_screening_questions_on_question_group_id", using: :btree
-  add_index "able_screening_questions", ["stage_id"], name: "index_able_screening_questions_on_stage_id", using: :btree
 
   create_table "agencies", force: :cascade do |t|
     t.string   "name",                   default: ""
@@ -60,10 +58,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
     t.string   "question_type",              default: ""
+    t.index ["able_screening_question_id"], name: "index_answers_on_able_screening_question_id", using: :btree
+    t.index ["client_id"], name: "index_answers_on_client_id", using: :btree
   end
-
-  add_index "answers", ["able_screening_question_id"], name: "index_answers_on_able_screening_question_id", using: :btree
-  add_index "answers", ["client_id"], name: "index_answers_on_client_id", using: :btree
 
   create_table "assessment_domains", force: :cascade do |t|
     t.text     "note",           default: ""
@@ -83,18 +80,16 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "progress_note_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["assessment_domain_id"], name: "index_assessment_domains_progress_notes_on_assessment_domain_id", using: :btree
+    t.index ["progress_note_id"], name: "index_assessment_domains_progress_notes_on_progress_note_id", using: :btree
   end
-
-  add_index "assessment_domains_progress_notes", ["assessment_domain_id"], name: "index_assessment_domains_progress_notes_on_assessment_domain_id", using: :btree
-  add_index "assessment_domains_progress_notes", ["progress_note_id"], name: "index_assessment_domains_progress_notes_on_progress_note_id", using: :btree
 
   create_table "assessments", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "client_id"
+    t.index ["client_id"], name: "index_assessments_on_client_id", using: :btree
   end
-
-  add_index "assessments", ["client_id"], name: "index_assessments_on_client_id", using: :btree
 
   create_table "attachments", force: :cascade do |t|
     t.string   "image"
@@ -103,10 +98,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "updated_at",                              null: false
     t.string   "file",                       default: ""
     t.integer  "progress_note_id"
+    t.index ["able_screening_question_id"], name: "index_attachments_on_able_screening_question_id", using: :btree
+    t.index ["progress_note_id"], name: "index_attachments_on_progress_note_id", using: :btree
   end
-
-  add_index "attachments", ["able_screening_question_id"], name: "index_attachments_on_able_screening_question_id", using: :btree
-  add_index "attachments", ["progress_note_id"], name: "index_attachments_on_progress_note_id", using: :btree
 
   create_table "calendars", force: :cascade do |t|
     t.string   "title"
@@ -116,18 +110,16 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "user_id"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
+    t.index ["user_id"], name: "index_calendars_on_user_id", using: :btree
   end
-
-  add_index "calendars", ["user_id"], name: "index_calendars_on_user_id", using: :btree
 
   create_table "case_contracts", force: :cascade do |t|
     t.date     "signed_on"
     t.integer  "case_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["case_id"], name: "index_case_contracts_on_case_id", using: :btree
   end
-
-  add_index "case_contracts", ["case_id"], name: "index_case_contracts_on_case_id", using: :btree
 
   create_table "case_note_domain_groups", force: :cascade do |t|
     t.text     "note",            default: ""
@@ -145,29 +137,26 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "client_id"
+    t.index ["client_id"], name: "index_case_notes_on_client_id", using: :btree
   end
-
-  add_index "case_notes", ["client_id"], name: "index_case_notes_on_client_id", using: :btree
 
   create_table "case_worker_clients", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "client_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["client_id"], name: "index_case_worker_clients_on_client_id", using: :btree
+    t.index ["user_id"], name: "index_case_worker_clients_on_user_id", using: :btree
   end
-
-  add_index "case_worker_clients", ["client_id"], name: "index_case_worker_clients_on_client_id", using: :btree
-  add_index "case_worker_clients", ["user_id"], name: "index_case_worker_clients_on_user_id", using: :btree
 
   create_table "case_worker_tasks", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "task_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["task_id"], name: "index_case_worker_tasks_on_task_id", using: :btree
+    t.index ["user_id"], name: "index_case_worker_tasks_on_user_id", using: :btree
   end
-
-  add_index "case_worker_tasks", ["task_id"], name: "index_case_worker_tasks_on_task_id", using: :btree
-  add_index "case_worker_tasks", ["user_id"], name: "index_case_worker_tasks_on_user_id", using: :btree
 
   create_table "cases", force: :cascade do |t|
     t.date     "start_date"
@@ -204,9 +193,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.string   "description",  default: ""
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["changelog_id"], name: "index_changelog_types_on_changelog_id", using: :btree
   end
-
-  add_index "changelog_types", ["changelog_id"], name: "index_changelog_types_on_changelog_id", using: :btree
 
   create_table "changelogs", force: :cascade do |t|
     t.string   "change_version", default: ""
@@ -214,9 +202,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["user_id"], name: "index_changelogs_on_user_id", using: :btree
   end
-
-  add_index "changelogs", ["user_id"], name: "index_changelogs_on_user_id", using: :btree
 
   create_table "client_enrollment_trackings", force: :cascade do |t|
     t.jsonb    "properties",           default: {}
@@ -224,9 +211,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
     t.integer  "tracking_id"
+    t.index ["client_enrollment_id"], name: "index_client_enrollment_trackings_on_client_enrollment_id", using: :btree
   end
-
-  add_index "client_enrollment_trackings", ["client_enrollment_id"], name: "index_client_enrollment_trackings_on_client_enrollment_id", using: :btree
 
   create_table "client_enrollments", force: :cascade do |t|
     t.jsonb    "properties",        default: {}
@@ -236,10 +222,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at",                           null: false
     t.datetime "updated_at",                           null: false
     t.date     "enrollment_date"
+    t.index ["client_id"], name: "index_client_enrollments_on_client_id", using: :btree
+    t.index ["program_stream_id"], name: "index_client_enrollments_on_program_stream_id", using: :btree
   end
-
-  add_index "client_enrollments", ["client_id"], name: "index_client_enrollments_on_client_id", using: :btree
-  add_index "client_enrollments", ["program_stream_id"], name: "index_client_enrollments_on_program_stream_id", using: :btree
 
   create_table "client_quantitative_cases", force: :cascade do |t|
     t.integer  "quantitative_case_id"
@@ -282,7 +267,7 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "grade",                            default: 0
     t.string   "slug"
     t.string   "able_state",                       default: ""
-    t.integer  "assessments_count"
+    t.integer  "assessments_count",                default: 0
     t.integer  "donor_id"
     t.string   "local_given_name",                 default: ""
     t.string   "local_family_name",                default: ""
@@ -298,10 +283,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.text     "exit_note",                        default: ""
     t.date     "exit_date"
     t.date     "accepted_date"
+    t.index ["donor_id"], name: "index_clients_on_donor_id", using: :btree
+    t.index ["slug"], name: "index_clients_on_slug", unique: true, using: :btree
   end
-
-  add_index "clients", ["donor_id"], name: "index_clients_on_donor_id", using: :btree
-  add_index "clients", ["slug"], name: "index_clients_on_slug", unique: true, using: :btree
 
   create_table "clients_quantitative_cases", force: :cascade do |t|
     t.integer  "client_id"
@@ -318,9 +302,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
     t.jsonb    "attachments"
+    t.index ["custom_field_id"], name: "index_custom_field_properties_on_custom_field_id", using: :btree
   end
-
-  add_index "custom_field_properties", ["custom_field_id"], name: "index_custom_field_properties_on_custom_field_id", using: :btree
 
   create_table "custom_fields", force: :cascade do |t|
     t.string   "entity_type",       default: ""
@@ -369,9 +352,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.string   "score_2_color",   default: "warning"
     t.string   "score_3_color",   default: "info"
     t.string   "score_4_color",   default: "primary"
+    t.index ["domain_group_id"], name: "index_domains_on_domain_group_id", using: :btree
   end
-
-  add_index "domains", ["domain_group_id"], name: "index_domains_on_domain_group_id", using: :btree
 
   create_table "donors", force: :cascade do |t|
     t.string   "name",        default: ""
@@ -417,12 +399,11 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.string   "sluggable_type", limit: 50
     t.string   "scope"
     t.datetime "created_at"
+    t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true, using: :btree
+    t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type", using: :btree
+    t.index ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id", using: :btree
+    t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type", using: :btree
   end
-
-  add_index "friendly_id_slugs", ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true, using: :btree
-  add_index "friendly_id_slugs", ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type", using: :btree
-  add_index "friendly_id_slugs", ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id", using: :btree
-  add_index "friendly_id_slugs", ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type", using: :btree
 
   create_table "government_reports", force: :cascade do |t|
     t.string   "code",                          default: ""
@@ -498,10 +479,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "intervention_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["intervention_id"], name: "index_interventions_progress_notes_on_intervention_id", using: :btree
+    t.index ["progress_note_id"], name: "index_interventions_progress_notes_on_progress_note_id", using: :btree
   end
-
-  add_index "interventions_progress_notes", ["intervention_id"], name: "index_interventions_progress_notes_on_intervention_id", using: :btree
-  add_index "interventions_progress_notes", ["progress_note_id"], name: "index_interventions_progress_notes_on_progress_note_id", using: :btree
 
   create_table "leave_programs", force: :cascade do |t|
     t.jsonb    "properties",           default: {}
@@ -510,9 +490,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "updated_at",                        null: false
     t.integer  "program_stream_id"
     t.date     "exit_date"
+    t.index ["client_enrollment_id"], name: "index_leave_programs_on_client_enrollment_id", using: :btree
   end
-
-  add_index "leave_programs", ["client_enrollment_id"], name: "index_leave_programs_on_client_enrollment_id", using: :btree
 
   create_table "locations", force: :cascade do |t|
     t.string   "name",         default: ""
@@ -587,13 +566,12 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "user_id"
+    t.index ["client_id"], name: "index_progress_notes_on_client_id", using: :btree
+    t.index ["location_id"], name: "index_progress_notes_on_location_id", using: :btree
+    t.index ["material_id"], name: "index_progress_notes_on_material_id", using: :btree
+    t.index ["progress_note_type_id"], name: "index_progress_notes_on_progress_note_type_id", using: :btree
+    t.index ["user_id"], name: "index_progress_notes_on_user_id", using: :btree
   end
-
-  add_index "progress_notes", ["client_id"], name: "index_progress_notes_on_client_id", using: :btree
-  add_index "progress_notes", ["location_id"], name: "index_progress_notes_on_location_id", using: :btree
-  add_index "progress_notes", ["material_id"], name: "index_progress_notes_on_material_id", using: :btree
-  add_index "progress_notes", ["progress_note_type_id"], name: "index_progress_notes_on_progress_note_type_id", using: :btree
-  add_index "progress_notes", ["user_id"], name: "index_progress_notes_on_user_id", using: :btree
 
   create_table "provinces", force: :cascade do |t|
     t.string   "name",           default: ""
@@ -624,27 +602,26 @@ ActiveRecord::Schema.define(version: 20170824021544) do
 
   create_table "quarterly_reports", force: :cascade do |t|
     t.date     "visit_date"
-    t.integer  "code",                                                     limit: 8
+    t.bigint   "code"
     t.integer  "case_id"
-    t.text     "general_health_or_appearance",                                       default: ""
-    t.text     "child_school_attendance_or_progress",                                default: ""
-    t.text     "general_appearance_of_home",                                         default: ""
-    t.text     "observations_of_drug_alchohol_abuse",                                default: ""
-    t.text     "describe_if_yes",                                                    default: ""
-    t.text     "describe_the_family_current_situation",                              default: ""
-    t.text     "has_the_situation_changed_from_the_previous_visit",                  default: ""
-    t.text     "how_did_i_encourage_the_client",                                     default: ""
-    t.text     "what_future_teachings_or_trainings_could_help_the_client",           default: ""
-    t.text     "what_is_my_plan_for_the_next_visit_to_the_client",                   default: ""
-    t.boolean  "money_and_supplies_being_used_appropriately",                        default: false
-    t.text     "how_are_they_being_misused",                                         default: ""
+    t.text     "general_health_or_appearance",                             default: ""
+    t.text     "child_school_attendance_or_progress",                      default: ""
+    t.text     "general_appearance_of_home",                               default: ""
+    t.text     "observations_of_drug_alchohol_abuse",                      default: ""
+    t.text     "describe_if_yes",                                          default: ""
+    t.text     "describe_the_family_current_situation",                    default: ""
+    t.text     "has_the_situation_changed_from_the_previous_visit",        default: ""
+    t.text     "how_did_i_encourage_the_client",                           default: ""
+    t.text     "what_future_teachings_or_trainings_could_help_the_client", default: ""
+    t.text     "what_is_my_plan_for_the_next_visit_to_the_client",         default: ""
+    t.boolean  "money_and_supplies_being_used_appropriately",              default: false
+    t.text     "how_are_they_being_misused",                               default: ""
     t.integer  "staff_id"
-    t.text     "spiritual_developments_with_the_child_or_family",                    default: ""
-    t.datetime "created_at",                                                                         null: false
-    t.datetime "updated_at",                                                                         null: false
+    t.text     "spiritual_developments_with_the_child_or_family",          default: ""
+    t.datetime "created_at",                                                               null: false
+    t.datetime "updated_at",                                                               null: false
+    t.index ["case_id"], name: "index_quarterly_reports_on_case_id", using: :btree
   end
-
-  add_index "quarterly_reports", ["case_id"], name: "index_quarterly_reports_on_case_id", using: :btree
 
   create_table "question_groups", force: :cascade do |t|
     t.string   "name"
@@ -680,9 +657,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "care_score"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["client_id"], name: "index_surveys_on_client_id", using: :btree
   end
-
-  add_index "surveys", ["client_id"], name: "index_surveys_on_client_id", using: :btree
 
   create_table "tasks", force: :cascade do |t|
     t.string   "name",                      default: ""
@@ -695,9 +671,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "client_id"
+    t.index ["client_id"], name: "index_tasks_on_client_id", using: :btree
   end
-
-  add_index "tasks", ["client_id"], name: "index_tasks_on_client_id", using: :btree
 
   create_table "thredded_categories", force: :cascade do |t|
     t.integer  "messageboard_id",             null: false
@@ -706,10 +681,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.string   "slug",            limit: 191, null: false
+    t.index ["messageboard_id", "slug"], name: "index_thredded_categories_on_messageboard_id_and_slug", unique: true, using: :btree
+    t.index ["messageboard_id"], name: "index_thredded_categories_on_messageboard_id", using: :btree
   end
-
-  add_index "thredded_categories", ["messageboard_id", "slug"], name: "index_thredded_categories_on_messageboard_id_and_slug", unique: true, using: :btree
-  add_index "thredded_categories", ["messageboard_id"], name: "index_thredded_categories_on_messageboard_id", using: :btree
 
   create_table "thredded_messageboard_groups", force: :cascade do |t|
     t.string   "name"
@@ -721,10 +695,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "thredded_user_detail_id",  null: false
     t.integer  "thredded_messageboard_id", null: false
     t.datetime "last_seen_at",             null: false
+    t.index ["thredded_messageboard_id", "last_seen_at"], name: "index_thredded_messageboard_users_for_recently_active", using: :btree
+    t.index ["thredded_messageboard_id", "thredded_user_detail_id"], name: "index_thredded_messageboard_users_primary", using: :btree
   end
-
-  add_index "thredded_messageboard_users", ["thredded_messageboard_id", "last_seen_at"], name: "index_thredded_messageboard_users_for_recently_active", using: :btree
-  add_index "thredded_messageboard_users", ["thredded_messageboard_id", "thredded_user_detail_id"], name: "index_thredded_messageboard_users_primary", using: :btree
 
   create_table "thredded_messageboards", force: :cascade do |t|
     t.string   "name",                  limit: 255,                 null: false
@@ -737,11 +710,10 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "messageboard_group_id"
     t.datetime "created_at",                                        null: false
     t.datetime "updated_at",                                        null: false
+    t.index ["closed"], name: "index_thredded_messageboards_on_closed", using: :btree
+    t.index ["messageboard_group_id"], name: "index_thredded_messageboards_on_messageboard_group_id", using: :btree
+    t.index ["slug"], name: "index_thredded_messageboards_on_slug", using: :btree
   end
-
-  add_index "thredded_messageboards", ["closed"], name: "index_thredded_messageboards_on_closed", using: :btree
-  add_index "thredded_messageboards", ["messageboard_group_id"], name: "index_thredded_messageboards_on_messageboard_group_id", using: :btree
-  add_index "thredded_messageboards", ["slug"], name: "index_thredded_messageboards_on_slug", using: :btree
 
   create_table "thredded_post_moderation_records", force: :cascade do |t|
     t.integer  "post_id"
@@ -753,9 +725,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "moderation_state",          null: false
     t.integer  "previous_moderation_state", null: false
     t.datetime "created_at",                null: false
+    t.index ["messageboard_id", "created_at"], name: "index_thredded_moderation_records_for_display", order: { created_at: :desc }, using: :btree
   end
-
-  add_index "thredded_post_moderation_records", ["messageboard_id", "created_at"], name: "index_thredded_moderation_records_for_display", order: {"created_at"=>:desc}, using: :btree
 
   create_table "thredded_post_notifications", force: :cascade do |t|
     t.string   "email",      limit: 191, null: false
@@ -763,9 +734,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
     t.string   "post_type",  limit: 191
+    t.index ["post_id", "post_type"], name: "index_thredded_post_notifications_on_post", using: :btree
   end
-
-  add_index "thredded_post_notifications", ["post_id", "post_type"], name: "index_thredded_post_notifications_on_post", using: :btree
 
   create_table "thredded_posts", force: :cascade do |t|
     t.integer  "user_id"
@@ -777,12 +747,11 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "moderation_state",                             null: false
     t.datetime "created_at",                                   null: false
     t.datetime "updated_at",                                   null: false
+    t.index ["messageboard_id"], name: "index_thredded_posts_on_messageboard_id", using: :btree
+    t.index ["moderation_state", "updated_at"], name: "index_thredded_posts_for_display", using: :btree
+    t.index ["postable_id"], name: "index_thredded_posts_on_postable_id_and_postable_type", using: :btree
+    t.index ["user_id"], name: "index_thredded_posts_on_user_id", using: :btree
   end
-
-  add_index "thredded_posts", ["messageboard_id"], name: "index_thredded_posts_on_messageboard_id", using: :btree
-  add_index "thredded_posts", ["moderation_state", "updated_at"], name: "index_thredded_posts_for_display", using: :btree
-  add_index "thredded_posts", ["postable_id"], name: "index_thredded_posts_on_postable_id_and_postable_type", using: :btree
-  add_index "thredded_posts", ["user_id"], name: "index_thredded_posts_on_user_id", using: :btree
 
   create_table "thredded_private_posts", force: :cascade do |t|
     t.integer  "user_id"
@@ -802,28 +771,25 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.string   "hash_id",      limit: 191,             null: false
     t.datetime "created_at",                           null: false
     t.datetime "updated_at",                           null: false
+    t.index ["hash_id"], name: "index_thredded_private_topics_on_hash_id", using: :btree
+    t.index ["slug"], name: "index_thredded_private_topics_on_slug", using: :btree
   end
-
-  add_index "thredded_private_topics", ["hash_id"], name: "index_thredded_private_topics_on_hash_id", using: :btree
-  add_index "thredded_private_topics", ["slug"], name: "index_thredded_private_topics_on_slug", using: :btree
 
   create_table "thredded_private_users", force: :cascade do |t|
     t.integer  "private_topic_id"
     t.integer  "user_id"
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
+    t.index ["private_topic_id"], name: "index_thredded_private_users_on_private_topic_id", using: :btree
+    t.index ["user_id"], name: "index_thredded_private_users_on_user_id", using: :btree
   end
-
-  add_index "thredded_private_users", ["private_topic_id"], name: "index_thredded_private_users_on_private_topic_id", using: :btree
-  add_index "thredded_private_users", ["user_id"], name: "index_thredded_private_users_on_user_id", using: :btree
 
   create_table "thredded_topic_categories", force: :cascade do |t|
     t.integer "topic_id",    null: false
     t.integer "category_id", null: false
+    t.index ["category_id"], name: "index_thredded_topic_categories_on_category_id", using: :btree
+    t.index ["topic_id"], name: "index_thredded_topic_categories_on_topic_id", using: :btree
   end
-
-  add_index "thredded_topic_categories", ["category_id"], name: "index_thredded_topic_categories_on_category_id", using: :btree
-  add_index "thredded_topic_categories", ["topic_id"], name: "index_thredded_topic_categories_on_topic_id", using: :btree
 
   create_table "thredded_topics", force: :cascade do |t|
     t.integer  "user_id"
@@ -839,13 +805,12 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "moderation_state",                             null: false
     t.datetime "created_at",                                   null: false
     t.datetime "updated_at",                                   null: false
+    t.index ["hash_id"], name: "index_thredded_topics_on_hash_id", using: :btree
+    t.index ["messageboard_id", "slug"], name: "index_thredded_topics_on_messageboard_id_and_slug", unique: true, using: :btree
+    t.index ["messageboard_id"], name: "index_thredded_topics_on_messageboard_id", using: :btree
+    t.index ["moderation_state", "sticky", "updated_at"], name: "index_thredded_topics_for_display", order: { sticky: :desc, updated_at: :desc }, using: :btree
+    t.index ["user_id"], name: "index_thredded_topics_on_user_id", using: :btree
   end
-
-  add_index "thredded_topics", ["hash_id"], name: "index_thredded_topics_on_hash_id", using: :btree
-  add_index "thredded_topics", ["messageboard_id", "slug"], name: "index_thredded_topics_on_messageboard_id_and_slug", unique: true, using: :btree
-  add_index "thredded_topics", ["messageboard_id"], name: "index_thredded_topics_on_messageboard_id", using: :btree
-  add_index "thredded_topics", ["moderation_state", "sticky", "updated_at"], name: "index_thredded_topics_for_display", order: {"sticky"=>:desc, "updated_at"=>:desc}, using: :btree
-  add_index "thredded_topics", ["user_id"], name: "index_thredded_topics_on_user_id", using: :btree
 
   create_table "thredded_user_details", force: :cascade do |t|
     t.integer  "user_id",                                 null: false
@@ -857,11 +822,10 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "moderation_state_changed_at"
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
+    t.index ["latest_activity_at"], name: "index_thredded_user_details_on_latest_activity_at", using: :btree
+    t.index ["moderation_state", "moderation_state_changed_at"], name: "index_thredded_user_details_for_moderations", order: { moderation_state_changed_at: :desc }, using: :btree
+    t.index ["user_id"], name: "index_thredded_user_details_on_user_id", using: :btree
   end
-
-  add_index "thredded_user_details", ["latest_activity_at"], name: "index_thredded_user_details_on_latest_activity_at", using: :btree
-  add_index "thredded_user_details", ["moderation_state", "moderation_state_changed_at"], name: "index_thredded_user_details_for_moderations", order: {"moderation_state_changed_at"=>:desc}, using: :btree
-  add_index "thredded_user_details", ["user_id"], name: "index_thredded_user_details_on_user_id", using: :btree
 
   create_table "thredded_user_messageboard_preferences", force: :cascade do |t|
     t.integer  "user_id",                          null: false
@@ -869,9 +833,8 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.boolean  "notify_on_mention", default: true, null: false
     t.datetime "created_at",                       null: false
     t.datetime "updated_at",                       null: false
+    t.index ["user_id", "messageboard_id"], name: "thredded_user_messageboard_preferences_user_id_messageboard_id", unique: true, using: :btree
   end
-
-  add_index "thredded_user_messageboard_preferences", ["user_id", "messageboard_id"], name: "thredded_user_messageboard_preferences_user_id_messageboard_id", unique: true, using: :btree
 
   create_table "thredded_user_preferences", force: :cascade do |t|
     t.integer  "user_id",                          null: false
@@ -879,36 +842,32 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.boolean  "notify_on_message", default: true, null: false
     t.datetime "created_at",                       null: false
     t.datetime "updated_at",                       null: false
+    t.index ["user_id"], name: "index_thredded_user_preferences_on_user_id", using: :btree
   end
-
-  add_index "thredded_user_preferences", ["user_id"], name: "index_thredded_user_preferences_on_user_id", using: :btree
 
   create_table "thredded_user_private_topic_read_states", force: :cascade do |t|
     t.integer  "user_id",                 null: false
     t.integer  "postable_id",             null: false
     t.integer  "page",        default: 1, null: false
     t.datetime "read_at",                 null: false
+    t.index ["user_id", "postable_id"], name: "thredded_user_private_topic_read_states_user_postable", unique: true, using: :btree
   end
-
-  add_index "thredded_user_private_topic_read_states", ["user_id", "postable_id"], name: "thredded_user_private_topic_read_states_user_postable", unique: true, using: :btree
 
   create_table "thredded_user_topic_follows", force: :cascade do |t|
     t.integer  "user_id",              null: false
     t.integer  "topic_id",             null: false
     t.datetime "created_at",           null: false
     t.integer  "reason",     limit: 2
+    t.index ["user_id", "topic_id"], name: "thredded_user_topic_follows_user_topic", unique: true, using: :btree
   end
-
-  add_index "thredded_user_topic_follows", ["user_id", "topic_id"], name: "thredded_user_topic_follows_user_topic", unique: true, using: :btree
 
   create_table "thredded_user_topic_read_states", force: :cascade do |t|
     t.integer  "user_id",                 null: false
     t.integer  "postable_id",             null: false
     t.integer  "page",        default: 1, null: false
     t.datetime "read_at",                 null: false
+    t.index ["user_id", "postable_id"], name: "thredded_user_topic_read_states_user_postable", unique: true, using: :btree
   end
-
-  add_index "thredded_user_topic_read_states", ["user_id", "postable_id"], name: "thredded_user_topic_read_states_user_postable", unique: true, using: :btree
 
   create_table "trackings", force: :cascade do |t|
     t.string   "name",              default: ""
@@ -918,10 +877,9 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "program_stream_id"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.index ["name", "program_stream_id"], name: "index_trackings_on_name_and_program_stream_id", unique: true, using: :btree
+    t.index ["program_stream_id"], name: "index_trackings_on_program_stream_id", using: :btree
   end
-
-  add_index "trackings", ["name", "program_stream_id"], name: "index_trackings_on_name_and_program_stream_id", unique: true, using: :btree
-  add_index "trackings", ["program_stream_id"], name: "index_trackings_on_program_stream_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "first_name",                     default: ""
@@ -964,20 +922,18 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.integer  "manager_ids",                    default: [],                         array: true
     t.boolean  "program_warning",                default: false
     t.boolean  "staff_performance_notification", default: true
+    t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
+    t.index ["organization_id"], name: "index_users_on_organization_id", using: :btree
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
-
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
-  add_index "users", ["organization_id"], name: "index_users_on_organization_id", using: :btree
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   create_table "version_associations", force: :cascade do |t|
     t.integer "version_id"
     t.string  "foreign_key_name", null: false
     t.integer "foreign_key_id"
+    t.index ["foreign_key_name", "foreign_key_id"], name: "index_version_associations_on_foreign_key", using: :btree
+    t.index ["version_id"], name: "index_version_associations_on_version_id", using: :btree
   end
-
-  add_index "version_associations", ["foreign_key_name", "foreign_key_id"], name: "index_version_associations_on_foreign_key", using: :btree
-  add_index "version_associations", ["version_id"], name: "index_version_associations_on_version_id", using: :btree
 
   create_table "versions", force: :cascade do |t|
     t.string   "item_type",      null: false
@@ -988,26 +944,23 @@ ActiveRecord::Schema.define(version: 20170824021544) do
     t.datetime "created_at"
     t.text     "object_changes"
     t.integer  "transaction_id"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
+    t.index ["transaction_id"], name: "index_versions_on_transaction_id", using: :btree
   end
-
-  add_index "versions", ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
-  add_index "versions", ["transaction_id"], name: "index_versions_on_transaction_id", using: :btree
 
   create_table "visit_clients", force: :cascade do |t|
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["user_id"], name: "index_visit_clients_on_user_id", using: :btree
   end
-
-  add_index "visit_clients", ["user_id"], name: "index_visit_clients_on_user_id", using: :btree
 
   create_table "visits", force: :cascade do |t|
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["user_id"], name: "index_visits_on_user_id", using: :btree
   end
-
-  add_index "visits", ["user_id"], name: "index_visits_on_user_id", using: :btree
 
   add_foreign_key "able_screening_questions", "question_groups"
   add_foreign_key "able_screening_questions", "stages"

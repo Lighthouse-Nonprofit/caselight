@@ -1,27 +1,27 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :client do
     given_name { FFaker::Name.first_name }
     family_name { FFaker::Name.last_name }
     local_given_name { FFaker::Name.first_name }
     local_family_name { FFaker::Name.last_name }
     date_of_birth { FFaker::Time.date }
-    gender 'male'
+    gender { 'male' }
     current_address { FFaker::Address.street_address }
     house_number    { FFaker::Address.street_address }
     street_number   { FFaker::Address.street_address }
     village         { FFaker::Address.street_address }
     commune         { FFaker::Address.street_address }
     district        { FFaker::Address.street_address }
-    status 'Referred'
-    school_grade '4'
+    status { 'Referred' }
+    school_grade { '4' }
     relevant_referral_information { FFaker::Lorem.paragraph }
 
     before(:create) do |client|
-      client.users << FactoryGirl.create(:user)
+      client.users << FactoryBot.create(:user)
     end
 
     trait :accepted do
-      state 'accepted'
+      state { 'accepted' }
     end
   end
 end

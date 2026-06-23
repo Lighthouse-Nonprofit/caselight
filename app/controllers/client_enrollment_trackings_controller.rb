@@ -15,7 +15,7 @@ class ClientEnrollmentTrackingsController < AdminController
 
   def update
     authorize @client_enrollment_tracking
-    if @client_enrollment_tracking.update_attributes(client_enrollment_tracking_params)
+    if @client_enrollment_tracking.update(client_enrollment_tracking_params)
       add_more_attachments(@client_enrollment_tracking)
       redirect_to report_client_client_enrollment_client_enrollment_trackings_path(@client, @enrollment, tracking_id: @tracking.id), notice: t('.successfully_updated')
     else
