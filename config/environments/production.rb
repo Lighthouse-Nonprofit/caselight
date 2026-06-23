@@ -11,6 +11,13 @@ Rails.application.configure do
   if ENV['APP_HOST'].present?
     config.hosts << ENV['APP_HOST']
     config.hosts << ".#{ENV['APP_HOST']}"
+    # Tenant links use Rails' :subdomain url option, which builds "<subdomain>.<request.domain>".
+    # request.domain returns the last (tld_length + 1) host labels, so derive tld_length from the
+    # base (APP_HOST minus its leading tenant label) — otherwise a multi-label host like
+    # cases.18-225-4-220.nip.io yields request.domain "nip.io" and links break to cases.nip.io.
+    # base "18-225-4-220.nip.io" has 2 dots -> tld_length 2 -> domain "18-225-4-220.nip.io",
+    # subdomain "cases". (A normal "cases.example.org" -> base "example.org" -> 1 -> example.org.)
+    config.action_dispatch.tld_length = [ENV['APP_HOST'].split('.', 2).last.count('.'), 1].max
   else
     config.hosts.clear
   end
