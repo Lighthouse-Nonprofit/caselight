@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 2 86 92" width="344" height="368" role="img" aria-label="CaseLight mark">
+  <polygon points="53,24 86,11 86,31" fill="#F8B85C" opacity="0.5"></polygon>
+  <polygon points="55,24 75,18.5 75,27" fill="#F8B85C"></polygon>
+  <polygon points="40,64 54,64 50,26 44,26" fill="#F3EEE4"></polygon>
+  <polygon points="44.2,42 49.8,42 50.6,51 43.4,51" fill="#F8B85C"></polygon>
+  <rect x="43" y="17" width="8" height="9" rx="0.8" fill="#F3EEE4"></rect>
+  <rect x="44.5" y="18.5" width="5" height="6.5" rx="0.4" fill="#F8B85C"></rect>
+  <polygon points="42,17 52,17 47,9" fill="#F3EEE4"></polygon>
+  <rect x="36" y="61" width="22" height="6" rx="2.5" fill="#F3EEE4"></rect>
+  <path d="M11,72 Q22,63 33,72 T55,72 T77,72 T95,72" fill="none" stroke="#F8B85C" stroke-width="4.6" stroke-linecap="round"></path>
+  <path d="M15,83 Q27,74 39,83 T63,83 T83,83" fill="none" stroke="#F8B85C" stroke-width="3.8" stroke-linecap="round" opacity="0.78"></path>
+</svg>
