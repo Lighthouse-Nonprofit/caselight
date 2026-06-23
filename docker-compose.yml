@@ -1,7 +1,7 @@
-# docker-compose.yml - OSCaR pilot stack.
-# Datastores are NOT published to the host network; only the reverse proxy
-# (Caddy, on the host) talks to the app on 127.0.0.1:3000. Keeps the security
-# group at zero inbound for the data tier. See OPERATIONS.md and SECURITY.md.
+# docker-compose.yml - CaseLight pilot stack (Ruby 3.3 / Rails 7.1 / Mongo 6.0).
+# Datastores are NOT published to the host; the app is published only on 127.0.0.1:3000
+# (reach it via the SSM/SSH tunnel). For public HTTPS, enable the Dockerized "caddy"
+# service via the "proxy" profile (set APP_HOST in .env first). See OPERATIONS.md / SECURITY.md.
 
 services:
   db:
@@ -43,8 +43,27 @@ services:
     volumes: [uploads:/app/public/uploads]
     restart: unless-stopped
 
+  # Optional TLS-terminating reverse proxy. Off by default (profile "proxy"); enable with
+  #   docker compose --profile proxy up -d caddy
+  # once APP_HOST is set in .env, DNS points APP_HOST at this box, and the security group
+  # allows inbound 80/443. Caddy then auto-provisions a Let's Encrypt cert for APP_HOST.
+  caddy:
+    image: caddy:2
+    profiles: ["proxy"]
+    depends_on: [app]
+    ports: ["80:80", "443:443"]
+    environment:
+      APP_HOST: ${APP_HOST:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
 volumes:
   pg: {}
   mongo: {}
   redis: {}
   uploads: {}
+  caddy_data: {}
+  caddy_config: {}
