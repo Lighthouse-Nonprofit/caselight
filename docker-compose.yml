@@ -1,11 +1,14 @@
-# docker-compose.yml - CaseLight pilot stack (Ruby 3.3 / Rails 7.1 / Mongo 6.0).
+# docker-compose.yml - CaseLight pilot stack (Ruby 3.3 / Rails 7.1 / Mongo 6.0 / Postgres 17).
 # Datastores are NOT published to the host; the app is published only on 127.0.0.1:3000
 # (reach it via the SSM/SSH tunnel). For public HTTPS, enable the Dockerized "caddy"
 # service via the "proxy" profile (set APP_HOST in .env first). See OPERATIONS.md / SECURITY.md.
 
 services:
   db:
-    image: postgres:9.6
+    # postgres:17 (migrated from 9.6 via dump/restore). PG data dirs are incompatible across major
+    # versions, so a major bump means: dump -> wipe the volume -> fresh image -> pg_restore (not an
+    # in-place image swap). See the postgres-migration playbook / OPERATIONS.md.
+    image: postgres:17
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
