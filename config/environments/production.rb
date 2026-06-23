@@ -48,8 +48,11 @@ Rails.application.configure do
   # yet still be able to expire them through the digest params.
   # Asset digests allow you to set far-future HTTP expiration dates on all assets,
   # yet still be able to expire them through the digest params.
-  config.action_mailer.asset_host = "http://oscarhq.com/"
-  config.action_mailer.default_url_options = { host: 'http://oscarhq.com/' }
+  # Mailer link/asset host: use APP_HOST (the deploy's public host), not the stale upstream
+  # oscarhq.com; fall back to localhost when unset. (Web tenant links are built by
+  # SubdomainHelper#with_subdomain, which derives the shared base domain from APP_HOST directly.)
+  config.action_mailer.asset_host = ENV['APP_HOST'].present? ? "https://#{ENV['APP_HOST']}" : nil
+  config.action_mailer.default_url_options = { host: ENV['APP_HOST'].presence || 'localhost' }
   config.assets.digest = true
   config.assets.enabled = true
   config.assets.initialize_on_precompile = true
