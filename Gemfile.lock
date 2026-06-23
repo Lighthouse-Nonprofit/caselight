@@ -89,9 +89,6 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.9.0)
       public_suffix (>= 2.0.2, < 8.0)
-    appsignal (1.1.9)
-      rack
-      thread_safe
     asset_sync (2.19.3)
       activemodel (>= 4.1.0)
       cgi
@@ -605,7 +602,6 @@ GEM
       logger
       rack (>= 1, < 4)
     thor (1.5.0)
-    thread_safe (0.3.6)
     tilt (2.7.0)
     timeout (0.6.1)
     tinymce-rails (4.9.11.1)
@@ -645,7 +641,6 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.10.0)
-  appsignal (~> 1.1.9)
   asset_sync
   bootstrap-datepicker-rails (~> 1.5)
   bootstrap-sass (~> 3.3.5)

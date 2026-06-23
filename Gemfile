@@ -100,7 +100,6 @@ group :development, :test do
 end
 
 group :staging, :demo, :production do
-  gem 'appsignal', '~> 1.1.9'
   gem 'asset_sync'
 end
 
