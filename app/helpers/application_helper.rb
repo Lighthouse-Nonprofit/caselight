@@ -1,6 +1,4 @@
 module ApplicationHelper
-  Thredded::ApplicationHelper
-
   def flash_alert
     if notice
       { 'message-type': 'notice', 'message': notice }

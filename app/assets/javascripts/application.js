@@ -8,7 +8,6 @@
 //= require jquery.validate.additional-methods
 //= require jquery.nicescroll.min
 //= require dataTables/jquery.dataTables
-//= require thredded
 //= require select2
 //= require cocoon
 //= require image_upload_previewer/image_upload_previewer

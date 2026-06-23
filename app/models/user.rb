@@ -12,7 +12,6 @@ class User < ActiveRecord::Base
 
   has_paper_trail
 
-  include DeviseTokenAuth::Concerns::User
 
   belongs_to :province,   counter_cache: true
   belongs_to :department, counter_cache: true
@@ -24,7 +23,6 @@ class User < ActiveRecord::Base
   has_many :clients, through: :case_worker_clients
   has_many :case_worker_tasks, dependent: :destroy
   has_many :tasks, through: :case_worker_tasks
-  has_many :calendars
   has_many :visits,  dependent: :destroy
   has_many :visit_clients,  dependent: :destroy
   has_many :custom_field_properties, as: :custom_formable, dependent: :destroy
