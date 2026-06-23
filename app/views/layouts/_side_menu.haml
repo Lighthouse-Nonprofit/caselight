@@ -5,7 +5,7 @@
         .dropdown.profile-element
           .image-wrapper.text-center
             = link_to root_path do
-              = image_tag(Organization.current.logo.url, class: 'img-circle')
+              = image_tag('brand/caselight-logo-ondark.png', alt: 'CaseLight', style: 'max-width: 170px; width: 100%; height: auto;')
           %hr.line-border
           %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#"}
             %span.clear
@@ -22,7 +22,7 @@
               = link_to t('.log_out'), destroy_user_session_path, method: :delete
         .logo-element.custom
           = link_to root_path do
-            = image_tag(Organization.current.logo.url, class: 'log-min img-responsive')
+            = image_tag('brand/caselight-mark-ondark.png', alt: 'CaseLight', class: 'log-min img-responsive', style: 'max-width: 40px; margin: 0 auto;')
       - if user_signed_in?
         %li{class: "#{active_menu('dashboards')}"}
           = link_to root_path do

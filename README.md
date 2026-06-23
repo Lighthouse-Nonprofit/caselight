@@ -1,9 +1,16 @@
-# CaseLight
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="app/assets/images/brand/caselight-logo-ondark.png">
+    <img alt="CaseLight" src="app/assets/images/brand/caselight-logo.png" width="420">
+  </picture>
+</p>
 
-**CaseLight** is a containerized, security-hardened fork of **OSCaR** (Open Source
+<p align="center"><em>Open-source case management for nonprofits — by Lighthouse Nonprofit Technologies.</em></p>
+
+**CaseLight** is a containerized, modernized fork of **OSCaR** (Open Source
 Case-management and Record-keeping), maintained by **Lighthouse Nonprofit Technologies**
-for nonprofit case management — tracking clients, families, programs, assessments, and
-case notes.
+for nonprofit case management — tracking individuals, households, programs, assessments,
+and case notes.
 
 ## Status
 
