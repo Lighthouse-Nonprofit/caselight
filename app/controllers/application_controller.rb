@@ -58,7 +58,9 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_out_path_for(_resource_or_scope)
-    root_url(host: request.domain)
+    # Stay on the current tenant host (request.host) — request.domain drops everything but the
+    # registrable domain (e.g. nip.io on cases.<ip>.nip.io), producing a dead host.
+    root_url(host: request.host)
   end
 
   def detect_browser

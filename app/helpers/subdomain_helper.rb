@@ -2,8 +2,16 @@ module SubdomainHelper
   def with_subdomain(subdomain)
     subdomain = (subdomain || '')
     subdomain += '.' unless subdomain.empty?
-    host = Rails.application.config.action_mailer.default_url_options[:host]
-    [subdomain, host].join
+    # Host shared by all tenant subdomains, used to build "<tenant>.<base>" URLs. Derive it from
+    # APP_HOST (the deploy's public host) by dropping the leading tenant label, e.g.
+    # cases.18-225-4-220.nip.io -> 18-225-4-220.nip.io. Falls back to the configured mailer host
+    # (dev/test set it to lvh.me) when APP_HOST is unset, preserving existing local behavior.
+    base = if ENV['APP_HOST'].present?
+             ENV['APP_HOST'].split('.', 2).last
+           else
+             Rails.application.config.action_mailer.default_url_options[:host]
+           end
+    [subdomain, base].join
   end
 
   def url_for(options = nil)
