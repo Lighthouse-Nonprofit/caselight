@@ -1,6 +1,6 @@
 # DEVELOPMENT.md - running CaseLight locally
 
-CaseLight is a containerized fork of OSCaR (Rails 4.2 / Ruby 2.3, EOL). You never
+CaseLight is a containerized fork of OSCaR (Rails 7.1 / Ruby 3.3). You never
 install that toolchain on your machine; the same Docker stack you deploy is the one
 you develop against. Local dev is simpler than production: development mode reloads
 code on the fly, compiles assets dynamically, and skips the S3 asset-host config, so
@@ -70,9 +70,12 @@ the styling "just works" with no precompile step.
 make dev
 ```
 
-Then browse `http://cases.localhost:3000` and log in with the dev admin. The `cases`
-subdomain is required; OSCaR routes tenants by subdomain, and modern browsers resolve
-`*.localhost` to loopback automatically. `cases.lvh.me:3000` also works if you prefer.
+Then browse `http://cases.lvh.me:3001` and log in with the dev admin. The dev app is
+published on host port **3001** (3000 is commonly taken, e.g. by Open WebUI; the container
+still listens on 3000 internally). The `cases` subdomain is required — OSCaR routes tenants
+by subdomain. Prefer `cases.lvh.me` over `cases.localhost`: a bare `*.localhost` host can
+resolve to the empty `public` tenant (blank page / 500), whereas `*.lvh.me` (a 3-label host
+that points at 127.0.0.1) reliably routes to the `cases` tenant.
 
 ## The dev loop
 
@@ -95,7 +98,8 @@ strictly local.
 
 - **Synthetic data only.** Never pull the production database to your laptop. It holds
   sensitive PII, and dev should run on fake data regardless.
-- **Tests:** model and request specs run fine; the Capybara JS feature specs depend on
-  PhantomJS, which is abandoned and effectively dead. Skip or replace those rather than
-  fighting the install.
+- **Tests:** model and request specs run green — `RAILS_ENV=test bundle exec rspec spec/models
+  spec/requests …` (set `RAILS_ENV=test` explicitly; the dev container defaults to development,
+  and the test-only gems won't load otherwise). The Capybara JS feature specs are pending a driver
+  port: Poltergeist/PhantomJS was removed (dead on Ruby 3.3); a Cuprite port is the follow-up.
 - Keep `.env` out of git. It is gitignored; confirm before any `git add`.
