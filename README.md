@@ -53,7 +53,7 @@ your fork's source accordingly.
 |---|---|---|
 | Ruby | 3.3.11 | runs inside the Docker image (`ruby:3.3`, Debian Bookworm) |
 | Rails | 7.1.5.1 | |
-| PostgreSQL | 9.6 | primary relational store (pg 1.6) |
+| PostgreSQL | 17 (dev) / 9.6 (prod) | primary relational store (pg 1.6); prod migration pending |
 | MongoDB | 6.0 | change / audit history (Mongoid 8.1) |
 | Redis + Sidekiq | redis 5 / sidekiq 4 | background jobs |
 | App server | thin | behind a reverse proxy |
@@ -103,4 +103,5 @@ tenant → seed → up); tune the `TENANT_SHORT` / `TENANT_FULL` values at the t
 - The stack is current (Ruby 3.3 / Rails 7.1), but still runs containerized for isolation and
   reproducibility. Keep the edges patched (host OS, proxy, TLS) and rebuild the image to pick
   up gem/security updates. PostgreSQL is still pinned at 9.6 — plan a bump (→ 14+) before any
-  production use beyond the pilot.
+  production with real records. **PostgreSQL:** dev runs 17; the prod box is still 9.6 — finish its
+  migration (same dump/restore playbook) to close the last EOL component.
