@@ -4,6 +4,17 @@ Rails.application.configure do
   # Code is not reloaded between requests.
   config.cache_classes = true
 
+  # Rails 6 host authorization (ActionDispatch::HostAuthorization) 403s requests whose Host
+  # header isn't allow-listed. The pilot is multi-tenant by subdomain on one box behind a proxy.
+  # Set APP_HOST in the box .env (e.g. "caselight.example.org") to allow it + its subdomains; if
+  # unset, leave host auth unenforced so a bare-IP / proxied deploy still serves.
+  if ENV['APP_HOST'].present?
+    config.hosts << ENV['APP_HOST']
+    config.hosts << ".#{ENV['APP_HOST']}"
+  else
+    config.hosts.clear
+  end
+
   # Eager load code on boot. This eager loads most of Rails and
   # your application in memory, allowing both threaded web servers
   # and those relying on copy on write to perform better.

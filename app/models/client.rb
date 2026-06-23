@@ -273,7 +273,11 @@ class Client < ActiveRecord::Base
   end
 
   def set_slug_as_alias
-    paper_trail.without_versioning { |obj| obj.update_attributes(slug: "#{Organization.current.try(:short_name)}-#{id}") }
+    # paper_trail 10 removed RecordTrail#without_versioning; disable versioning for the block
+    # via PaperTrail.request(enabled: false). (update_attributes -> update for Rails 6.)
+    PaperTrail.request(enabled: false) do
+      update(slug: "#{Organization.current.try(:short_name)}-#{id}")
+    end
   end
 
   def set_able_status

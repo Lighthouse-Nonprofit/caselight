@@ -1,5 +1,10 @@
 require File.expand_path('../boot', __FILE__)
 
+# Rails 6.0/6.1 reference ActiveSupport::LoggerThreadSafeLevel::Logger, but concurrent-ruby
+# 1.3.5+ no longer transitively requires Ruby's stdlib Logger, so it is an uninitialized
+# constant at boot. Require it explicitly before Rails loads. (Fixed upstream in Rails 7.1.)
+require "logger"
+
 require "rails/all"
 
 # Require the gems listed in Gemfile, including any gems
@@ -15,6 +20,11 @@ require 'warden'
 
 module CifWeb
   class Application < Rails::Application
+    # Stay on the classic autoloader for the Rails 6.0 rung; the app relies on
+    # config.autoload_paths (lib, app/classes/**). The zeitwerk migration is deferred to
+    # the 7.0 rung, where :classic is removed. (`config.autoloader` exists in 6.0/6.1 only.)
+    config.autoloader = :classic
+
     config.middleware.use Apartment::Elevators::Subdomain
     config.middleware.insert_before Warden::Manager, Apartment::Elevators::Subdomain
     # Settings in config/environments/* take precedence over those specified here.

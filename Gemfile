@@ -1,16 +1,25 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.2.8.1'
+gem 'rails', '6.0.6.1'
 gem 'nokogiri', '~> 1.15.0'
-gem 'loofah', '~> 2.3.1'
-gem 'rails-html-sanitizer', '~> 1.0.4'
+gem 'loofah', '~> 2.3'
+gem 'rails-html-sanitizer', '~> 1.4'
 gem 'json', '~> 2.3.0'
-gem 'tilt', '~> 2.0.0'
+gem 'tilt', '~> 2.0'
+# ffi 1.17+ requires Ruby >= 3.0; cap it for Ruby 2.7.8 (transitive dep via listen/rb-inotify).
+gem 'ffi', '< 1.17'
+# concurrent-ruby 1.3.5 dropped the stdlib Logger require that Rails 6.0/6.1's
+# ActiveSupport::LoggerThreadSafeLevel depends on -> uninitialized-constant NameError at boot.
+# Cap below 1.3.5 (the require "logger" in application.rb covers the app; this covers rails CLI/rake too).
+gem 'concurrent-ruby', '1.3.4'
 gem 'erubis'
 gem 'pg'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
-gem 'sass-rails', '5.0.7'
+# sass-rails 5.1.0 relaxed the railties cap to allow Rails 6 while still using ruby-sass
+# (the sprockets engine), so the legacy bourbon/neat/bootstrap-sass scss keeps compiling —
+# avoids migrating to sassc (sass-rails 6), which those old libraries don't support.
+gem 'sass-rails', '~> 5.1.0'
 gem 'sprockets', '~> 3.7'
 gem 'uglifier',               '>= 1.3.0'
 gem 'coffee-rails', '~> 4.2'
@@ -32,8 +41,8 @@ gem 'rack-cors',              require: 'rack/cors'
 gem 'rails-erd'
 gem 'phony_rails',            '~> 0.12.11'
 gem 'typhoeus'
-gem 'foreman',                '~> 0.78.0'
-gem 'cancancan', '~> 2.3'
+gem 'foreman',                '~> 0.87'
+gem 'cancancan', '~> 3.0'
 gem 'pundit', '~> 2.0'
 gem 'tinymce-rails',          '~> 4.5.6'
 gem 'bootstrap-datepicker-rails', '~> 1.5'
@@ -49,7 +58,7 @@ gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'browser',                '~> 2.1'
 gem 'whenever',               '~> 0.9.4'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
-gem 'paper_trail', '~> 9.2'
+gem 'paper_trail', '~> 10.0'
 gem 'carrierwave',            '~> 1.1.0'
 gem 'mini_magick',            '~> 4.5'
 gem 'chartkick',              '~> 2.0', '>= 2.0.2'
@@ -60,11 +69,16 @@ gem 'spreadsheet',            '~> 1.1.3'
 # until the Ruby bump. Resolves to 2.9.0.
 gem 'ros-apartment', '>= 2.4.0', '< 2.10.0', require: 'apartment'
 gem 'dropzonejs-rails',       '~> 0.7.3'
-gem 'bourbon',                '~> 4.2'
-gem 'neat',                   '~> 1.8'
+# bourbon (~> 4.2) + neat (~> 1.8) removed: they were imported in application.scss but no
+# mixins/functions were ever used, and bourbon 4.x pins thor ~> 0.19, which conflicts with
+# Rails 6's railties (thor >= 0.20.3). Dropping the dead imports unblocks the thor bump.
 gem 'jquery_query_builder-rails', '~> 0.2.2'
 gem 'sidekiq',                '~> 4.1.0'
-gem 'mongoid', '~> 6.1'
+# Pin the mongo driver to 2.19.x: 2.20+ dropped MongoDB 3.6 (the pinned server) and require
+# wire version >= 7/8 (server 4.0/4.2). 2.19.x still supports the 3.6 server (wire 6). The Mongo
+# server bump (3.6 -> modern) is deferred to the Rails 7 / mongoid 8 rung, which forces it.
+gem 'mongo', '~> 2.19.0'
+gem 'mongoid', '~> 7.0'
 
 group :development, :test do
   gem 'pry'
