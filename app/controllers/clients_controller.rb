@@ -135,6 +135,9 @@ class ClientsController < AdminController
   end
 
   def initial_visit_client
+    # Rails 5.1's recognize_path calls #encoding on its argument, so a nil referrer (direct
+    # navigation / bookmark / no Referer header) raises NoMethodError instead of being ignored.
+    return unless request.referrer.present?
     referrer = Rails.application.routes.recognize_path(request.referrer)
     return unless referrer.present?
     white_list_referrers = %w(clients client_advanced_searches)

@@ -3,7 +3,7 @@ class Donor < ActiveRecord::Base
 
   has_paper_trail
 
-  scope :has_clients, -> { joins(:clients).uniq }
+  scope :has_clients, -> { joins(:clients).distinct }
 
   validates :name, presence: true, uniqueness: { case_sensitive: false },               if: 'code.blank?'
   validates :name, presence: true, uniqueness: { case_sensitive: false, scope: :code }, if: 'code.present?'

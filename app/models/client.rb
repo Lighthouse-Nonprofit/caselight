@@ -48,8 +48,11 @@ class Client < ActiveRecord::Base
   accepts_nested_attributes_for :tasks
   accepts_nested_attributes_for :answers
 
-  has_many :families,       through: :cases
+  # Rails 5.1 requires the through-association to be declared before the association that goes
+  # through it (5.0 resolved this lazily); `:cases` must come before `:families, through: :cases`,
+  # else `client.family_ids` raises ActiveRecord::HasManyThroughOrderError.
   has_many :cases,          dependent: :destroy
+  has_many :families,       through: :cases
   has_many :case_notes,     dependent: :destroy
   has_many :assessments,    dependent: :destroy
   # has_many :surveys,        dependent: :destroy
@@ -86,7 +89,7 @@ class Client < ActiveRecord::Base
   scope :slug_like,                   ->(value) { where('clients.slug iLIKE ?', "%#{value}%") }
   scope :kid_id_like,                 ->(value) { where('clients.kid_id iLIKE ?', "%#{value}%") }
   scope :start_with_code,             ->(value) { where('clients.code iLIKE ?', "#{value}%") }
-  scope :find_by_family_id,           ->(value) { joins(cases: :family).where('families.id = ?', value).uniq }
+  scope :find_by_family_id,           ->(value) { joins(cases: :family).where('families.id = ?', value).distinct }
   scope :status_like,                 ->        { CLIENT_STATUSES }
   scope :is_received_by,              ->        { joins(:received_by).pluck("CONCAT(users.first_name, ' ' , users.last_name)", 'users.id').uniq }
   scope :referral_source_is,          ->        { joins(:referral_source).pluck('referral_sources.name', 'referral_sources.id').uniq }

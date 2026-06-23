@@ -179,7 +179,7 @@ class ClientGrid
 
   filter(:any_assessments, :enum, select: %w(Yes No), header: -> { I18n.t('datagrid.columns.clients.any_assessments') }) do |value, scope|
     if value == 'Yes'
-      client_ids = Client.joins(:assessments).uniq.pluck(:id)
+      client_ids = Client.joins(:assessments).distinct.pluck(:id)
       scope.where(id: client_ids)
     else
       scope.without_assessments

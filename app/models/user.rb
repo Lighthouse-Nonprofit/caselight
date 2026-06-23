@@ -41,7 +41,7 @@ class User < ActiveRecord::Base
   scope :case_workers,    ->        { where(roles: 'case worker') }
   scope :admins,          ->        { where(roles: 'admin') }
   scope :province_are,    ->        { joins(:province).pluck('provinces.name', 'provinces.id').uniq }
-  scope :has_clients,     ->        { joins(:clients).without_json_fields.uniq }
+  scope :has_clients,     ->        { joins(:clients).without_json_fields.distinct }
   scope :managers,        ->        { where(roles: MANAGERS) }
   scope :able_managers,   ->        { where(roles: 'able manager') }
   scope :ec_managers,     ->        { where(roles: 'ec manager') }

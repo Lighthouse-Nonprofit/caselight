@@ -103,7 +103,7 @@ module AdvancedSearches
       when 'is_not_empty'
         clients = @clients.where(id: clients.ids)
       end
-      clients.uniq.ids
+      clients.distinct.ids
     end
 
     def case_type_field_query
@@ -197,7 +197,7 @@ module AdvancedSearches
       when 'is_not_empty'
         clients = @clients.where(id: clients.ids)
       end
-      clients.uniq.ids
+      clients.distinct.ids
     end
 
     def age_field_query

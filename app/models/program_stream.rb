@@ -35,7 +35,7 @@ class ProgramStream < ActiveRecord::Base
   end
 
   def self.without_status_by(client)
-    ids = includes(:client_enrollments).where(client_enrollments: { client_id: client.id }).order('client_enrollments.status ASC', :name).uniq.collect(&:id)
+    ids = includes(:client_enrollments).where(client_enrollments: { client_id: client.id }).order('client_enrollments.status ASC', :name).distinct.collect(&:id)
     where.not(id: ids).ordered
   end
 

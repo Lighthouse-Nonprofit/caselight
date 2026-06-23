@@ -6,10 +6,17 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Rails 5.1 removed support for referencing middleware by String, so application.rb now names the
+# constants directly (below). The string form was resolved lazily — when the middleware stack was
+# built, after the gems' autoloads were in place — whereas naming the constants forces them to exist
+# at config-parse time. Bundler.require does not eager-load these two files, so require them here.
+require 'apartment/elevators/subdomain'
+require 'warden'
+
 module CifWeb
   class Application < Rails::Application
-    config.middleware.use 'Apartment::Elevators::Subdomain'
-    config.middleware.insert_before 'Warden::Manager', 'Apartment::Elevators::Subdomain'
+    config.middleware.use Apartment::Elevators::Subdomain
+    config.middleware.insert_before Warden::Manager, Apartment::Elevators::Subdomain
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.

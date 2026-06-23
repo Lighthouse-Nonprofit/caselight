@@ -32,7 +32,7 @@ class ClientSerializer < ActiveModel::Serializer
   end
 
   def additional_form
-    custom_fields = object.custom_fields.uniq.sort_by(&:form_title)
+    custom_fields = object.custom_fields.distinct.sort_by(&:form_title)
     custom_fields.map do |custom_field|
       custom_field.as_json.merge(custom_field_properties: custom_field.custom_field_properties.where(custom_formable_id: object.id).as_json)
     end
