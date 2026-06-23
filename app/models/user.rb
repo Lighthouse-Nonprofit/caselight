@@ -25,6 +25,7 @@ class User < ActiveRecord::Base
   has_many :tasks, through: :case_worker_tasks
   has_many :visits,  dependent: :destroy
   has_many :visit_clients,  dependent: :destroy
+  has_many :calendars, dependent: :destroy
   has_many :custom_field_properties, as: :custom_formable, dependent: :destroy
   has_many :custom_fields, through: :custom_field_properties, as: :custom_formable
 

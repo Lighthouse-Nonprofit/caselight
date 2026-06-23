@@ -17,6 +17,8 @@ class Client::TasksController < AdminController
     @task.user_ids = @client.user_ids
     respond_to do |format|
       if @task.save
+        Calendar.populate_tasks(@task)
+
         format.json { render json: @task.to_json, status: 200 }
         format.html { redirect_to client_tasks_path(@client), notice: t('.successfully_created') }
       else
@@ -30,7 +32,11 @@ class Client::TasksController < AdminController
   end
 
   def update
+    find_calendars(@task)
+
     if @task.update(task_params)
+      Calendar.update_tasks(@calendars, task_params) if current_user.calendar_integration? && @calendars.present?
+
       redirect_to client_tasks_path(@client), notice: t('.successfully_updated')
     else
       render :edit
@@ -38,8 +44,12 @@ class Client::TasksController < AdminController
   end
 
   def destroy
+    find_calendars(@task)
+
     respond_to do |format|
-      @task.destroy
+      if @task.destroy
+        @calendars.destroy_all if current_user.calendar_integration? && @calendars.present?
+      end
       format.json { head :ok }
       format.html { redirect_to client_tasks_path(@client), notice: t('.successfully_deleted') }
     end
@@ -79,5 +89,14 @@ class Client::TasksController < AdminController
 
   def find_task
     @task = @client.tasks.find(params[:id])
+  end
+
+  def find_calendars(task)
+    task_name  = task.name
+    domain     = Domain.find(task.domain_id)
+    title      = "#{domain.name} - #{task_name}"
+    start_date = task.completion_date
+    end_date   = (start_date + 1.day).to_s
+    @calendars = Calendar.where(title: title, start_date: start_date, end_date: end_date)
   end
 end

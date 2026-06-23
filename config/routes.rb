@@ -14,6 +14,12 @@ Rails.application.routes.draw do
 
   get '/quantitative_data' => 'clients#quantitative_case'
 
+  # Google Calendar sync (re-added on upgrade/rails-7.1; see REMOVED-FEATURES.md).
+  get '/redirect'      => 'calendars#redirect', as: 'redirect'
+  get '/callback'      => 'calendars#callback', as: 'callback'
+  get '/calendar/sync' => 'calendars#sync'
+  resources :calendars
+
   resources :agencies, except: [:show] do
     get 'version' => 'agencies#version'
   end
@@ -166,6 +172,10 @@ Rails.application.routes.draw do
   # search filters, query builder) — keep them.
   namespace :api do
     resources :form_builder_attachments, only: :destroy
+
+    resources :calendars do
+      get :find_event, on: :collection
+    end
 
     resources :clients do
       get :compare, on: :collection

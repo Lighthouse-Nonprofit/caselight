@@ -58,6 +58,7 @@ gem 'bootstrap-datepicker-rails', '~> 1.5'
 gem 'jquery-validation-rails'
 gem 'fullcalendar-rails',     '~> 3.2.0.0'
 gem 'momentjs-rails',         '~> 2.17.1'
+gem 'google-apis-calendar_v3', require: false # Task -> Google Calendar sync (re-added; see REMOVED-FEATURES.md)
 gem 'kaminari', '~> 1.1'
 gem 'jquery-datatables-rails', '~> 3.4'
 gem 'friendly_id',            '~> 5.1.0'
