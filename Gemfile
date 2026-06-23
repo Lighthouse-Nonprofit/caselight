@@ -80,10 +80,8 @@ gem 'dropzonejs-rails',       '~> 0.7.3'
 # Rails 6's railties (thor >= 0.20.3). Dropping the dead imports unblocks the thor bump.
 gem 'jquery_query_builder-rails', '~> 0.2.2'
 gem 'sidekiq',                '~> 4.1.0'
-# Pin the mongo driver to 2.19.x: 2.20+ dropped MongoDB 3.6 (the pinned server) and require
-# wire version >= 7/8 (server 4.0/4.2). 2.19.x still supports the 3.6 server (wire 6). The Mongo
-# server bump (3.6 -> modern) is deferred to the Rails 7 / mongoid 8 rung, which forces it.
-gem 'mongo', '~> 2.19.0'
+# mongo driver unpinned now that the server is MongoDB 6.0 (the 2.19 cap was only to keep the
+# EOL 3.6 server working). mongoid ~> 8.0 pulls a compatible mongo 2.x.
 gem 'mongoid', '~> 8.0'
 
 group :development, :test do
