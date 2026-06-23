@@ -51,8 +51,8 @@ class User < ActiveRecord::Base
   scope :staff_performances,         -> { where(staff_performance_notification: true) }
 
   before_save :assign_as_admin
-  before_save :set_manager_ids, if: 'manager_id_changed?'
-  after_save :reset_manager, if: 'roles_changed?'
+  before_save :set_manager_ids, if: :manager_id_changed?
+  after_save :reset_manager, if: :saved_change_to_roles?
 
   ROLES.each do |role|
     define_method("#{role.parameterize.underscore}?") do
@@ -169,7 +169,10 @@ class User < ActiveRecord::Base
   end
 
   def reset_manager
-    if roles_change.last == 'case worker' || roles_change.last == 'strategic overviewer'
+    # In an after_save, Rails 5.2 deprecated the pre-save dirty API (roles_change) in favor of the
+    # post-save API; saved_change_to_roles returns [old, new] for the just-completed save (or nil).
+    new_role = saved_change_to_roles&.last
+    if new_role == 'case worker' || new_role == 'strategic overviewer'
       User.where(manager_id: self).map{|u| u.update(manager_id: nil)}
     end
   end

@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.1.7'
+gem 'rails', '5.2.8.1'
 gem 'nokogiri', '~> 1.8.5'
 gem 'loofah', '~> 2.3.1'
 gem 'rails-html-sanitizer', '~> 1.0.4'
@@ -49,13 +49,16 @@ gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'browser',                '~> 2.1'
 gem 'whenever',               '~> 0.9.4'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
-gem 'paper_trail', '~> 8.1'
+gem 'paper_trail', '~> 9.2'
 gem 'carrierwave',            '~> 1.1.0'
 gem 'mini_magick',            '~> 4.5'
 gem 'chartkick',              '~> 2.0', '>= 2.0.2'
 gem 'font-awesome-rails',     '~> 4.7'
 gem 'spreadsheet',            '~> 1.1.3'
-gem 'ros-apartment', '~> 2.3.0', require: 'apartment'
+# 2.4.0 fixes the Rails 5.2 ActiveRecord::Migrator.schema_migrations_table_name removal;
+# 2.10+ uses Array#any?(pattern) (Ruby 2.5+) which breaks on Ruby 2.3.3 — so cap below 2.10
+# until the Ruby bump. Resolves to 2.9.0.
+gem 'ros-apartment', '>= 2.4.0', '< 2.10.0', require: 'apartment'
 gem 'dropzonejs-rails',       '~> 0.7.3'
 gem 'bourbon',                '~> 4.2'
 gem 'neat',                   '~> 1.8'

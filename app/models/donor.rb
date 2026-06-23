@@ -5,7 +5,7 @@ class Donor < ActiveRecord::Base
 
   scope :has_clients, -> { joins(:clients).distinct }
 
-  validates :name, presence: true, uniqueness: { case_sensitive: false },               if: 'code.blank?'
-  validates :name, presence: true, uniqueness: { case_sensitive: false, scope: :code }, if: 'code.present?'
+  validates :name, presence: true, uniqueness: { case_sensitive: false },               if: -> { code.blank? }
+  validates :name, presence: true, uniqueness: { case_sensitive: false, scope: :code }, if: -> { code.present? }
   validates :code, uniqueness: { case_sensitive: false }
 end

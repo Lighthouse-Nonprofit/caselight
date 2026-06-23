@@ -63,7 +63,7 @@ class Client < ActiveRecord::Base
   validates :rejected_note, presence: true, on: :update, if: :reject?
   validates :exit_date, presence: true, on: :update, if: :exit_ngo?
   validates :exit_note, presence: true, on: :update, if: :exit_ngo?
-  validates :kid_id, uniqueness: { case_sensitive: false }, if: 'kid_id.present?'
+  validates :kid_id, uniqueness: { case_sensitive: false }, if: -> { kid_id.present? }
   validates :user_ids, presence: true
 
   after_update :reset_tasks_of_users

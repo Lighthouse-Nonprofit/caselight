@@ -9,7 +9,7 @@ class TaskHistory
 
   embeds_many :case_worker_task_histories
 
-  after_save :create_case_worker_task_history, if: 'object.key?("user_ids")'
+  after_save :create_case_worker_task_history, if: -> { object.key?("user_ids") }
 
   def self.initial(task)
     attributes = task.attributes
