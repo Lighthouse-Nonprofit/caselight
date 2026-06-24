@@ -53,6 +53,17 @@ class ApplicationController < ActionController::Base
                          default: 'Your role requires two-factor authentication. Please set it up to continue.')
   end
 
+  # Audit context for the structured (lograge) request log — FedRAMP AU-3. Rails calls this for every
+  # request's process_action instrumentation; lograge reads these payload keys (see
+  # config/initializers/lograge.rb) to tag each log line with who/what/where/when.
+  def append_info_to_payload(payload)
+    super
+    payload[:request_id] = request.request_id
+    payload[:user_id]    = current_user&.id
+    payload[:tenant]     = (Apartment::Tenant.current rescue nil)
+    payload[:remote_ip]  = request.remote_ip
+  end
+
   def find_association
     @department = Department.order(:name)
     @province   = Province.order(:name)
