@@ -1,0 +1,24 @@
+# gitleaks config for CaseLight. Extends the default ruleset; allowlists the known synthetic /
+# example placeholders that live in tracked docs (no real secrets are committed — real secrets
+# live only in the gitignored .env, Rails encrypted credentials, or the host environment).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Synthetic/example placeholders and dev-only throwaways"
+paths = [
+  '''\.env\.example''',
+  '''DEVELOPMENT\.md''',
+  '''SETUP\.md''',
+  '''bootstrap\.sh''',
+  '''config/brakeman_baseline\.json''',
+  '''docs/compliance/.*''',
+]
+regexes = [
+  '''dev-only-value-not-a-real-secret''',
+  '''ci_only_secret_key_base''',
+  '''change_me_strong''',
+  '''devpassword''',
+  '''dummy''',
+  '''=\s*nil''',
+]

@@ -1,0 +1,20 @@
+# bundler-audit ignore list — PRE-EXISTING advisories, each tracked in
+# docs/compliance/vulnerability-poam.md with a scheduled remediation. CI (the `security` job in
+# .github/workflows/ci.yml) fails on any NEW advisory not listed here.
+#
+# RULE: never add an ID here without a corresponding POA&M entry + target date.
+ignore:
+  # POAM-001 — sidekiq 4.1.4 -> upgrade to 7.x (major bump; own remediation task)
+  - GHSA-grh7-935j-hg6w   # XSS (High)
+  - GHSA-jrfj-98qg-qjgv   # CVE-2022-23837 DoS (High)
+  - GHSA-3qc2-v3hp-6cv8   # CVE-2023-26141 DoS (Medium)
+  - CVE-2022-23837
+  - CVE-2023-26141
+  # POAM-002 — simple_form 4.1.0 -> upgrade to 5.x (CRITICAL; remediate first)
+  - GHSA-r74q-gxcg-73hx   # CVE-2019-16676 incorrect access control (Critical)
+  - CVE-2019-16676
+  # POAM-003 — sinatra 2.2.4 (transitive via sidekiq web UI) -> resolves with the sidekiq bump
+  - GHSA-hxx2-7vcw-mqr3   # CVE-2024-21510 untrusted input (Medium)
+  - GHSA-mr3q-g2mv-mr4q   # ReDoS via ETag (Unknown)
+  - CVE-2024-21510
+  - CVE-2025-61921

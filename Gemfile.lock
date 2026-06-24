@@ -107,12 +107,17 @@ GEM
     bootstrap-sass (3.3.7)
       autoprefixer-rails (>= 5.2.1)
       sass (>= 3.3.4)
+    brakeman (8.0.5)
+      racc
     browser (2.7.1)
     bson (5.2.0)
     builder (3.3.0)
     bullet (7.2.0)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11)
+    bundler-audit (0.9.3)
+      bundler (>= 1.2.0)
+      thor (~> 1.0)
     cancancan (3.6.1)
     capybara (3.40.0)
       addressable
@@ -644,8 +649,10 @@ DEPENDENCIES
   asset_sync
   bootstrap-datepicker-rails (~> 1.5)
   bootstrap-sass (~> 3.3.5)
+  brakeman
   browser (~> 2.1)
   bullet (~> 7.0)
+  bundler-audit
   cancancan (~> 3.0)
   capybara (~> 3.0)
   carrierwave (~> 1.1.0)
