@@ -51,6 +51,8 @@ class User < ActiveRecord::Base
   has_many :calendars, dependent: :destroy
   has_many :custom_field_properties, as: :custom_formable, dependent: :destroy
   has_many :custom_fields, through: :custom_field_properties, as: :custom_formable
+  # WebAuthn passkeys (FedRAMP IA-2). ADDITIVE login factor; see WebauthnCredential + SessionsController.
+  has_many :webauthn_credentials, dependent: :destroy
 
   validates :roles, presence: true, inclusion: { in: ROLES }
   validates :email, presence: true, uniqueness: { case_sensitive: false }

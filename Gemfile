@@ -28,6 +28,12 @@ gem 'devise', '~> 5.0', '>= 5.0.4'  # 5.0.4 closes POAM-009 (CVE-2026-32700, CVE
 gem 'devise-security', '~> 0.18'    # Phase 2: password complexity + history/no-reuse (IA-5)
 gem 'devise-two-factor', '~> 6.4'   # Phase 2: TOTP MFA (IA-2(1)); otp_secret via AR Encryption
 gem 'rqrcode', '~> 2.0'             # QR codes for TOTP enrollment
+# Phase 2: WebAuthn passkeys (IA-2 — phishing-resistant authenticator). Used DIRECTLY via
+# WebAuthn::RelyingParty (registration/authentication ceremonies + FakeClient for specs) rather
+# than via devise-passkeys' :passkey_authenticatable module — the app's custom two-step
+# SessionsController (#create/#verify_otp) owns the login flow, and hand-wiring new ceremony
+# endpoints keeps passkeys strictly ADDITIVE without re-touching the password/OTP devise strategy.
+gem 'webauthn', '~> 3.4'
 # haml-rails 2.x gives Rails 6 compatibility; pin haml itself to 5.2 — haml 6 is a parser
 # rewrite that risks breaking the app's many .haml views. (haml 6 migration is its own future step.)
 gem 'haml', '~> 5.2'

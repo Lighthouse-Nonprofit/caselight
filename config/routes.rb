@@ -11,12 +11,25 @@ Rails.application.routes.draw do
   devise_scope :user do
     get  'users/two_factor', to: 'sessions#two_factor_challenge', as: :two_factor_challenge
     post 'users/two_factor', to: 'sessions#verify_otp',           as: :verify_two_factor
+
+    # Passwordless PASSKEY (WebAuthn) login ceremony — FedRAMP IA-2. An ADDITIVE, parallel sign-in
+    # path; the assertion is verified in SessionsController#passkey_callback which then signs the user
+    # in. In devise_scope so Devise resolves the :user mapping for these SessionsController actions.
+    post 'users/passkey/options',  to: 'sessions#passkey_options',  as: :passkey_login_options
+    post 'users/passkey/callback', to: 'sessions#passkey_callback', as: :passkey_login_callback
   end
 
   # Self-service TOTP MFA enrollment (FedRAMP IA-2(1)).
   resource :two_factor_settings, only: [:show, :create, :destroy]
   post 'two_factor_settings/backup_codes', to: 'two_factor_settings#regenerate_backup_codes',
        as: :regenerate_two_factor_backup_codes
+
+  # Self-service passkey management + the logged-in REGISTRATION ceremony (FedRAMP IA-2). Distinct
+  # from the login ceremony above. #show lists/manages; /passkeys/options issues creation options;
+  # POST /passkeys verifies the attestation; DELETE removes a credential.
+  resource :passkeys, only: [:show, :create], controller: 'passkeys'
+  post   'passkeys/options',  to: 'passkeys#create_options', as: :passkey_registration_options
+  delete 'passkeys/:id',      to: 'passkeys#destroy',        as: :passkey
 
   get '/robots.txt' => 'organizations#robots'
 

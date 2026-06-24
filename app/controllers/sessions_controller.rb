@@ -1,8 +1,10 @@
 class SessionsController < Devise::SessionsController
+  include WebauthnRelyingParty
+
   before_action :set_whodunnit, :set_current_ngo, :detect_browser
   # The Visit row is recorded only once the user is ACTUALLY signed in — for MFA accounts that is
-  # the verify_otp step, not the (deferred) first-factor create.
-  after_action :increase_visit_count, only: [:create, :verify_otp], if: :user_signed_in?
+  # the verify_otp step, not the (deferred) first-factor create; for passkeys, the passkey_callback step.
+  after_action :increase_visit_count, only: [:create, :verify_otp, :passkey_callback], if: :user_signed_in?
 
   # POST /users/sign_in — first factor (email + password).
   #
@@ -57,6 +59,62 @@ class SessionsController < Devise::SessionsController
     end
   end
 
+  # --- Passwordless PASSKEY (WebAuthn) login — FedRAMP IA-2 ---------------------------------------
+  # A THIRD, parallel sign-in path that lives ENTIRELY in its own endpoints and never touches the
+  # password/OTP code paths above. A verified passkey with user-verification is itself multi-factor
+  # (possession of the authenticator + a PIN/biometric), so on success we call the SAME
+  # `sign_in(resource_name, user)` that #verify_otp uses — slotting in as a parallel completed login.
+  #
+  # Because the passkey is inherently MFA, this path legitimately does NOT route through the separate
+  # TOTP screen even for otp_required_for_login users. That is correct (it is not a bypass of the
+  # require_mfa_for_privileged intent — the user has presented two factors), and is documented as such.
+
+  # POST /users/passkey/options — issue authentication options + stash the challenge.
+  # Optionally scoped to an email so a non-discoverable authenticator gets an allow-list; with no email
+  # we issue an empty allow-list for the discoverable/resident-key (usernameless) flow.
+  def passkey_options
+    email = params[:email].to_s.strip.downcase
+    allow = []
+    if email.present?
+      user  = resource_class.find_for_database_authentication(email: email)
+      allow = user ? user.webauthn_credentials.pluck(:external_id) : []
+    end
+
+    options = relying_party.options_for_authentication(allow: allow, user_verification: 'preferred')
+    session[:webauthn_authentication_challenge] = options.challenge
+    render json: options
+  end
+
+  # POST /users/passkey/callback — verify the assertion and, on success, sign the user in.
+  def passkey_callback
+    challenge = session.delete(:webauthn_authentication_challenge)
+    return render(json: { error: 'No passkey sign-in in progress.' }, status: :unprocessable_entity) if challenge.blank?
+
+    credential_hash = passkey_credential_param
+    stored = WebauthnCredential.find_by(external_id: credential_hash['id'] || credential_hash[:id])
+    return render(json: { error: 'Unknown passkey.' }, status: :unprocessable_entity) unless stored
+
+    relying_party.verify_authentication(
+      credential_hash, challenge,
+      public_key:       stored.public_key,
+      sign_count:       stored.sign_count,
+      user_verification: true
+    ) do |verified|
+      # `verified` is the verified credential; persist the new signature counter (cloned-authenticator
+      # detection) and the last-used timestamp.
+      stored.update!(sign_count: verified.sign_count, last_used_at: Time.current)
+    end
+
+    user = stored.user
+    # Mirror #verify_otp: a completed authentication clears any accumulated lockable counter.
+    user.update_column(:failed_attempts, 0) if user.failed_attempts.to_i.positive?
+    sign_in(resource_name, user)
+    set_flash_message!(:notice, :signed_in)
+    render json: { redirect: after_sign_in_path_for(user) }
+  rescue WebAuthn::Error => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   def set_whodunnit
     if current_user
       PaperTrail::Version.where(item_id: current_user.id, whodunnit: nil).each do |v|
@@ -93,5 +151,16 @@ class SessionsController < Devise::SessionsController
   # Spend a one-time recovery code; persist the consumption. Returns false when the code matches none.
   def consume_backup_code(user, code)
     user.invalidate_otp_backup_code!(code) && user.save!
+  end
+
+  # The assertion from navigator.credentials.get(...). Permit the exact WebAuthn authentication shape
+  # (no `permit!` — Brakeman mass-assignment) and hand a plain string-keyed hash to
+  # WebAuthn::RelyingParty#verify_authentication. clientExtensionResults' keys are extension-defined.
+  def passkey_credential_param
+    params.require(:credential)
+          .permit(:id, :rawId, :type, :authenticatorAttachment,
+                  response: %i[clientDataJSON authenticatorData signature userHandle],
+                  clientExtensionResults: {})
+          .to_h
   end
 end
