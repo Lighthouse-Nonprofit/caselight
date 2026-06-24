@@ -4,6 +4,11 @@ Rails.application.routes.draw do
 
   devise_for :users, controllers: { registrations: 'registrations', sessions: 'sessions', passwords: 'passwords' }
 
+  # Self-service TOTP MFA enrollment (FedRAMP IA-2(1)).
+  resource :two_factor_settings, only: [:show, :create, :destroy]
+  post 'two_factor_settings/backup_codes', to: 'two_factor_settings#regenerate_backup_codes',
+       as: :regenerate_two_factor_backup_codes
+
   get '/robots.txt' => 'organizations#robots'
 
   %w(404 500).each do |code|
