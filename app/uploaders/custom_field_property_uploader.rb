@@ -13,7 +13,7 @@ class   CustomFieldPropertyUploader < CarrierWave::Uploader::Base
     process resize_to_fill: [100, 100]
   end
 
-  def extension_white_list
+  def extension_allowlist
     %w(jpg jpeg png doc docx xls xlsx pdf)
   end
 

@@ -52,27 +52,12 @@ ignore:
   - GHSA-ph58-4vrj-w6hr
   - CVE-2019-8331
   - GHSA-9v3m-8fp8-mj99
-  # POAM-007 — carrierwave 1.1.0 -> 3.x (file-upload path; includes a HIGH RMagick code-injection)
-  - CVE-2021-21288        # SSRF
-  - GHSA-fwcm-636p-68r5
-  - CVE-2021-21305        # RMagick code injection (HIGH)
-  - GHSA-cf3w-g86h-35x4
-  - CVE-2023-49090        # content-type allowlist bypass -> XSS
-  - GHSA-gxhx-g4fq-49hj
-  - CVE-2024-29034        # content-type allowlist bypass (residual)
-  - GHSA-vfmv-jfc5-pjjw
-  - CVE-2026-44587        # denylisted_content_type bypass via regex metacharacters
-  - GHSA-7g26-2qgj-chfg
-  # POAM-008 — chartkick 2.3.5 -> 3.4+ (XSS + CSS injection)
-  - CVE-2019-12732
-  - GHSA-g45g-g52h-39rg
-  - CVE-2020-16254
-  - GHSA-3j95-fjv2-3m4p
+  # POAM-007 — CLOSED: carrierwave 1.1.0 -> 3.1.3 (+ extension_allowlist migration). IDs removed; the
+  #             SSRF/RMagick/content-type CVEs no longer match the lockfile.
+  # POAM-008 — CLOSED: unused chartkick gem removed entirely. IDs removed.
   # POAM-009 — devise 4.9.4 -> 5.x (2× Medium; bundle with the Phase 2 auth-hardening / MFA work)
   - CVE-2026-32700        # confirmable change-email race condition
   - GHSA-57hq-95w6-v4fc
   - CVE-2026-40295        # open redirect via request.referrer in timeoutable handler
   - GHSA-jp94-3292-c3xv
-  # POAM-010 — rubocop 0.47.1 -> >= 0.49 (Low; dev-only tooling, insecure /tmp use)
-  - CVE-2017-8418
-  - GHSA-wmjf-jpjj-9f3j
+  # POAM-010 — CLOSED: rubocop 0.47.1 -> 1.88.0 (PR #16). IDs removed.
