@@ -54,15 +54,21 @@ module CifWeb
       g.template_engine :haml
     end
 
-    config.middleware.use Rack::Cors do
-      allow do
-        origins '*'
-        resource '*',
-          :headers => :any,
-          :expose  => ['access-token', 'expiry', 'token-type', 'uid', 'client'],
-          :methods => [:get, :post, :options, :delete, :put]
-      end
-    end
+    # CORS removed (FedRAMP AC-4 / SC-7). The wide-open `origins '*'` block existed only for the
+    # mobile API + devise_token_auth, which were removed on the Rails 7.1 upgrade. The remaining
+    # /api endpoints are same-origin AJAX helpers for the web UI — same-origin requests don't use
+    # CORS, so no Access-Control headers are needed and none should be advertised.
+
+    # Explicit security response headers — FedRAMP SC-7 / SI, SOC 2 CC6.6. Set here rather than
+    # relying on Rails' implicit defaults (this app does not call config.load_defaults). Applied to
+    # every response. HSTS is intentionally NOT set here — force_ssl emits it only over HTTPS.
+    config.action_dispatch.default_headers = {
+      'X-Frame-Options'                   => 'SAMEORIGIN',                    # clickjacking: same-origin framing only
+      'X-Content-Type-Options'            => 'nosniff',                       # no MIME sniffing
+      'X-XSS-Protection'                  => '0',                             # disable the legacy/buggy auditor (modern guidance)
+      'X-Permitted-Cross-Domain-Policies' => 'none',                         # no Flash/PDF cross-domain policy
+      'Referrer-Policy'                   => 'strict-origin-when-cross-origin'
+    }
 
     # custom error page
     config.exceptions_app = self.routes

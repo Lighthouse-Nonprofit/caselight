@@ -39,7 +39,8 @@ gem 'draper', '~> 4.0'
 gem 'datagrid',               '~> 1.4.2'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'sinatra', '~> 2.0', require: false
-gem 'rack-cors',              require: 'rack/cors'
+# rack-cors removed (Phase 1): the only CORS config was a vestigial `origins '*'` block for the
+# removed mobile/token-auth API. Remaining /api endpoints are same-origin AJAX (no CORS needed).
 gem 'rails-erd'
 gem 'phony_rails',            '~> 0.12.11'
 gem 'typhoeus'
