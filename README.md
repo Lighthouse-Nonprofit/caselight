@@ -22,8 +22,8 @@ maintained versions:
   6.1 → 7.0 → 7.1), each step verified green before the next. Zeitwerk autoloading and a
   modern gem set throughout (Mongoid 8, ros-apartment 3.4, active_model_serializers 0.10,
   paper_trail 15, factory_bot 6, …).
-- **MongoDB 6.0** for change/audit history (was 3.6), **PostgreSQL 9.6** as the primary
-  store, **Redis + Sidekiq** for background jobs.
+- **PostgreSQL 17** as the primary store (was 9.6), **MongoDB 6.0** for change/audit history
+  (was 3.6), **Redis + Sidekiq** for background jobs — all migrated to current versions.
 - **Containerized deployment** so the runtime lives only inside a pinned Docker image and
   the host OS never has to carry the toolchain.
 - A **security-conscious posture**: secrets stay out of the image and out of git, services
@@ -100,8 +100,8 @@ tenant → seed → up); tune the `TENANT_SHORT` / `TENANT_FULL` values at the t
 
 - Secrets live only in `.env`, which is gitignored; the image ships none.
 - The app binds to localhost — expose it only via a TLS reverse proxy.
-- The stack is current (Ruby 3.3 / Rails 7.1), but still runs containerized for isolation and
-  reproducibility. Keep the edges patched (host OS, proxy, TLS) and rebuild the image to pick
-  up gem/security updates. PostgreSQL is still pinned at 9.6 — plan a bump (→ 14+) before any
-  production with real records. The full stack is now current — Ruby 3.3 / Rails 7.1 / PostgreSQL 17 /
-  MongoDB 6.0 / Redis 5 — with no end-of-life components remaining.
+- The full stack is current — **Ruby 3.3 / Rails 7.1 / PostgreSQL 17 / MongoDB 6.0 / Redis 5**, with
+  no end-of-life components remaining. It still runs containerized for isolation and reproducibility;
+  keep the edges patched (host OS, proxy, TLS) and rebuild the image to pick up gem/security updates.
+- Pilot data is synthetic only. Real client records are a deliberate, separate gate — see
+  [`SECURITY.md`](SECURITY.md) for the controls required first.
