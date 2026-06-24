@@ -70,7 +70,7 @@ gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 15.0'
 gem 'carrierwave',            '~> 1.1.0'
 gem 'mini_magick',            '~> 4.5'
-gem 'chartkick',              '~> 2.0', '>= 2.0.2'
+gem 'chartkick',              '~> 5.2'
 gem 'font-awesome-rails',     '~> 4.7'
 gem 'spreadsheet',            '~> 1.1.3'
 # ros-apartment 3.x supports Rails 7.0/7.1; on Ruby 3.3 the 3.1+ Ruby-version caps no longer bind.

@@ -135,7 +135,7 @@ GEM
     case_transform (0.2)
       activesupport
     cgi (0.5.2)
-    chartkick (2.3.5)
+    chartkick (5.2.1)
     choice (0.2.0)
     chronic (0.10.2)
     cocoon (1.2.15)
@@ -656,7 +656,7 @@ DEPENDENCIES
   cancancan (~> 3.0)
   capybara (~> 3.0)
   carrierwave (~> 1.1.0)
-  chartkick (~> 2.0, >= 2.0.2)
+  chartkick (~> 5.2)
   cocoon (~> 1.2, >= 1.2.9)
   coffee-rails (~> 4.2)
   database_cleaner-active_record (~> 2.0)
