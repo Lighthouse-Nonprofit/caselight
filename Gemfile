@@ -97,6 +97,9 @@ group :development, :test do
   gem 'shoulda-whenever',     '~> 0.0.2'
   gem 'bullet', '~> 7.0'             # was ~> 6.0 (6.x rejects ActiveRecord 7.0)
   gem 'mongoid-rspec', '~> 4.1'      # was < 4.2
+  # Security scanning (Phase 0 hardening; run in CI + locally, not required at boot):
+  gem 'brakeman',      require: false  # SAST — Rails static security analysis
+  gem 'bundler-audit', require: false  # dependency CVE scanning vs the ruby-advisory-db
 end
 
 group :staging, :demo, :production do
