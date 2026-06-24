@@ -8,7 +8,8 @@ class User < ActiveRecord::Base
   MANAGERS = ROLES.select { |role| role if role.include?('manager') }
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable
+         :recoverable, :rememberable, :trackable, :validatable,
+         :lockable, :timeoutable
 
   has_paper_trail
 
