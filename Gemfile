@@ -22,7 +22,7 @@ gem 'sprockets', '~> 3.7'
 gem 'uglifier',               '>= 1.3.0'
 gem 'coffee-rails', '~> 4.2'
 gem 'jbuilder',               '~> 2.0'
-gem 'simple_form', '~> 4.0'
+gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q-gxcg-73hx)
 gem 'bootstrap-sass',         '~> 3.3.5'
 gem 'devise', '~> 5.0', '>= 5.0.4'  # 5.0.4 closes POAM-009 (CVE-2026-32700, CVE-2026-40295)
 gem 'devise-security', '~> 0.18'    # Phase 2: password complexity + history/no-reuse (IA-5)
