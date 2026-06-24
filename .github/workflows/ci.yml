@@ -21,7 +21,7 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
       - name: Brakeman (SAST, fails on NEW findings vs the committed baseline)
-        run: bundle exec brakeman --no-pager --compare config/brakeman_baseline.json -f json -o tmp/brakeman.json
+        run: mkdir -p tmp && bundle exec brakeman --no-pager --compare config/brakeman_baseline.json -f json -o tmp/brakeman.json
       - name: bundler-audit (dependency CVEs; ignores tracked in .bundler-audit.yml -> POA&M)
         run: |
           bundle exec bundle-audit update
@@ -53,6 +53,14 @@ jobs:
       HISTORY_DATABASE_HOST: localhost
       REDIS_URL: redis://localhost:6379/0
       SECRET_KEY_BASE: ci_only_secret_key_base_not_a_real_secret_0000000000000000000000
+      # Mailer addresses: mailers read from/to from ENV (ApplicationMailer `default from: ENV['SENDER_EMAIL']`,
+      # AbleScreeningMailer `to: ENV['ABLE_MANAGER_EMAIL']`). Unset -> blank from -> ArgumentError on deliver_now.
+      # CI-only placeholder addresses, not secrets.
+      SENDER_EMAIL: ci-noreply@example.test
+      DEV_EMAIL: ci-dev@example.test
+      ABLE_MANAGER_EMAIL: ci-able@example.test
+      CIF1_EMAIL: ci-cif1@example.test
+      CIF2_EMAIL: ci-cif2@example.test
     services:
       postgres:
         image: postgres:17
