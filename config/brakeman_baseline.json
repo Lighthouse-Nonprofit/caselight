@@ -1,11 +1,11 @@
 {
   "scan_info": {
     "app_path": "/app",
-    "rails_version": "7.1.5.1",
+    "rails_version": "7.2.3.1",
     "security_warnings": 78,
-    "start_time": "2026-06-24 01:18:39 +0000",
-    "end_time": "2026-06-24 01:18:49 +0000",
-    "duration": 9.974511652,
+    "start_time": "2026-06-24 21:10:44 +0000",
+    "end_time": "2026-06-24 21:10:53 +0000",
+    "duration": 8.978268466,
     "checks_performed": [
       "BasicAuth",
       "BasicAuthTimingAttack",
@@ -87,9 +87,9 @@
       "XMLDoS",
       "YAMLParsing"
     ],
-    "number_of_controllers": 61,
-    "number_of_models": 64,
-    "number_of_templates": 336,
+    "number_of_controllers": 63,
+    "number_of_models": 66,
+    "number_of_templates": 340,
     "ruby_version": "3.3.11",
     "brakeman_version": "8.0.5"
   },
@@ -323,6 +323,24 @@
       "confidence": "Medium",
       "cwe_id": [
         89
+      ]
+    },
+    {
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 122,
+      "fingerprint": "21ab0fe00fdd5899ffc405cff75aadb91b805ee996a614f7e27b08a287e9062d",
+      "check_name": "EOLRails",
+      "message": "Support for Rails 7.2.3.1 ends on 2026-08-09",
+      "file": "Gemfile.lock",
+      "line": 471,
+      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        1104
       ]
     },
     {
@@ -1953,24 +1971,6 @@
       "cwe_id": [
         913,
         95
-      ]
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 120,
-      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
-      "check_name": "EOLRails",
-      "message": "Support for Rails 7.1.5.1 ended on 2025-10-01",
-      "file": "Gemfile.lock",
-      "line": 454,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "High",
-      "cwe_id": [
-        1104
       ]
     },
     {

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_24_000003) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -937,6 +937,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000003) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login", default: false, null: false
     t.string "otp_backup_codes", array: true
+    t.string "webauthn_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["organization_id"], name: "index_users_on_organization_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -976,6 +977,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000003) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["user_id"], name: "index_visits_on_user_id"
+  end
+
+  create_table "webauthn_credentials", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "external_id", null: false
+    t.string "public_key", null: false
+    t.string "nickname", null: false
+    t.bigint "sign_count", default: 0, null: false
+    t.datetime "last_used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id"], name: "index_webauthn_credentials_on_external_id", unique: true
+    t.index ["user_id", "nickname"], name: "index_webauthn_credentials_on_user_id_and_nickname", unique: true
+    t.index ["user_id"], name: "index_webauthn_credentials_on_user_id"
   end
 
   add_foreign_key "able_screening_questions", "question_groups"
@@ -1019,4 +1034,5 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000003) do
   add_foreign_key "users", "organizations"
   add_foreign_key "visit_clients", "users"
   add_foreign_key "visits", "users"
+  add_foreign_key "webauthn_credentials", "users"
 end
