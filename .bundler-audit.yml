@@ -18,3 +18,64 @@ ignore:
   - GHSA-mr3q-g2mv-mr4q   # ReDoS via ETag (Unknown)
   - CVE-2024-21510
   - CVE-2025-61921
+  # POAM-005a — Rails 7.1.5.1 framework CVEs FIXED by the 7.1.5.2 patch (safe in-line bump; first remediation)
+  - CVE-2025-55193        # activerecord — ANSI escape injection in logging (relevant to Phase 3 audit logging)
+  - GHSA-76r7-hhxj-r776
+  - CVE-2025-24293        # activestorage — unsafe transformation methods
+  - GHSA-r4mg-4433-c7g3
+  # POAM-005b — Rails 7.1.5.1 framework CVEs that require the 7.2/8.0 minor upgrade (own upgrade track)
+  - CVE-2026-33168        # actionview — XSS in tag helpers
+  - GHSA-v55j-83pf-r9cq
+  - CVE-2026-33173        # activestorage — content-type bypass via direct-upload metadata
+  - GHSA-qcfx-2mfw-w4cg
+  - CVE-2026-33174        # activestorage — DoS via Range requests in proxy mode
+  - GHSA-r46p-8f7g-vvvg
+  - CVE-2026-33195        # activestorage — path traversal in DiskService
+  - GHSA-9xrj-h377-fr87
+  - CVE-2026-33202        # activestorage — glob injection in DiskService
+  - GHSA-73f9-jhhh-hr5m
+  - CVE-2026-33658        # activestorage — DoS via multi-range requests in proxy mode
+  - GHSA-p9fm-f462-ggrg
+  - CVE-2026-33169        # activesupport — ReDoS in number_to_delimited
+  - GHSA-cg4j-q9v8-6v38
+  - CVE-2026-33170        # activesupport — XSS in SafeBuffer#%
+  - GHSA-89vf-4333-qx8v
+  - CVE-2026-33176        # activesupport — DoS in number helpers
+  - GHSA-2j26-frm8-cmj9
+  # POAM-006 — bootstrap-sass 3.3.7 -> 3.4.1 (6× XSS; UI-regression-test the theme before bumping)
+  - CVE-2016-10735
+  - GHSA-4p24-vmcr-4gqj
+  - CVE-2018-14040
+  - GHSA-3wqf-4x89-9g79
+  - CVE-2018-14042
+  - GHSA-7mvr-5x2g-wfc8
+  - CVE-2018-20676
+  - GHSA-3mgp-fx93-9xv5
+  - CVE-2018-20677
+  - GHSA-ph58-4vrj-w6hr
+  - CVE-2019-8331
+  - GHSA-9v3m-8fp8-mj99
+  # POAM-007 — carrierwave 1.1.0 -> 3.x (file-upload path; includes a HIGH RMagick code-injection)
+  - CVE-2021-21288        # SSRF
+  - GHSA-fwcm-636p-68r5
+  - CVE-2021-21305        # RMagick code injection (HIGH)
+  - GHSA-cf3w-g86h-35x4
+  - CVE-2023-49090        # content-type allowlist bypass -> XSS
+  - GHSA-gxhx-g4fq-49hj
+  - CVE-2024-29034        # content-type allowlist bypass (residual)
+  - GHSA-vfmv-jfc5-pjjw
+  - CVE-2026-44587        # denylisted_content_type bypass via regex metacharacters
+  - GHSA-7g26-2qgj-chfg
+  # POAM-008 — chartkick 2.3.5 -> 3.4+ (XSS + CSS injection)
+  - CVE-2019-12732
+  - GHSA-g45g-g52h-39rg
+  - CVE-2020-16254
+  - GHSA-3j95-fjv2-3m4p
+  # POAM-009 — devise 4.9.4 -> 5.x (2× Medium; bundle with the Phase 2 auth-hardening / MFA work)
+  - CVE-2026-32700        # confirmable change-email race condition
+  - GHSA-57hq-95w6-v4fc
+  - CVE-2026-40295        # open redirect via request.referrer in timeoutable handler
+  - GHSA-jp94-3292-c3xv
+  # POAM-010 — rubocop 0.47.1 -> >= 0.49 (Low; dev-only tooling, insecure /tmp use)
+  - CVE-2017-8418
+  - GHSA-wmjf-jpjj-9f3j
