@@ -29,10 +29,10 @@ class UserReminder
         manager_ids = manager.manager_ids.present? ? manager.manager_ids : Array(manager.id)
         return if main_manager_id == manager_ids.last
         if manager_ids.any?
-          user_ids = User.where('manager_ids && ARRAY[?]', manager_ids).map(&:id)
+          user_ids = User.where('manager_ids && ARRAY[?]::integer[]', manager_ids).map(&:id)
           user_ids.push(manager_ids.last)
           user_ids.each do |case_workers_id|
-            case_workers_ids = User.joins(:tasks).merge(Task.overdue_incomplete).where('manager_ids && ARRAY[?]', case_workers_id).map(&:id).uniq
+            case_workers_ids = User.joins(:tasks).merge(Task.overdue_incomplete).where('manager_ids && ARRAY[?]::integer[]', case_workers_id).map(&:id).uniq
             next unless manager.task_notify
             ManagerWorker.perform_async(case_workers_id, case_workers_ids, org.short_name)
           end

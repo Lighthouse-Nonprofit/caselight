@@ -27,7 +27,7 @@ class StaffMonthlyReportSpreadsheet
 
       set_format_header(worksheet, column_names)
 
-      case_workers = User.where('manager_ids && ARRAY[?] or manager_id = ?', user.id, user.id).order(:first_name, :last_name)
+      case_workers = User.where('manager_ids && ARRAY[?]::integer[] or manager_id = ?', user.id, user.id).order(:first_name, :last_name)
       next if case_workers.empty?
 
       case_workers.each_with_index do |case_worker, index|

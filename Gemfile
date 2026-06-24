@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '7.1.5.2'
+gem 'rails', '~> 7.2.3', '>= 7.2.3.1'  # 7.2 closes POAM-005b Rails CVEs + enables devise-two-factor 6.4 (MFA)
 gem 'nokogiri', '~> 1.16'
 gem 'loofah', '~> 2.3'
 gem 'rails-html-sanitizer', '~> 1.4'
