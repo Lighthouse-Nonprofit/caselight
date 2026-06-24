@@ -58,6 +58,14 @@ RSpec.describe 'Two-factor authentication (MFA)', type: :request do
       expect(response.location).to include('/users/sign_in')
     end
 
+    it 'never leaves a lingering session authenticated on the 2FA step (no remember-cookie bypass)' do
+      # Simulate an already-authenticated session reaching the 2FA step (e.g. a remember-cookie
+      # re-auth). The step must sign it out, not render the authenticated chrome / let MFA be skipped.
+      sign_in mfa_user
+      get two_factor_challenge_path
+      expect(authenticated?).to be false
+    end
+
     context 'after a correct first factor (password) for an MFA account' do
       before { post user_session_path, params: { user: { email: mfa_user.email, password: password } } }
 

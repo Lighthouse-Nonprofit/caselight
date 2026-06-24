@@ -19,6 +19,11 @@ class SessionsController < Devise::SessionsController
     user  = resource_class.find_for_database_authentication(email: creds[:email].to_s.strip)
 
     if user&.otp_required_for_login && !user.access_locked? && user.valid_password?(creds[:password].to_s)
+      # The pending-2FA window MUST be fully unauthenticated. sign_out here drops any existing session
+      # AND forgets the remember-me cookie, so (a) a remember cookie cannot silently skip the OTP step
+      # (an MFA bypass), and (b) the challenge page never renders the authenticated chrome — which
+      # SessionsController (not an AdminController) does not populate. Set the pending markers AFTER.
+      sign_out(resource_name)
       session[:otp_pending_user_id]  = user.id
       session[:otp_pending_remember] = creds[:remember_me]
       return redirect_to two_factor_challenge_path
@@ -29,6 +34,9 @@ class SessionsController < Devise::SessionsController
 
   # GET /users/two_factor — the second-factor screen. Reachable only mid-login (a pending first factor).
   def two_factor_challenge
+    # Defensive: the 2FA step must never render in an authenticated context (e.g. a remember-cookie
+    # re-auth). Signing out keeps MFA un-bypassable and avoids the authenticated-chrome render.
+    sign_out(resource_name) if user_signed_in?
     redirect_to(new_user_session_path) and return unless pending_two_factor_user
   end
 
