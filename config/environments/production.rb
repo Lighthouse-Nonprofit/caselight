@@ -85,12 +85,18 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
   # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
 
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  # Transport security — FedRAMP SC-8 / SC-23, SOC 2 CC6.7.
+  # force_ssl: redirect HTTP->HTTPS, emit HSTS (Strict-Transport-Security), flag cookies secure.
+  # assume_ssl: TLS is terminated at the Caddy reverse proxy, which forwards to the app over HTTP.
+  #   Without this, force_ssl would see a plain-HTTP request and redirect-loop. assume_ssl tells
+  #   Rails to treat proxied requests as already-secure. The box exposes only Caddy (443); Caddy
+  #   itself redirects edge HTTP->HTTPS, so direct plain-HTTP requests never reach the app.
+  config.assume_ssl = true
+  config.force_ssl   = true
 
-  # Use the lowest log level to ensure availability of diagnostic information
-  # when problems arise.
-  config.log_level = :debug
+  # Info-level logs in production (FedRAMP AU-3 / SI-11): :debug is verbose and can echo
+  # parameter/SQL detail that may include sensitive data. Pair with filter_parameters redaction.
+  config.log_level = :info
 
   # Prepend all log lines with the following tags.
   # config.log_tags = [ :subdomain, :uuid ]
