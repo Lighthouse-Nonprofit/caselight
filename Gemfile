@@ -22,12 +22,18 @@ gem 'sprockets', '~> 3.7'
 gem 'uglifier',               '>= 1.3.0'
 gem 'coffee-rails', '~> 4.2'
 gem 'jbuilder',               '~> 2.0'
-gem 'simple_form', '~> 4.0'
+gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q-gxcg-73hx)
 gem 'bootstrap-sass',         '~> 3.3.5'
 gem 'devise', '~> 5.0', '>= 5.0.4'  # 5.0.4 closes POAM-009 (CVE-2026-32700, CVE-2026-40295)
 gem 'devise-security', '~> 0.18'    # Phase 2: password complexity + history/no-reuse (IA-5)
 gem 'devise-two-factor', '~> 6.4'   # Phase 2: TOTP MFA (IA-2(1)); otp_secret via AR Encryption
 gem 'rqrcode', '~> 2.0'             # QR codes for TOTP enrollment
+# Phase 2: WebAuthn passkeys (IA-2 — phishing-resistant authenticator). Used DIRECTLY via
+# WebAuthn::RelyingParty (registration/authentication ceremonies + FakeClient for specs) rather
+# than via devise-passkeys' :passkey_authenticatable module — the app's custom two-step
+# SessionsController (#create/#verify_otp) owns the login flow, and hand-wiring new ceremony
+# endpoints keeps passkeys strictly ADDITIVE without re-touching the password/OTP devise strategy.
+gem 'webauthn', '~> 3.4'
 # haml-rails 2.x gives Rails 6 compatibility; pin haml itself to 5.2 — haml 6 is a parser
 # rewrite that risks breaking the app's many .haml views. (haml 6 migration is its own future step.)
 gem 'haml', '~> 5.2'
@@ -70,7 +76,7 @@ gem 'friendly_id',            '~> 5.1.0'
 gem 'wicked_pdf',             '~> 1.0', '>= 1.0.6'
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
 gem 'browser',                '~> 2.1'
-gem 'whenever',               '~> 0.9.4'
+gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 15.0'
 gem 'carrierwave',            '~> 3.1'

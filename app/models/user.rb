@@ -7,16 +7,31 @@ class User < ActiveRecord::Base
   ROLES = ['admin', 'case worker', 'able manager', 'ec manager', 'fc manager', 'kc manager', 'manager', 'strategic overviewer'].freeze
   MANAGERS = ROLES.select { |role| role if role.include?('manager') }
 
-  # :secure_validatable (devise-security) replaces :validatable — adds password complexity on top of
-  # length + email checks. :password_archivable enforces no-reuse of recent passwords (FedRAMP IA-5).
-  devise :database_authenticatable, :registerable,
+  # Authentication modules:
+  #  - :two_factor_authenticatable REPLACES :database_authenticatable (it `include`s it) and adds the
+  #    TOTP login strategy + `encrypts :otp_secret`. It is the ONLY password strategy, so MFA cannot be
+  #    bypassed by a password-only strategy. MFA is OPT-IN: otp_required_for_login defaults false, so
+  #    users without MFA log in with email+password as before (see TwoFactorSettingsController).
+  #  - :two_factor_backupable adds one-time recovery codes (otp_backup_codes).
+  #  - :secure_validatable = password complexity, :password_archivable = no-reuse (IA-5),
+  #    :lockable = AC-7, :timeoutable = AC-12.
+  # FedRAMP IA-2(1) / IA-5 / AC-7 / AC-12, SC-28.
+  devise :two_factor_authenticatable, :two_factor_backupable, :registerable,
          :recoverable, :rememberable, :trackable, :secure_validatable,
          :lockable, :timeoutable, :password_archivable
 
-  # TOTP MFA secret stored encrypted at rest (FedRAMP IA-2(1)/SC-28). The :two_factor_authenticatable
-  # / :two_factor_backupable devise modules + the enrollment & login-OTP UI land in a follow-up; this
-  # foundation just provides the encrypted column + ActiveRecord Encryption (also Phase 4's base).
-  encrypts :otp_secret
+  # --- MFA helpers ---
+  # Whether this account has TOTP two-factor enabled (i.e. completed enrollment).
+  def two_factor_enabled?
+    otp_required_for_login?
+  end
+
+  # Privileged accounts (admin + any manager role) — the set FedRAMP IA-2(1) ultimately requires MFA
+  # for. The enforcement check (ApplicationController#require_mfa_for_privileged) is gated behind a
+  # config flag that defaults OFF, so this is informational until the org switches enforcement on.
+  def mfa_privileged?
+    roles == 'admin' || roles.to_s.include?('manager')
+  end
 
   has_paper_trail
 
@@ -36,6 +51,8 @@ class User < ActiveRecord::Base
   has_many :calendars, dependent: :destroy
   has_many :custom_field_properties, as: :custom_formable, dependent: :destroy
   has_many :custom_fields, through: :custom_field_properties, as: :custom_formable
+  # WebAuthn passkeys (FedRAMP IA-2). ADDITIVE login factor; see WebauthnCredential + SessionsController.
+  has_many :webauthn_credentials, dependent: :destroy
 
   validates :roles, presence: true, inclusion: { in: ROLES }
   validates :email, presence: true, uniqueness: { case_sensitive: false }

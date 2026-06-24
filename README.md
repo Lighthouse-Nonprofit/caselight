@@ -18,17 +18,20 @@ CaseLight runs a **modernized, supported stack**. The application was migrated o
 end-of-life **Ruby 2.3.3 / Rails 4.2** it inherited from upstream OSCaR up to current,
 maintained versions:
 
-- **Ruby 3.3.11 / Rails 7.1.5.1** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
-  6.1 → 7.0 → 7.1), each step verified green before the next. Zeitwerk autoloading and a
-  modern gem set throughout (Mongoid 8, ros-apartment 3.4, active_model_serializers 0.10,
+- **Ruby 3.3.11 / Rails 7.2.3.1** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
+  6.1 → 7.0 → 7.1 → 7.2), each step verified green before the next. Zeitwerk autoloading and a
+  modern gem set throughout (Devise 5, Mongoid 8, ros-apartment 3.4, active_model_serializers 0.10,
   paper_trail 15, factory_bot 6, …).
 - **PostgreSQL 17** as the primary store (was 9.6), **MongoDB 6.0** for change/audit history
   (was 3.6), **Redis + Sidekiq** for background jobs — all migrated to current versions.
 - **Containerized deployment** so the runtime lives only inside a pinned Docker image and
   the host OS never has to carry the toolchain.
-- A **security-conscious posture**: secrets stay out of the image and out of git, services
-  bind to localhost behind a reverse proxy, and per-deploy secrets are generated rather
-  than shipped.
+- An **application-layer security baseline** being hardened toward **FedRAMP Moderate** and
+  **SOC 2** auditability — multi-factor authentication (TOTP + WebAuthn passkeys), account
+  lockout and brute-force throttling, enforced HTTPS/HSTS and a strict security-header set,
+  field-level encryption, and a CI security pipeline (SAST + dependency-CVE + secret scanning).
+  See **[Security & authentication](#security--authentication)** below and
+  [`docs/compliance/`](docs/compliance).
 - **English-only** UI (upstream shipped English + Khmer) and **local asset-serving** so the
   app renders correctly self-hosted, without external object storage.
 
@@ -52,11 +55,12 @@ your fork's source accordingly.
 | Component | Version | Notes |
 |---|---|---|
 | Ruby | 3.3.11 | runs inside the Docker image (`ruby:3.3`, Debian Bookworm) |
-| Rails | 7.1.5.1 | |
-| PostgreSQL | 17 | primary relational store (pg 1.6) |
+| Rails | 7.2.3.1 | |
+| PostgreSQL | 17 | primary relational store (pg 1.5) |
 | MongoDB | 6.0 | change / audit history (Mongoid 8.1) |
 | Redis + Sidekiq | redis 5 / sidekiq 4 | background jobs |
-| App server | thin | behind a reverse proxy |
+| Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
+| App server | thin | behind a TLS reverse proxy (force_ssl + HSTS) |
 
 ## Quickstart
 
@@ -96,12 +100,35 @@ for any non-local use. See [`Dockerfile`](Dockerfile) and
 [`bootstrap.sh`](bootstrap.sh) for an end-to-end deploy script (clone → build → migrate →
 tenant → seed → up); tune the `TENANT_SHORT` / `TENANT_FULL` values at the top first.
 
-## Security notes
+## Security & authentication
 
-- Secrets live only in `.env`, which is gitignored; the image ships none.
-- The app binds to localhost — expose it only via a TLS reverse proxy.
-- The full stack is current — **Ruby 3.3 / Rails 7.1 / PostgreSQL 17 / MongoDB 6.0 / Redis 5**, with
-  no end-of-life components remaining. It still runs containerized for isolation and reproducibility;
-  keep the edges patched (host OS, proxy, TLS) and rebuild the image to pick up gem/security updates.
-- Pilot data is synthetic only. Real client records are a deliberate, separate gate — see
+CaseLight is being hardened, phase by phase, toward **FedRAMP Moderate** and **SOC 2 (Security ·
+Confidentiality · Privacy)** auditability at the application layer. What's in place today:
+
+**Authentication & sessions**
+- **Multi-factor authentication** — opt-in **TOTP** (authenticator app) with one-time recovery codes,
+  plus phishing-resistant **WebAuthn passkeys** as an additional sign-in method. A config flag can
+  require MFA for privileged roles.
+- **Account lockout** after repeated failed logins, **idle-session timeout**, and **brute-force
+  rate-limiting** (rack-attack) on the login, password-reset, MFA, and passkey endpoints.
+- **Password policy** — minimum length 12 with character-class complexity and no-reuse history.
+
+**Transport & application hardening**
+- **Enforced HTTPS** with HSTS (trusting the reverse proxy's TLS), a **Content-Security-Policy** and a
+  strict security-header set (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, …), and
+  **secure / HttpOnly / SameSite** session cookies.
+- **Field-level encryption at rest** (Rails ActiveRecord Encryption) for sensitive values, and
+  **parameter-log redaction** of credentials and PII.
+
+**Secure SDLC**
+- Every pull request runs **Brakeman** (SAST), **bundler-audit** (dependency CVEs), **gitleaks**
+  (secret scanning), and the full test suite; **Dependabot** keeps dependencies current. Open findings
+  are tracked in a **POA&M** under [`docs/compliance/`](docs/compliance).
+
+**Deployment**
+- Secrets live only in `.env` (gitignored); the image ships none, and per-deploy secrets are generated.
+- The app binds to localhost — expose it only via a **TLS-terminating reverse proxy**.
+- The stack carries **no end-of-life components**; rebuild the image to pick up gem/security updates,
+  and keep the edges patched (host OS, proxy, TLS).
+- **Pilot data is synthetic only.** Real client records are a deliberate, separate gate — see
   [`SECURITY.md`](SECURITY.md) for the controls required first.

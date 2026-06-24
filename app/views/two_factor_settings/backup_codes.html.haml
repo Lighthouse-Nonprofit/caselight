@@ -1,0 +1,21 @@
+.row
+  .col-xs-12.col-sm-8.col-sm-offset-2.col-md-6.col-md-offset-3
+    .ibox.normal-space
+      .ibox-title
+        %h3 Your recovery codes
+      .ibox-content
+        %p.text-success
+          %i.fa.fa-lock
+          Two-factor authentication is now <strong>ON</strong>.
+        .alert.alert-warning
+          %strong Save these recovery codes now.
+          Each can be used once to sign in if you lose access to your authenticator. They will not be shown again.
+        %ul.list-unstyled
+          - @codes.each do |code|
+            %li
+              %code= code
+        %hr
+        -# Download is built client-side from the codes already on this page — they are stored only
+        -# as hashes server-side and are never shown again, so there is nothing to re-fetch.
+        = link_to 'Download as .txt', "data:text/plain;charset=utf-8,#{ERB::Util.url_encode(@codes.join("\n") + "\n")}", download: 'caselight-recovery-codes.txt', class: 'btn btn-default'
+        = link_to 'Done', two_factor_settings_path, class: 'btn btn-primary'
