@@ -38,8 +38,6 @@ class ApplicationController < ActionController::Base
       :start_date, :province_id, :mobile, :task_notify, :calendar_integration,
       :pin_number, :program_warning, :staff_performance_notification
     ])
-    # TOTP code submitted with the login form (devise-two-factor reads params[:user][:otp_attempt]).
-    devise_parameter_sanitizer.permit(:sign_in, keys: [:otp_attempt])
   end
 
   # FedRAMP IA-2(1): privileged accounts (admin + managers) must use MFA. Enforcement is gated behind

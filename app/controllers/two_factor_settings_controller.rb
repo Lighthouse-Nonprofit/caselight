@@ -4,9 +4,10 @@ require 'rqrcode'
 # Enrollment flow: GET #show generates (once) and persists an otp_secret and renders the QR; the user
 # scans it and submits a code to POST #create, which verifies the code, flips otp_required_for_login on,
 # and issues one-time recovery codes. #destroy turns MFA back off.
-class TwoFactorSettingsController < ApplicationController
-  before_action :authenticate_user!
-
+# Inherits AdminController (not ApplicationController) so the shared authenticated chrome is
+# populated: notify_user sets @notification for the top navbar and set_sidebar_basic_info sets
+# the sidebar counts. AdminController also runs authenticate_user!.
+class TwoFactorSettingsController < AdminController
   def show
     @user = current_user
     unless @user.two_factor_enabled?

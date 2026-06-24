@@ -39,6 +39,12 @@ class Rack::Attack
     req.ip if req.path == '/users/password' && req.post?
   end
 
+  # Second-factor (OTP) verification attempts by IP — bounds brute-forcing the 6-digit code
+  # (TOTP codes are also single-use via consumed_timestep). FedRAMP AC-7 / SC-5.
+  throttle('two_factor/ip', limit: 10, period: 60.seconds) do |req|
+    req.ip if req.path == '/users/two_factor' && req.post?
+  end
+
   # Throttled requests get Rack::Attack's default 429 (Too Many Requests) response.
 end
 

@@ -4,6 +4,15 @@ Rails.application.routes.draw do
 
   devise_for :users, controllers: { registrations: 'registrations', sessions: 'sessions', passwords: 'passwords' }
 
+  # Second-factor (TOTP / recovery code) step of the two-stage login (FedRAMP IA-2(1)). Reachable only
+  # mid-login, after a correct password for an MFA-enabled account (see SessionsController#create).
+  # Wrapped in devise_scope so Devise can resolve the :user mapping for these SessionsController actions
+  # (without it, Devise raises ActionNotFound -> 404 on the custom paths).
+  devise_scope :user do
+    get  'users/two_factor', to: 'sessions#two_factor_challenge', as: :two_factor_challenge
+    post 'users/two_factor', to: 'sessions#verify_otp',           as: :verify_two_factor
+  end
+
   # Self-service TOTP MFA enrollment (FedRAMP IA-2(1)).
   resource :two_factor_settings, only: [:show, :create, :destroy]
   post 'two_factor_settings/backup_codes', to: 'two_factor_settings#regenerate_backup_codes',

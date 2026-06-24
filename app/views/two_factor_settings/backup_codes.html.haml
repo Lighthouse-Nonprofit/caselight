@@ -15,4 +15,7 @@
             %li
               %code= code
         %hr
+        -# Download is built client-side from the codes already on this page — they are stored only
+        -# as hashes server-side and are never shown again, so there is nothing to re-fetch.
+        = link_to 'Download as .txt', "data:text/plain;charset=utf-8,#{ERB::Util.url_encode(@codes.join("\n") + "\n")}", download: 'caselight-recovery-codes.txt', class: 'btn btn-default'
         = link_to 'Done', two_factor_settings_path, class: 'btn btn-primary'

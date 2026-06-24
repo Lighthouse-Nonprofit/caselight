@@ -24,26 +24,63 @@ RSpec.describe 'Two-factor authentication (MFA)', type: :request do
     expect(User.devise_modules).to include(:two_factor_authenticatable, :two_factor_backupable)
   end
 
-  describe 'login strategy' do
-    it 'a user without MFA signs in with email + password' do
+  # NB: the "not signed in" cases assert on the immediate response + session (per-request, leak-free)
+  # rather than the cross-request `authenticated?` probe — under Devise's warden test-mode a prior
+  # example's sign-in can leak into a later GET and spuriously read as authenticated. The deferral
+  # (302 -> /users/two_factor with a pending id, but no warden session) is the precise contract here.
+  describe 'login (two-step for MFA accounts)' do
+    it 'a user without MFA signs in with email + password in one step' do
       post user_session_path, params: { user: { email: plain_user.email, password: password } }
       expect(authenticated?).to be true
     end
 
-    it 'an MFA user CANNOT sign in with the password alone (no bypass)' do
+    it 'a correct password for an MFA account defers to the OTP screen (no session granted yet)' do
       post user_session_path, params: { user: { email: mfa_user.email, password: password } }
-      expect(authenticated?).to be false
+      expect(response.location).to include('/users/two_factor')
+      expect(session[:otp_pending_user_id]).to eq(mfa_user.id)
     end
 
-    it 'an MFA user CANNOT sign in with a wrong code' do
-      post user_session_path, params: { user: { email: mfa_user.email, password: password, otp_attempt: '000000' } }
-      expect(authenticated?).to be false
-    end
-
-    it 'an MFA user signs in with password + a valid TOTP code' do
+    it 'an OTP sent with the password (old combined form) is ignored — still only deferred' do
       code = ROTP::TOTP.new(mfa_user.otp_secret).now
       post user_session_path, params: { user: { email: mfa_user.email, password: password, otp_attempt: code } }
-      expect(authenticated?).to be true
+      expect(response.location).to include('/users/two_factor')
+      expect(session[:otp_pending_user_id]).to eq(mfa_user.id)
+    end
+
+    it 'a wrong password for an MFA account fails the first factor (no OTP screen, no pending state)' do
+      post user_session_path, params: { user: { email: mfa_user.email, password: 'WrongPass123!' } }
+      expect(response.location.to_s).not_to include('/users/two_factor')
+      expect(session[:otp_pending_user_id]).to be_nil
+    end
+
+    it 'the OTP screen is unusable without a pending first factor' do
+      post verify_two_factor_path, params: { otp_attempt: '123456' }
+      expect(response.location).to include('/users/sign_in')
+    end
+
+    context 'after a correct first factor (password) for an MFA account' do
+      before { post user_session_path, params: { user: { email: mfa_user.email, password: password } } }
+
+      it 'completes sign-in with a valid TOTP code' do
+        code = ROTP::TOTP.new(mfa_user.otp_secret).now
+        post verify_two_factor_path, params: { otp_attempt: code }
+        expect(session[:otp_pending_user_id]).to be_nil   # consumed
+        expect(authenticated?).to be true
+      end
+
+      it 'rejects a wrong code — stays on the OTP step, still pending, not signed in' do
+        post verify_two_factor_path, params: { otp_attempt: '000000' }
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(session[:otp_pending_user_id]).to eq(mfa_user.id)
+      end
+
+      it 'completes sign-in with a one-time recovery code' do
+        recovery = mfa_user.generate_otp_backup_codes!
+        mfa_user.save!
+        post verify_two_factor_path, params: { otp_attempt: recovery.first }
+        expect(session[:otp_pending_user_id]).to be_nil
+        expect(authenticated?).to be true
+      end
     end
   end
 
