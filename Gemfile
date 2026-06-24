@@ -112,7 +112,7 @@ end
 
 group :development do
   gem 'letter_opener',        '~> 1.4.1'
-  gem 'rubocop',              '~> 0.47.1', require: false
+  gem 'rubocop',              '~> 1.88.0', require: false
 end
 
 group :test do
