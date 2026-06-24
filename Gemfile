@@ -41,6 +41,7 @@ gem 'active_model_serializers', '~> 0.10.0'
 gem 'sinatra', '~> 2.0', require: false
 # rack-cors removed (Phase 1): the only CORS config was a vestigial `origins '*'` block for the
 # removed mobile/token-auth API. Remaining /api endpoints are same-origin AJAX (no CORS needed).
+gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on auth endpoints (AC-7, SC-5)
 gem 'rails-erd'
 gem 'phony_rails',            '~> 0.12.11'
 gem 'typhoeus'
