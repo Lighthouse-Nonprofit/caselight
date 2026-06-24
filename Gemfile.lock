@@ -683,7 +683,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    whenever (0.9.7)
+    whenever (1.1.2)
       chronic (>= 0.6.3)
     wicked_pdf (1.4.0)
       activesupport
@@ -778,7 +778,7 @@ DEPENDENCIES
   typhoeus
   uglifier (>= 1.3.0)
   webauthn (~> 3.4)
-  whenever (~> 0.9.4)
+  whenever (~> 1.1.2)
   wicked_pdf (~> 1.0, >= 1.0.6)
   wkhtmltopdf-binary-edge (~> 0.12.3.0)
 
