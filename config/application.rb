@@ -23,13 +23,43 @@ Bundler.require(*Rails.groups)
 require 'apartment/elevators/subdomain'
 require 'warden'
 
+# Tenant routing that ALSO understands *.localhost dev hosts (e.g. cases.localhost). The base
+# Subdomain elevator resolves the tenant via PublicSuffix, which does not recognise the `.localhost`
+# TLD — so hosts like `cases.localhost` extract no subdomain and fall to the public schema (login then
+# fails because the user lives in the tenant schema). `.localhost` is a browser *secure context*, which
+# we want for testing WebAuthn passkeys locally without HTTPS, so accept it: treat the first label of a
+# `.localhost` host as the tenant. Every other host (lvh.me, the prod nip.io host, IPs) is unchanged.
+module Apartment
+  module Elevators
+    class SubdomainWithLocalhost < Subdomain
+      # Share the parent's configured exclusions. config/initializers/apartment/subdomain_exclusions.rb
+      # sets excluded_subdomains (e.g. 'www') on Subdomain, NOT on this subclass — and the inherited
+      # parse_tenant_name reads self.class.excluded_subdomains. Without this delegation the subclass
+      # would have an EMPTY exclusion list, so a 'www.example.com' request (the Rails test default host)
+      # would try to switch to a nonexistent 'www' tenant and 500.
+      def self.excluded_subdomains
+        Apartment::Elevators::Subdomain.excluded_subdomains
+      end
+
+      def parse_tenant_name(request)
+        host = request.host.to_s
+        return super unless host.end_with?('.localhost')
+
+        sub = host.split('.').first
+        return nil if self.class.excluded_subdomains.include?(sub)
+        sub.presence
+      end
+    end
+  end
+end
+
 module CifWeb
   class Application < Rails::Application
     # Use the Rails 7.1 cache serialization format (the 6.1 default is deprecated, removed in 7.2).
     config.active_support.cache_format_version = 7.1
 
-    config.middleware.use Apartment::Elevators::Subdomain
-    config.middleware.insert_before Warden::Manager, Apartment::Elevators::Subdomain
+    config.middleware.use Apartment::Elevators::SubdomainWithLocalhost
+    config.middleware.insert_before Warden::Manager, Apartment::Elevators::SubdomainWithLocalhost
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.

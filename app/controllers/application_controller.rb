@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   before_action :find_association, if: :devise_controller?
   before_action :set_locale
   before_action :set_paper_trail_whodunnit
+  before_action :require_mfa_for_privileged
 
   rescue_from ActiveRecord::RecordNotFound do |exception|
    render file: "#{Rails.root}/app/views/errors/404", layout: false, status: :not_found
@@ -37,6 +38,19 @@ class ApplicationController < ActionController::Base
       :start_date, :province_id, :mobile, :task_notify, :calendar_integration,
       :pin_number, :program_warning, :staff_performance_notification
     ])
+  end
+
+  # FedRAMP IA-2(1): privileged accounts (admin + managers) must use MFA. Enforcement is gated behind
+  # config.x.enforce_mfa_for_privileged (default OFF — see config/initializers/two_factor.rb), so this
+  # is a no-op until the org switches it on. When on, a privileged user without MFA is sent to enroll.
+  def require_mfa_for_privileged
+    return unless Rails.configuration.x.enforce_mfa_for_privileged
+    return unless user_signed_in? && current_user.mfa_privileged? && !current_user.two_factor_enabled?
+    return if devise_controller? || controller_name == 'two_factor_settings'
+
+    redirect_to two_factor_settings_path,
+                alert: t('two_factor.enrollment_required',
+                         default: 'Your role requires two-factor authentication. Please set it up to continue.')
   end
 
   def find_association
