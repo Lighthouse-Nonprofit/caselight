@@ -28,4 +28,31 @@ RSpec.describe 'Auth hardening', type: :model do
       expect(Devise.timeout_in).to eq(30.minutes)
     end
   end
+
+  describe 'password policy (IA-5)' do
+    it 'uses secure_validatable + password_archivable (complexity + history)' do
+      expect(User.devise_modules).to include(:secure_validatable, :password_archivable)
+    end
+
+    it 'requires a minimum length of 12' do
+      expect(Devise.password_length.min).to eq(12)
+    end
+
+    it 'requires upper/lower/digit/symbol complexity' do
+      expect(Devise.password_complexity).to eq(digit: 1, lower: 1, upper: 1, symbol: 1)
+    end
+
+    it 'keeps the last 5 passwords for no-reuse enforcement' do
+      expect(Devise.password_archiving_count).to eq(5)
+    end
+
+    it 'rejects a weak password and accepts a complex one' do
+      user = build(:user, password: 'weak', password_confirmation: 'weak')
+      expect(user).not_to be_valid
+      expect(user.errors[:password]).to be_present
+
+      user.password = user.password_confirmation = 'SecurePass123!'
+      expect(user).to be_valid
+    end
+  end
 end
