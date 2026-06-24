@@ -55,9 +55,5 @@ ignore:
   # POAM-007 — CLOSED: carrierwave 1.1.0 -> 3.1.3 (+ extension_allowlist migration). IDs removed; the
   #             SSRF/RMagick/content-type CVEs no longer match the lockfile.
   # POAM-008 — CLOSED: unused chartkick gem removed entirely. IDs removed.
-  # POAM-009 — devise 4.9.4 -> 5.x (2× Medium; bundle with the Phase 2 auth-hardening / MFA work)
-  - CVE-2026-32700        # confirmable change-email race condition
-  - GHSA-57hq-95w6-v4fc
-  - CVE-2026-40295        # open redirect via request.referrer in timeoutable handler
-  - GHSA-jp94-3292-c3xv
+  # POAM-009 — CLOSED: devise 4.9.4 -> 5.0.4 (CVE-2026-32700, CVE-2026-40295). IDs removed.
   # POAM-010 — CLOSED: rubocop 0.47.1 -> 1.88.0 (PR #16). IDs removed.
