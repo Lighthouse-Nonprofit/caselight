@@ -13,6 +13,11 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :secure_validatable,
          :lockable, :timeoutable, :password_archivable
 
+  # TOTP MFA secret stored encrypted at rest (FedRAMP IA-2(1)/SC-28). The :two_factor_authenticatable
+  # / :two_factor_backupable devise modules + the enrollment & login-OTP UI land in a follow-up; this
+  # foundation just provides the encrypted column + ActiveRecord Encryption (also Phase 4's base).
+  encrypts :otp_secret
+
   has_paper_trail
 
 

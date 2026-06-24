@@ -55,4 +55,19 @@ RSpec.describe 'Auth hardening', type: :model do
       expect(user).to be_valid
     end
   end
+
+  describe 'encryption-at-rest foundation (SC-28)' do
+    it 'stores otp_secret as ciphertext, transparently decrypted on read' do
+      user = create(:user)
+      secret = 'JBSWY3DPEHPK3PXP'
+      user.update!(otp_secret: secret)
+
+      # The model decrypts transparently...
+      expect(user.reload.otp_secret).to eq(secret)
+      # ...but the raw column holds ciphertext, not the plaintext secret.
+      raw = User.connection.select_value("SELECT otp_secret FROM users WHERE id = #{user.id}")
+      expect(raw).to be_present
+      expect(raw).not_to eq(secret)
+    end
+  end
 end
