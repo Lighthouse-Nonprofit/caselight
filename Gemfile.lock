@@ -447,6 +447,8 @@ GEM
       activesupport (>= 3.0.0)
     racc (1.8.1)
     rack (2.2.23)
+    rack-attack (6.8.0)
+      rack (>= 1.0, < 4)
     rack-protection (2.2.4)
       rack
     rack-session (1.0.2)
@@ -717,6 +719,7 @@ DEPENDENCIES
   phony_rails (~> 0.12.11)
   pry
   pundit (~> 2.0)
+  rack-attack (~> 6.7)
   rails (= 7.1.5.2)
   rails-erd
   rails-html-sanitizer (~> 1.4)
