@@ -106,6 +106,12 @@ class SessionsController < Devise::SessionsController
     end
 
     user = stored.user
+    # A :lockable-locked account must not authenticate via ANY path — the password path (#create)
+    # refuses locked accounts, so the passkey path must too (FedRAMP AC-7). Reject before sign-in.
+    if user.access_locked?
+      return render(json: { error: t('devise.failure.locked', default: 'Your account is locked.') },
+                    status: :unprocessable_entity)
+    end
     # Mirror #verify_otp: a completed authentication clears any accumulated lockable counter.
     user.update_column(:failed_attempts, 0) if user.failed_attempts.to_i.positive?
     sign_in(resource_name, user)

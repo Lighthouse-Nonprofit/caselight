@@ -99,6 +99,19 @@ RSpec.describe 'Passwordless passkey authentication', type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
       expect(authenticated?).to be false
     end
+
+    it 'refuses sign-in for a :lockable-locked account (no lock bypass via passkey)' do
+      register_credential!
+      user.lock_access!   # Devise :lockable — same accounts the password path refuses
+
+      post passkey_login_options_path, params: { email: user.email }
+      options = JSON.parse(response.body)
+      assertion = fake_client.get(challenge: options['challenge'], rp_id: rp_id, user_verified: true)
+
+      post passkey_login_callback_path, params: { credential: assertion }, as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(authenticated?).to be false
+    end
   end
 
   describe 'coexistence with the password + TOTP login' do
