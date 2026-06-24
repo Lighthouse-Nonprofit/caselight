@@ -149,9 +149,28 @@ Devise.setup do |config|
   # secure: true in order to force SSL only cookies.
   # config.rememberable_options = {}
 
-  # ==> Configuration for :validatable
-  # Range for password length.
-  config.password_length = 8..72
+  # ==> Configuration for :validatable / :secure_validatable
+  # Range for password length. Minimum raised to 12 (FedRAMP IA-5 / NIST 800-63B length emphasis).
+  config.password_length = 12..128
+
+  # ==> Configuration for :secure_validatable (devise-security) — password complexity (IA-5).
+  # Require at least one each of lowercase, uppercase, digit, and symbol.
+  config.password_complexity = { digit: 1, lower: 1, upper: 1, symbol: 1 }
+
+  # secure_validatable's email check would use the external EmailValidator (email_validator gem),
+  # which we don't bundle. The User model already validates email presence + uniqueness, and Devise
+  # validates the email format via email_regexp. Disable secure_validatable's email validation so it
+  # contributes only the password-complexity checks (avoids an extra dependency).
+  config.email_validation = false
+
+  # ==> Configuration for :password_archivable (devise-security) — password history / no-reuse (IA-5).
+  # Keep the last 5 passwords and forbid reusing any of them on change.
+  config.password_archiving_count = 5
+  config.deny_old_passwords = true
+
+  # NOTE: periodic password EXPIRATION (:password_expirable) is intentionally NOT enabled — current
+  # NIST 800-63B / FedRAMP Rev 5 guidance discourages forced periodic rotation absent evidence of
+  # compromise, favouring length + history + MFA. Documented as a deliberate control decision.
 
   # Email regex used to validate email formats. It simply asserts that
   # one (and only one) @ exists in the given string. This is mainly

@@ -25,6 +25,7 @@ gem 'jbuilder',               '~> 2.0'
 gem 'simple_form', '~> 4.0'
 gem 'bootstrap-sass',         '~> 3.3.5'
 gem 'devise', '~> 5.0', '>= 5.0.4'  # 5.0.4 closes POAM-009 (CVE-2026-32700, CVE-2026-40295)
+gem 'devise-security', '~> 0.18'    # Phase 2: password complexity + history/no-reuse (IA-5)
 # haml-rails 2.x gives Rails 6 compatibility; pin haml itself to 5.2 — haml 6 is a parser
 # rewrite that risks breaking the app's many .haml views. (haml 6 migration is its own future step.)
 gem 'haml', '~> 5.2'

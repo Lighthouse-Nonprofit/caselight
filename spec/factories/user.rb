@@ -3,8 +3,9 @@ FactoryBot.define do
     sequence(:email)  { |n| "#{n}#{FFaker::Internet.email}" }
     first_name { FFaker::Name.first_name }
     last_name { FFaker::Name.last_name }
-    password { '12345678' }
-    password_confirmation { '12345678' }
+    # Complexity-compliant (devise-security :secure_validatable): >=12 chars, upper/lower/digit/symbol.
+    password { 'SecurePass123!' }
+    password_confirmation { 'SecurePass123!' }
     roles { 'case worker' }
     program_warning { true }
     staff_performance_notification { true }

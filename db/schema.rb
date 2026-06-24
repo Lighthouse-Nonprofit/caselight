@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_24_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_24_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -503,6 +503,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_24_000001) do
     t.string "status", default: ""
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "old_passwords", force: :cascade do |t|
+    t.string "encrypted_password", null: false
+    t.string "password_salt"
+    t.string "password_archivable_type", null: false
+    t.bigint "password_archivable_id", null: false
+    t.datetime "created_at"
+    t.index ["password_archivable_type", "password_archivable_id"], name: "index_old_passwords_on_password_archivable"
   end
 
   create_table "organizations", force: :cascade do |t|

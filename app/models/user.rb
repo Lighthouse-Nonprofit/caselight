@@ -7,9 +7,11 @@ class User < ActiveRecord::Base
   ROLES = ['admin', 'case worker', 'able manager', 'ec manager', 'fc manager', 'kc manager', 'manager', 'strategic overviewer'].freeze
   MANAGERS = ROLES.select { |role| role if role.include?('manager') }
 
+  # :secure_validatable (devise-security) replaces :validatable — adds password complexity on top of
+  # length + email checks. :password_archivable enforces no-reuse of recent passwords (FedRAMP IA-5).
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable,
-         :lockable, :timeoutable
+         :recoverable, :rememberable, :trackable, :secure_validatable,
+         :lockable, :timeoutable, :password_archivable
 
   has_paper_trail
 

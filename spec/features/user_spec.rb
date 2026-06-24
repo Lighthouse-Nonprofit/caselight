@@ -11,7 +11,7 @@ describe 'User' do
   end
 
   feature 'Disable' do
-    let!(:disable_user){ create(:user, email: 'aa@bb.com', disable: true, password: '12345678', password_confirmation: '12345678') }
+    let!(:disable_user){ create(:user, email: 'aa@bb.com', disable: true, password: 'SecurePass123!', password_confirmation: 'SecurePass123!') }
 
     scenario 'disable user from log in', js: true do
       visit users_path
@@ -22,7 +22,7 @@ describe 'User' do
       logout
       visit new_user_session_path
       fill_in 'Email', with: 'aa@bb.com'
-      fill_in 'Password', with: '12345678'
+      fill_in 'Password', with: 'SecurePass123!'
       click_button 'Log in'
       expect(current_path).to eql('/users/sign_in')
     end
