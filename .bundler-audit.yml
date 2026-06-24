@@ -18,11 +18,8 @@ ignore:
   - GHSA-mr3q-g2mv-mr4q   # ReDoS via ETag (Unknown)
   - CVE-2024-21510
   - CVE-2025-61921
-  # POAM-005a — Rails 7.1.5.1 framework CVEs FIXED by the 7.1.5.2 patch (safe in-line bump; first remediation)
-  - CVE-2025-55193        # activerecord — ANSI escape injection in logging (relevant to Phase 3 audit logging)
-  - GHSA-76r7-hhxj-r776
-  - CVE-2025-24293        # activestorage — unsafe transformation methods
-  - GHSA-r4mg-4433-c7g3
+  # POAM-005a — CLOSED: fixed by the Rails 7.1.5.2 patch (CVE-2025-55193, CVE-2025-24293). IDs removed
+  #             from this ignore list; CI stays green because the advisories no longer match the lockfile.
   # POAM-005b — Rails 7.1.5.1 framework CVEs that require the 7.2/8.0 minor upgrade (own upgrade track)
   - CVE-2026-33168        # actionview — XSS in tag helpers
   - GHSA-v55j-83pf-r9cq
