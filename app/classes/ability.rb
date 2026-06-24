@@ -140,8 +140,8 @@ class Ability
     elsif user.manager?
       can :manage, AbleScreeningQuestion
       can :create, Client
-      can :manage, Client, case_worker_clients: { user_id: User.where('manager_ids && ARRAY[:user_id] OR id = :user_id', { user_id: user.id }).map(&:id) }
-      can :manage, User, id: User.where('manager_ids && ARRAY[?]', user.id).map(&:id)
+      can :manage, Client, case_worker_clients: { user_id: User.where('manager_ids && ARRAY[:user_id]::integer[] OR id = :user_id', { user_id: user.id }).map(&:id) }
+      can :manage, User, id: User.where('manager_ids && ARRAY[?]::integer[]', user.id).map(&:id)
       can :manage, User, id: user.id
       can :manage, Case
       can :manage, Task

@@ -20,25 +20,8 @@ ignore:
   - CVE-2025-61921
   # POAM-005a — CLOSED: fixed by the Rails 7.1.5.2 patch (CVE-2025-55193, CVE-2025-24293). IDs removed
   #             from this ignore list; CI stays green because the advisories no longer match the lockfile.
-  # POAM-005b — Rails 7.1.5.1 framework CVEs that require the 7.2/8.0 minor upgrade (own upgrade track)
-  - CVE-2026-33168        # actionview — XSS in tag helpers
-  - GHSA-v55j-83pf-r9cq
-  - CVE-2026-33173        # activestorage — content-type bypass via direct-upload metadata
-  - GHSA-qcfx-2mfw-w4cg
-  - CVE-2026-33174        # activestorage — DoS via Range requests in proxy mode
-  - GHSA-r46p-8f7g-vvvg
-  - CVE-2026-33195        # activestorage — path traversal in DiskService
-  - GHSA-9xrj-h377-fr87
-  - CVE-2026-33202        # activestorage — glob injection in DiskService
-  - GHSA-73f9-jhhh-hr5m
-  - CVE-2026-33658        # activestorage — DoS via multi-range requests in proxy mode
-  - GHSA-p9fm-f462-ggrg
-  - CVE-2026-33169        # activesupport — ReDoS in number_to_delimited
-  - GHSA-cg4j-q9v8-6v38
-  - CVE-2026-33170        # activesupport — XSS in SafeBuffer#%
-  - GHSA-89vf-4333-qx8v
-  - CVE-2026-33176        # activesupport — DoS in number helpers
-  - GHSA-2j26-frm8-cmj9
+  # POAM-005b — CLOSED: Rails 7.1.5.1 -> 7.2.3.1 cleared the 9 actionview/activestorage/activesupport
+  #             2026 CVEs (XSS, path traversal, glob injection, ReDoS, proxy-mode DoS). IDs removed.
   # POAM-006 — bootstrap-sass 3.3.7 -> 3.4.1 (6× XSS; UI-regression-test the theme before bumping)
   - CVE-2016-10735
   - GHSA-4p24-vmcr-4gqj
