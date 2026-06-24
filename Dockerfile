@@ -1,7 +1,7 @@
 # Dockerfile - CaseLight (Ruby 3.3 / Rails 7.x), modernized off the EOL 2.3.3/4.2.2 stack.
 # The build, not the run, is where you will spend time. See OPERATIONS.md.
 
-FROM ruby:3.3
+FROM ruby:4.0
 
 # ruby:3.3 is Debian Bookworm (current stable), apt mirrors live — normal install.
 # Only libpq-dev (for the pg gem) is required; gcc/make/git ship in the base image.
