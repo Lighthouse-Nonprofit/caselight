@@ -109,15 +109,18 @@ namespace :encryption do
     File.write(PROGRESS_PATH, JSON.pretty_generate(progress))
   end
 
-  # A raw stored value is ciphertext IFF the encrypted attribute type can decrypt it. This is a true
-  # round-trip (NOT a JSON-shape guess): AR stores an encryption envelope; the type's #deserialize
-  # raises ActiveRecord::Encryption::Errors::Base on a value it cannot decrypt (i.e. still plaintext).
-  # blank/NULL is "nothing sensitive stored" => not a straggler.
-  def ciphertext?(model, attr, raw)
+  # A raw stored value is ciphertext IFF it parses as an AR-Encryption MESSAGE ENVELOPE. We do NOT use
+  # type#deserialize: under support_unencrypted_data=true (our migration window) deserialize TOLERATES
+  # plaintext (returns it without raising), so it cannot tell ciphertext from a plaintext straggler —
+  # which would make this gate falsely PASS on un-backfilled rows. message_serializer parses the
+  # envelope structure (the {"p":..,"h":..} payload) WITHOUT needing the key, so detection is
+  # key-independent AND tier-agnostic: deterministic and non-deterministic columns share the envelope
+  # format, so later tiers reuse this unchanged. blank/NULL = nothing sensitive stored => not a straggler.
+  def ciphertext?(_model, _attr, raw)
     return true if raw.nil? || raw == ''
-    model.type_for_attribute(attr.to_s).deserialize(raw)
+    ActiveRecord::Encryption.message_serializer.load(raw)
     true
-  rescue ActiveRecord::Encryption::Errors::Base
+  rescue ActiveRecord::Encryption::Errors::Encoding, ActiveRecord::Encryption::Errors::ForbiddenClass
     false
   end
 

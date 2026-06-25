@@ -19,10 +19,6 @@ class FamilyGrid
     scope.by_family_type(value)
   end
 
-  filter(:case_history, :string, header: -> { I18n.t('datagrid.columns.families.case_history') }) do |value, scope|
-    scope.case_history_like(value)
-  end
-
   filter(:address, :string, header: -> { I18n.t('datagrid.columns.families.address') }) { |value, scope| scope.address_like(value) }
 
   filter(:significant_family_member_count, :integer, range: true, header: -> { I18n.t('datagrid.columns.families.significant_family_member_count') })
@@ -48,10 +44,6 @@ class FamilyGrid
   filter(:household_income, :float, range: true, header: -> { I18n.t('datagrid.columns.families.household_income') })
 
   filter(:contract_date, :date, range: true, header: -> { I18n.t('datagrid.columns.families.contract_date') })
-
-  filter(:caregiver_information, :string, header: -> { I18n.t('datagrid.columns.families.caregiver_information') }) do |value, scope|
-    scope.caregiver_information_like(value)
-  end
 
   column(:id, header: -> { I18n.t('datagrid.columns.families.id') })
 
@@ -79,7 +71,7 @@ class FamilyGrid
     render partial: 'families/members', locals: { object: object }
   end
 
-  column(:caregiver_information, order: 'LOWER(caregiver_information)', header: -> { I18n.t('datagrid.columns.families.caregiver_information') })
+  column(:caregiver_information, order: false, header: -> { I18n.t('datagrid.columns.families.caregiver_information') })
 
   column(:household_income, header: -> { I18n.t('datagrid.columns.families.household_income') }) do |object|
     format(object.household_income) do |income|

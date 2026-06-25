@@ -39,16 +39,6 @@ describe Family, 'scopes' do
     end
   end
 
-  context 'caregiver information like' do
-    let!(:families){ Family.caregiver_information_like(kc_family.caregiver_information.downcase) }
-    it 'should include record have caregiver information like' do
-      expect(families).to include(kc_family)
-    end
-    it 'should not include record not have caregiver information like' do
-      expect(families).not_to include(fc_family)
-    end
-  end
-
   context 'address like' do
     let!(:families){ Family.address_like(kc_family.address.downcase) }
     it 'should include record have address like' do

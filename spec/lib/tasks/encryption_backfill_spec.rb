@@ -50,13 +50,15 @@ RSpec.describe 'encryption backfill + verify logic', type: :model do
     )
   end
 
-  # Mirrors encryption.rake#ciphertext? — true iff the encrypted type can decrypt the raw value
-  # (blank/NULL = nothing stored = not a straggler).
-  def ciphertext?(model, column, raw)
+  # Mirrors encryption.rake#ciphertext? — true iff the raw value parses as an AR-Encryption message
+  # envelope. NOT type#deserialize: support_unencrypted_data=true makes deserialize tolerate plaintext
+  # (returns it, no raise), so it can't detect a straggler. The envelope parse is key-independent and
+  # tier-agnostic (deterministic + non-deterministic share the envelope format).
+  def ciphertext?(_model, _column, raw)
     return true if raw.nil? || raw == ''
-    model.type_for_attribute(column.to_s).deserialize(raw)
+    ActiveRecord::Encryption.message_serializer.load(raw)
     true
-  rescue ActiveRecord::Encryption::Errors::Base
+  rescue ActiveRecord::Encryption::Errors::Encoding, ActiveRecord::Encryption::Errors::ForbiddenClass
     false
   end
 

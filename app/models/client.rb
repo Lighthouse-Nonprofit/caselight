@@ -60,6 +60,21 @@ class Client < ActiveRecord::Base
 
   has_paper_trail
 
+  # Phase 4 Tier 1 — field-level encryption at rest for sensitive narrative PII (FedRAMP SC-28,
+  # SOC 2 C1.1). NON-DETERMINISTIC: these columns are never equality/range/iLIKE queried. The only
+  # query site (the info_like scope on relevant_referral_information) is removed below; the
+  # advanced-search builder (app/classes/advanced_searches/client_fields.rb) exposes only
+  # given_name/family_name/family/slug/school_name as text fields, none of these five. Non-det gives
+  # a per-value random IV (no ciphertext-equality leakage) at the cost of being UNqueryable — fine
+  # because nothing queries them. All five are `text` columns, so ciphertext fits with no migration.
+  # support_unencrypted_data=true lets reads tolerate not-yet-backfilled plaintext during the
+  # migration window; run `rake encryption:backfill` then `rake encryption:verify`.
+  encrypts :reason_for_referral
+  encrypts :background
+  encrypts :exit_note
+  encrypts :rejected_note
+  encrypts :relevant_referral_information
+
   validates :rejected_note, presence: true, on: :update, if: :reject?
   validates :exit_date, presence: true, on: :update, if: :exit_ngo?
   validates :exit_note, presence: true, on: :update, if: :exit_ngo?
@@ -85,7 +100,6 @@ class Client < ActiveRecord::Base
   scope :district_like,               ->(value) { where('clients.district iLike ?', "%#{value}%") }
   scope :school_name_like,            ->(value) { where('clients.school_name iLIKE ?', "%#{value}%") }
   scope :referral_phone_like,         ->(value) { where('clients.referral_phone iLIKE ?', "%#{value}%") }
-  scope :info_like,                   ->(value) { where('clients.relevant_referral_information iLIKE ?', "%#{value}%") }
   scope :slug_like,                   ->(value) { where('clients.slug iLIKE ?', "%#{value}%") }
   scope :kid_id_like,                 ->(value) { where('clients.kid_id iLIKE ?', "%#{value}%") }
   scope :start_with_code,             ->(value) { where('clients.code iLIKE ?', "#{value}%") }

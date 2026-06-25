@@ -441,16 +441,6 @@ describe Client, 'scopes' do
     end
   end
 
-  context 'info like' do
-    let!(:clients){ Client.info_like(client.relevant_referral_information.downcase[0, 10]) }
-    it 'should include record have info like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include record not have info like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
   context 'is received by' do
     let!(:received_by){ [user.name, user.id] }
     let!(:is_received_by){ Client.is_received_by }

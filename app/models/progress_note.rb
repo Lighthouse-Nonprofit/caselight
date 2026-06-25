@@ -13,6 +13,13 @@ class ProgressNote < ActiveRecord::Base
 
   has_paper_trail
 
+  # Phase 4 Tier 1 — encrypt sensitive case-note narrative at rest (SC-28, SOC 2 C1.1).
+  # NON-DETERMINISTIC. response / additional_note are display/export-only: ProgressNoteGrid renders
+  # them via strip_tags on the decrypted attribute (html:false, no order:, no filter); no scope,
+  # where, ORDER BY, or pluck touches either column. Both are already `text`; no migration needed.
+  encrypts :response
+  encrypts :additional_note
+
   validates :client_id, :user_id, :date, presence: true
   validates :other_location, presence: true, if: :other_location?
 

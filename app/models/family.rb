@@ -14,9 +14,16 @@ class Family < ActiveRecord::Base
   validates :family_type, presence: true, inclusion: { in: FAMILY_TYPE }
   validates :code, uniqueness: { case_sensitive: false }, if: -> { code.present? }
 
+  # Phase 4 Tier 1 — encrypt sensitive narrative PII at rest (SC-28, SOC 2 C1.1). NON-DETERMINISTIC,
+  # so these columns are no longer searchable: the caregiver_information_like / case_history_like
+  # scopes and the FamilyGrid filters/order that used them (app/grids/family_grid.rb) were removed in
+  # this same change. caregiver_information is already `text`; case_history was `string`, widened to
+  # `text` by db/migrate/20260624000005_change_family_case_history_to_text.rb (ciphertext overflows
+  # the default varchar). Backfill with `rake encryption:backfill MODELS=Family` then `rake encryption:verify`.
+  encrypts :caregiver_information
+  encrypts :case_history
+
   scope :address_like,               ->(value) { where('address iLIKE ?', "%#{value}%") }
-  scope :caregiver_information_like, ->(value) { where('caregiver_information iLIKE ?', "%#{value}%") }
-  scope :case_history_like,          ->(value) { where('case_history iLIKE ?', "%#{value}%") }
   scope :emergency,                  ->        { where(family_type: 'emergency') }
   scope :family_id_like,             ->(value) { where('code iLIKE ?', "%#{value}%") }
   scope :foster,                     ->        { where(family_type: 'foster')    }
