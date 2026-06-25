@@ -10,6 +10,21 @@ module AdvancedSearches
       }
     end
 
+    # Phase 4 Tier 4: equality-only string field for DETERMINISTICALLY-encrypted columns (client names).
+    # Deterministic encryption supports exact equality lookup only, so the substring operators `contains`
+    # / `not_contains` are intentionally omitted — they would compare against a ciphertext envelope and
+    # never match. ClientBaseSqlBuilder routes `equal`/`not_equal` on these fields through the *_like
+    # scopes (which resolve to `clients.id IN (?)`) rather than raw `clients.<col> = ?` SQL.
+    def self.text_equal_options(field_name, label, group)
+      {
+        id: field_name,
+        optgroup: group,
+        label: label,
+        type: 'string',
+        operators: ['equal', 'not_equal', 'is_empty', 'is_not_empty']
+      }
+    end
+
     def self.number_options(field_name, label, group)
       {
         id: field_name,

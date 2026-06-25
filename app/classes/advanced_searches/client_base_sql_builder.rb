@@ -3,6 +3,12 @@ module AdvancedSearches
     ASSOCIATION_FIELDS = ['user_id', 'case_type', 'agency_name', 'form_title', 'placement_date', 'family', 'age', 'family_id', 'referred_to_ec', 'referred_to_fc', 'referred_to_kc', 'exit_ec_date', 'exit_fc_date', 'exit_kc_date', 'program_stream']
     BLANK_FIELDS = ['date_of_birth', 'initial_referral_date', 'follow_up_date', 'has_been_in_orphanage', 'has_been_in_government_care', 'grade', 'province_id', 'referral_source_id', 'birth_province_id', 'received_by_id', 'followed_up_by_id', 'donor_id', 'id_poor', 'exit_date', 'accepted_date']
 
+    # Phase 4 Tier 4: DETERMINISTICALLY-encrypted client name columns. base_sql cannot query these with
+    # raw `clients.<col> = ?` (the column holds a ciphertext envelope, not the plaintext). They are
+    # resolved via the model's deterministic-equality *_like scopes to a list of ids and emitted as
+    # `clients.id IN (?)`. Only equal/not_equal/is_empty/is_not_empty arrive (FilterTypes.text_equal_options).
+    NAME_ENCRYPTED_FIELDS = ['given_name', 'family_name', 'local_given_name', 'local_family_name'].freeze
+
     def initialize(clients, rules)
       @clients     = clients
       @values      = []
@@ -65,6 +71,11 @@ module AdvancedSearches
           @sql_string << quantitative_filter[:id]
           @values << quantitative_filter[:values]
 
+        elsif NAME_ENCRYPTED_FIELDS.include?(field)
+          name_filter = name_encrypted_sql(field, operator, value)
+          @sql_string << name_filter[:id]
+          @values     << name_filter[:values]
+
         elsif field != nil
           value = field == 'grade' ? validate_integer(value) : value
           base_sql(field, operator, value)
@@ -82,6 +93,32 @@ module AdvancedSearches
     end
 
     private
+
+    # Phase 4 Tier 4: resolve an equality/inequality predicate on a DETERMINISTICALLY-encrypted name
+    # column to a `clients.id IN (?)` clause via the model's *_like scope (rewritten to deterministic
+    # equality `where(col: value)`). Substring operators are not offered for these fields
+    # (FilterTypes.text_equal_options), so only equal / not_equal / is_empty / is_not_empty arrive.
+    # is_empty / is_not_empty test the DECRYPTED value in Ruby (a ciphertext column cannot be NULL/''-
+    # tested in SQL); acceptable for the small pilot client volume. The returned `values` is the id
+    # ARRAY — generate appends it as ONE element of @values against the single `IN (?)` placeholder; the
+    # consumer (ClientAdvancedSearch#filter) binds each @values element once and Rails expands the array.
+    def name_encrypted_sql(field, operator, value)
+      scope = "#{field}_like".to_sym
+      ids =
+        case operator
+        when 'equal'
+          @clients.public_send(scope, value).ids
+        when 'not_equal'
+          @clients.where.not(id: @clients.public_send(scope, value).ids).ids
+        when 'is_empty'
+          @clients.reject { |c| c.public_send(field).present? }.map(&:id)
+        when 'is_not_empty'
+          @clients.select { |c| c.public_send(field).present? }.map(&:id)
+        else
+          []
+        end
+      { id: 'clients.id IN (?)', values: ids }
+    end
 
     def base_sql(field, operator, value)
       case operator

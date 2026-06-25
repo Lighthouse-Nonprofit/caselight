@@ -91,6 +91,24 @@ class Client < ActiveRecord::Base
   encrypts :district
   encrypts :live_with
 
+  # Phase 4 Tier 4 — field-level encryption at rest for CLIENT NAME PII (FedRAMP SC-28, SOC 2 C1.1).
+  # DETERMINISTIC (mirrors the Tier 3 staff-name approach): same plaintext => same ciphertext, so exact
+  # equality lookup (where(given_name: 'Maria')) still works; iLIKE substring + ORDER BY do NOT — the
+  # *_like scopes below become exact where()s and name sorts move in-memory at the call sites. NO
+  # downcase: deterministic match is therefore CASE-SENSITIVE, but the displayed name keeps its original
+  # casing (downcase:true would case-fold the STORED value, so Client#name would render lowercase). The
+  # locked decision chose deterministic over blind_index once prefix lookup proved impossible over an
+  # HMAC; the cost is exact, case-sensitive whole-name search (no substring). Case-insensitive name
+  # search would require the declined blind_index sidecar. The Tier-4 migration widens these four string
+  # columns to text (the ciphertext envelope overflows varchar). support_unencrypted_data=true tolerates
+  # not-yet-backfilled plaintext during the window; run `rake encryption:backfill TIER=4 CONFIRM=1` then
+  # `rake encryption:verify TIER=4`. (Unlike Tier 3 email this is NOT a login-blocker, but it IS a
+  # name-search-blocker: un-backfilled rows won't match the ciphertext equality until backfilled.)
+  encrypts :given_name,        deterministic: true
+  encrypts :family_name,       deterministic: true
+  encrypts :local_given_name,  deterministic: true
+  encrypts :local_family_name, deterministic: true
+
   validates :rejected_note, presence: true, on: :update, if: :reject?
   validates :exit_date, presence: true, on: :update, if: :exit_ngo?
   validates :exit_note, presence: true, on: :update, if: :exit_ngo?
@@ -103,10 +121,14 @@ class Client < ActiveRecord::Base
   after_update :set_able_status, if: proc { |client| client.able_state.blank? && answers.any? }
   after_save :create_client_history
 
-  scope :given_name_like,             ->(value) { where('clients.given_name iLIKE ?', "%#{value}%") }
-  scope :family_name_like,            ->(value) { where('clients.family_name iLIKE ?', "%#{value}%") }
-  scope :local_given_name_like,       ->(value) { where('clients.local_given_name iLIKE ?', "%#{value}%") }
-  scope :local_family_name_like,      ->(value) { where('clients.local_family_name iLIKE ?', "%#{value}%") }
+  # Tier 4: the 4 name columns are DETERMINISTICALLY encrypted — iLIKE substring over ciphertext is
+  # impossible; exact equality still works. Rewritten to where(col: value) (AR serializes value to the
+  # same deterministic ciphertext for the WHERE). Scope names KEPT so ClientGrid filters + every call
+  # site need no rename. Match is exact + CASE-SENSITIVE (no downcase); substring search is gone.
+  scope :given_name_like,             ->(value) { where(given_name: value) }
+  scope :family_name_like,            ->(value) { where(family_name: value) }
+  scope :local_given_name_like,       ->(value) { where(local_given_name: value) }
+  scope :local_family_name_like,      ->(value) { where(local_family_name: value) }
   scope :referral_phone_like,         ->(value) { where('clients.referral_phone iLIKE ?', "%#{value}%") }
   scope :slug_like,                   ->(value) { where('clients.slug iLIKE ?', "%#{value}%") }
   scope :kid_id_like,                 ->(value) { where('clients.kid_id iLIKE ?', "%#{value}%") }
@@ -136,10 +158,14 @@ class Client < ActiveRecord::Base
   def self.filter(options)
     query = all
 
-    query = query.where("given_name iLIKE ?", "%#{fetch_75_chars_of(options[:given_name])}%")                 if options[:given_name].present?
-    query = query.where("family_name iLIKE ?", "%#{fetch_75_chars_of(options[:family_name])}%")               if options[:family_name].present?
-    query = query.where("local_given_name iLIKE ?", "%#{fetch_75_chars_of(options[:local_given_name])}%")     if options[:local_given_name].present?
-    query = query.where("local_family_name iLIKE ?", "%#{fetch_75_chars_of(options[:local_family_name])}%")   if options[:local_family_name].present?
+    # Tier 4: deterministic-encryption EXACT equality (case-sensitive). fetch_75_chars_of dropped here — a
+    # partial-value ciphertext matches nothing; we compare the exact full value. where(col: v) lets AR
+    # encrypt v to the stored deterministic ciphertext. The date_of_birth EXTRACT + province clauses below
+    # are untouched (DOB stays plaintext per the locked decision).
+    query = query.where(given_name: options[:given_name])               if options[:given_name].present?
+    query = query.where(family_name: options[:family_name])             if options[:family_name].present?
+    query = query.where(local_given_name: options[:local_given_name])   if options[:local_given_name].present?
+    query = query.where(local_family_name: options[:local_family_name]) if options[:local_family_name].present?
     query = query.where("EXTRACT(MONTH FROM date_of_birth) = ? AND EXTRACT(YEAR FROM date_of_birth) = ?", Date.parse(options[:date_of_birth]).month, Date.parse(options[:date_of_birth]).year)  if options[:date_of_birth].present?
 
 

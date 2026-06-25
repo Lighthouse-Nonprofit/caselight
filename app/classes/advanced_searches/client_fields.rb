@@ -10,10 +10,14 @@ module AdvancedSearches
       group = format_header('basic_fields')
       number_fields       = number_type_list.map { |item| AdvancedSearches::FilterTypes.number_options(item, format_header(item), group) }
       text_fields         = text_type_list.map { |item| AdvancedSearches::FilterTypes.text_options(item, format_header(item), group) }
+      # Phase 4 Tier 4: given_name/family_name are DETERMINISTICALLY encrypted -> equality-only operators
+      # via text_equal_options (no substring over ciphertext). ClientBaseSqlBuilder routes them through
+      # the deterministic *_like scopes (clients.id IN (?)).
+      name_fields         = encrypted_name_type_list.map { |item| AdvancedSearches::FilterTypes.text_equal_options(item, format_header(item), group) }
       date_picker_fields  = date_type_list.map { |item| AdvancedSearches::FilterTypes.date_picker_options(item, format_header(item), group) }
       drop_list_fields    = drop_down_type_list.map { |item| AdvancedSearches::FilterTypes.drop_list_options(item.first, format_header(item.first), item.last, group) }
 
-      search_fields       = text_fields + drop_list_fields + number_fields + date_picker_fields
+      search_fields       = text_fields + name_fields + drop_list_fields + number_fields + date_picker_fields
 
       search_fields.sort_by { |f| f[:label].downcase }
     end
@@ -25,7 +29,14 @@ module AdvancedSearches
     end
 
     def text_type_list
-      ['given_name', 'family_name', 'family', 'slug']
+      # Tier 4 removed given_name/family_name (now deterministic-encryption equality via
+      # encrypted_name_type_list). family + slug stay plaintext-searchable.
+      ['family', 'slug']
+    end
+
+    # Phase 4 Tier 4: deterministically-encrypted name columns (equality-only via text_equal_options).
+    def encrypted_name_type_list
+      ['given_name', 'family_name']
     end
 
     def date_type_list
