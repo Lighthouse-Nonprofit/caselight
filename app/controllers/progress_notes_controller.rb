@@ -1,4 +1,5 @@
 class ProgressNotesController < AdminController
+  include AccessAudit   # AU-2/AU-12: audit successful ProgressNote show/index reads
   load_and_authorize_resource
 
   before_action :find_client

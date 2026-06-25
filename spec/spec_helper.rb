@@ -34,6 +34,9 @@ Dir[Rails.root.join('spec/supports/**/*.rb')].each { |f| require f }
 RSpec.configure do |config|
   config.include Mongoid::Matchers
   config.include Warden::Test::Helpers
+  # Phase 3: anonymous-controller specs (AccessAudit / access_denied) need Warden
+  # injected into request.env (devise-security's handle_password_change calls #warden).
+  config.include Devise::Test::ControllerHelpers, type: :controller
   config.include FactoryBot::Syntax::Methods
   config.include JsonSpec::Helpers
   config.include FeatureHelper

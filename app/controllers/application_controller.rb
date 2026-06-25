@@ -16,11 +16,27 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_organization
 
-  rescue_from CanCan::AccessDenied do |exception|
-    redirect_to root_url, alert: exception.message
+  # AC-3 / AU-2: an authorization denial is a security-relevant event. Record an
+  # access_denied AccessLog row (tenant-isolated, append-only) BEFORE redirecting.
+  # security_event! also emits the structured Rails.logger line and never raises
+  # into the request, so the existing redirect behavior is unchanged.
+  rescue_from CanCan::AccessDenied do |e|
+    AccessLog.security_event!(
+      event_type: 'access_denied',
+      request: request,
+      user: current_user,
+      metadata: { 'reason' => e.message, 'source' => 'cancan' }
+    )
+    redirect_to root_url, alert: e.message
   end
 
-  rescue_from Pundit::NotAuthorizedError do |exception|
+  rescue_from Pundit::NotAuthorizedError do |e|
+    AccessLog.security_event!(
+      event_type: 'access_denied',
+      request: request,
+      user: current_user,
+      metadata: { 'reason' => e.message, 'source' => 'pundit' }
+    )
     redirect_to root_url, alert: t('unauthorized.default')
   end
 
@@ -51,6 +67,17 @@ class ApplicationController < ActionController::Base
     redirect_to two_factor_settings_path,
                 alert: t('two_factor.enrollment_required',
                          default: 'Your role requires two-factor authentication. Please set it up to continue.')
+  end
+
+  # Audit context for the structured (lograge) request log — FedRAMP AU-3. Rails calls this for every
+  # request's process_action instrumentation; lograge reads these payload keys (see
+  # config/initializers/lograge.rb) to tag each log line with who/what/where/when.
+  def append_info_to_payload(payload)
+    super
+    payload[:request_id] = request.request_id
+    payload[:user_id]    = current_user&.id
+    payload[:tenant]     = (Apartment::Tenant.current rescue nil)
+    payload[:remote_ip]  = request.remote_ip
   end
 
   def find_association
