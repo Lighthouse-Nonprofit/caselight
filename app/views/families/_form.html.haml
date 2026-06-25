@@ -8,7 +8,8 @@
         .col-xs-12.col-sm-6.col-md-4= f.input :family_type, collection: [['Household', 'birth_family'], ['Priority Intake', 'emergency'], ['Sponsor Household', 'foster'], ['Closed', 'inactive'], ['Active', 'kinship']], label: t('.family_type'), input_html: { class: 'select2' }
         .col-xs-12.col-sm-6.col-md-4= f.input :case_history, label: t('.case_history')
         .col-xs-12.col-sm-6.col-md-4= f.input :address, input_html: { rows: '4' }, label: t('.address')
-        .col-xs-12.col-sm-6.col-md-4= f.input :significant_family_member_count, label: t('.significant_family_member_count')
+        -# Household Size is derived from the demographic counts below (see Family#significant_family_member_count
+        -# before_save); no manual input — it always equals the adults + children totals.
         .col-xs-12.col-sm-6.col-md-4= f.input :female_children_count, label: t('.female_children_count')
         .col-xs-12.col-sm-6.col-md-4= f.input :male_children_count, label: t('.male_children_count')
         .col-xs-12.col-sm-6.col-md-4= f.input :female_adult_count, label: t('.female_adult_count')

@@ -24,6 +24,12 @@ class Family < ActiveRecord::Base
   encrypts :case_history
   encrypts :address  # Phase 4 Tier 2 — address PII (SC-28); address_like scope + FamilyGrid filter removed; string->text
 
+  # "Household Size" (significant_family_member_count) is DERIVED from the demographic counts so it always
+  # reflects the actual household (member_count = adults + children) instead of a manual figure that defaulted
+  # to 1 and was never populated. Kept as a stored column (the serializer/grid/show read it directly); it is
+  # recomputed on every save, and the manual form input was removed since it is now auto-maintained.
+  before_save { self.significant_family_member_count = member_count }
+
   scope :emergency,                  ->        { where(family_type: 'emergency') }
   scope :family_id_like,             ->(value) { where('code iLIKE ?', "%#{value}%") }
   scope :foster,                     ->        { where(family_type: 'foster')    }

@@ -3,6 +3,23 @@ describe Family, 'validation' do
   it { is_expected.to validate_inclusion_of(:family_type).in_array(Family::FAMILY_TYPE)}
 end
 
+describe Family, 'household size (derived from the demographic counts)' do
+  it 'sets significant_family_member_count to member_count on create' do
+    family = create(:family, :kinship, female_adult_count: 2, male_adult_count: 1,
+                                        female_children_count: 3, male_children_count: 1)
+    expect(family.member_count).to eq(7)
+    expect(family.significant_family_member_count).to eq(7)
+  end
+
+  it 'recomputes the household size on update' do
+    family = create(:family, :kinship, female_adult_count: 1, male_adult_count: 1,
+                                        female_children_count: 0, male_children_count: 0)
+    expect(family.significant_family_member_count).to eq(2)
+    family.update!(female_children_count: 4)
+    expect(family.significant_family_member_count).to eq(6)
+  end
+end
+
 describe Family, 'associations' do
   it { is_expected.to belong_to(:province) }
   it { is_expected.to have_many(:cases) }
