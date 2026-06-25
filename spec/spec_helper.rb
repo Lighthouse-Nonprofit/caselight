@@ -45,13 +45,14 @@ RSpec.configure do |config|
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
 
-  config.before(type: :feature) do
-    allow_any_instance_of(Browser::Generic).to receive(:modern?) { true }
-  end
-
-  config.before(type: :request) do
-    allow_any_instance_of(Browser::Generic).to receive(:modern?) { true }
-  end
+  # NOTE (browser 6 bump, PR #25): the old Browser::Generic#modern? stubs were
+  # removed here. `modern?` was deleted from the browser gem in 3.0.0 and the
+  # `Browser::Generic` class no longer exists in 6.x (replaced by Browser::Base +
+  # Browser::Meta::GenericBrowser). With verify_partial_doubles=true the stub
+  # raised NameError (uninitialized constant Browser::Generic) on every request
+  # spec, and it stubbed a method nothing in app/ calls. The Khmer-on-Firefox-Mac
+  # guard in ApplicationController/SessionsController uses only browser.firefox?
+  # and browser.platform.mac?, both unchanged in browser 6.
 
   config.include Requests::JsonHelpers, type: :request
   config.include DeviseTokenAuthHelpers, type: :request
