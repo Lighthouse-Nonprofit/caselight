@@ -55,12 +55,37 @@ class User < ActiveRecord::Base
   has_many :webauthn_credentials, dependent: :destroy
 
   validates :roles, presence: true, inclusion: { in: ROLES }
-  validates :email, presence: true, uniqueness: { case_sensitive: false }
+  # Tier 3 encrypts :email deterministically + downcase, so the ciphertext is case-folded + stable.
+  # uniqueness MUST be case_sensitive: true — case_sensitive:false builds LOWER(<ciphertext>), which never
+  # matches; downcase:true already makes 'A@x.org'/'a@x.org' collide on the same ciphertext.
+  validates :email, presence: true, uniqueness: { case_sensitive: true }
 
-  scope :first_name_like, ->(value) { where('first_name iLIKE ?', "%#{value}%") }
-  scope :last_name_like,  ->(value) { where('last_name iLIKE ?', "%#{value}%") }
-  scope :mobile_like,     ->(value) { where('mobile iLIKE ?', "%#{value}%") }
-  scope :email_like,      ->(value) { where('email iLIKE  ?', "%#{value}%") }
+  # Phase 4 Tier 3 — DETERMINISTIC field encryption of staff-account PII (FedRAMP SC-28, SOC 2 C1.1).
+  # Same plaintext => same ciphertext, so equality lookups + the users.email UNIQUE index still work;
+  # iLIKE/range/ORDER BY do NOT (the *_like scopes below are now exact where()s; name sorts moved
+  # in-memory at the call sites). :email is the Devise login identifier — downcase:true makes the
+  # deterministic ciphertext case-fold on BOTH the write and the find_for_database_authentication equality
+  # query (Devise already strips whitespace via strip_whitespace_keys), so a mixed-case login still
+  # matches. :uid is the vestigial devise_token_auth column the 2016 migration set = email — encrypted
+  # with the SAME scheme so it stops leaking a plaintext email copy. CRITICAL DEPLOY ORDERING: the email
+  # backfill MUST run in the SAME step as this declaration, BEFORE login — a not-yet-backfilled plaintext
+  # email won't match the deterministic equality query (support_unencrypted_data tolerates the READ, but
+  # the WHERE compares ciphertext) => that user can't log in. Run: db:migrate + apartment:migrate ->
+  # rake encryption:backfill TIER=3 CONFIRM=1 -> rake encryption:verify TIER=3 -> then login is safe.
+  encrypts :email, deterministic: true, downcase: true
+  encrypts :uid,   deterministic: true, downcase: true
+  encrypts :first_name, deterministic: true
+  encrypts :last_name,  deterministic: true
+  encrypts :mobile,     deterministic: true
+
+  # Tier 3: these 4 columns are DETERMINISTICALLY encrypted — iLIKE substring matching over ciphertext is
+  # impossible; exact equality still works. Rewritten to exact where(col: value) (names kept so UserGrid
+  # filters + the existing user_spec scope tests need no rename). :email matches case-insensitively via
+  # downcase:true; first_name/last_name/mobile are exact (case/whitespace sensitive). Substring search is gone.
+  scope :first_name_like, ->(value) { where(first_name: value) }
+  scope :last_name_like,  ->(value) { where(last_name: value) }
+  scope :mobile_like,     ->(value) { where(mobile: value) }
+  scope :email_like,      ->(value) { where(email: value) }
   scope :in_department,   ->(value) { where('department_id = ?', value) }
   scope :job_title_are,   ->        { where.not(job_title: '').pluck(:job_title).uniq }
   scope :department_are,  ->        { joins(:department).pluck('departments.name', 'departments.id').uniq }

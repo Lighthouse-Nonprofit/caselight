@@ -20,6 +20,13 @@ class StaffMonthlyReportSpreadsheet
 
   private
 
+  # Phase 4 Tier 3 (SC-28): users.first_name/last_name are deterministically encrypted, so an SQL
+  # .order(:first_name, :last_name) sorts by opaque ciphertext. Sort the (small) staff list IN RUBY by
+  # the decrypted display name instead.
+  def sorted_by_name(relation)
+    relation.to_a.sort_by { |u| u.name.to_s.downcase }
+  end
+
   def create_case_worker_worksheet(column_names, date_time, previous_month, org_short_name)
     User.managers.staff_performances.each do |user|
       book = Spreadsheet::Workbook.new
@@ -27,7 +34,7 @@ class StaffMonthlyReportSpreadsheet
 
       set_format_header(worksheet, column_names)
 
-      case_workers = User.where('manager_ids && ARRAY[?]::integer[] or manager_id = ?', user.id, user.id).order(:first_name, :last_name)
+      case_workers = sorted_by_name(User.where('manager_ids && ARRAY[?]::integer[] or manager_id = ?', user.id, user.id))
       next if case_workers.empty?
 
       case_workers.each_with_index do |case_worker, index|
@@ -47,7 +54,7 @@ class StaffMonthlyReportSpreadsheet
 
     set_format_header(worksheet, column_names)
 
-    case_worker_without_manager = User.where(manager_id: nil).order(:first_name, :last_name)
+    case_worker_without_manager = sorted_by_name(User.where(manager_id: nil))
     return if case_worker_without_manager.empty?
     case_worker_without_manager.each_with_index do |case_worker, index|
       worksheet.insert_row(index += 1, value_of_worksheet(case_worker))

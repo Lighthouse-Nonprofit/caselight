@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_25_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -893,19 +893,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
-    t.string "first_name", default: ""
-    t.string "last_name", default: ""
+    t.text "first_name", default: ""
+    t.text "last_name", default: ""
     t.string "roles", default: "case worker"
     t.date "start_date"
     t.string "job_title", default: ""
-    t.string "mobile", default: ""
+    t.text "mobile", default: ""
     t.date "date_of_birth"
     t.boolean "archived", default: false
     t.integer "province_id"
     t.integer "department_id"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
-    t.string "email", default: "", null: false
+    t.text "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at", precision: nil
@@ -919,7 +919,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
     t.integer "cases_count", default: 0
     t.integer "tasks_count", default: 0
     t.string "provider", default: "email", null: false
-    t.string "uid", default: "", null: false
+    t.text "uid", default: "", null: false
     t.json "tokens"
     t.boolean "admin", default: false
     t.integer "changelogs_count", default: 0
@@ -941,7 +941,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
     t.boolean "otp_required_for_login", default: false, null: false
     t.string "otp_backup_codes", array: true
     t.string "webauthn_id"
-    t.index "lower((email)::text) text_pattern_ops", name: "users_email_lower", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["organization_id"], name: "index_users_on_organization_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

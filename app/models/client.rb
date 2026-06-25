@@ -113,9 +113,13 @@ class Client < ActiveRecord::Base
   scope :start_with_code,             ->(value) { where('clients.code iLIKE ?', "#{value}%") }
   scope :find_by_family_id,           ->(value) { joins(cases: :family).where('families.id = ?', value).distinct }
   scope :status_like,                 ->        { CLIENT_STATUSES }
-  scope :is_received_by,              ->        { joins(:received_by).pluck(Arel.sql("CONCAT(users.first_name, ' ' , users.last_name)"), 'users.id').uniq }
+  # Tier 3: users.first_name/last_name are now encrypted, so the old SQL CONCAT returned ciphertext. Build
+  # the [name, id] pairs in Ruby from decrypted attributes. KEPT as a scope so the per-user chaining at the
+  # call sites (advanced_searches/client_fields, client_grid) still scopes joins(:received_by) to the
+  # caller's where(user_id:) — a `def self.` would lose that and leak the full staff list to every worker.
+  scope :is_received_by,              ->        { User.where(id: joins(:received_by).distinct.pluck('users.id')).map { |u| [u.name, u.id] } }
   scope :referral_source_is,          ->        { joins(:referral_source).pluck('referral_sources.name', 'referral_sources.id').uniq }
-  scope :is_followed_up_by,           ->        { joins(:followed_up_by).pluck(Arel.sql("CONCAT(users.first_name, ' ' , users.last_name)"), 'users.id').uniq }
+  scope :is_followed_up_by,           ->        { User.where(id: joins(:followed_up_by).distinct.pluck('users.id')).map { |u| [u.name, u.id] } }
   scope :province_is,                 ->        { joins(:province).pluck('provinces.name', 'provinces.id').uniq }
   scope :accepted,                    ->        { where(state: 'accepted') }
   scope :rejected,                    ->        { where(state: 'rejected') }

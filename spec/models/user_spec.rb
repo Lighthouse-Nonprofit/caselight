@@ -119,7 +119,7 @@ describe User, 'scopes' do
   let!(:able_manager){ create(:user, :able_manager, staff_performance_notification: false) }
 
   context 'first name like' do
-    subject{ User.first_name_like(user.first_name.downcase) }
+    subject{ User.first_name_like(user.first_name) }
     it 'should include first name like' do
       is_expected.to include(user)
     end
@@ -129,7 +129,7 @@ describe User, 'scopes' do
   end
 
   context 'last name like' do
-    subject{ User.last_name_like(user.last_name.downcase) }
+    subject{ User.last_name_like(user.last_name) }
     it 'should include last name like' do
       is_expected.to include(user)
     end

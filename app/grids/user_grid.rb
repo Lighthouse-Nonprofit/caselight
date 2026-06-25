@@ -1,8 +1,11 @@
 class UserGrid
   include Datagrid
 
+  # Tier 3: users.first_name/last_name are deterministically encrypted, so .order(:first_name, :last_name)
+  # would sort by opaque ciphertext. Order by :id (stable, non-PII); name-alphabetical display ordering of
+  # the small staff list is a deferred limitation (mirrors Tier 2 dropping grid ORDER BY on encrypted cols).
   scope do
-    User.includes(:department, :province).order(:first_name, :last_name)
+    User.includes(:department, :province).order(:id)
   end
 
   filter(:first_name, :string, header: -> { I18n.t('datagrid.columns.users.first_name') }) do |value, scope|
@@ -49,7 +52,9 @@ class UserGrid
 
   column(:id, header: -> { I18n.t('datagrid.columns.users.id') })
 
-  column(:name, html: true, order: 'LOWER(users.first_name), LOWER(users.last_name)',  header: -> { I18n.t('datagrid.columns.users.name') }) do |object|
+  # Tier 3: ORDER BY on LOWER(users.first_name/last_name) removed — encrypted columns aren't SQL-sortable
+  # (the column is no longer click-sortable). Display unchanged: object.name decrypts transparently.
+  column(:name, html: true, header: -> { I18n.t('datagrid.columns.users.name') }) do |object|
     link_to object.name, user_path(object)
   end
 
