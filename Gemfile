@@ -40,6 +40,9 @@ gem 'haml', '~> 5.2'
 gem 'haml-rails', '~> 2.0'
 gem 'dotenv-rails', '~> 2.2'
 gem 'roo',                    '~> 2.2'
+# Ruby 3.4+/4.0 dropped csv from the default gems; roo (and CSV report exports)
+# require it, so it must be an explicit dependency now (Ruby 4 migration).
+gem 'csv'
 # fog-aws only (was the `fog` meta-gem): fog pulls every provider, and fog-rackspace 0.1.6
 # fails to load on Ruby 3.3. carrierwave's optional S3 path uses provider 'AWS' = fog-aws.
 gem 'fog-aws'
