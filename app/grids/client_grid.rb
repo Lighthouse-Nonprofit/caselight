@@ -113,12 +113,6 @@ class ClientGrid
     end
   end
 
-  filter(:current_address, :string, header: -> { I18n.t('datagrid.columns.clients.current_address') }) { |value, scope| scope.current_address_like(value) }
-
-
-  filter(:school_name, :string, header: -> { I18n.t('datagrid.columns.clients.school_name') }) { |value, scope| scope.school_name_like(value) }
-
-
   filter(:grade, :integer, range: true, header: -> { I18n.t('datagrid.columns.clients.school_grade') })
 
 
@@ -418,7 +412,7 @@ class ClientGrid
     pluralize(object.age_as_years, 'year') + ' ' + pluralize(object.age_extra_months, 'month') if object.date_of_birth.present?
   end
 
-  column(:current_address, order: 'clients.current_address', header: -> { I18n.t('datagrid.columns.clients.current_address') })
+  column(:current_address, order: false, header: -> { I18n.t('datagrid.columns.clients.current_address') })
 
 
   column(:school_name, header: -> { I18n.t('datagrid.columns.clients.school_name') })

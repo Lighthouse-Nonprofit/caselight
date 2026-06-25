@@ -361,76 +361,6 @@ describe Client, 'scopes' do
     end
   end
 
-  context 'current address like' do
-    let!(:clients){ Client.current_address_like(client.current_address.downcase[0, 10]) }
-    it 'should include record have address like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include record not have address like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
-  context 'house number like' do
-    let!(:clients){ Client.house_number_like(client.house_number.downcase[0, 5]) }
-    it 'should include record have house number like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include record not have house number like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
-  context 'street number like' do
-    let!(:clients){ Client.street_number_like(client.street_number.downcase[0, 5]) }
-    it 'should include record have street number like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include record not have street number like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
-  context 'village like' do
-    let!(:clients){ Client.village_like(client.village.downcase[0, 5]) }
-    it 'should include record have village like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include record not have village like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
-  context 'commune like' do
-    let!(:clients){ Client.commune_like(client.commune.downcase[0, 5]) }
-    it 'should include record have commune like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include record not have commune like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
-  context 'district like' do
-    let!(:clients){ Client.district_like(client.district.downcase[0, 5]) }
-    it 'should include record have district like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include record not have district like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
-  context 'school name like' do
-    let!(:clients){ Client.school_name_like(client.school_name.downcase) }
-    it 'should include record have school name like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include record not have school name like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
   context 'referral phone like' do
     let!(:clients){ Client.referral_phone_like(client.referral_phone.downcase) }
     it 'should include record have referral phone like' do
@@ -568,18 +498,6 @@ describe Client, 'scopes' do
       expect(clients).to include(client)
     end
     it 'should not include records without kid_id like' do
-      expect(clients).not_to include(other_client)
-    end
-  end
-
-  context 'live_with_like' do
-    let!(:client)       { create(:client, live_with: 'Rainy') }
-    let!(:other_client) { create(:client, live_with: 'Nico') }
-    let!(:clients)      { Client.live_with_like('rain') }
-    it 'should include records with live_with like' do
-      expect(clients).to include(client)
-    end
-    it 'should not include records without live_with like' do
       expect(clients).not_to include(other_client)
     end
   end

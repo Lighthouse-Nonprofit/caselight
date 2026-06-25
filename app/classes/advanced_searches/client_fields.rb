@@ -25,7 +25,7 @@ module AdvancedSearches
     end
 
     def text_type_list
-      ['given_name', 'family_name', 'family', 'slug', 'school_name']
+      ['given_name', 'family_name', 'family', 'slug']
     end
 
     def date_type_list

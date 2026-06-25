@@ -22,8 +22,8 @@ class Family < ActiveRecord::Base
   # the default varchar). Backfill with `rake encryption:backfill MODELS=Family` then `rake encryption:verify`.
   encrypts :caregiver_information
   encrypts :case_history
+  encrypts :address  # Phase 4 Tier 2 — address PII (SC-28); address_like scope + FamilyGrid filter removed; string->text
 
-  scope :address_like,               ->(value) { where('address iLIKE ?', "%#{value}%") }
   scope :emergency,                  ->        { where(family_type: 'emergency') }
   scope :family_id_like,             ->(value) { where('code iLIKE ?', "%#{value}%") }
   scope :foster,                     ->        { where(family_type: 'foster')    }

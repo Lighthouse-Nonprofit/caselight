@@ -51,8 +51,13 @@ namespace :encryption do
                            relevant_referral_information],
       'Family'       => %i[caregiver_information case_history],
       'ProgressNote' => %i[response additional_note]
+    },
+    '2' => {
+      'Client'  => %i[current_address school_name house_number street_number
+                      village commune district live_with],
+      'Family'  => %i[address],
+      'Partner' => %i[address]
     }
-    # '2' => { 'Client' => %i[given_name family_name ...], 'User' => %i[email] }  # future tiers append here
   }.freeze
 
   PROGRESS_PATH = Rails.root.join('tmp', 'encryption_backfill_progress.json')

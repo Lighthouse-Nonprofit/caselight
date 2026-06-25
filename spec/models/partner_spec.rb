@@ -75,16 +75,6 @@ describe Partner, 'scopes' do
     end
   end
 
-  context 'address like' do
-    let!(:partners){ Partner.address_like(partner.address.downcase) }
-    it 'should include address like' do
-      expect(partners).to include(partner)
-    end
-    it 'should not include not address like' do
-      expect(partners).not_to include(other_partner)
-    end
-  end
-
   context 'province are' do
     let!(:province_are){ Partner.province_are }
     it 'should include province' do
