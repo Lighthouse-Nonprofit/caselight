@@ -92,4 +92,4 @@ jobs:
       - name: Load test schema
         run: bundle exec rails db:schema:load
       - name: RSpec (non-feature suite)
-        run: bundle exec rspec spec/models spec/serializers spec/decorators spec/helpers spec/mailers spec/requests spec/controllers spec/lib spec/services
+        run: bundle exec rspec spec/models spec/serializers spec/decorators spec/helpers spec/mailers spec/requests spec/controllers spec/lib spec/services spec/schedule_spec.rb
