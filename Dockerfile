@@ -1,9 +1,9 @@
-# Dockerfile - CaseLight (Ruby 3.3 / Rails 7.x), modernized off the EOL 2.3.3/4.2.2 stack.
+# Dockerfile - CaseLight (Ruby 4.0 / Rails 7.x), modernized off the EOL 2.3.3/4.2.2 stack.
 # The build, not the run, is where you will spend time. See OPERATIONS.md.
 
-FROM ruby:3.3
+FROM ruby:4.0
 
-# ruby:3.3 is Debian Bookworm (current stable), apt mirrors live — normal install.
+# ruby:4.0 base is a current Debian, apt mirrors live — normal install.
 # Only libpq-dev (for the pg gem) is required; gcc/make/git ship in the base image.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libpq-dev \
@@ -16,16 +16,18 @@ RUN curl -fsSL https://nodejs.org/dist/v8.17.0/node-v8.17.0-linux-x64.tar.xz \
 
 WORKDIR /app
 
-# Use the bundler that ships with ruby:3.3 (2.5.x) — it reads the lockfile and is current
-# for Ruby 3.3 (the old 2.1.4 pin was for the Ruby 2.3 era).
+# Use the bundler that ships with ruby:4.0 — it reads the lockfile and is current.
+# (Ruby 4.0's bundler removed the `--without` install flag; we pass the skipped
+# groups via the BUNDLE_WITHOUT env var instead, which bundler reads natively.)
 
 COPY Gemfile Gemfile.lock ./
 # Build-time bundle groups to skip. Default (prod) skips development+test -> a lean
 # runtime image. The dev/test image overrides this via the docker-compose.dev.yml build
 # arg ("staging demo production") so rspec/capybara/factories are baked in and survive
-# rebuilds, giving a repeatable per-rung test loop for the Rails upgrade.
+# rebuilds, giving a repeatable per-rung test loop.
 ARG BUNDLE_WITHOUT="development test"
-RUN bundle install --jobs 4 --retry 3 --without ${BUNDLE_WITHOUT}
+ENV BUNDLE_WITHOUT=${BUNDLE_WITHOUT}
+RUN bundle install --jobs 4 --retry 3
 
 COPY . .
 
