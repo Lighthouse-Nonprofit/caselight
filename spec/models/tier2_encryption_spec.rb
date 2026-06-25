@@ -142,13 +142,17 @@ RSpec.describe 'Tier 2 address/location PII encryption at rest (SC-28)', type: :
       %w[house_number street_number village commune district school_name].each do |f|
         expect(text_fields).not_to include(f), "expected rule_fields text list to drop #{f}"
       end
-      expect(text_fields).to include('given_name', 'family_name', 'slug', 'referral_phone')
+      # NB given_name/family_name/local_* were moved out of text_type_list into encrypted_name_type_list
+      # by Tier 4 (deterministic encryption => equality-only, see tier4_encryption_spec). This Tier 2 spec
+      # only owns the ADDRESS fields; it no longer asserts the names live in the substring text list.
+      expect(text_fields).to include('slug', 'referral_phone')
     end
 
     it 'advanced-search client_fields no longer exposes school_name as a text field' do
       text_fields = AdvancedSearches::ClientFields.new.send(:text_type_list)
       expect(text_fields).not_to include('school_name')
-      expect(text_fields).to include('given_name', 'family_name', 'family', 'slug')
+      # given_name/family_name moved to encrypted_name_type_list by Tier 4 (see tier4_encryption_spec).
+      expect(text_fields).to include('family', 'slug')
     end
 
     it 'removed Family.address_like' do

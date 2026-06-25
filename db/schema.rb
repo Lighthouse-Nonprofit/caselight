@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_25_000002) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_25_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -234,8 +234,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000002) do
 
   create_table "clients", id: :serial, force: :cascade do |t|
     t.string "code", default: ""
-    t.string "given_name", default: ""
-    t.string "family_name", default: ""
+    t.text "given_name", default: ""
+    t.text "family_name", default: ""
     t.string "gender", default: "Male"
     t.date "date_of_birth"
     t.string "status", default: "Referred"
@@ -268,8 +268,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000002) do
     t.string "able_state", default: ""
     t.integer "assessments_count", default: 0
     t.integer "donor_id"
-    t.string "local_given_name", default: ""
-    t.string "local_family_name", default: ""
+    t.text "local_given_name", default: ""
+    t.text "local_family_name", default: ""
     t.string "kid_id", default: ""
     t.text "house_number", default: ""
     t.text "street_number", default: ""

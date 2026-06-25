@@ -64,6 +64,13 @@ namespace :encryption do
     # so the backfill re-encrypts the vestigial 2016 uid=email copy (blank uids encrypt to a stable value).
     '3' => {
       'User' => %i[email first_name last_name mobile uid]
+    },
+    # Tier 4 — DETERMINISTIC client-name PII. The generic update_columns backfill applies UNCHANGED (no
+    # blind-index sidecar to populate): writing the decrypted value back routes through the deterministic
+    # encrypted type => stable ciphertext, same as Tier 3. NOT a login-blocker (unlike Tier 3 email), but
+    # a name-SEARCH-blocker — un-backfilled rows won't match the ciphertext equality until this runs.
+    '4' => {
+      'Client' => %i[given_name family_name local_given_name local_family_name]
     }
   }.freeze
 

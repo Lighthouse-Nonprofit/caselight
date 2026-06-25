@@ -4,9 +4,23 @@ class ClientGrid
   include ClientsHelper
 
   attr_accessor :current_user, :qType, :dynamic_columns
+  # Phase 4 Tier 4 — clients.given_name/family_name/local_* are DETERMINISTICALLY encrypted. ORDER BY
+  # clients.given_name would sort by opaque ciphertext, so the name term is dropped from the SQL ORDER
+  # (clients.status, a plaintext enum, is kept). Alphabetical-by-name display ordering moves to Ruby in
+  # `name_sorted_assets` below (mirrors the Tier 2 current_address + Tier 3 UserGrid name-order drops).
   scope do
-    # Client.includes({ cases: [:family, :partner] }, :referral_source, :user, :received_by, :followed_up_by, :province, :assessments, :birth_province).order('clients.status, clients.given_name')
-    Client.includes({ cases: [:family, :partner] }, :referral_source, :received_by, :followed_up_by, :province, :assessments, :birth_province).order('clients.status, clients.given_name')
+    Client.includes({ cases: [:family, :partner] }, :referral_source, :received_by, :followed_up_by, :province, :assessments, :birth_province).order('clients.status')
+  end
+
+  # In-memory alphabetical-by-name ordering for the encrypted name columns: `assets` returns the
+  # SQL-ordered relation (now status-only); a caller wanting the legacy status-then-name ordering calls
+  # this. Decryption happens per-row in Ruby (O(n) over the page) — acceptable for the pilot's small
+  # client volume. (A clients index/controller needing the legacy alphabetical display should call
+  # name_sorted_assets — flagged for the controller owner.)
+  def name_sorted_assets
+    assets.to_a.sort_by do |client|
+      [client.status.to_s, client.given_name.to_s.downcase, client.family_name.to_s.downcase]
+    end
   end
 
   filter(:given_name, :string, header: -> { I18n.t('datagrid.columns.clients.given_name') }) { |value, scope| scope.given_name_like(value) }
@@ -356,13 +370,18 @@ class ClientGrid
   end
 
 
-  column(:given_name, order: 'clients.given_name', header: -> { I18n.t('datagrid.columns.clients.given_name') }, html: true) do |object|
+  # Tier 4: ORDER BY explicitly DISABLED on the encrypted name columns via `order: false`. Just removing
+  # the `order:` option is NOT enough — Datagrid auto-derives orderability from the column name, so the
+  # column would still emit ORDER BY clients.given_name (meaningless over ciphertext). Display is
+  # unchanged — object.given_name/family_name decrypt transparently. Alphabetical-by-name ordering is
+  # handled in Ruby via ClientGrid#name_sorted_assets.
+  column(:given_name, order: false, header: -> { I18n.t('datagrid.columns.clients.given_name') }, html: true) do |object|
     link_to object.given_name, client_path(object)
   end
 
-  column(:given_name, header: -> { I18n.t('datagrid.columns.clients.given_name') }, html: false)
+  column(:given_name, order: false, header: -> { I18n.t('datagrid.columns.clients.given_name') }, html: false)
 
-  column(:family_name, order: 'clients.family_name', header: -> { I18n.t('datagrid.columns.clients.family_name') })
+  column(:family_name, order: false, header: -> { I18n.t('datagrid.columns.clients.family_name') })
 
 
   column(:gender, header: -> { I18n.t('datagrid.columns.clients.gender') }) do |object|

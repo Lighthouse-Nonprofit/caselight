@@ -86,7 +86,10 @@ class FamiliesController < AdminController
   end
 
   def find_association
-    @clients  = Client.accessible_by(current_ability).joins('LEFT OUTER JOIN cases ON cases.client_id = clients.id').where('cases.family_id = ? OR (clients.status = ? AND clients.state = ?)', @family.id, 'Referred', 'accepted').order(:given_name, :family_name).distinct
+    # Phase 4 Tier 4: clients.given_name/family_name are DETERMINISTICALLY encrypted; ORDER BY them sorts
+    # by ciphertext. Drop the SQL order and sort alphabetically in Ruby on the decrypted names (the
+    # association list is small). .distinct runs on the relation BEFORE materializing to an array.
+    @clients  = Client.accessible_by(current_ability).joins('LEFT OUTER JOIN cases ON cases.client_id = clients.id').where('cases.family_id = ? OR (clients.status = ? AND clients.state = ?)', @family.id, 'Referred', 'accepted').distinct.to_a.sort_by { |c| [c.given_name.to_s.downcase, c.family_name.to_s.downcase] }
     @province = Province.order(:name)
   end
 
