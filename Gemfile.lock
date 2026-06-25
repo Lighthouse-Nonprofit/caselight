@@ -107,7 +107,7 @@ GEM
       sassc (>= 2.0.0)
     brakeman (8.0.5)
       racc
-    browser (2.7.1)
+    browser (6.2.0)
     bson (5.2.0)
     builder (3.3.0)
     bullet (7.2.0)
@@ -702,7 +702,7 @@ DEPENDENCIES
   bootstrap-datepicker-rails (~> 1.5)
   bootstrap-sass (~> 3.4.1)
   brakeman
-  browser (~> 2.1)
+  browser (~> 6.2)
   bullet (~> 7.0)
   bundler-audit
   cancancan (~> 3.0)
