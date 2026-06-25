@@ -18,7 +18,7 @@ CaseLight runs a **modernized, supported stack**. The application was migrated o
 end-of-life **Ruby 2.3.3 / Rails 4.2** it inherited from upstream OSCaR up to current,
 maintained versions:
 
-- **Ruby 3.3.11 / Rails 7.2.3.1** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
+- **Ruby 4.0.5 / Rails 7.2.3.1** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
   6.1 → 7.0 → 7.1 → 7.2), each step verified green before the next. Zeitwerk autoloading and a
   modern gem set throughout (Devise 5, Mongoid 8, ros-apartment 3.4, active_model_serializers 0.10,
   paper_trail 15, factory_bot 6, …).
@@ -54,7 +54,7 @@ your fork's source accordingly.
 
 | Component | Version | Notes |
 |---|---|---|
-| Ruby | 3.3.11 | runs inside the Docker image (`ruby:3.3`, Debian Bookworm) |
+| Ruby | 4.0.5 | runs inside the Docker image (`ruby:4.0`, Debian Trixie) |
 | Rails | 7.2.3.1 | |
 | PostgreSQL | 17 | primary relational store (pg 1.5) |
 | MongoDB | 6.0 | change / audit history (Mongoid 8.1) |

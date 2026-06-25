@@ -77,9 +77,9 @@ gem 'google-apis-calendar_v3', require: false # Task -> Google Calendar sync (re
 gem 'kaminari', '~> 1.1'
 gem 'jquery-datatables-rails', '~> 3.4'
 gem 'friendly_id',            '~> 5.7.0'
-gem 'wicked_pdf',             '~> 1.0', '>= 1.0.6'
+gem 'wicked_pdf',             '~> 2.8'  # was ~> 1.0 (PR #17); render API unchanged 1->2, keep wkhtmltopdf-binary-edge 0.12.6
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.6.0'
-gem 'browser',                '~> 2.1'
+gem 'browser',                '~> 6.2'  # was ~> 2.1 (PR #25); firefox?/platform.mac? unchanged, vestigial modern? spec-stub removed
 gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 15.0'
@@ -102,7 +102,7 @@ gem 'mongoid', '~> 8.0'
 group :development, :test do
   gem 'pry'
   # Test stack bumped for Rails 7.0 / Ruby 3.3 (the old caps don't support either):
-  gem 'rspec-rails', '~> 6.0'        # was ~> 3.5
+  gem 'rspec-rails', '~> 8.0'        # was ~> 3.5 -> 6.0 -> 8.0 (PR #20); needs config.fixture_paths (done)
   gem 'factory_bot_rails', '~> 6.0'  # was ~> 4.8
   gem 'launchy',              '~> 2.4', '>= 2.4.3'
   gem 'capybara',             '~> 3.0' # was ~> 2.5
