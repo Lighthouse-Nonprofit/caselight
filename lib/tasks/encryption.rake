@@ -57,6 +57,13 @@ namespace :encryption do
                       village commune district live_with],
       'Family'  => %i[address],
       'Partner' => %i[address]
+    },
+    # Tier 3 — DETERMINISTIC staff-account PII. email is the Devise login id: this backfill is NOT optional
+    # and MUST run in the same deploy step as the `encrypts` declaration, before anyone logs in (an
+    # un-backfilled plaintext email won't match the deterministic equality query -> lockout). uid is listed
+    # so the backfill re-encrypts the vestigial 2016 uid=email copy (blank uids encrypt to a stable value).
+    '3' => {
+      'User' => %i[email first_name last_name mobile uid]
     }
   }.freeze
 
