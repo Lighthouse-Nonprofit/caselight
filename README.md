@@ -120,6 +120,25 @@ Confidentiality · Privacy)** auditability at the application layer. What's in p
 - **Field-level encryption at rest** (Rails ActiveRecord Encryption) for sensitive values, and
   **parameter-log redaction** of credentials and PII.
 
+**Audit & access logging**
+- **Structured request logs** — `lograge` emits one JSON line per request, tagged with `request_id`,
+  `user_id`, `tenant`, and `remote_ip`. Disabled in `test`.
+- **Access log of record reads** — an append-only, tenant-isolated `AccessLog` (MongoDB via Mongoid)
+  records successful reads (`show` / `index`) of sensitive resources (Clients, Progress Notes,
+  Assessments, Case Notes) via the `AccessAudit` concern. Only identifiers (resource type/id) and a
+  denormalized `user_email` are stored — never record contents. Toggled by
+  `config.x.access_logging_enabled` (defaults on; fails safe to on).
+- **Security events** — failed logins and account lockouts (a Warden `before_failure` hook) and
+  authorization denials (CanCanCan / Pundit) are written to the same `AccessLog`, always. Logging never
+  raises into the request it audits.
+- **Tenant isolation & immutability** — `AccessLog` is per-tenant by `default_scope` (Mongo is a shared
+  DB) and append-only at the app layer (`before_update` / `before_destroy` raise); true WORM is an infra
+  hand-off.
+- **Retention** — per [`docs/compliance/audit-retention.md`](docs/compliance/audit-retention.md);
+  removed only by the sanctioned `rake audit:purge`. Control narrative in
+  [`docs/compliance/audit-logging.md`](docs/compliance/audit-logging.md) (FedRAMP **AU-2/3/6/9/11/12**,
+  SOC 2 **CC7.2/7.3**).
+
 **Secure SDLC**
 - Every pull request runs **Brakeman** (SAST), **bundler-audit** (dependency CVEs), **gitleaks**
   (secret scanning), and the full test suite; **Dependabot** keeps dependencies current. Open findings

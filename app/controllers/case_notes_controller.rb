@@ -1,4 +1,5 @@
 class CaseNotesController < AdminController
+  include AccessAudit   # AU-2/AU-12: audit successful CaseNote show/index reads
   load_and_authorize_resource
   before_action :set_client
   before_action :set_case_note, only: [:edit, :update]

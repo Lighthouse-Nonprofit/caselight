@@ -1,4 +1,5 @@
 class ClientsController < AdminController
+  include AccessAudit   # AU-2/AU-12: audit successful Client show/index reads
   include ClientGridOptions
 
   load_and_authorize_resource find_by: :slug, except: :quantitative_case

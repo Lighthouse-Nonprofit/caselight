@@ -16,11 +16,27 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_organization
 
-  rescue_from CanCan::AccessDenied do |exception|
-    redirect_to root_url, alert: exception.message
+  # AC-3 / AU-2: an authorization denial is a security-relevant event. Record an
+  # access_denied AccessLog row (tenant-isolated, append-only) BEFORE redirecting.
+  # security_event! also emits the structured Rails.logger line and never raises
+  # into the request, so the existing redirect behavior is unchanged.
+  rescue_from CanCan::AccessDenied do |e|
+    AccessLog.security_event!(
+      event_type: 'access_denied',
+      request: request,
+      user: current_user,
+      metadata: { 'reason' => e.message, 'source' => 'cancan' }
+    )
+    redirect_to root_url, alert: e.message
   end
 
-  rescue_from Pundit::NotAuthorizedError do |exception|
+  rescue_from Pundit::NotAuthorizedError do |e|
+    AccessLog.security_event!(
+      event_type: 'access_denied',
+      request: request,
+      user: current_user,
+      metadata: { 'reason' => e.message, 'source' => 'pundit' }
+    )
     redirect_to root_url, alert: t('unauthorized.default')
   end
 
