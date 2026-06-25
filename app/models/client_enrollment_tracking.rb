@@ -4,6 +4,16 @@ class ClientEnrollmentTracking < ActiveRecord::Base
 
   has_many :form_builder_attachments, as: :form_buildable, dependent: :destroy
 
+  # Phase 4 Tier 5 — field-level encryption at rest for recurring TRACKING form values
+  # (FedRAMP SC-28, SOC 2 C1.1). Date-stamped per-client user-entered tracking data (per Tracking#fields).
+  # NON-DETERMINISTIC; the tracking advanced search is rewritten to in-Ruby decrypt-and-filter
+  # (TrackingSqlBuilder + properties_by below). jsonb widened to :text; `attribute :properties, :json` then
+  # `encrypts :properties` (=> Hash on read, envelope at rest). `.properties` stays a Hash for views/
+  # validators; `pluck(:properties)` returns ciphertext (the tracking.rb / api callers were switched off it).
+  # See custom_field_property.rb. Backfill: TIER=5.
+  attribute :properties, :json
+  encrypts  :properties
+
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
 
   has_paper_trail
@@ -17,10 +27,10 @@ class ClientEnrollmentTracking < ActiveRecord::Base
     CustomFormEmailValidator.new(obj, 'tracking', 'fields').validate
   end
 
+  # Phase 4 Tier 5 — REWRITTEN to in-Ruby decrypted-Hash extraction (was raw `properties -> 'value'`).
+  # O(n)-decrypt over the scoped relation. See custom_field_property.rb#properties_by.
   def self.properties_by(value)
-    value = value.gsub("'", "''")
-    field_properties = select("client_enrollment_trackings.id, client_enrollment_trackings.properties ->  '#{value}' as field_properties").collect(&:field_properties)
-    field_properties.select(&:present?)
+    all.map { |record| record.properties[value] }.select(&:present?)
   end
 
   def get_form_builder_attachment(value)

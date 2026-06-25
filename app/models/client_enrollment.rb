@@ -7,6 +7,17 @@ class ClientEnrollment < ActiveRecord::Base
   has_many :trackings, through: :client_enrollment_trackings
   has_one :leave_program, dependent: :destroy
 
+  # Phase 4 Tier 5 — field-level encryption at rest for program-stream ENROLLMENT form values
+  # (FedRAMP SC-28, SOC 2 C1.1). Per-client user-entered enrollment data (per ProgramStream#enrollment
+  # field defs). NON-DETERMINISTIC; the enrollment advanced search is rewritten to in-Ruby decrypt-and-filter
+  # (EnrollmentSqlBuilder + properties_by below). jsonb widened to :text; `attribute :properties, :json`
+  # restores Hash<->JSON then `encrypts` wraps it (serialize=JSON+encrypt envelope; load=decrypt+JSON.parse =>
+  # Hash). `.properties` stays a Hash for views/validators; `pluck(:properties)` now returns ciphertext
+  # (the api/program_stream callers were switched off pluck). See custom_field_property.rb for the full
+  # composition note. Backfill: `rake encryption:backfill TIER=5 CONFIRM=1` then `encryption:verify TIER=5`.
+  attribute :properties, :json
+  encrypts  :properties
+
   validates :enrollment_date, presence: true
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
 
@@ -34,10 +45,11 @@ class ClientEnrollment < ActiveRecord::Base
     client_enrollment_trackings.present?
   end
 
+  # Phase 4 Tier 5 — REWRITTEN to in-Ruby decrypted-Hash extraction (was raw `properties -> 'value'`).
+  # Returns the Array of field values (blanks removed); ClientGridOptions maps format_properties_value
+  # over it. O(n)-decrypt over the scoped relation. See custom_field_property.rb#properties_by.
   def self.properties_by(value)
-    value = value.gsub("'", "''")
-    field_properties = select("client_enrollments.id, client_enrollments.properties ->  '#{value}' as field_properties").collect(&:field_properties)
-    field_properties.select(&:present?)
+    all.map { |record| record.properties[value] }.select(&:present?)
   end
 
   def set_client_status

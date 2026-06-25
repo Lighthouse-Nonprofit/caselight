@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_25_000003) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_25_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -205,7 +205,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000003) do
   end
 
   create_table "client_enrollment_trackings", id: :serial, force: :cascade do |t|
-    t.jsonb "properties", default: {}
+    t.text "properties", default: "{}"
     t.integer "client_enrollment_id"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -214,7 +214,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000003) do
   end
 
   create_table "client_enrollments", id: :serial, force: :cascade do |t|
-    t.jsonb "properties", default: {}
+    t.text "properties", default: "{}"
     t.string "status", default: "Active"
     t.integer "client_id"
     t.integer "program_stream_id"
@@ -294,7 +294,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000003) do
   end
 
   create_table "custom_field_properties", id: :serial, force: :cascade do |t|
-    t.jsonb "properties", default: {}
+    t.text "properties", default: "{}"
     t.string "custom_formable_type"
     t.integer "custom_formable_id"
     t.integer "custom_field_id"
@@ -483,7 +483,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000003) do
   end
 
   create_table "leave_programs", id: :serial, force: :cascade do |t|
-    t.jsonb "properties", default: {}
+    t.text "properties", default: "{}"
     t.integer "client_enrollment_id"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false

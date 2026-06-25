@@ -6,6 +6,27 @@ class CustomFieldProperty < ActiveRecord::Base
 
   has_many :form_builder_attachments, as: :form_buildable, dependent: :destroy
 
+  # Phase 4 Tier 5 — field-level encryption at rest for the polymorphic CUSTOM-FORM value store
+  # (FedRAMP SC-28, SOC 2 C1.1). This is THE highest-risk JSONB PII: arbitrary admin-defined fields
+  # (names, DOBs, free text, dropdowns) for Client/Family/User/Partner. NON-DETERMINISTIC — the custom-form
+  # advanced search is rewritten to in-Ruby decrypt-and-filter (ClientCustomFormSqlBuilder + properties_by
+  # below), so no ciphertext-equality query is needed and a random per-value IV is safe.
+  #
+  # COMPOSITION (verified on activerecord-7.2.3.1): the column was widened jsonb -> :text
+  # (20260625000004_change_tier5_properties_jsonb_to_text). `attribute :properties, :json` restores the
+  # Hash<->JSON behaviour over the text column; `encrypts :properties` then wraps THAT type, so
+  # serialize = JSON.dump-then-encrypt (=> base64 envelope String at rest) and load = decrypt-then-JSON.parse
+  # (=> Ruby Hash on read). `record.properties` therefore STILL returns a Hash, so every view / validator /
+  # decorator that reads it as a Hash keeps working unchanged. The ORDER matters: `attribute` BEFORE
+  # `encrypts`. NB: `pluck(:properties)` now bypasses the attribute type and returns the ciphertext STRING —
+  # all such call sites were rewritten to read the decrypted Hash (api/program_streams_controller,
+  # api/custom_fields_controller, program_stream/tracking error helpers, and properties_by below). The
+  # SEPARATE `attachments` jsonb column (CarrierWave mount_uploaders) is NOT encrypted here and was NOT
+  # widened — out of Tier 5 scope. support_unencrypted_data=true tolerates not-yet-backfilled plaintext
+  # JSON during the window; run `rake encryption:backfill TIER=5 CONFIRM=1` then `encryption:verify TIER=5`.
+  attribute :properties, :json
+  encrypts  :properties
+
   scope :by_custom_field, -> (value) { where(custom_field:  value) }
   scope :most_recents,    ->         { order('created_at desc') }
 
@@ -34,10 +55,15 @@ class CustomFieldProperty < ActiveRecord::Base
     form_builder_attachments.find_by(name: value)
   end
 
+  # Phase 4 Tier 5 — REWRITTEN from raw `select("... properties -> 'value' as field_properties")` to
+  # in-Ruby decrypted-Hash extraction. The old SQL `-> 'value'` returned the jsonb sub-value (string or
+  # array) per row; reading the decrypted .properties Hash with [value] returns the SAME object. Contract
+  # preserved: an Array of field values with blanks removed (ClientGrid / ClientGridOptions map
+  # format_properties_value over it). `self`/`all` is the already-scoped relation (callers chain
+  # .properties_by on a where()). O(n)-decrypt over the scoped rows (was a single SQL select) — acceptable
+  # at pilot volume.
   def self.properties_by(value)
-    value = value.gsub("'", "''")
-    field_properties = select("custom_field_properties.id, custom_field_properties.properties ->  '#{value}' as field_properties").collect(&:field_properties)
-    field_properties.select(&:present?)
+    all.map { |record| record.properties[value] }.select(&:present?)
   end
 
   private

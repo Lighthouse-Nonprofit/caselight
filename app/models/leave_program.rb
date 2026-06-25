@@ -3,6 +3,16 @@ class LeaveProgram < ActiveRecord::Base
   belongs_to :program_stream
   has_many :form_builder_attachments, as: :form_buildable, dependent: :destroy
 
+  # Phase 4 Tier 5 — field-level encryption at rest for program EXIT form values (FedRAMP SC-28,
+  # SOC 2 C1.1). Per-client user-entered exit data (per ProgramStream#exit_program field defs).
+  # NON-DETERMINISTIC; the exit advanced search is rewritten to in-Ruby decrypt-and-filter
+  # (ExitProgramSqlBuilder + properties_by below). jsonb widened to :text; `attribute :properties, :json`
+  # then `encrypts :properties` (=> Hash on read, envelope at rest). `.properties` stays a Hash for views/
+  # validators; `pluck(:properties)` returns ciphertext (the program_stream.rb exit error helper was
+  # switched off it). See custom_field_property.rb. Backfill: TIER=5.
+  attribute :properties, :json
+  encrypts  :properties
+
   validates :exit_date, presence: true
 
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
@@ -19,10 +29,10 @@ class LeaveProgram < ActiveRecord::Base
     CustomFormEmailValidator.new(obj, 'program_stream', 'exit_program').validate
   end
 
+  # Phase 4 Tier 5 — REWRITTEN to in-Ruby decrypted-Hash extraction (was raw `properties -> 'value'`).
+  # O(n)-decrypt over the scoped relation. See custom_field_property.rb#properties_by.
   def self.properties_by(value)
-    value = value.gsub("'", "''")
-    field_properties = select("leave_programs.id, leave_programs.properties ->  '#{value}' as field_properties").collect(&:field_properties)
-    field_properties.select(&:present?)
+    all.map { |record| record.properties[value] }.select(&:present?)
   end
 
   def set_client_status
