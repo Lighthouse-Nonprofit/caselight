@@ -71,6 +71,19 @@ namespace :encryption do
     # a name-SEARCH-blocker — un-backfilled rows won't match the ciphertext equality until this runs.
     '4' => {
       'Client' => %i[given_name family_name local_given_name local_family_name]
+    },
+    # Tier 5 (FINAL) — NON-DETERMINISTIC encryption of the polymorphic CUSTOM-FORM + program-stream JSONB
+    # value stores (.properties). Columns were jsonb, widened to :text (20260625000004) + declared
+    # `attribute :properties, :json` + `encrypts :properties` on each model. The generic update_columns
+    # backfill applies UNCHANGED: encrypt_record! reads the DECRYPTED Hash (record.properties) and
+    # update_columns(properties: hash) routes through the encrypted :json type (JSON.dump then encrypt =>
+    # envelope). NOT a login-blocker; the rewritten in-Ruby custom-form search reads the decrypted Hash, so
+    # a half-migrated table searches correctly throughout.
+    '5' => {
+      'CustomFieldProperty'      => %i[properties],
+      'ClientEnrollment'         => %i[properties],
+      'ClientEnrollmentTracking' => %i[properties],
+      'LeaveProgram'             => %i[properties]
     }
   }.freeze
 
@@ -139,7 +152,15 @@ namespace :encryption do
     return true if raw.nil? || raw == ''
     ActiveRecord::Encryption.message_serializer.load(raw)
     true
-  rescue ActiveRecord::Encryption::Errors::Encoding, ActiveRecord::Encryption::Errors::ForbiddenClass
+  rescue ActiveRecord::Encryption::Errors::Encoding,
+         ActiveRecord::Encryption::Errors::ForbiddenClass,
+         ActiveRecord::Encryption::Errors::Decryption
+    # Encoding = non-envelope bytes (Tier 1-4 plaintext strings); ForbiddenClass = a disallowed type;
+    # Decryption "hash without payload" = a plaintext JSON Hash straggler — Tier 5's jsonb-now-text
+    # `.properties` columns hold JSON like {"k":"v"} before backfill, which message_serializer.load PARSES
+    # as a Hash but rejects as a {p,h} envelope. All three mean "not a ciphertext envelope" => a straggler.
+    # Without the Decryption rescue, `verify` would CRASH on the first un-backfilled Tier-5 row instead of
+    # reporting it (the plain-string stragglers of Tier 1-4 only ever raised Encoding).
     false
   end
 
