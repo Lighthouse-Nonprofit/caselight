@@ -8,6 +8,11 @@ class Partner < ActiveRecord::Base
 
   has_paper_trail
 
+  # Phase 4 Tier 2 — encrypt address PII at rest (SC-28). NON-DETERMINISTIC; the address_like scope +
+  # PartnerGrid address filter were removed in this change. contact_person_*/background stay searchable
+  # (Tier 3 / out of scope for Tier 2).
+  encrypts :address
+
   scope :name_like,                  ->(value) { where('name iLIKE ?', "%#{value}%") }
   scope :contact_person_name_like,   ->(value) { where('contact_person_name iLIKE ?', "%#{value}%") }
   scope :contact_person_email_like,  ->(value) { where('contact_person_email iLIKE ?', "%#{value}%") }
@@ -15,7 +20,6 @@ class Partner < ActiveRecord::Base
   scope :affiliation_like,           ->(value) { where('affiliation iLIKE ?', "%#{value}%") }
   scope :engagement_like,            ->(value) { where('engagement iLIKE ?', "%#{value}%") }
   scope :background_like,            ->(value) { where('background iLIKE ?', "%#{value}%") }
-  scope :address_like,               ->(value) { where('address iLIKE ?', "%#{value}%") }
   scope :organisation_type_are,      ->        { where.not(organisation_type: '').pluck(:organisation_type).uniq }
   scope :province_are,               ->        { joins(:province).pluck('provinces.name', 'provinces.id').uniq }
   scope :NGO,                        ->        { where(organisation_type: 'NGO') }

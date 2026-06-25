@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_24_000005) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_25_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -245,8 +245,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000005) do
     t.integer "received_by_id"
     t.integer "followed_up_by_id"
     t.date "follow_up_date"
-    t.string "current_address", default: ""
-    t.string "school_name", default: ""
+    t.text "current_address", default: ""
+    t.text "school_name", default: ""
     t.string "school_grade", default: ""
     t.boolean "has_been_in_orphanage", default: false
     t.boolean "able", default: false
@@ -271,12 +271,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000005) do
     t.string "local_given_name", default: ""
     t.string "local_family_name", default: ""
     t.string "kid_id", default: ""
-    t.string "house_number", default: ""
-    t.string "street_number", default: ""
-    t.string "village", default: ""
-    t.string "commune", default: ""
-    t.string "district", default: ""
-    t.string "live_with", default: ""
+    t.text "house_number", default: ""
+    t.text "street_number", default: ""
+    t.text "village", default: ""
+    t.text "commune", default: ""
+    t.text "district", default: ""
+    t.text "live_with", default: ""
     t.integer "id_poor", default: 0
     t.integer "rice_support", default: 0
     t.text "exit_note", default: ""
@@ -365,7 +365,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000005) do
   create_table "families", id: :serial, force: :cascade do |t|
     t.string "code"
     t.string "name", default: ""
-    t.string "address", default: ""
+    t.text "address", default: ""
     t.text "caregiver_information", default: ""
     t.integer "significant_family_member_count", default: 1
     t.float "household_income", default: 0.0
@@ -525,7 +525,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000005) do
 
   create_table "partners", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
-    t.string "address", default: ""
+    t.text "address", default: ""
     t.date "start_date"
     t.string "contact_person_name", default: ""
     t.string "contact_person_email", default: ""

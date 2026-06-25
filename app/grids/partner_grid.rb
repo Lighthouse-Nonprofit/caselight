@@ -46,10 +46,6 @@ class PartnerGrid
     Partner.province_are
   end
 
-  filter(:address, :string, header: -> { I18n.t('datagrid.columns.partners.address') }) do |value, scope|
-    scope.address_like(value)
-  end
-
   filter(:start_date, :date, range: true, header: -> { I18n.t('datagrid.columns.partners.start_date') })
 
   column(:id, header: -> { I18n.t('datagrid.columns.partners.id') })

@@ -75,6 +75,22 @@ class Client < ActiveRecord::Base
   encrypts :rejected_note
   encrypts :relevant_referral_information
 
+  # Phase 4 Tier 2 — field-level encryption at rest for ADDRESS / LOCATION PII (FedRAMP SC-28, SOC 2 C1.1).
+  # NON-DETERMINISTIC -> UNqueryable: every query site on these 8 columns was removed in this same change
+  # (the 8 *_like scopes below, the village/commune iLIKE clauses in Client.filter, the ClientGrid
+  # current_address/school_name filters + the current_address column order, and these columns in
+  # advanced_searches/rule_fields.rb + school_name in client_fields.rb). All were `t.string, default: ""`
+  # so db/migrate/20260625000001_change_tier2_address_fields_to_text.rb widens them to text (ciphertext
+  # overflows varchar). Backfill: `rake encryption:backfill TIER=2 CONFIRM=1` then `rake encryption:verify TIER=2`.
+  encrypts :current_address
+  encrypts :school_name
+  encrypts :house_number
+  encrypts :street_number
+  encrypts :village
+  encrypts :commune
+  encrypts :district
+  encrypts :live_with
+
   validates :rejected_note, presence: true, on: :update, if: :reject?
   validates :exit_date, presence: true, on: :update, if: :exit_ngo?
   validates :exit_note, presence: true, on: :update, if: :exit_ngo?
@@ -87,18 +103,10 @@ class Client < ActiveRecord::Base
   after_update :set_able_status, if: proc { |client| client.able_state.blank? && answers.any? }
   after_save :create_client_history
 
-  scope :live_with_like,              ->(value) { where('clients.live_with iLIKE ?', "%#{value}%") }
   scope :given_name_like,             ->(value) { where('clients.given_name iLIKE ?', "%#{value}%") }
   scope :family_name_like,            ->(value) { where('clients.family_name iLIKE ?', "%#{value}%") }
   scope :local_given_name_like,       ->(value) { where('clients.local_given_name iLIKE ?', "%#{value}%") }
   scope :local_family_name_like,      ->(value) { where('clients.local_family_name iLIKE ?', "%#{value}%") }
-  scope :current_address_like,        ->(value) { where('clients.current_address iLIKE ?', "%#{value}%") }
-  scope :house_number_like,           ->(value) { where('clients.house_number iLike ?', "%#{value}%") }
-  scope :street_number_like,          ->(value) { where('clients.street_number iLike ?', "%#{value}%") }
-  scope :village_like,                ->(value) { where('clients.village iLike ?', "%#{value}%") }
-  scope :commune_like,                ->(value) { where('clients.commune iLike ?', "%#{value}%") }
-  scope :district_like,               ->(value) { where('clients.district iLike ?', "%#{value}%") }
-  scope :school_name_like,            ->(value) { where('clients.school_name iLIKE ?', "%#{value}%") }
   scope :referral_phone_like,         ->(value) { where('clients.referral_phone iLIKE ?', "%#{value}%") }
   scope :slug_like,                   ->(value) { where('clients.slug iLIKE ?', "%#{value}%") }
   scope :kid_id_like,                 ->(value) { where('clients.kid_id iLIKE ?', "%#{value}%") }
@@ -128,8 +136,6 @@ class Client < ActiveRecord::Base
     query = query.where("family_name iLIKE ?", "%#{fetch_75_chars_of(options[:family_name])}%")               if options[:family_name].present?
     query = query.where("local_given_name iLIKE ?", "%#{fetch_75_chars_of(options[:local_given_name])}%")     if options[:local_given_name].present?
     query = query.where("local_family_name iLIKE ?", "%#{fetch_75_chars_of(options[:local_family_name])}%")   if options[:local_family_name].present?
-    query = query.where("village iLIKE ?", "%#{fetch_75_chars_of(options[:village])}%")                       if options[:village].present?
-    query = query.where("commune iLIKE ?", "%#{fetch_75_chars_of(options[:commune])}%")                       if options[:commune].present?
     query = query.where("EXTRACT(MONTH FROM date_of_birth) = ? AND EXTRACT(YEAR FROM date_of_birth) = ?", Date.parse(options[:date_of_birth]).month, Date.parse(options[:date_of_birth]).year)  if options[:date_of_birth].present?
 
 
