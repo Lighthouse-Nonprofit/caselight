@@ -23,7 +23,7 @@ gem 'uglifier',               '>= 1.3.0'
 gem 'coffee-rails', '~> 4.2'
 gem 'jbuilder',               '~> 2.0'
 gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q-gxcg-73hx)
-gem 'bootstrap-sass',         '~> 3.3.5'
+gem 'bootstrap-sass',         '~> 3.4.1'
 gem 'devise', '~> 5.0', '>= 5.0.4'  # 5.0.4 closes POAM-009 (CVE-2026-32700, CVE-2026-40295)
 gem 'devise-security', '~> 0.18'    # Phase 2: password complexity + history/no-reuse (IA-5)
 gem 'devise-two-factor', '~> 6.4'   # Phase 2: TOTP MFA (IA-2(1)); otp_secret via AR Encryption
@@ -43,7 +43,7 @@ gem 'roo',                    '~> 2.2'
 # fog-aws only (was the `fog` meta-gem): fog pulls every provider, and fog-rackspace 0.1.6
 # fails to load on Ruby 3.3. carrierwave's optional S3 path uses provider 'AWS' = fog-aws.
 gem 'fog-aws'
-gem 'ffaker',                 '~> 2.1.0'
+gem 'ffaker',                 '~> 2.25.0'
 gem 'draper', '~> 4.0'
 gem 'datagrid',               '~> 1.4.2'
 gem 'active_model_serializers', '~> 0.10.0'
@@ -52,7 +52,7 @@ gem 'sinatra', '~> 2.0', require: false
 # removed mobile/token-auth API. Remaining /api endpoints are same-origin AJAX (no CORS needed).
 gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on auth endpoints (AC-7, SC-5)
 gem 'rails-erd'
-gem 'phony_rails',            '~> 0.12.11'
+gem 'phony_rails',            '~> 0.15.0'
 gem 'typhoeus'
 gem 'foreman',                '~> 0.87'
 gem 'cancancan', '~> 3.0'
@@ -67,14 +67,14 @@ gem 'bootstrap-datepicker-rails', '~> 1.5'
 # can't take. The v3 assets (select2.js / select2.scss / select2-bootstrap.css / images) are now
 # vendored under vendor/assets, so `//= require select2` and `@import 'select2'` still resolve.
 gem 'jquery-validation-rails'
-gem 'fullcalendar-rails',     '~> 3.2.0.0'
-gem 'momentjs-rails',         '~> 2.17.1'
+gem 'fullcalendar-rails',     '~> 3.9.0.0'
+gem 'momentjs-rails',         '~> 2.29.4'
 gem 'google-apis-calendar_v3', require: false # Task -> Google Calendar sync (re-added; see REMOVED-FEATURES.md)
 gem 'kaminari', '~> 1.1'
 gem 'jquery-datatables-rails', '~> 3.4'
-gem 'friendly_id',            '~> 5.1.0'
+gem 'friendly_id',            '~> 5.7.0'
 gem 'wicked_pdf',             '~> 1.0', '>= 1.0.6'
-gem 'wkhtmltopdf-binary-edge', '~> 0.12.3.0'
+gem 'wkhtmltopdf-binary-edge', '~> 0.12.6.0'
 gem 'browser',                '~> 2.1'
 gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
@@ -82,14 +82,14 @@ gem 'paper_trail', '~> 15.0'
 gem 'carrierwave',            '~> 3.1'
 gem 'mini_magick',            '~> 4.5'
 gem 'font-awesome-rails',     '~> 4.7'
-gem 'spreadsheet',            '~> 1.1.3'
+gem 'spreadsheet',            '~> 1.3.5'
 # ros-apartment 3.x supports Rails 7.0/7.1; on Ruby 3.3 the 3.1+ Ruby-version caps no longer bind.
 gem 'ros-apartment', '~> 3.1', require: 'apartment'
-gem 'dropzonejs-rails',       '~> 0.7.3'
+gem 'dropzonejs-rails',       '~> 0.8.5'
 # bourbon (~> 4.2) + neat (~> 1.8) removed: they were imported in application.scss but no
 # mixins/functions were ever used, and bourbon 4.x pins thor ~> 0.19, which conflicts with
 # Rails 6's railties (thor >= 0.20.3). Dropping the dead imports unblocks the thor bump.
-gem 'jquery_query_builder-rails', '~> 0.2.2'
+gem 'jquery_query_builder-rails', '~> 0.5.0'
 gem 'sidekiq',                '~> 4.1.0'
 # mongo driver unpinned now that the server is MongoDB 6.0 (the 2.19 cap was only to keep the
 # EOL 3.6 server working). mongoid ~> 8.0 pulls a compatible mongo 2.x.
@@ -106,7 +106,7 @@ group :development, :test do
   # feature specs that used it were already deferred to a cuprite port (see REMOVED-FEATURES.md).
   gem 'shoulda-whenever',     '~> 0.0.2'
   gem 'bullet', '~> 7.0'             # was ~> 6.0 (6.x rejects ActiveRecord 7.0)
-  gem 'mongoid-rspec', '~> 4.1'      # was < 4.2
+  gem 'mongoid-rspec', '~> 4.2'      # was < 4.2
   # Security scanning (Phase 0 hardening; run in CI + locally, not required at boot):
   gem 'brakeman',      require: false  # SAST — Rails static security analysis
   gem 'bundler-audit', require: false  # dependency CVE scanning vs the ruby-advisory-db
@@ -121,7 +121,7 @@ group :staging do
 end
 
 group :development do
-  gem 'letter_opener',        '~> 1.4.1'
+  gem 'letter_opener',        '~> 1.10.0'
   gem 'rubocop',              '~> 1.88.0', require: false
 end
 
