@@ -10,154 +10,154 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_24_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
-  create_table "able_screening_questions", force: :cascade do |t|
+  create_table "able_screening_questions", id: :serial, force: :cascade do |t|
     t.string "question"
     t.string "mode"
     t.integer "stage_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.boolean "alert_manager"
     t.integer "question_group_id"
     t.index ["question_group_id"], name: "index_able_screening_questions_on_question_group_id"
     t.index ["stage_id"], name: "index_able_screening_questions_on_stage_id"
   end
 
-  create_table "agencies", force: :cascade do |t|
+  create_table "agencies", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.text "description", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "agencies_clients_count", default: 0
   end
 
-  create_table "agencies_clients", force: :cascade do |t|
+  create_table "agencies_clients", id: :serial, force: :cascade do |t|
     t.integer "client_id"
     t.integer "agency_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "agency_clients", force: :cascade do |t|
+  create_table "agency_clients", id: :serial, force: :cascade do |t|
     t.integer "agency_id"
     t.integer "client_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "answers", force: :cascade do |t|
+  create_table "answers", id: :serial, force: :cascade do |t|
     t.string "description"
     t.integer "able_screening_question_id"
     t.integer "client_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "question_type", default: ""
     t.index ["able_screening_question_id"], name: "index_answers_on_able_screening_question_id"
     t.index ["client_id"], name: "index_answers_on_client_id"
   end
 
-  create_table "assessment_domains", force: :cascade do |t|
+  create_table "assessment_domains", id: :serial, force: :cascade do |t|
     t.text "note", default: ""
     t.integer "previous_score"
     t.integer "score"
     t.text "reason", default: ""
     t.integer "assessment_id"
     t.integer "domain_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.text "goal", default: ""
     t.string "attachments", default: [], array: true
   end
 
-  create_table "assessment_domains_progress_notes", force: :cascade do |t|
+  create_table "assessment_domains_progress_notes", id: :serial, force: :cascade do |t|
     t.integer "assessment_domain_id"
     t.integer "progress_note_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["assessment_domain_id"], name: "index_assessment_domains_progress_notes_on_assessment_domain_id"
     t.index ["progress_note_id"], name: "index_assessment_domains_progress_notes_on_progress_note_id"
   end
 
-  create_table "assessments", force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+  create_table "assessments", id: :serial, force: :cascade do |t|
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "client_id"
     t.index ["client_id"], name: "index_assessments_on_client_id"
   end
 
-  create_table "attachments", force: :cascade do |t|
+  create_table "attachments", id: :serial, force: :cascade do |t|
     t.string "image"
     t.integer "able_screening_question_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "file", default: ""
     t.integer "progress_note_id"
     t.index ["able_screening_question_id"], name: "index_attachments_on_able_screening_question_id"
     t.index ["progress_note_id"], name: "index_attachments_on_progress_note_id"
   end
 
-  create_table "calendars", force: :cascade do |t|
+  create_table "calendars", id: :serial, force: :cascade do |t|
     t.string "title"
-    t.datetime "start_date"
-    t.datetime "end_date"
+    t.datetime "start_date", precision: nil
+    t.datetime "end_date", precision: nil
     t.boolean "sync_status", default: false
     t.integer "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["user_id"], name: "index_calendars_on_user_id"
   end
 
-  create_table "case_contracts", force: :cascade do |t|
+  create_table "case_contracts", id: :serial, force: :cascade do |t|
     t.date "signed_on"
     t.integer "case_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["case_id"], name: "index_case_contracts_on_case_id"
   end
 
-  create_table "case_note_domain_groups", force: :cascade do |t|
+  create_table "case_note_domain_groups", id: :serial, force: :cascade do |t|
     t.text "note", default: ""
     t.integer "case_note_id"
     t.integer "domain_group_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.string "attachments", default: [], array: true
   end
 
-  create_table "case_notes", force: :cascade do |t|
+  create_table "case_notes", id: :serial, force: :cascade do |t|
     t.string "attendee", default: ""
     t.date "meeting_date"
     t.integer "assessment_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "client_id"
     t.index ["client_id"], name: "index_case_notes_on_client_id"
   end
 
-  create_table "case_worker_clients", force: :cascade do |t|
+  create_table "case_worker_clients", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.integer "client_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["client_id"], name: "index_case_worker_clients_on_client_id"
     t.index ["user_id"], name: "index_case_worker_clients_on_user_id"
   end
 
-  create_table "case_worker_tasks", force: :cascade do |t|
+  create_table "case_worker_tasks", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.integer "task_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["task_id"], name: "index_case_worker_tasks_on_task_id"
     t.index ["user_id"], name: "index_case_worker_tasks_on_user_id"
   end
 
-  create_table "cases", force: :cascade do |t|
+  create_table "cases", id: :serial, force: :cascade do |t|
     t.date "start_date"
     t.string "carer_names", default: ""
     t.string "carer_address", default: ""
@@ -173,8 +173,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.integer "family_id"
     t.integer "partner_id"
     t.integer "province_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.boolean "family_preservation", default: false
     t.string "status", default: ""
     t.date "placement_date"
@@ -186,53 +186,53 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.boolean "current", default: true
   end
 
-  create_table "changelog_types", force: :cascade do |t|
+  create_table "changelog_types", id: :serial, force: :cascade do |t|
     t.integer "changelog_id"
     t.string "change_type", default: ""
     t.string "description", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["changelog_id"], name: "index_changelog_types_on_changelog_id"
   end
 
-  create_table "changelogs", force: :cascade do |t|
+  create_table "changelogs", id: :serial, force: :cascade do |t|
     t.string "change_version", default: ""
     t.string "description", default: ""
     t.integer "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["user_id"], name: "index_changelogs_on_user_id"
   end
 
-  create_table "client_enrollment_trackings", force: :cascade do |t|
+  create_table "client_enrollment_trackings", id: :serial, force: :cascade do |t|
     t.jsonb "properties", default: {}
     t.integer "client_enrollment_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "tracking_id"
     t.index ["client_enrollment_id"], name: "index_client_enrollment_trackings_on_client_enrollment_id"
   end
 
-  create_table "client_enrollments", force: :cascade do |t|
+  create_table "client_enrollments", id: :serial, force: :cascade do |t|
     t.jsonb "properties", default: {}
     t.string "status", default: "Active"
     t.integer "client_id"
     t.integer "program_stream_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.date "enrollment_date"
     t.index ["client_id"], name: "index_client_enrollments_on_client_id"
     t.index ["program_stream_id"], name: "index_client_enrollments_on_program_stream_id"
   end
 
-  create_table "client_quantitative_cases", force: :cascade do |t|
+  create_table "client_quantitative_cases", id: :serial, force: :cascade do |t|
     t.integer "quantitative_case_id"
     t.integer "client_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "clients", force: :cascade do |t|
+  create_table "clients", id: :serial, force: :cascade do |t|
     t.string "code", default: ""
     t.string "given_name", default: ""
     t.string "family_name", default: ""
@@ -257,8 +257,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.integer "province_id"
     t.integer "referral_source_id"
     t.integer "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.boolean "completed", default: false
     t.text "reason_for_referral", default: ""
     t.boolean "is_receiving_additional_benefits", default: false
@@ -286,29 +286,29 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.index ["slug"], name: "index_clients_on_slug", unique: true
   end
 
-  create_table "clients_quantitative_cases", force: :cascade do |t|
+  create_table "clients_quantitative_cases", id: :serial, force: :cascade do |t|
     t.integer "client_id"
     t.integer "quantitative_case_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "custom_field_properties", force: :cascade do |t|
+  create_table "custom_field_properties", id: :serial, force: :cascade do |t|
     t.jsonb "properties", default: {}
     t.string "custom_formable_type"
     t.integer "custom_formable_id"
     t.integer "custom_field_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.jsonb "attachments"
     t.index ["custom_field_id"], name: "index_custom_field_properties_on_custom_field_id"
   end
 
-  create_table "custom_fields", force: :cascade do |t|
+  create_table "custom_fields", id: :serial, force: :cascade do |t|
     t.string "entity_type", default: ""
     t.text "properties", default: ""
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "form_title", default: ""
     t.string "frequency", default: ""
     t.integer "time_of_frequency", default: 0
@@ -316,36 +316,36 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.jsonb "fields"
   end
 
-  create_table "departments", force: :cascade do |t|
+  create_table "departments", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.text "description", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "users_count", default: 0
   end
 
-  create_table "domain_groups", force: :cascade do |t|
+  create_table "domain_groups", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.text "description", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "domains_count", default: 0
   end
 
-  create_table "domain_program_streams", force: :cascade do |t|
+  create_table "domain_program_streams", id: :serial, force: :cascade do |t|
     t.integer "program_stream_id"
     t.integer "domain_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "domains", force: :cascade do |t|
+  create_table "domains", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.string "identity", default: ""
     t.text "description", default: ""
     t.integer "domain_group_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "tasks_count", default: 0
     t.string "score_1_color", default: "danger"
     t.string "score_2_color", default: "warning"
@@ -354,15 +354,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.index ["domain_group_id"], name: "index_domains_on_domain_group_id"
   end
 
-  create_table "donors", force: :cascade do |t|
+  create_table "donors", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.text "description", default: ""
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "code", default: ""
   end
 
-  create_table "families", force: :cascade do |t|
+  create_table "families", id: :serial, force: :cascade do |t|
     t.string "code"
     t.string "name", default: ""
     t.string "address", default: ""
@@ -377,34 +377,34 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.string "family_type", default: "kinship"
     t.date "contract_date"
     t.integer "province_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "cases_count", default: 0
-    t.string "case_history", default: ""
+    t.text "case_history", default: ""
   end
 
-  create_table "form_builder_attachments", force: :cascade do |t|
+  create_table "form_builder_attachments", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.jsonb "file", default: []
     t.string "form_buildable_type"
     t.integer "form_buildable_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "friendly_id_slugs", force: :cascade do |t|
+  create_table "friendly_id_slugs", id: :serial, force: :cascade do |t|
     t.string "slug", null: false
     t.integer "sluggable_id", null: false
     t.string "sluggable_type", limit: 50
     t.string "scope"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id"
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
   end
 
-  create_table "government_reports", force: :cascade do |t|
+  create_table "government_reports", id: :serial, force: :cascade do |t|
     t.string "code", default: ""
     t.string "initial_capital", default: ""
     t.string "initial_city", default: ""
@@ -463,46 +463,46 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.date "done_date"
     t.date "agreed_date"
     t.integer "client_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "interventions", force: :cascade do |t|
+  create_table "interventions", id: :serial, force: :cascade do |t|
     t.string "action", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "interventions_progress_notes", force: :cascade do |t|
+  create_table "interventions_progress_notes", id: :serial, force: :cascade do |t|
     t.integer "progress_note_id"
     t.integer "intervention_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["intervention_id"], name: "index_interventions_progress_notes_on_intervention_id"
     t.index ["progress_note_id"], name: "index_interventions_progress_notes_on_progress_note_id"
   end
 
-  create_table "leave_programs", force: :cascade do |t|
+  create_table "leave_programs", id: :serial, force: :cascade do |t|
     t.jsonb "properties", default: {}
     t.integer "client_enrollment_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "program_stream_id"
     t.date "exit_date"
     t.index ["client_enrollment_id"], name: "index_leave_programs_on_client_enrollment_id"
   end
 
-  create_table "locations", force: :cascade do |t|
+  create_table "locations", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "order_option", default: 0
   end
 
-  create_table "materials", force: :cascade do |t|
+  create_table "materials", id: :serial, force: :cascade do |t|
     t.string "status", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "old_passwords", force: :cascade do |t|
@@ -514,16 +514,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.index ["password_archivable_type", "password_archivable_id"], name: "index_old_passwords_on_password_archivable"
   end
 
-  create_table "organizations", force: :cascade do |t|
+  create_table "organizations", id: :serial, force: :cascade do |t|
     t.string "full_name"
     t.string "short_name"
     t.string "logo"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.boolean "fcf_ngo", default: false
   end
 
-  create_table "partners", force: :cascade do |t|
+  create_table "partners", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.string "address", default: ""
     t.date "start_date"
@@ -535,19 +535,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.string "engagement", default: ""
     t.text "background", default: ""
     t.integer "province_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "cases_count", default: 0
   end
 
-  create_table "program_streams", force: :cascade do |t|
+  create_table "program_streams", id: :serial, force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.jsonb "rules", default: {}
     t.jsonb "enrollment", default: {}
     t.jsonb "exit_program", default: {}
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "quantity"
     t.string "ngo_name", default: ""
     t.boolean "completed", default: false
@@ -556,13 +556,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.boolean "tracking_required", default: false
   end
 
-  create_table "progress_note_types", force: :cascade do |t|
+  create_table "progress_note_types", id: :serial, force: :cascade do |t|
     t.string "note_type", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "progress_notes", force: :cascade do |t|
+  create_table "progress_notes", id: :serial, force: :cascade do |t|
     t.date "date"
     t.string "other_location", default: ""
     t.text "response", default: ""
@@ -571,8 +571,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.integer "progress_note_type_id"
     t.integer "location_id"
     t.integer "material_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "user_id"
     t.index ["client_id"], name: "index_progress_notes_on_client_id"
     t.index ["location_id"], name: "index_progress_notes_on_location_id"
@@ -581,11 +581,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.index ["user_id"], name: "index_progress_notes_on_user_id"
   end
 
-  create_table "provinces", force: :cascade do |t|
+  create_table "provinces", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.text "description", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "cases_count", default: 0
     t.integer "clients_count", default: 0
     t.integer "families_count", default: 0
@@ -593,22 +593,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.integer "users_count", default: 0
   end
 
-  create_table "quantitative_cases", force: :cascade do |t|
+  create_table "quantitative_cases", id: :serial, force: :cascade do |t|
     t.string "value", default: ""
     t.integer "quantitative_type_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "quantitative_types", force: :cascade do |t|
+  create_table "quantitative_types", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.text "description", default: ""
     t.integer "quantitative_cases_count", default: 0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
-  create_table "quarterly_reports", force: :cascade do |t|
+  create_table "quarterly_reports", id: :serial, force: :cascade do |t|
     t.date "visit_date"
     t.bigint "code"
     t.integer "case_id"
@@ -626,33 +626,33 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.text "how_are_they_being_misused", default: ""
     t.integer "staff_id"
     t.text "spiritual_developments_with_the_child_or_family", default: ""
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["case_id"], name: "index_quarterly_reports_on_case_id"
   end
 
-  create_table "question_groups", force: :cascade do |t|
+  create_table "question_groups", id: :serial, force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "referral_sources", force: :cascade do |t|
+  create_table "referral_sources", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.text "description", default: ""
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "clients_count", default: 0
   end
 
-  create_table "stages", force: :cascade do |t|
+  create_table "stages", id: :serial, force: :cascade do |t|
     t.float "from_age"
     t.float "to_age"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "surveys", force: :cascade do |t|
+  create_table "surveys", id: :serial, force: :cascade do |t|
     t.integer "client_id"
     t.integer "user_id"
     t.integer "listening_score"
@@ -663,51 +663,52 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.integer "support_score"
     t.integer "family_need_score"
     t.integer "care_score"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["client_id"], name: "index_surveys_on_client_id"
   end
 
-  create_table "tasks", force: :cascade do |t|
+  create_table "tasks", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.date "completion_date"
-    t.datetime "remind_at"
+    t.datetime "remind_at", precision: nil
     t.boolean "completed", default: false
     t.integer "user_id"
     t.integer "case_note_domain_group_id"
     t.integer "domain_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "client_id"
     t.index ["client_id"], name: "index_tasks_on_client_id"
   end
 
-  create_table "thredded_categories", force: :cascade do |t|
+  create_table "thredded_categories", id: :serial, force: :cascade do |t|
     t.integer "messageboard_id", null: false
     t.string "name", limit: 191, null: false
     t.string "description", limit: 255
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "slug", limit: 191, null: false
+    t.index "lower((name)::text) text_pattern_ops", name: "thredded_categories_name_ci"
     t.index ["messageboard_id", "slug"], name: "index_thredded_categories_on_messageboard_id_and_slug", unique: true
     t.index ["messageboard_id"], name: "index_thredded_categories_on_messageboard_id"
   end
 
-  create_table "thredded_messageboard_groups", force: :cascade do |t|
+  create_table "thredded_messageboard_groups", id: :serial, force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "thredded_messageboard_users", force: :cascade do |t|
+  create_table "thredded_messageboard_users", id: :serial, force: :cascade do |t|
     t.integer "thredded_user_detail_id", null: false
     t.integer "thredded_messageboard_id", null: false
-    t.datetime "last_seen_at", null: false
+    t.datetime "last_seen_at", precision: nil, null: false
     t.index ["thredded_messageboard_id", "last_seen_at"], name: "index_thredded_messageboard_users_for_recently_active"
     t.index ["thredded_messageboard_id", "thredded_user_detail_id"], name: "index_thredded_messageboard_users_primary"
   end
 
-  create_table "thredded_messageboards", force: :cascade do |t|
+  create_table "thredded_messageboards", id: :serial, force: :cascade do |t|
     t.string "name", limit: 255, null: false
     t.string "slug", limit: 191
     t.text "description"
@@ -716,14 +717,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.boolean "closed", default: false, null: false
     t.integer "last_topic_id"
     t.integer "messageboard_group_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["closed"], name: "index_thredded_messageboards_on_closed"
     t.index ["messageboard_group_id"], name: "index_thredded_messageboards_on_messageboard_group_id"
     t.index ["slug"], name: "index_thredded_messageboards_on_slug"
   end
 
-  create_table "thredded_post_moderation_records", force: :cascade do |t|
+  create_table "thredded_post_moderation_records", id: :serial, force: :cascade do |t|
     t.integer "post_id"
     t.integer "messageboard_id"
     t.text "post_content"
@@ -732,20 +733,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.integer "moderator_id"
     t.integer "moderation_state", null: false
     t.integer "previous_moderation_state", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["messageboard_id", "created_at"], name: "index_thredded_moderation_records_for_display", order: { created_at: :desc }
   end
 
-  create_table "thredded_post_notifications", force: :cascade do |t|
+  create_table "thredded_post_notifications", id: :serial, force: :cascade do |t|
     t.string "email", limit: 191, null: false
     t.integer "post_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "post_type", limit: 191
     t.index ["post_id", "post_type"], name: "index_thredded_post_notifications_on_post"
   end
 
-  create_table "thredded_posts", force: :cascade do |t|
+  create_table "thredded_posts", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.text "content"
     t.string "ip", limit: 255
@@ -753,53 +754,54 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.integer "postable_id", null: false
     t.integer "messageboard_id", null: false
     t.integer "moderation_state", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.index "to_tsvector('english'::regconfig, content)", name: "thredded_posts_content_fts", using: :gist
     t.index ["messageboard_id"], name: "index_thredded_posts_on_messageboard_id"
     t.index ["moderation_state", "updated_at"], name: "index_thredded_posts_for_display"
     t.index ["postable_id"], name: "index_thredded_posts_on_postable_id_and_postable_type"
     t.index ["user_id"], name: "index_thredded_posts_on_user_id"
   end
 
-  create_table "thredded_private_posts", force: :cascade do |t|
+  create_table "thredded_private_posts", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.text "content"
     t.integer "postable_id", null: false
     t.string "ip", limit: 255
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "thredded_private_topics", force: :cascade do |t|
+  create_table "thredded_private_topics", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.integer "last_user_id"
     t.string "title", limit: 255, null: false
     t.string "slug", limit: 191, null: false
     t.integer "posts_count", default: 0
     t.string "hash_id", limit: 191, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["hash_id"], name: "index_thredded_private_topics_on_hash_id"
     t.index ["slug"], name: "index_thredded_private_topics_on_slug"
   end
 
-  create_table "thredded_private_users", force: :cascade do |t|
+  create_table "thredded_private_users", id: :serial, force: :cascade do |t|
     t.integer "private_topic_id"
     t.integer "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["private_topic_id"], name: "index_thredded_private_users_on_private_topic_id"
     t.index ["user_id"], name: "index_thredded_private_users_on_user_id"
   end
 
-  create_table "thredded_topic_categories", force: :cascade do |t|
+  create_table "thredded_topic_categories", id: :serial, force: :cascade do |t|
     t.integer "topic_id", null: false
     t.integer "category_id", null: false
     t.index ["category_id"], name: "index_thredded_topic_categories_on_category_id"
     t.index ["topic_id"], name: "index_thredded_topic_categories_on_topic_id"
   end
 
-  create_table "thredded_topics", force: :cascade do |t|
+  create_table "thredded_topics", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.integer "last_user_id"
     t.string "title", limit: 255, null: false
@@ -811,8 +813,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.string "hash_id", limit: 191, null: false
     t.string "type", limit: 191
     t.integer "moderation_state", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.index "to_tsvector('english'::regconfig, (title)::text)", name: "thredded_topics_title_fts", using: :gist
     t.index ["hash_id"], name: "index_thredded_topics_on_hash_id"
     t.index ["messageboard_id", "slug"], name: "index_thredded_topics_on_messageboard_id_and_slug", unique: true
     t.index ["messageboard_id"], name: "index_thredded_topics_on_messageboard_id"
@@ -820,76 +823,76 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.index ["user_id"], name: "index_thredded_topics_on_user_id"
   end
 
-  create_table "thredded_user_details", force: :cascade do |t|
+  create_table "thredded_user_details", id: :serial, force: :cascade do |t|
     t.integer "user_id", null: false
-    t.datetime "latest_activity_at"
+    t.datetime "latest_activity_at", precision: nil
     t.integer "posts_count", default: 0
     t.integer "topics_count", default: 0
-    t.datetime "last_seen_at"
+    t.datetime "last_seen_at", precision: nil
     t.integer "moderation_state", default: 1, null: false
-    t.datetime "moderation_state_changed_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "moderation_state_changed_at", precision: nil
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["latest_activity_at"], name: "index_thredded_user_details_on_latest_activity_at"
     t.index ["moderation_state", "moderation_state_changed_at"], name: "index_thredded_user_details_for_moderations", order: { moderation_state_changed_at: :desc }
     t.index ["user_id"], name: "index_thredded_user_details_on_user_id"
   end
 
-  create_table "thredded_user_messageboard_preferences", force: :cascade do |t|
+  create_table "thredded_user_messageboard_preferences", id: :serial, force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "messageboard_id", null: false
     t.boolean "notify_on_mention", default: true, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["user_id", "messageboard_id"], name: "thredded_user_messageboard_preferences_user_id_messageboard_id", unique: true
   end
 
-  create_table "thredded_user_preferences", force: :cascade do |t|
+  create_table "thredded_user_preferences", id: :serial, force: :cascade do |t|
     t.integer "user_id", null: false
     t.boolean "notify_on_mention", default: true, null: false
     t.boolean "notify_on_message", default: true, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["user_id"], name: "index_thredded_user_preferences_on_user_id"
   end
 
-  create_table "thredded_user_private_topic_read_states", force: :cascade do |t|
+  create_table "thredded_user_private_topic_read_states", id: :serial, force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "postable_id", null: false
     t.integer "page", default: 1, null: false
-    t.datetime "read_at", null: false
+    t.datetime "read_at", precision: nil, null: false
     t.index ["user_id", "postable_id"], name: "thredded_user_private_topic_read_states_user_postable", unique: true
   end
 
-  create_table "thredded_user_topic_follows", force: :cascade do |t|
+  create_table "thredded_user_topic_follows", id: :serial, force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "topic_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.integer "reason", limit: 2
     t.index ["user_id", "topic_id"], name: "thredded_user_topic_follows_user_topic", unique: true
   end
 
-  create_table "thredded_user_topic_read_states", force: :cascade do |t|
+  create_table "thredded_user_topic_read_states", id: :serial, force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "postable_id", null: false
     t.integer "page", default: 1, null: false
-    t.datetime "read_at", null: false
+    t.datetime "read_at", precision: nil, null: false
     t.index ["user_id", "postable_id"], name: "thredded_user_topic_read_states_user_postable", unique: true
   end
 
-  create_table "trackings", force: :cascade do |t|
+  create_table "trackings", id: :serial, force: :cascade do |t|
     t.string "name", default: ""
     t.jsonb "fields", default: {}
     t.string "frequency", default: ""
     t.integer "time_of_frequency"
     t.integer "program_stream_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["name", "program_stream_id"], name: "index_trackings_on_name_and_program_stream_id", unique: true
     t.index ["program_stream_id"], name: "index_trackings_on_program_stream_id"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", id: :serial, force: :cascade do |t|
     t.string "first_name", default: ""
     t.string "last_name", default: ""
     t.string "roles", default: "case worker"
@@ -900,16 +903,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.boolean "archived", default: false
     t.integer "province_id"
     t.integer "department_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
     t.inet "current_sign_in_ip"
     t.inet "last_sign_in_ip"
     t.integer "clients_count", default: 0
@@ -922,7 +925,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.integer "changelogs_count", default: 0
     t.integer "organization_id"
     t.boolean "disable", default: false
-    t.datetime "expires_at"
+    t.datetime "expires_at", precision: nil
     t.boolean "task_notify", default: true
     t.integer "manager_id"
     t.boolean "calendar_integration", default: false
@@ -938,13 +941,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.boolean "otp_required_for_login", default: false, null: false
     t.string "otp_backup_codes", array: true
     t.string "webauthn_id"
+    t.index "lower((email)::text) text_pattern_ops", name: "users_email_lower", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["organization_id"], name: "index_users_on_organization_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
-  create_table "version_associations", force: :cascade do |t|
+  create_table "version_associations", id: :serial, force: :cascade do |t|
     t.integer "version_id"
     t.string "foreign_key_name", null: false
     t.integer "foreign_key_id"
@@ -952,30 +956,30 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_24_000004) do
     t.index ["version_id"], name: "index_version_associations_on_version_id"
   end
 
-  create_table "versions", force: :cascade do |t|
+  create_table "versions", id: :serial, force: :cascade do |t|
     t.string "item_type", null: false
     t.integer "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
     t.text "object"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.text "object_changes"
     t.integer "transaction_id"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
     t.index ["transaction_id"], name: "index_versions_on_transaction_id"
   end
 
-  create_table "visit_clients", force: :cascade do |t|
+  create_table "visit_clients", id: :serial, force: :cascade do |t|
     t.integer "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["user_id"], name: "index_visit_clients_on_user_id"
   end
 
-  create_table "visits", force: :cascade do |t|
+  create_table "visits", id: :serial, force: :cascade do |t|
     t.integer "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["user_id"], name: "index_visits_on_user_id"
   end
 
