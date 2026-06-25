@@ -73,7 +73,7 @@ gem 'google-apis-calendar_v3', require: false # Task -> Google Calendar sync (re
 gem 'kaminari', '~> 1.1'
 gem 'jquery-datatables-rails', '~> 3.4'
 gem 'friendly_id',            '~> 5.7.0'
-gem 'wicked_pdf',             '~> 1.0', '>= 1.0.6'
+gem 'wicked_pdf',             '~> 2.8'
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.6.0'
 gem 'browser',                '~> 2.1'
 gem 'whenever',               '~> 1.1.2'
