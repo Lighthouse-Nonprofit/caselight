@@ -125,7 +125,18 @@ SimpleForm.setup do |config|
   # Custom mappings for input types. This should be a hash containing a regexp
   # to match as key, and the input type that will be used when the field name
   # matches the regexp as value.
-  # config.input_mappings = { /count/ => :integer }
+  #
+  # Phase 4 (encryption-at-rest) regression fix: Tiers 2-4 widened these single-line columns from :string
+  # to :text so the ActiveRecord-Encryption ciphertext envelope fits. SimpleForm infers the input type from
+  # the COLUMN type, so a :text column renders as a resizable multi-line <textarea> — wrong for an email /
+  # name / phone / short-address field (you could drag-resize the login email box). Map these specific
+  # attribute names back to single-line inputs regardless of column type. Matched by EXACT attribute name
+  # (\A..\z) so nothing else is affected; the Tier-1 NARRATIVE fields (reason_for_referral, background,
+  # case_history, response, ...) are intentionally NOT listed and correctly stay textareas.
+  config.input_mappings = {
+    /\Aemail\z/ => :email,
+    /\A(uid|first_name|last_name|mobile|given_name|family_name|local_given_name|local_family_name|current_address|school_name|house_number|street_number|village|commune|district|live_with|address)\z/ => :string,
+  }
 
   # Custom wrappers for input types. This should be a hash containing an input
   # type as key and the wrapper that will be used for all inputs with specified type.
