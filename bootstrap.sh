@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # bootstrap.sh — one-shot, idempotent deploy of CaseLight on the pilot box.
 #
-# CaseLight is modernized (Ruby 3.3 / Rails 7.1 / Mongo 6.0). The repo carries the
-# Dockerfile and compose files, so there is nothing to scp — just run this script.
+# CaseLight is modernized (Ruby 4.0 / Rails 7.2 / PostgreSQL 17 / Mongo 6.0). The repo carries
+# the Dockerfile and compose files, so there is nothing to scp — just run this script.
 # Rerun any time to deploy the latest main: it fetches, hard-resets to origin/$BRANCH,
-# rebuilds, migrates (shared template + every tenant), and restarts the stack.
+# rebuilds, migrates (shared template + every tenant), encrypts existing rows at rest
+# (Phase 4 / SC-28), and restarts the stack.
 #
 # Prereqs: Docker + the compose plugin installed, and the docker group active for the
 # run user (see provision.sh / OPERATIONS.md). Run as the deploy user.
@@ -76,7 +77,7 @@ EOF
   chmod 600 .env
 fi
 
-# 3. Build the image (Ruby 3.3 / Rails 7.1; native gems compile here — slow on first build).
+# 3. Build the image (Ruby 4.0 / Rails 7.2; native gems compile here — slow on first build).
 echo "==> docker compose build"
 docker compose build
 
@@ -107,6 +108,21 @@ if [ ! -f .seeded ]; then
   echo "==> seeding base data"
   docker compose run --rm app bundle exec rake db:seed && touch .seeded
 fi
+
+# 7b. Encrypt existing rows at rest — Phase 4 (FedRAMP SC-28 / SOC 2 C1.1). IDEMPOTENT and safe to run on
+#     EVERY deploy: a no-op on a fresh or already-encrypted box (writing the decrypted value back round-trips
+#     the same plaintext), and on an UPGRADE box with pre-encryption plaintext it converts every row to
+#     ciphertext. It runs BEFORE the app comes up (step 8) on purpose: Tier 3 deterministically encrypts the
+#     Devise login email, so a not-yet-backfilled plaintext row would fail the equality lookup and lock that
+#     user out — backfilling before `up` means the app never serves an un-backfilled row (no login-broken
+#     window). `verify` then gates each tier (non-zero exit on any plaintext straggler -> set -e halts the
+#     deploy so you investigate before relying on login/search). Tiers: 1 narratives, 2 address/location,
+#     3 user/staff PII, 4 client names, 5 custom-form JSONB. See docs/compliance/encryption-at-rest.md.
+echo "==> encrypting existing rows at rest (backfill + verify, all tiers)"
+for TIER in 1 2 3 4 5; do
+  docker compose run --rm app bundle exec rake encryption:backfill TIER="$TIER" CONFIRM=1
+  docker compose run --rm app bundle exec rake encryption:verify   TIER="$TIER"
+done
 
 # 8. Up the app + worker.
 echo "==> starting app + sidekiq"
