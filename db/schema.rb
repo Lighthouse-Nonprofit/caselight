@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_26_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_26_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -353,7 +353,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_26_000001) do
     t.string "score_2_color", default: "warning"
     t.string "score_3_color", default: "info"
     t.string "score_4_color", default: "primary"
+    t.string "sensitivity", default: "standard", null: false
     t.index ["domain_group_id"], name: "index_domains_on_domain_group_id"
+    t.index ["sensitivity"], name: "index_domains_on_sensitivity"
   end
 
   create_table "donors", id: :serial, force: :cascade do |t|

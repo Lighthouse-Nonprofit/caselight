@@ -11,6 +11,13 @@
           = f.input :identity, label: t('.identity')
       %hr
       .row
+        .col-xs-6
+          / Phase 5.2b (NIST AC-6) — per-Domain sensitivity. `collection:` => SimpleForm renders a
+          / <select>, sidestepping the :string->textarea input_mappings trap. Option VALUES stay the
+          / canonical Domain::SENSITIVITY_LEVELS strings the model validates; only labels are localized.
+          = f.input :sensitivity, collection: Domain::SENSITIVITY_LEVELS.map { |lvl| [t(".sensitivity_levels.#{lvl}"), lvl] }, label: t('.sensitivity'), include_blank: false, input_html: { class: 'select2' }, hint: t('.sensitivity_hint')
+      %hr
+      .row
         .col-xs-3
           = f.input :score_1_color, collection: Domain.domain_score_colors.map{ |ds| [ds[1], ds[0]]}, label: t('.score_1'), include_blank: false, input_html: { class: 'select2' }
         .col-xs-3

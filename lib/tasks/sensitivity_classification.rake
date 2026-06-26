@@ -164,7 +164,37 @@ namespace :sensitivity do
         ['IEP / Accommodations (FLAG)']
       )
 
-      puts "\nsensitivity:classify [tenant=#{tenant}]: #{classified} form-classifications applied, #{missing.size} seed forms not found."
+      # --- Assessment domains (RATIFIED 2026-06-26): the three sensitive life-domains -> restricted.
+      # Keyed by the domain CODE (Domain#name, e.g. '4B') — the stable identifier the org uses; the
+      # descriptive identity is a drift NOTICE, not a hard gate: unlike the form splits there is no
+      # value-move here (just a column set on a code-identified row), so a reworded identity is
+      # cosmetic and must not block a correct, code-based classification. Fail-soft if the assessment
+      # taxonomy isn't seeded in this tenant (added to `missing`, same as the forms).
+      domain_levels = {
+        '4B' => ['Mental Health & Well-Being', res],
+        '6B' => ['Personal Safety',            res],
+        '5A' => ['Immigration Status',          res]
+      }
+      domains_classified = 0
+      domain_levels.each do |code, (expected_identity, level)|
+        d = Domain.find_by(name: code)
+        if d.nil?
+          missing << "Domain #{code} (#{expected_identity})"
+          next
+        end
+        if d.identity != expected_identity
+          puts "  ! Domain #{code}: identity drift — expected #{expected_identity.inspect}, got #{d.identity.inspect} (classifying by code anyway)"
+        end
+        if d.sensitivity != level
+          d.update_column(:sensitivity, level)
+          puts "  ~ Domain #{code} #{d.identity}  -> #{level}"
+        else
+          puts "  = Domain #{code} #{d.identity}  (#{level})"
+        end
+        domains_classified += 1
+      end
+
+      puts "\nsensitivity:classify [tenant=#{tenant}]: #{classified} form-classifications + #{domains_classified} domain-classifications applied, #{missing.size} seed forms/domains not found."
       unless missing.empty?
         puts 'NOT FOUND (seed taxonomy not run in this tenant?):'
         missing.each { |m| puts "  - #{m}" }
