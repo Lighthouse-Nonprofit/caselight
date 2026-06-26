@@ -1,0 +1,39 @@
+-# AC-2(j) access recertification. Review each account's role, last login, and MFA status,
+-# then confirm or revoke. Rows highlighted = privileged account WITHOUT MFA (a finding).
+.row
+  .col-md-12
+    %h3 Access Review
+    %p.text-muted
+      Periodic recertification (AC-2(j)). PER TENANT - run once per subdomain to cover all staff.
+    = link_to 'Export CSV', access_review_path(format: :csv), class: 'btn btn-default btn-sm'
+.table-responsive
+  %table.table.table-striped.table-condensed
+    %thead
+      %tr
+        %th Name
+        %th Email
+        %th Role
+        %th Last Sign In
+        %th Count
+        %th MFA
+        %th Passkeys
+        %th Locked
+        %th Disabled
+        %th Created
+    %tbody
+      - @users.each do |u|
+        %tr{ class: ('warning' if u.mfa_privileged? && !u.two_factor_enabled?) }
+          %td= u.name
+          %td= u.email
+          %td= u.roles
+          %td= u.last_sign_in_at&.strftime('%Y-%m-%d %H:%M')
+          %td= u.sign_in_count
+          %td
+            - if u.two_factor_enabled?
+              %span.label.label-success on
+            - else
+              %span.label.label-default off
+          %td= u.webauthn_credentials.size
+          %td= ('yes' if u.respond_to?(:access_locked?) && u.access_locked?)
+          %td= ('yes' if u.disable?)
+          %td= u.created_at&.strftime('%Y-%m-%d')
