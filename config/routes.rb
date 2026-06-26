@@ -2,6 +2,9 @@ Rails.application.routes.draw do
 
   root 'organizations#index'
 
+  # Phase 5(e) AC-2(j) access recertification report (admin-only; see AccessReviewsController).
+  get 'admin/access_review', to: 'access_reviews#index', as: :access_review
+
   devise_for :users, controllers: { registrations: 'registrations', sessions: 'sessions', passwords: 'passwords' }
 
   # Second-factor (TOTP / recovery code) step of the two-stage login (FedRAMP IA-2(1)). Reachable only

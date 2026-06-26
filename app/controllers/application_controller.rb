@@ -1,5 +1,8 @@
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
+  # Phase 5(d) defense-in-depth: assert the Apartment schema matches the request host.
+  # LOG-ONLY until config.x.enforce_tenant_boundary (default OFF) is flipped.
+  include TenantBoundary
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :null_session, if: proc { |c| c.request.format == 'application/json' }
@@ -38,6 +41,21 @@ class ApplicationController < ActionController::Base
       metadata: { 'reason' => e.message, 'source' => 'pundit' }
     )
     redirect_to root_url, alert: t('unauthorized.default')
+  end
+
+  # Phase 5(a)/AC-3: under the global verify_authorized cutover (Phase 5.6) an action that neither
+  # authorized nor opted out raises this. Without a rescue it 500s. We log it and FAIL CLOSED by
+  # rendering a STATIC 403 — NOT redirect_to root_url (root is organizations#index, < ApplicationController;
+  # under check_authorization it would itself raise this, looping forever and locking out every user). A
+  # direct render cannot loop. Inert until config.x.enforce_authorization is flipped.
+  rescue_from CanCan::AuthorizationNotPerformed do |e|
+    AccessLog.security_event!(
+      event_type: 'authorization_not_performed',
+      request: request,
+      user: current_user,
+      metadata: { 'reason' => e.message, 'controller' => controller_path, 'action' => action_name }
+    )
+    render plain: 'Not authorized', status: :forbidden, layout: false
   end
 
   def current_organization
