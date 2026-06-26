@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_25_000004) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_26_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -314,6 +314,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_25_000004) do
     t.integer "time_of_frequency", default: 0
     t.string "ngo_name", default: ""
     t.jsonb "fields"
+    t.string "sensitivity", default: "standard", null: false
+    t.index ["sensitivity"], name: "index_custom_fields_on_sensitivity"
   end
 
   create_table "departments", id: :serial, force: :cascade do |t|

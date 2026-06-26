@@ -2,6 +2,13 @@ class CustomField < ActiveRecord::Base
   FREQUENCIES  = ['Daily', 'Weekly', 'Monthly', 'Yearly'].freeze
   ENTITY_TYPES = ['Client', 'Family', 'Partner', 'User'].freeze
 
+  # Phase 5.2 (NIST AC family) — per-FORM sensitivity classification. ONE row = ONE level, ordered
+  # LEAST -> MOST sensitive. standard = any authorized reader of the record; restricted = caseload/
+  # role-scoped readers; emergency_only = break-glass only. The masking unit is custom_field_id; mixed
+  # forms are SPLIT. See app/classes/sensitivity_policy.rb for the need-to-know matrix.
+  SENSITIVITY_LEVELS  = %w[standard restricted emergency_only].freeze
+  DEFAULT_SENSITIVITY = 'standard'.freeze
+
   has_many :custom_field_properties, dependent: :restrict_with_error
   has_many :clients, through: :custom_field_properties, source: :custom_formable, source_type: 'Client'
   has_many :users, through: :custom_field_properties, source: :custom_formable, source_type: 'User'
@@ -14,6 +21,9 @@ class CustomField < ActiveRecord::Base
   validates :entity_type, inclusion: { in: ENTITY_TYPES }
   validates :entity_type, :form_title, presence: true
   validates :form_title, uniqueness: { case_sensitive: false, scope: :entity_type }
+  # Phase 5.2 — sensitivity is NOT NULL with a DB default; validate the vocabulary so an out-of-band
+  # level (a rake typo, a future migration) is rejected at the model boundary.
+  validates :sensitivity, presence: true, inclusion: { in: SENSITIVITY_LEVELS }
   validates :time_of_frequency, presence: true,
                                 numericality: { only_integer: true, greater_than_or_equal_to: 1 }, if: -> { frequency.present? }
   validates :fields, presence: true
@@ -34,6 +44,12 @@ class CustomField < ActiveRecord::Base
   scope :user_forms,     ->         { where(entity_type: 'User') }
   scope :not_used_forms, ->(value)  { where.not(id: value) }
   scope :order_by_form_title, ->    { order(:form_title) }
+
+  # Phase 5.2 — sensitivity scopes (used by SensitivityPolicy + the classification rake).
+  scope :by_sensitivity, ->(level) { where(sensitivity: level) }
+  scope :standard,       ->        { where(sensitivity: 'standard') }
+  scope :restricted,     ->        { where(sensitivity: 'restricted') }
+  scope :emergency_only, ->        { where(sensitivity: 'emergency_only') }
 
   def self.client_used_form
     ids = CustomFieldProperty.where(custom_formable_type: 'Client').pluck(:custom_field_id).uniq
