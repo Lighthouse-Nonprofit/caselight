@@ -1,6 +1,6 @@
 # DEVELOPMENT.md - running CaseLight locally
 
-CaseLight is a containerized fork of OSCaR (Rails 7.1 / Ruby 3.3). You never
+CaseLight is a containerized fork of OSCaR (Rails 7.2 / Ruby 4.0). You never
 install that toolchain on your machine; the same Docker stack you deploy is the one
 you develop against. Local dev is simpler than production: development mode reloads
 code on the fly, compiles assets dynamically, and skips the S3 asset-host config, so
