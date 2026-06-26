@@ -78,4 +78,42 @@ describe 'Domain' do
       expect(page).to have_css("a[href='#{domain_path(other_domain)}'][data-method='delete'][class='btn btn-outline btn-danger margin-left disabled']")
     end
   end
+
+  feature 'Sensitivity (Phase 5.2b)' do
+    scenario 'new form renders the three sensitivity levels' do
+      visit new_domain_path
+      expect(page).to have_select('domain_sensitivity',
+        options: ['Standard — anyone who can read the record',
+                  'Restricted — caseload / role-scoped readers',
+                  'Emergency only — break-glass access'])
+    end
+
+    scenario 'create persists the chosen sensitivity', js: true do
+      visit new_domain_path
+      fill_in 'Name', with: 'Mental Health'
+      fill_in 'Identity', with: 'Mental Health & Well-Being'
+      select 'Restricted — caseload / role-scoped readers', from: 'domain_sensitivity'
+      click_button 'Save'
+      sleep 1
+      expect(Domain.find_by(name: 'Mental Health').sensitivity).to eq('restricted')
+    end
+
+    scenario 'edit updates the sensitivity', js: true do
+      target = create(:domain, sensitivity: 'standard')
+      visit edit_domain_path(target)
+      select 'Emergency only — break-glass access', from: 'domain_sensitivity'
+      click_button 'Save'
+      sleep 1
+      expect(target.reload.sensitivity).to eq('emergency_only')
+    end
+
+    scenario 'create defaults to standard when left untouched', js: true do
+      visit new_domain_path
+      fill_in 'Name', with: 'Education'
+      fill_in 'Identity', with: 'Education & Vocational'
+      click_button 'Save'
+      sleep 1
+      expect(Domain.find_by(name: 'Education').sensitivity).to eq('standard')
+    end
+  end
 end
