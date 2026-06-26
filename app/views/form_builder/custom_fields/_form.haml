@@ -15,6 +15,12 @@
             %span.frequency
       .col-xs-12.col-sm-6
         = f.input :time_of_frequency, label: t('.time_of_frequency')
+      .col-xs-12
+        / Phase 5.2b (NIST AC-6) — per-FORM sensitivity. Top-level custom_fields column, so it lives
+        / OUTSIDE the .build-wrap jQuery widget below (which only composes the `fields` JSONB). Explicit
+        / as: :select — sensitivity is a :string column NOT in simple_form input_mappings, so a bare
+        / f.input would be a free-text box; include_blank: false + the selected fallback keeps a new form on "standard".
+        = f.input :sensitivity, as: :select, collection: CustomField::SENSITIVITY_LEVELS.map { |level| [t(".sensitivity_levels.#{level}"), level] }, label: t('.sensitivity'), include_blank: false, selected: (@custom_field.sensitivity.presence || CustomField::DEFAULT_SENSITIVITY), hint: t('.sensitivity_hint')
     = f.input :fields, as: :hidden
     = hidden_field_tag :custom_field_id, @custom_field.id
     .build-wrap{ 'data-fields': @custom_field.fields || ''}

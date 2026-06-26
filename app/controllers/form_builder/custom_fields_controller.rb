@@ -101,7 +101,11 @@ class FormBuilder::CustomFieldsController < AdminController
   end
 
   def custom_field_params
-    params.require(:custom_field).permit(:entity_type, :fields, :form_title, :frequency, :time_of_frequency)
+    # Phase 5.2b (NIST AC-6): :sensitivity is the per-FORM picker (rendered outside the jQuery fields
+    # widget). Without it permitted, a new/edited form always falls to the DB default "standard"
+    # (fail-open). The model validates inclusion in CustomField::SENSITIVITY_LEVELS, so an out-of-band
+    # value is rejected at save.
+    params.require(:custom_field).permit(:entity_type, :fields, :form_title, :frequency, :time_of_frequency, :sensitivity)
   end
 
   def set_custom_field

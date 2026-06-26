@@ -2176,6 +2176,12 @@ en:
         form_title: Form Title
         frequency: Frequency
         preview: Preview
+        sensitivity: Sensitivity
+        sensitivity_hint: 'Standard = any authorized reader of the record. Restricted = caseload / role-scoped readers only. Emergency only = hidden unless a break-glass grant is active. Applies to the whole form.'
+        sensitivity_levels:
+          standard: Standard — anyone who can read the record
+          restricted: Restricted — caseload / role-scoped readers
+          emergency_only: Emergency only — break-glass access required
         time_of_frequency: Time of Frequency
         type: Type
       index:
