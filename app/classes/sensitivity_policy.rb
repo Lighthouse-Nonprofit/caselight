@@ -79,6 +79,14 @@ class SensitivityPolicy
     visible_domain_levels.include?(level)
   end
 
+  # Phase 5.4 — may this user UNLOCK emergency_only via a per-record break-glass grant? Only
+  # restricted-set roles (NOT strategic_overviewer, NOT nil). Public so controllers/views can
+  # decide whether to OFFER the elevation affordance (offering it to an ineligible user would be
+  # misleading — a grant would not widen their view).
+  def break_glass_eligible?
+    emergency_break_glass_eligible?
+  end
+
   private
 
   def visible_scope

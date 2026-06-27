@@ -23,7 +23,10 @@ class UploadsStaticGuard
   end
 end
 
-# Insert BEFORE the static file server so the deny wins over public/ file serving in every env where
-# static files are served (test: serve_static_files=true; prod: RAILS_SERVE_STATIC_FILES). Guard the
-# insert so boot never fails if the middleware stack shape changes.
-Rails.application.config.app_middleware.insert_before(ActionDispatch::Static, UploadsStaticGuard) rescue Rails.application.config.app_middleware.use(UploadsStaticGuard)
+# Insert at the FRONT of the stack so the deny wins over public/ static file serving (when
+# ActionDispatch::Static is present, e.g. prod) AND boots cleanly when it is ABSENT (e.g. the test
+# env, where public_file_server is off). The original insert_before(ActionDispatch::Static, ...)
+# raised at stack-build time when Static was missing — and the `rescue … use(…)` fallback (which
+# runs at config time, not build time) could not catch it, leaving the stack malformed (a Symbol
+# where the next app should be -> a 500 on every request). A fixed index 0 is always valid.
+Rails.application.config.app_middleware.insert_before(0, UploadsStaticGuard)

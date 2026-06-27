@@ -1,0 +1,29 @@
+-# Phase 5.4 (NIST AC-3 / AC-6(2) / AU-2) — break-glass elevation prompt. Rendered by
+-# CustomFieldPropertiesController#enforce_sensitive_field_access when a break-glass-eligible role
+-# (case worker / managers) hits an emergency_only form with NO active grant. The sensitive VALUES
+-# are NOT in this page; submitting POSTs a 1h self-elevation (audit written FIRST, fail-closed),
+-# then redirect_back returns here and the values render.
+.wrapper.wrapper-content
+  .row
+    .col-lg-8.col-lg-offset-2
+      .ibox
+        .ibox-title
+          %h2
+            %i.fa.fa-exclamation-triangle.text-danger
+            = t('break_glass.prompt.title', default: 'Emergency-only information')
+        .ibox-content
+          %p.text-muted
+            = t('break_glass.prompt.form_label', default: 'Form:')
+            %strong= @breakglass_custom_field.form_title
+          %p
+            = t('break_glass.prompt.explanation', default: 'This form is classified emergency-only. Access requires a logged reason and is granted for 1 hour on this record only. Your name, the reason, and the time are recorded in the audit log.')
+          = form_tag break_glass_grants_path, method: :post do
+            = hidden_field_tag :custom_formable_type, @breakglass_formable.class.base_class.name
+            = hidden_field_tag :custom_formable_id, @breakglass_formable.id
+            = hidden_field_tag :custom_field_id, @breakglass_custom_field.id
+            .form-group
+              %label{ for: 'reason' }= t('break_glass.prompt.reason_label', default: 'Reason for emergency access (required)')
+              = text_area_tag :reason, nil, class: 'form-control', rows: 3, required: true, placeholder: t('break_glass.prompt.reason_placeholder', default: 'e.g. imminent safety concern during a home visit')
+            .m-t
+              = submit_tag t('break_glass.prompt.submit', default: 'Request emergency access (1 hour)'), class: 'btn btn-danger'
+              = link_to t('break_glass.prompt.cancel', default: 'Cancel'), polymorphic_path(@breakglass_formable), class: 'btn btn-white'

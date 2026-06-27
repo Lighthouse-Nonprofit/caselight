@@ -57,6 +57,30 @@ module SensitiveFields
     []
   end
 
+  # Phase 5.4 — is current_user a role that can UNLOCK emergency_only via break-glass? UI affordance
+  # gate (offering elevation to a strategic_overviewer/nil would be misleading — a grant never widens
+  # their view). Fail-closed to false.
+  def break_glass_eligible?
+    SensitivityPolicy.new(current_user).break_glass_eligible?
+  rescue => e
+    Rails.logger.error("[SensitiveFields] break_glass_eligible? failed (failing closed): #{e.class}: #{e.message}")
+    false
+  end
+
+  # Phase 5.4 — emergency_only forms WITH DATA on `record` that current_user cannot currently see but
+  # COULD unlock via break-glass (empty unless break_glass_eligible?). The show page renders these as
+  # 🔒 locked entries linking to cfp#index (the elevation prompt). Fail-closed to an empty relation.
+  def breakglass_form_candidates(record)
+    return CustomField.none unless current_user && record
+    return CustomField.none unless break_glass_eligible?
+    visible    = visible_custom_field_ids_for(record)
+    filled_ids = record.custom_field_properties.distinct.pluck(:custom_field_id)
+    CustomField.emergency_only.where(id: filled_ids).where.not(id: visible.to_a).order_by_form_title
+  rescue => e
+    Rails.logger.error("[SensitiveFields] breakglass_form_candidates failed (failing closed): #{e.class}: #{e.message}")
+    CustomField.none
+  end
+
   # Array<String> of Domain sensitivity levels current_user may see (record-less; emergency masked
   # for all non-admin). Memoized. Fail-closed to standard-only.
   def visible_domain_levels

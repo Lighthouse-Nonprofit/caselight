@@ -71,6 +71,16 @@ class CustomFieldPropertiesController < AdminController
     return if @custom_field.nil?
     return if visible_custom_field_ids_for(@custom_formable).include?(@custom_field.id)
     log_sensitive_field_denied(@custom_field)
+    # Phase 5.4 — emergency_only + a break-glass-ELIGIBLE role (case worker / managers) with no
+    # active grant: render the elevation PROMPT (reason -> POST /break_glass_grants) instead of a
+    # dead end. restricted forms (role-based, no elevation path) and ineligible roles
+    # (strategic_overviewer / nil — a grant would not widen their view) still get the static 403.
+    # Either way the sensitive VALUES are never in the body.
+    if @custom_field.sensitivity == SensitivityPolicy::EMERGENCY_ONLY && break_glass_eligible?
+      @breakglass_custom_field = @custom_field
+      @breakglass_formable     = @custom_formable
+      return render template: 'break_glass_grants/prompt'
+    end
     render plain: 'Not authorized', status: :forbidden, layout: false
   end
 
