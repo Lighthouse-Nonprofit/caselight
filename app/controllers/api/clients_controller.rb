@@ -1,21 +1,35 @@
 module Api
   class ClientsController < AdminController
+    include SensitiveFields # Phase 5.3 — per-tenant visible_custom_field_ids + visible_domain_levels (record-less => break_glass: [])
 
     def compare
-      render json: find_client_in_organization
+      render json: { clients: find_client_in_organization }
     end
 
     private
 
     def find_client_in_organization
-      results = []
+      serialized = []
       Organization.without_demo.each do |org|
         Organization.switch_to(org.short_name)
         clients = find_client_by(params)
+        next unless clients.any?
         set_organization_to_client(clients, org.full_name)
-        results << clients if clients.any?
+        # Per-tenant recompute (caseload/role/sensitivity are tenant-local).
+        @visible_custom_field_ids = nil
+        @visible_domain_levels    = nil
+        visible_ids    = visible_custom_field_ids                                       # break_glass: [] (bulk)
+        visible_levels = visible_domain_levels                                          # emergency domains masked
+        payload = ActiveModelSerializers::SerializableResource.new(
+          clients,
+          each_serializer: ClientSerializer,
+          adapter: :json,
+          visible_custom_field_ids: visible_ids,
+          visible_domain_levels: visible_levels
+        ).as_json
+        serialized.concat(Array(payload[:clients] || payload['clients']))
       end
-      results.flatten
+      serialized
     end
 
     def find_client_by(params)
@@ -27,9 +41,7 @@ module Api
     end
 
     def set_organization_to_client(collections, value)
-      collections.each do |collection|
-        collection.organization = value
-      end
+      collections.each { |collection| collection.organization = value }
     end
   end
 end

@@ -1,5 +1,6 @@
 class ClientsController < AdminController
   include AccessAudit   # AU-2/AU-12: audit successful Client show/index reads
+  include SensitiveFields  # Phase 5.3 — visible custom_field_id set, visible_domain_levels, denied logging
   include ClientGridOptions
 
   load_and_authorize_resource find_by: :slug, except: :quantitative_case
@@ -12,7 +13,8 @@ class ClientsController < AdminController
     columns_visibility
     respond_to do |f|
       f.html do
-        @csi_statistics   = CsiStatistic.new(@client_grid.assets).assessment_domain_score.to_json
+        # Phase 5.3 — mask restricted/emergency Domain averages in the CSI chart for the viewer.
+        @csi_statistics   = CsiStatistic.new(@client_grid.assets, visible_levels: visible_domain_levels).assessment_domain_score.to_json
         @cases_statistics = CaseStatistic.new(@client_grid.assets).statistic_data.to_json
         @results          = @client_grid.scope { |scope| scope.accessible_by(current_ability) }.assets.size
         @client_grid.scope { |scope| scope.accessible_by(current_ability).page(params[:page]).per(20) }
@@ -28,8 +30,15 @@ class ClientsController < AdminController
   def show
     @ordered_client_answers     = @client.answers.order(:created_at)
     custom_field_ids            = @client.custom_field_properties.pluck(:custom_field_id)
-    @free_client_forms          = CustomField.client_forms.not_used_forms(custom_field_ids).order_by_form_title
-    @group_client_custom_fields = @client.custom_field_properties.sort_by{ |c| c.custom_field.form_title }.group_by(&:custom_field_id)
+    visible = visible_custom_field_ids_for(@client)  # record-aware (per-record break-glass)
+    @group_client_custom_fields = @client.custom_field_properties
+                                         .where(custom_field_id: visible.to_a)
+                                         .sort_by { |c| c.custom_field.form_title }
+                                         .group_by(&:custom_field_id)
+    @free_client_forms          = CustomField.client_forms
+                                             .not_used_forms(custom_field_ids)
+                                             .where(id: visible.to_a)
+                                             .order_by_form_title
     initial_visit_client
   end
 
@@ -95,9 +104,13 @@ class ClientsController < AdminController
   end
 
   def version
-    page = params[:per_page] || 20
+    page      = params[:per_page] || 20
     @client   = Client.accessible_by(current_ability).friendly.find(params[:client_id]).decorate
-    @versions = @client.versions.reorder(created_at: :desc).page(params[:page]).per(page)
+    relation  = @client.versions.reorder(created_at: :desc)
+    # Phase 5.3 (defensive) — drop non-visible CFP versions should version_associations ever pull
+    # them into a Client timeline. Re-scope to keep an AR relation so .decorate/Kaminari still work.
+    kept_ids  = SensitiveVersionScope.visible_version_ids(relation, user: current_user, break_glass: [])
+    @versions = relation.where(id: kept_ids).reorder(created_at: :desc).page(params[:page]).per(page.to_i)
   end
 
   private

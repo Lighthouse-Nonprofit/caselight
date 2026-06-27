@@ -2,13 +2,21 @@ class CustomFieldPropertiesController < AdminController
   load_and_authorize_resource
 
   include FormBuilderAttachments
+  include SensitiveFields  # Phase 5.3
 
   before_action :find_entity, :find_custom_field
+  before_action :enforce_sensitive_field_access, only: [:index]
   before_action :find_custom_field_property, only: [:edit, :update, :destroy]
   before_action :get_form_builder_attachments, only: [:edit, :update]
 
   def index
-    @custom_field_properties = @custom_formable.custom_field_properties.accessible_by(current_ability).by_custom_field(@custom_field).most_recents.page(params[:page]).per(4)
+    visible = visible_custom_field_ids_for(@custom_formable)
+    @custom_field_properties = @custom_formable.custom_field_properties
+                                               .accessible_by(current_ability)
+                                               .where(custom_field_id: visible.to_a)
+                                               .by_custom_field(@custom_field)
+                                               .most_recents
+                                               .page(params[:page]).per(4)
   end
 
   def new
@@ -55,6 +63,16 @@ class CustomFieldPropertiesController < AdminController
   end
 
   private
+
+  # Phase 5.3 — field-level guard: render the STATIC 403 (NOT raise CanCan::AccessDenied,
+  # which redirects to root_url = 302). @custom_field is populated by find_custom_field (which 404s
+  # an unknown form); load_and_authorize_resource enforces record :read first.
+  def enforce_sensitive_field_access
+    return if @custom_field.nil?
+    return if visible_custom_field_ids_for(@custom_formable).include?(@custom_field.id)
+    log_sensitive_field_denied(@custom_field)
+    render plain: 'Not authorized', status: :forbidden, layout: false
+  end
 
   def custom_field_property_params
     properties_params.values.map{ |v| v.delete('') if (v.is_a?Array) && v.size > 1 } if properties_params.present?

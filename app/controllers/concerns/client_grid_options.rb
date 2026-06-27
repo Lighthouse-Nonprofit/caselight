@@ -1,6 +1,7 @@
 module ClientGridOptions
   extend ActiveSupport::Concern
   include ClientsHelper
+  included { include SensitiveFields }   # Phase 5.3 — record-less visible_custom_field_ids + visible_domain_levels
 
   def choose_grid
     if current_user.admin? || current_user.strategic_overviewer?
@@ -17,30 +18,33 @@ module ClientGridOptions
 
   def domain_score_report
     return unless params['type'] == 'basic_info'
+    levels = visible_domain_levels   # Phase 5.3 — per-viewer; admin/restricted-roles keep their scores, NOT forced standard-only
     @client_grid.column(:assessments, header: t('.assessments')) do |client|
-      client.assessments.map(&:basic_info).join("\x0D\x0A")
+      client.assessments.map { |a| a.basic_info(levels) }.join("\x0D\x0A")
     end
     @client_grid.column_names << :assessments if @client_grid.column_names.any?
   end
 
   def form_builder_report
+    vis_ids = visible_custom_field_ids   # Phase 5.3 — record-less bulk set; emergency never unlocked here
     column_form_builder.each do |field|
       fields = field[:id].split('_')
+      cf_id  = field[:custom_field_id]
       @client_grid.column(field[:id].downcase.parameterize('_').to_sym, header: form_builder_format_header(fields)) do |client|
         if fields.first == 'formbuilder'
-          custom_field_properties = client.custom_field_properties.joins(:custom_field).where(custom_fields: { form_title: fields.second, entity_type: 'Client'}).properties_by(fields.last)
-          custom_field_properties.map{ |properties| format_properties_value(properties) }.join("\n")
+          if cf_id.present? && vis_ids.include?(cf_id)
+            client.custom_field_properties.joins(:custom_field).where(custom_fields: { id: cf_id, entity_type: 'Client' }).properties_by(fields.last).map { |p| format_properties_value(p) }.join("\n")
+          else
+            ''
+          end
         elsif fields.first == 'enrollment'
-          enrollment_properties = client.client_enrollments.joins(:program_stream).where(program_streams: { name: fields.second }).properties_by(fields.last)
-          enrollment_properties.map{ |properties| format_properties_value(properties) }.join("\n")
+          client.client_enrollments.joins(:program_stream).where(program_streams: { name: fields.second }).properties_by(fields.last).map { |p| format_properties_value(p) }.join("\n")
         elsif fields.first == 'tracking'
           ids = client.client_enrollments.ids
-          enrollment_tracking_properties = ClientEnrollmentTracking.joins(:tracking).where(trackings: { name: fields.third }, client_enrollment_trackings: { client_enrollment_id: ids }).properties_by(fields.last)
-          enrollment_tracking_properties.map{ |properties| format_properties_value(properties) }.join("\n")
+          ClientEnrollmentTracking.joins(:tracking).where(trackings: { name: fields.third }, client_enrollment_trackings: { client_enrollment_id: ids }).properties_by(fields.last).map { |p| format_properties_value(p) }.join("\n")
         elsif fields.first == 'exitprogram'
           ids = client.client_enrollments.inactive.ids
-          leave_program_properties = LeaveProgram.joins(:program_stream).where(program_streams: { name: fields.second }, leave_programs: { client_enrollment_id: ids }).properties_by(fields.last)
-          leave_program_properties.map{ |properties| format_properties_value(properties) }.join("\n")
+          LeaveProgram.joins(:program_stream).where(program_streams: { name: fields.second }, leave_programs: { client_enrollment_id: ids }).properties_by(fields.last).map { |p| format_properties_value(p) }.join("\n")
         end
       end
     end
@@ -53,6 +57,9 @@ module ClientGridOptions
     else
       @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(dynamic_columns: column_form_builder))
     end
+    # Phase 5.3 — inject the record-less visible custom_field_id set so formbuilder columns mask.
+    @client_grid.visible_custom_field_ids = visible_custom_field_ids if @client_grid.respond_to?(:visible_custom_field_ids=)
+    @client_grid
   end
 
   def non_admin_client_grid
@@ -63,6 +70,9 @@ module ClientGridOptions
 
       @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: current_user, dynamic_columns: column_form_builder))
     end
+    # Phase 5.3 — inject the record-less visible custom_field_id set so formbuilder columns mask.
+    @client_grid.visible_custom_field_ids = visible_custom_field_ids if @client_grid.respond_to?(:visible_custom_field_ids=)
+    @client_grid
   end
 
   def column_form_builder

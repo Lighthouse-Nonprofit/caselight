@@ -2,6 +2,10 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
+    # Phase 5.3 — the gated assessment_domain attachment download is a custom member action; alias it
+    # to :read so CanCan authorizes it via existing read rules. The field-level (domain sensitivity)
+    # 403 is enforced inside AssessmentsController#download_attachment, not by CanCan.
+    alias_action :download_attachment, to: :read
     can :manage, Agency
     can :manage, ReferralSource
     can :manage, QuarterlyReport

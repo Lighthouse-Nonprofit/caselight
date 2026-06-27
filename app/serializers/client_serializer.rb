@@ -34,9 +34,9 @@ class ClientSerializer < ActiveModel::Serializer
   end
 
   def additional_form
-    custom_fields = object.custom_fields.distinct.sort_by(&:form_title)
-    custom_fields.map do |custom_field|
-      custom_field.as_json.merge(custom_field_properties: custom_field.custom_field_properties.where(custom_formable_id: object.id).as_json)
+    visible_ids = instance_options[:visible_custom_field_ids] || Set.new
+    object.custom_fields.distinct.sort_by(&:form_title).select { |cf| visible_ids.include?(cf.id) }.map do |custom_field|
+      custom_field.as_json.merge(custom_field_properties: custom_field.custom_field_properties.where(custom_formable_id: object.id, custom_field_id: visible_ids.to_a).as_json)
     end
   end
 
@@ -62,8 +62,9 @@ class ClientSerializer < ActiveModel::Serializer
   end
 
   def assessments
+    levels = visible_domain_levels_option
     object.assessments.map do |assessment|
-      formatted_assessment_domain = assessment.assessment_domains_in_order.map do |ad|
+      formatted_assessment_domain = assessment.assessment_domains_in_order.select { |ad| ad.domain && levels.include?(ad.domain.sensitivity) }.map do |ad|
         incomplete_tasks = object.tasks.by_domain_id(ad.domain_id).incomplete
         ad.as_json.merge(domain: ad.domain.as_json(only: [:name, :identity]), incomplete_tasks: incomplete_tasks.as_json(only: [:name, :id]))
       end
@@ -72,12 +73,13 @@ class ClientSerializer < ActiveModel::Serializer
   end
 
   def case_notes
+    levels = visible_domain_levels_option
     object.case_notes.most_recents.map do |case_note|
       formatted_case_note_domain_group = case_note.case_note_domain_groups.map do |cdg|
         next if cdg.domain_group.nil?
         domain_scores = cdg.domain_group.domains.map do |domain|
+          next unless levels.include?(domain.sensitivity)
           ad = domain.assessment_domains.find_by(assessment_id: case_note.assessment_id)
-          ad.try(:score)
           { domain_id: ad.domain_id, score: ad.score } if ad.present?
         end.compact
         cdg.as_json.merge(domain_group_identities: cdg.domain_group.domain_identities, domain_scores: domain_scores, completed_tasks: cdg.completed_tasks)
@@ -107,8 +109,17 @@ class ClientSerializer < ActiveModel::Serializer
   end
 
   def add_forms
+    visible_ids = instance_options[:visible_custom_field_ids] || Set.new
     custom_field_ids = object.custom_field_properties.pluck(:custom_field_id)
-    CustomField.client_forms.not_used_forms(custom_field_ids).order_by_form_title
+    CustomField.client_forms.not_used_forms(custom_field_ids).order_by_form_title.where(id: visible_ids.to_a)
+  end
+
+  private
+
+  # Phase 5.3 — viewer's permitted Domain levels (instance option from api/clients#compare). Defaults
+  # standard-only so a render that omits the option fails closed rather than leaking restricted scores.
+  def visible_domain_levels_option
+    Array(instance_options[:visible_domain_levels].presence || [SensitivityPolicy::STANDARD])
   end
 
 end

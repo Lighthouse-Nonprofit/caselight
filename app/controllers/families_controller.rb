@@ -1,4 +1,5 @@
 class FamiliesController < AdminController
+  include SensitiveFields  # Phase 5.3
   load_and_authorize_resource
 
   before_action :find_association, except: [:index, :destroy, :version]
@@ -32,9 +33,18 @@ class FamiliesController < AdminController
 
   def show
     custom_field_ids            = @family.custom_field_properties.pluck(:custom_field_id)
-    @free_family_forms          = CustomField.family_forms.not_used_forms(custom_field_ids).order_by_form_title
-    @group_family_custom_fields = @family.custom_field_properties.group_by(&:custom_field_id)
+    visible = visible_custom_field_ids_for(@family)
+    @group_family_custom_fields = @family.custom_field_properties
+                                         .where(custom_field_id: visible.to_a)
+                                         .group_by(&:custom_field_id)
+    @free_family_forms          = CustomField.family_forms
+                                             .not_used_forms(custom_field_ids)
+                                             .where(id: visible.to_a)
+                                             .order_by_form_title
     @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(family_id: @family.id))
+    # Phase 5.3 — bulk grid gets the RECORD-LESS set (emergency never unlocked). Guard with respond_to?
+    # so this is order-independent of the client_grid.rb attr_accessor edit.
+    @client_grid.visible_custom_field_ids = visible_custom_field_ids if @client_grid.respond_to?(:visible_custom_field_ids=)
     @results = @client_grid.assets.distinct.size
     @client_grid.scope { |scope| scope.page(params[:page]).per(5).distinct }
   end
@@ -64,9 +74,11 @@ class FamiliesController < AdminController
   end
 
   def version
-    page = params[:per_page] || 20
+    page      = params[:per_page] || 20
     @family   = Family.find(params[:family_id])
-    @versions = @family.versions.reorder(created_at: :desc).page(params[:page]).per(page)
+    relation  = @family.versions.reorder(created_at: :desc)
+    kept_ids  = SensitiveVersionScope.visible_version_ids(relation, user: current_user, break_glass: [])
+    @versions = relation.where(id: kept_ids).reorder(created_at: :desc).page(params[:page]).per(page.to_i)
   end
 
   private

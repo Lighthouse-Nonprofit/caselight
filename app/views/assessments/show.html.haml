@@ -39,28 +39,33 @@
                         = "#{t('.domain')} #{ad.domain.name}:"
                       %strong
                         = ad.domain.identity
-                    .domain-score
-                      %span= t('.score')
-                      - unless @assessment.initial?
-                        %span{ class: "label label-#{ad.previous_score_color_class} "}
-                          = "#{ad.previous_score}"
-                        %span &#8594;
-                      %span{ class: "label label-#{ad.score_color_class} "}
-                        = "#{ad.score}"
-                  %td.reason
-                    %p
-                      %strong= "#{t('.reason')}:"
-                      %span= ad.reason
-                    %p
-                      %strong= "#{t('.goal')}:"
-                      %span= ad.try(:goal)
-                    - incomplete_tasks = @client.tasks.by_domain_id(ad.domain_id).incomplete
-                    - if incomplete_tasks.any?
+                    - if domain_visible?(ad.domain)
+                      .domain-score
+                        %span= t('.score')
+                        - unless @assessment.initial?
+                          %span{ class: "label label-#{ad.previous_score_color_class} "}
+                            = "#{ad.previous_score}"
+                          %span &#8594;
+                        %span{ class: "label label-#{ad.score_color_class} "}
+                          = "#{ad.score}"
+                  - if domain_visible?(ad.domain)
+                    %td.reason
                       %p
-                        %strong= "#{t('.task')}:"
-                        %ul
-                          - incomplete_tasks.each do |task|
-                            %li= task.name
-                    - if ad.attachments.any?
-                      %button.btn.btn-info.btn-sm{"data-target" => "#attachments#{ad.id}", "data-toggle" => "modal", :type => "button"}= t('.show_attachment')
-                      = render 'attachment', { ad: ad }
+                        %strong= "#{t('.reason')}:"
+                        %span= ad.reason
+                      %p
+                        %strong= "#{t('.goal')}:"
+                        %span= ad.try(:goal)
+                      - incomplete_tasks = @client.tasks.by_domain_id(ad.domain_id).incomplete
+                      - if incomplete_tasks.any?
+                        %p
+                          %strong= "#{t('.task')}:"
+                          %ul
+                            - incomplete_tasks.each do |task|
+                              %li= task.name
+                      - if ad.attachments.any?
+                        %button.btn.btn-info.btn-sm{"data-target" => "#attachments#{ad.id}", "data-toggle" => "modal", :type => "button"}= t('.show_attachment')
+                        = render 'attachment', { ad: ad }
+                  - else
+                    %td.reason.text-muted
+                      %em= t('.restricted_not_authorized', default: 'Restricted — not authorized to view')

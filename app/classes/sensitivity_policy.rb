@@ -56,6 +56,29 @@ class SensitivityPolicy
     visible_custom_field_ids.include?(id)
   end
 
+  # Phase 5.3 (NIST AC-6) — assessment-side mirror of #visible_levels, keyed on domains.sensitivity
+  # (Domain) instead of custom_fields.sensitivity. Returns Array<String> of Domain sensitivity LEVELS
+  # this user may see on assessment_domains they can already :read. SAME role matrix as #visible_levels.
+  # emergency_only DOMAINS are masked for EVERY non-admin: break-glass is custom_formable-scoped
+  # (Client/Family/Partner), never Domain-scoped, so there is no path to unlock an emergency_only
+  # domain. admin sees all three levels. nil/unknown role => standard only (fail-safe).
+  def visible_domain_levels
+    return Domain::SENSITIVITY_LEVELS.dup if user&.admin?
+    if restricted_role?
+      [STANDARD, RESTRICTED]
+    else
+      [STANDARD]
+    end
+  end
+
+  # True iff this user may see VALUES on an assessment_domain whose Domain has this sensitivity.
+  # Accepts a Domain (responds_to :sensitivity) or a raw level String. Fail-closed for nil.
+  def can_see_domain?(domain_or_level)
+    return false if domain_or_level.nil?
+    level = domain_or_level.respond_to?(:sensitivity) ? domain_or_level.sensitivity : domain_or_level.to_s
+    visible_domain_levels.include?(level)
+  end
+
   private
 
   def visible_scope

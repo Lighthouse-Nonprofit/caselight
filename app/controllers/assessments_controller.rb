@@ -1,9 +1,10 @@
 class AssessmentsController < AdminController
   include AccessAudit   # AU-2/AU-12: audit successful Assessment show/index reads
+  include SensitiveFields   # Phase 5.3 — visible_domain_levels
   load_and_authorize_resource
 
   before_action :find_client
-  before_action :find_assessment, only: [:edit, :update, :show]
+  before_action :find_assessment, only: [:edit, :update, :show, :download_attachment]
   before_action :restrict_invalid_assessment, only: [:new, :create]
   before_action :restrict_update_assessment, only: [:edit, :update]
 
@@ -25,6 +26,42 @@ class AssessmentsController < AdminController
   end
 
   def show
+    # Phase 5.3 — single source of truth for which Domain sensitivity levels this viewer may see.
+    @visible_domain_levels = visible_domain_levels
+  end
+
+  # Phase 5.3 (NIST AC-6) — authenticated, sensitivity-gated download for assessment_domain
+  # attachments. CanCan authorizes via alias_action(:download_attachment => :read) + find_client
+  # (accessible_by) so record-auth holds; this layers the domain-sensitivity (field) check, which on
+  # denial emits the STATIC 403 (NOT a redirect). The static /uploads path is separately denied by
+  # UploadsStaticGuard, so this controller is the only serve path.
+  def download_attachment
+    assessment_domain = @assessment.assessment_domains.find(params[:assessment_domain_id])
+    index  = params[:index].to_i
+    levels = visible_domain_levels
+    unless assessment_domain.domain && levels.include?(assessment_domain.domain.sensitivity)
+      AccessLog.security_event!(
+        event_type: 'sensitive_field_denied',
+        request:    request,
+        user:       current_user,
+        metadata: {
+          'surface'           => 'assessment_domain_attachment',
+          'assessment_id'     => @assessment.id,
+          'client_id'         => @client.id,
+          'domain_id'         => assessment_domain.domain_id,
+          'sensitivity_level' => assessment_domain.domain.try(:sensitivity)
+        }
+      )
+      return render plain: 'Not authorized', status: :forbidden, layout: false
+    end
+    attachment = assessment_domain.attachments[index]
+    return render plain: 'Not found', status: :not_found, layout: false if attachment.nil? || attachment.file.nil?
+    send_file attachment.file.path, filename: File.basename(attachment.file.path), disposition: 'attachment'
+  rescue ActiveRecord::RecordNotFound
+    render plain: 'Not found', status: :not_found, layout: false
+  rescue => e
+    Rails.logger.error("[assessments#download_attachment] failing closed: #{e.class}: #{e.message}")
+    render plain: 'Not authorized', status: :forbidden, layout: false
   end
 
   def edit

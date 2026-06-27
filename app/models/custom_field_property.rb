@@ -30,6 +30,20 @@ class CustomFieldProperty < ActiveRecord::Base
   scope :by_custom_field, -> (value) { where(custom_field:  value) }
   scope :most_recents,    ->         { order('created_at desc') }
 
+  # Phase 5.3 — sensitive-field READ enforcement (NIST AC). FAIL-CLOSED: nil user / empty set => `none`,
+  # never the full relation. A FILTER over rows already CanCan-scoped by the caller; NOT a record-auth check.
+  scope :visible_to, ->(user, break_glass: []) {
+    ids = CustomFieldProperty.visible_custom_field_ids(user, break_glass: break_glass)
+    ids.empty? ? none : where(custom_field_id: ids.to_a)
+  }
+
+  # Set<Integer> of custom_field_ids `user` may read. Thin delegate to the Phase 5.2 policy (KEYWORD
+  # arg). nil user -> empty set (fail-closed). break_glass = already-concrete emergency_only ids.
+  def self.visible_custom_field_ids(user, break_glass: [])
+    return Set.new if user.nil?
+    SensitivityPolicy.new(user, active_break_glass_form_ids: Array(break_glass)).visible_custom_field_ids
+  end
+
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
 
   has_paper_trail

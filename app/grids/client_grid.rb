@@ -3,7 +3,7 @@ class ClientGrid
   include Datagrid
   include ClientsHelper
 
-  attr_accessor :current_user, :qType, :dynamic_columns
+  attr_accessor :current_user, :qType, :dynamic_columns, :visible_custom_field_ids
   # Phase 4 Tier 4 — clients.given_name/family_name/local_* are DETERMINISTICALLY encrypted. ORDER BY
   # clients.given_name would sort by opaque ciphertext, so the name term is dropped from the SQL ORDER
   # (clients.status, a plaintext enum, is kept). Alphabetical-by-name display ordering moves to Ruby in
@@ -510,13 +510,22 @@ class ClientGrid
     render partial: 'clients/assessments', locals: { object: object }
   end
 
-  dynamic do 
+  dynamic do
     next unless dynamic_columns.present?
+    # Phase 5.3 (bypass A) — viewer's visible custom_field_id set, injected by the controller. nil FAILS
+    # CLOSED to empty => formbuilder cells blank (over-mask, never a leak). Bulk/record-less => emergency_only never unlocked.
+    vis_ids = visible_custom_field_ids || Set.new
     dynamic_columns.each do |column_builder|
       fields = column_builder[:id].split('_')
+      cf_id  = column_builder[:custom_field_id]
       column(column_builder[:id].downcase.parameterize('_').to_sym, class: 'form-builder', header: -> { form_builder_format_header(fields) }, html: true) do |object|
         if fields.first == 'formbuilder'
-          properties = object.custom_field_properties.joins(:custom_field).where(custom_fields: { form_title: fields.second, entity_type: 'Client'}).properties_by(fields.last)
+          properties =
+            if cf_id.present? && vis_ids.include?(cf_id)
+              object.custom_field_properties.joins(:custom_field).where(custom_fields: { id: cf_id, entity_type: 'Client' }).properties_by(fields.last)
+            else
+              []
+            end
         elsif fields.first == 'enrollment'
           properties = object.client_enrollments.joins(:program_stream).where(program_streams: { name: fields.second }).properties_by(fields.last)
         elsif fields.first == 'tracking'

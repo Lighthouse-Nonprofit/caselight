@@ -37,12 +37,29 @@ class Assessment < ActiveRecord::Base
     end
   end
 
-  def basic_info
-    "#{created_at.to_date} => #{assessment_domains_score}"
+  # Phase 5.3 — forward the viewer's visible Domain levels so the XLS export masks per viewer
+  # (admin/restricted-roles keep their restricted scores; standard-only/overviewer do not). Default
+  # standard-only is fail-closed for any caller that forgets to pass levels.
+  def basic_info(visible_levels = [SensitivityPolicy::STANDARD])
+    "#{created_at.to_date} => #{assessment_domains_score(visible_levels)}"
   end
 
-  def assessment_domains_score
-    domains.pluck(:name, :score).map { |item| item.join(': ') }.join(', ')
+  # Builds the popover/summary string ONLY from assessment_domains whose domain is visible; appends a
+  # redaction marker for the rest. NOTE: the merged `domains.pluck(:name,:score)` cannot read
+  # domain.sensitivity, so we iterate the join and read ad.domain.sensitivity.
+  def assessment_domains_score(visible_levels = [SensitivityPolicy::STANDARD])
+    levels  = Array(visible_levels)
+    visible = assessment_domains.includes(:domain).select { |ad| ad.domain && levels.include?(ad.domain.sensitivity) }
+    hidden  = assessment_domains.size - visible.size
+    parts   = visible.map { |ad| "#{ad.domain.name}: #{ad.score}" }
+    parts << "#{hidden} restricted hidden" if hidden.positive?
+    parts.join(', ')
+  end
+
+  # Subset of assessment_domains_in_order the viewer may see VALUES for (the show view iterates this).
+  def visible_assessment_domains(visible_levels = [SensitivityPolicy::STANDARD])
+    levels = Array(visible_levels)
+    assessment_domains_in_order.select { |ad| ad.domain && levels.include?(ad.domain.sensitivity) }
   end
 
   def assessment_domains_in_order
