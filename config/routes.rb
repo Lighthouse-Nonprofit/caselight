@@ -253,4 +253,10 @@ Rails.application.routes.draw do
 
   resources :client_advanced_searches, only: :index
   resources :papertrail_queries, only: [:index]
+
+  # Phase 5.4 — DEDICATED break-glass elevation endpoint (NIST AC-3 / AC-6(2) / AU-2).
+  # NOT a member action of clients (bypass E): a top-level POST so it is never subject to
+  # ClientsController's load_and_authorize_resource. The controller does its own readability
+  # gate (accessible_by) and authorizes `can :create, BreakGlassGrant`.
+  resources :break_glass_grants, only: [:create]
 end

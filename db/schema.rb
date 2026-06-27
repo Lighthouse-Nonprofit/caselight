@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_26_000002) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_26_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -99,6 +99,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_26_000002) do
     t.integer "progress_note_id"
     t.index ["able_screening_question_id"], name: "index_attachments_on_able_screening_question_id"
     t.index ["progress_note_id"], name: "index_attachments_on_progress_note_id"
+  end
+
+  create_table "break_glass_grants", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "custom_formable_type", null: false
+    t.integer "custom_formable_id", null: false
+    t.integer "custom_field_id"
+    t.text "reason", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "idx_bgg_expires_at"
+    t.index ["user_id", "custom_formable_type", "custom_formable_id", "expires_at"], name: "idx_bgg_user_record_active"
   end
 
   create_table "calendars", id: :serial, force: :cascade do |t|

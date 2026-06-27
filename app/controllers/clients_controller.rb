@@ -39,6 +39,10 @@ class ClientsController < AdminController
                                              .not_used_forms(custom_field_ids)
                                              .where(id: visible.to_a)
                                              .order_by_form_title
+    # Phase 5.4 — emergency_only forms (with data) this viewer lacks but could break-glass into;
+    # rendered as 🔒 locked entries that link to cfp#index (the elevation prompt). Empty for
+    # admin (sees all) and ineligible roles, so the show page is unchanged for them.
+    @breakglass_client_forms    = breakglass_form_candidates(@client)
     initial_visit_client
   end
 

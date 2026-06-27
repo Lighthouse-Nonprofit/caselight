@@ -11,6 +11,16 @@ class Ability
     can :manage, QuarterlyReport
     can :read, ProgramStream
     can :preview, ProgramStream
+    # Phase 5.4 — break-glass: any signed-in user may ATTEMPT a self-elevation. The controller
+    # still gates it on already being able to :read the target record (accessible_by), so this
+    # `can` only authorizes REACHING the endpoint, not the access itself (bypass E — keeps
+    # load_and_authorize_resource from blocking the cross-caseload load). admin already has
+    # `can :manage, :all`. strategic_overviewer reaching it is harmless: SensitivityPolicy keeps
+    # them standard-only even WITH a self-created grant.
+    # NB the SYMBOL :break_glass_grant (not the class): the controller uses
+    # `load_and_authorize_resource class: false`, which authorizes the action against the symbolized
+    # controller name, so a `can :create, BreakGlassGrant` (class) rule would NOT match.
+    can :create, :break_glass_grant
 
     if user.admin?
       can :manage, :all
