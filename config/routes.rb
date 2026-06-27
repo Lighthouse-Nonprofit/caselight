@@ -159,7 +159,12 @@ Rails.application.routes.draw do
 
     resources :custom_field_properties
     # resources :government_reports
-    resources :assessments
+    resources :assessments do
+      # Phase 5.3 — authenticated, sensitivity-gated attachment download (replaces the guessable
+      # static /uploads/assessment_domain/... path as the link target).
+      get 'assessment_domains/:assessment_domain_id/attachments/:index',
+          to: 'assessments#download_attachment', as: :download_attachment, on: :member
+    end
     resources :case_notes
     resources :cases do
       scope module: 'case' do

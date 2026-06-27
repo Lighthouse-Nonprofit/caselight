@@ -1,8 +1,10 @@
 class CaseNotesController < AdminController
   include AccessAudit   # AU-2/AU-12: audit successful CaseNote show/index reads
+  include SensitiveFields  # Phase 5.3
   load_and_authorize_resource
   before_action :set_client
   before_action :set_case_note, only: [:edit, :update]
+  before_action :set_visible_domain_levels, only: [:index, :show, :new, :edit]
 
   def index
     @case_notes = @client.case_notes.most_recents.page(params[:page]).per(1)
@@ -55,6 +57,10 @@ class CaseNotesController < AdminController
   end
 
   private
+
+  def set_visible_domain_levels
+    @visible_domain_levels = visible_domain_levels
+  end
 
   def case_note_params
     # params.require(:case_note).permit(:meeting_date, :attendee, case_note_domain_groups_attributes: [:id, :note, :domain_group_id, :task_ids])

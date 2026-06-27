@@ -6,6 +6,8 @@
     .ibox-tools
       - cd.object.domain_group.domains.each do |domain|
         - ad = domain.assessment_domains.find_by(assessment_id: @case_note.assessment_id)
+        - next if ad.nil?
+        - next unless domain_visible?(domain)
         %label.margin-score{class: "label label-#{ad.score_color_class} label-lg"}= ad.score
   .ibox-content
     .row
@@ -17,12 +19,15 @@
         %ul
           - cd.object.domain_group.domains.each do |domain|
             - assessment_domain = @case_note.assessment.assessment_domains.find_by(domain_id: domain.id)
-            - if assessment_domain.present?
-              - goal = assessment_domain.goal
-              %li= goal
+            - next if assessment_domain.nil?
+            - next unless domain_visible?(domain)
+            - goal = assessment_domain.goal
+            %li= goal
       .col-xs-12.col-md-6
         - cd.object.domain_group.domains.each do |domain|
           - assessment_domain = @case_note.assessment.assessment_domains.find_by(domain_id: domain.id)
+          - next if assessment_domain.nil?
+          - next unless domain_visible?(domain)
           - tasks = @case_note.client.tasks.where(domain_id: domain.id)
           - if cd.object.persisted?
             - tasks = tasks.by_case_note_domain_group(cd.object)

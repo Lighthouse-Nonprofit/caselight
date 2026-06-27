@@ -1,8 +1,12 @@
 module AdvancedSearches
   class FilterTypes
-    def self.text_options(field_name, label, group)
+    # Phase 5.3 — custom_field_id carried in the descriptor so the grid/XLS can gate the formbuilder
+    # column by SensitivityPolicy WITHOUT a fragile CustomField.find_by(form_title:) round-trip. nil for
+    # non-custom-form fields (client basic / program-stream).
+    def self.text_options(field_name, label, group, custom_field_id = nil)
       {
         id: field_name,
+        custom_field_id: custom_field_id,
         optgroup: group,
         label: label,
         type: 'string',
@@ -25,9 +29,10 @@ module AdvancedSearches
       }
     end
 
-    def self.number_options(field_name, label, group)
+    def self.number_options(field_name, label, group, custom_field_id = nil)
       {
         id: field_name,
+        custom_field_id: custom_field_id,
         optgroup: group,
         label: label,
         type: 'integer',
@@ -35,9 +40,10 @@ module AdvancedSearches
       }
     end
 
-    def self.date_picker_options(field_name, label, group)
+    def self.date_picker_options(field_name, label, group, custom_field_id = nil)
       {
         id: field_name,
+        custom_field_id: custom_field_id,
         optgroup: group,
         label: label,
         type: 'date',
@@ -52,9 +58,10 @@ module AdvancedSearches
       }
     end
 
-    def self.drop_list_options(field_name, label, values, group)
+    def self.drop_list_options(field_name, label, values, group, custom_field_id = nil)
       {
         id: field_name,
+        custom_field_id: custom_field_id,
         optgroup: group,
         label: label,
         type: 'string',

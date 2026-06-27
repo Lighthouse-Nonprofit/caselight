@@ -1,21 +1,33 @@
 class DataTrackersController < AdminController
   load_and_authorize_resource
+  include SensitiveFields  # Phase 5.3 — supplies current_user; masking via SensitiveVersionScope
 
   before_action :find_form_type, :find_item_type
 
   def index
-    page = params[:per_page] || 20
+    page     = params[:per_page] || 20
+    per_page = page.to_i
 
     if @item_type.present?
       if @form_type.present?
-        @versions = filter_custom_field_versions
+        relation = filter_custom_field_versions
       else
-        @versions = PaperTrail::Version.where(item_type: params[:item_type])
+        relation = PaperTrail::Version.where(item_type: params[:item_type])
       end
     else
-      @versions = PaperTrail::Version.where.not(item_type: exclude_item_type)
+      relation = PaperTrail::Version.where.not(item_type: exclude_item_type)
     end
-    @versions = @versions.order(created_at: :desc).page(params[:page]).per(page)
+    relation = relation.order(created_at: :desc)
+    # Phase 5.3 — for the CustomFieldProperty version surface, drop versions this viewer may not see.
+    # Re-scope to an AR relation by surviving ids so the view's @versions.decorate + Kaminari work
+    # (filter_versions returns an Array; we must NOT hand a PaginatableArray to .decorate). break_glass:[]
+    # (bulk audit, emergency never unlocked). Other item_types paginate unchanged.
+    if @item_type == 'CustomFieldProperty'
+      kept_ids  = SensitiveVersionScope.visible_version_ids(relation, user: current_user, break_glass: [])
+      @versions = PaperTrail::Version.where(id: kept_ids).order(created_at: :desc).page(params[:page]).per(per_page)
+    else
+      @versions = relation.page(params[:page]).per(per_page)
+    end
   end
 
   private

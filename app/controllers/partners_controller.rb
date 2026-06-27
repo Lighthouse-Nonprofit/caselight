@@ -1,4 +1,5 @@
 class PartnersController < AdminController
+  include SensitiveFields  # Phase 5.3
   load_and_authorize_resource
 
   before_action :find_partner,     only:   [:show, :edit, :update, :destroy]
@@ -32,8 +33,14 @@ class PartnersController < AdminController
 
   def show
     custom_field_ids             = @partner.custom_field_properties.pluck(:custom_field_id)
-    @free_partner_forms          = CustomField.partner_forms.not_used_forms(custom_field_ids).order_by_form_title
-    @group_partner_custom_fields = @partner.custom_field_properties.group_by(&:custom_field_id)
+    visible = visible_custom_field_ids_for(@partner)
+    @group_partner_custom_fields = @partner.custom_field_properties
+                                           .where(custom_field_id: visible.to_a)
+                                           .group_by(&:custom_field_id)
+    @free_partner_forms          = CustomField.partner_forms
+                                              .not_used_forms(custom_field_ids)
+                                              .where(id: visible.to_a)
+                                              .order_by_form_title
   end
 
   def edit
@@ -57,9 +64,11 @@ class PartnersController < AdminController
   end
 
   def version
-    page = params[:per_page] || 20
+    page      = params[:per_page] || 20
     @partner  = Partner.find(params[:partner_id])
-    @versions = @partner.versions.reorder(created_at: :desc).page(params[:page]).per(page)
+    relation  = @partner.versions.reorder(created_at: :desc)
+    kept_ids  = SensitiveVersionScope.visible_version_ids(relation, user: current_user, break_glass: [])
+    @versions = relation.where(id: kept_ids).reorder(created_at: :desc).page(params[:page]).per(page.to_i)
   end
 
   private

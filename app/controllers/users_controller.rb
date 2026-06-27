@@ -1,4 +1,5 @@
 class UsersController < AdminController
+  include SensitiveFields  # Phase 5.3
   load_and_authorize_resource
 
   before_action :find_user, only: [:show, :edit, :update, :destroy]
@@ -32,10 +33,19 @@ class UsersController < AdminController
 
   def show
     custom_field_ids          = @user.custom_field_properties.pluck(:custom_field_id)
-    @free_user_forms          = CustomField.user_forms.not_used_forms(custom_field_ids).order_by_form_title
-    @group_user_custom_fields = @user.custom_field_properties.group_by(&:custom_field_id)
+    visible = visible_custom_field_ids_for(@user)
+    # Phase 5.3 — mask UNFILLED user-form titles too (consistency with clients/families/partners);
+    # closes the staff-record form-title metadata leak. No break-glass for User (grants are
+    # Client/Family/Partner-scoped), so emergency_only user forms stay masked for all.
+    @free_user_forms          = CustomField.user_forms.not_used_forms(custom_field_ids).where(id: visible.to_a).order_by_form_title
+    @group_user_custom_fields = @user.custom_field_properties
+                                     .where(custom_field_id: visible.to_a)
+                                     .group_by(&:custom_field_id)
 
     @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: @user))
+    # Phase 5.3 — mask the embedded grid to the CURRENT VIEWER (current_user), NOT @user. respond_to?
+    # guard keeps this order-independent of the client_grid.rb attr_accessor edit.
+    @client_grid.visible_custom_field_ids = visible_custom_field_ids if @client_grid.respond_to?(:visible_custom_field_ids=)
     @results     = @client_grid.scope { |scope| scope.of_case_worker(@user.id) }.assets.size
 
     @client_grid.scope do |scope|
