@@ -14,18 +14,21 @@ CIF.DashboardsIndex = do ->
   _clientGenderChart = ->
     element = $('#client-by-gender')
     data    = $(element).data('content-count')
+    return unless element.length and data?
     report = new CIF.ReportCreator(data, '', '', element)
     report.donutChart()
 
   _clientStatusChart = ->
     element = $('#client-by-status')
     data    = $(element).data('content-count')
+    return unless element.length and data?
     report = new CIF.ReportCreator(data, '', '', element)
     report.pieChart()
 
   _familyType = ->
     element = $('#family-type')
     data    = $(element).data('content-count')
+    return unless element.length and data?
     report = new CIF.ReportCreator(data, '', '', element)
     report.pieChart()
 

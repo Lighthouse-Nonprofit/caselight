@@ -17,7 +17,7 @@
               .ibox-content
                 = ad.hidden_field :domain_id
                 .well
-                  = ad.object.domain.description.html_safe
+                  = sanitize(ad.object.domain.description)
                 .score_option{ data: { 'score-1': domain.score_1_color, 'score-2': domain.score_2_color, 'score-3': domain.score_3_color, 'score-4': domain.score_4_color, 'domain-id': domain.id } }
                   = ad.collection_radio_buttons :score, [%w(1 1), %w(2 2), %w(3 3), %w(4 4)], :first, :last
 

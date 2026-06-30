@@ -75,14 +75,14 @@
                   = t('.response')
                 %td
                   %strong
-                    = @progress_note.response.html_safe
+                    = sanitize(@progress_note.response)
 
               %tr
                 %td.spacing-first-col
                   = t('.additional_notes')
                 %td
                   %strong
-                    = @progress_note.additional_note.html_safe
+                    = sanitize(@progress_note.additional_note)
             - if @progress_note.attachments.any?
               %table.table.table-bordered.attachments
                 %tr
