@@ -152,11 +152,7 @@ module ClientsHelper
   end
 
   def client_custom_fields_list(object)
-    content_tag(:ul, class: 'client-custom-fields-list') do
-      object.custom_fields.uniq.each do |obj|
-        concat(content_tag(:li, obj.form_title))
-      end
-    end
+    content_tag(:ul, safe_join(object.custom_fields.uniq.map { |obj| content_tag(:li, obj.form_title) }), class: 'client-custom-fields-list')
   end
 
   def merged_address(client)

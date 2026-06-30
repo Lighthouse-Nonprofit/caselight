@@ -31,6 +31,6 @@
                       = fa_icon('pencil')
                     = remove_link(domain, {domain_task: domain.tasks_count, assessment_domains_size: domain.assessment_domains.size}, 'margin-left')
             .panel-body
-              %p= domain.description.html_safe
+              %p= sanitize(domain.description)
       .ibox-footer.text-center
         = paginate @domains

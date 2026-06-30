@@ -14,28 +14,17 @@ module FamiliesHelper
       html_tags << "#{I18n.t('datagrid.columns.families.male')} #{'adult'.pluralize(object.male_adult_count.to_i)} : #{object.male_adult_count.to_i}"
     end
 
-    content_tag(:ul, class: 'family-members-list') do
-      html_tags.each do |html_tag|
-        concat content_tag(:li, html_tag)
-      end
-    end
+    content_tag(:ul, safe_join(html_tags.map { |html_tag| content_tag(:li, html_tag) }), class: 'family-members-list')
   end
 
   def family_clients_list(object)
-    content_tag(:ul, class: 'family-clients-list') do
-      object.cases.non_emergency.active.map(&:client).each do |client|
-        concat(content_tag(:li, link_to(entity_name(client), client_path(client))))
-      end
-    end
+    clients = object.cases.non_emergency.active.map(&:client)
+    content_tag(:ul, safe_join(clients.map { |client| content_tag(:li, link_to(entity_name(client), client_path(client))) }), class: 'family-clients-list')
   end
 
   def family_workers_list(object)
-    content_tag(:ul, class: 'family-clients-list') do
-      user_ids = Client.joins(:cases).where(cases: { id: object.ids }).joins(:case_worker_clients).map(&:user_ids).flatten.uniq
-      User.where(id: user_ids).each do |user|
-        concat(content_tag(:li, link_to(entity_name(user), user_path(user))))
-      end
-    end
+    user_ids = Client.joins(:cases).where(cases: { id: object.ids }).joins(:case_worker_clients).map(&:user_ids).flatten.uniq
+    content_tag(:ul, safe_join(User.where(id: user_ids).map { |user| content_tag(:li, link_to(entity_name(user), user_path(user))) }), class: 'family-clients-list')
   end
 
   def family_workers_count(object)

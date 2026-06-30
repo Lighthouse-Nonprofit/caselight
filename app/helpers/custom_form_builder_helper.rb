@@ -15,19 +15,35 @@ module CustomFormBuilderHelper
     errors[field.to_sym].join(', ') if errors[field.to_sym].present?
   end
 
+  # Matches a value that is ENTIRELY a date (optionally whitespace-padded). Anchoring
+  # with \A..\z means free text that merely CONTAINS a date-like substring is left as
+  # typed instead of being silently reformatted (data loss) or 500ing on an invalid date.
+  CUSTOM_PROPERTY_DATE = %r{\A\s*\d{4}[-/]\d{1,2}[-/]\d{1,2}\s*\z}
+
   def display_custom_properties(value)
-    span = content_tag :span do
-      if value =~ /(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})/
-        concat value.to_date.strftime('%B %d, %Y')
-      elsif value.is_a?(Array)
-        value.reject{ |i| i.empty? }.each do |c|
-          concat content_tag(:strong, c, class: 'label label-margin')
-        end
-      else
-        concat value
-      end
+    # Build the span CONTENT as a RETURNED value and pass it to content_tag as an
+    # argument. Do NOT use `content_tag :span do ... concat ... end`: under HAML's
+    # capture, `concat` appends to the OUTER page buffer (the surrounding <td>), so
+    # content_tag snapshots the partially-rendered page into the span -- the reported
+    # "raw HTML" double-render. Array is checked FIRST (Ruby 3.2+ removed Array#=~, so
+    # the old `value =~ /date/` 500'd on multi-select values). safe_join / content_tag
+    # keep the user-entered PII value HTML-ESCAPED (no stored XSS) inside one clean span.
+    if value.is_a?(Array)
+      labels = value.reject { |i| i.to_s.empty? }
+                    .map { |c| content_tag(:strong, c.to_s, class: 'label label-margin') }
+      content_tag(:span, safe_join(labels, ' '))
+    elsif value.is_a?(String) && value.match?(CUSTOM_PROPERTY_DATE)
+      formatted = begin
+                    Date.parse(value.strip).strftime('%B %d, %Y')
+                  rescue Date::Error, ArgumentError
+                    value
+                  end
+      content_tag(:span, formatted)
+    else
+      # safe_join escapes each text segment, then joins with the already-safe <br/> tag:
+      # newline -> <br/> is preserved while the text stays escaped.
+      content_tag(:span, safe_join(value.to_s.split("\n", -1), tag.br))
     end
-    raw(span.gsub("\n",'<br />'))
   end
 
   def custom_field_frequency(frequency, time_of_frequency)
