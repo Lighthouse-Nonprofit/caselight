@@ -3,6 +3,9 @@ class ApplicationController < ActionController::Base
   # Phase 5(d) defense-in-depth: assert the Apartment schema matches the request host.
   # LOG-ONLY until config.x.enforce_tenant_boundary (default OFF) is flipped.
   include TenantBoundary
+  # Phase 5.5 (AC-6) least-privilege SHADOW: LOG-ONLY until config.x.enforce_least_privilege
+  # (default OFF) is flipped -- records what the narrowed ProgressNote/version rules WOULD deny.
+  include LeastPrivilegeShadow
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :null_session, if: proc { |c| c.request.format == 'application/json' }

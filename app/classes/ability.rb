@@ -1,7 +1,18 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(user)
+  # Phase 5.5 (AC-6): a single source of truth for the least-privilege flag. Read here ONLY.
+  def self.least_privilege_enforced?
+    Rails.application.config.x.enforce_least_privilege == true
+  end
+
+  # force_least_privilege is the SHADOW seam: LeastPrivilegeShadow builds a throwaway
+  # Ability.new(user, force_least_privilege: true) to ask "what WOULD the narrowed rules
+  # deny here" while the flag is OFF. Real (current_ability) builds pass nothing, so the
+  # effective decision is the flag alone -> with the flag OFF @narrow is false everywhere
+  # and the compiled CanCan rule set is identical to today.
+  def initialize(user, force_least_privilege: false)
+    @narrow = force_least_privilege || self.class.least_privilege_enforced?
     # Phase 5.3 — the gated assessment_domain attachment download is a custom member action; alias it
     # to :read so CanCan authorizes it via existing read rules. The field-level (domain sensitivity)
     # 403 is enforced inside AssessmentsController#download_attachment, not by CanCan.
@@ -32,7 +43,17 @@ class Ability
       cannot :manage, CustomFieldProperty
 
       can :read, :all
-      can :version, :all
+      # Phase 5.5: strategic_overviewer => NO paper_trail history when enforced (locked decision).
+      # Version history (paper_trail object/object_changes) can carry pre-encryption plaintext that
+      # 5.3 masks on the live record (POAM-SC28-HIST), so it is a masking-bypass channel for an
+      # oversight role that should see standard live fields only. read:all / report:all stay BROAD
+      # (org-wide oversight read is plausibly its need-to-know; 5.3 already masks sensitive fields).
+      can :version, :all unless @narrow
+      # Phase 5.5: the per-record :version removal above does NOT close the ORG-WIDE paper_trail
+      # browse at /data_trackers#index (it is authorized via :read against the empty DataTracker hook
+      # model, NOT :version). Per DP-2 (recommended Option A), close the dashboard too when enforcing.
+      # If the org ratifies the change-audit dashboard as oversight need-to-know, drop this one line.
+      cannot :read, DataTracker if @narrow
       can :report, :all
 
       cannot :manage, CaseNote
@@ -82,7 +103,17 @@ class Ability
       can :manage, Client, status: 'Active EC'
       can :manage, Client, case_worker_clients: { user_id: user.id }
       can :manage, CaseNote
-      can :read, ProgressNote
+      # Phase 5.5: scope ProgressNote read to the role's need-to-know. The role's Client access is a
+      # STATUS-OR-CASELOAD union (status 'Active EC' OR own caseload), so mirror BOTH with two ORed
+      # rules -- caseload-only would deny notes for Active-EC clients the role reaches by program
+      # status (and is already admitted onto the page by find_client's union accessible_by).
+      # ProgressNote belongs_to :client; Client has_many :case_worker_clients.
+      if @narrow
+        can :read, ProgressNote, client: { status: 'Active EC' }
+        can :read, ProgressNote, client: { case_worker_clients: { user_id: user.id } }
+      else
+        can :read, ProgressNote
+      end
       can :manage, Family
       can :manage, Partner
       can :manage, Case, { case_type: 'EC', exited: false }
@@ -106,7 +137,14 @@ class Ability
       can :manage, Client, status: 'Active FC'
       can :manage, Client, case_worker_clients: { user_id: user.id }
       can :manage, CaseNote
-      can :read, ProgressNote
+      # Phase 5.5: scope ProgressNote read to status 'Active FC' OR own caseload (mirrors the role's
+      # two Client rules -- see ec_manager note above for the union rationale).
+      if @narrow
+        can :read, ProgressNote, client: { status: 'Active FC' }
+        can :read, ProgressNote, client: { case_worker_clients: { user_id: user.id } }
+      else
+        can :read, ProgressNote
+      end
       can :manage, Family
       can :manage, Partner
       can :manage, Case, { case_type: 'FC', exited: false }
@@ -131,7 +169,14 @@ class Ability
       can :manage, Client, status: 'Active KC'
       can :manage, Client, case_worker_clients: { user_id: user.id }
       can :manage, CaseNote
-      can :read, ProgressNote
+      # Phase 5.5: scope ProgressNote read to status 'Active KC' OR own caseload (mirrors the role's
+      # two Client rules -- see ec_manager note above for the union rationale).
+      if @narrow
+        can :read, ProgressNote, client: { status: 'Active KC' }
+        can :read, ProgressNote, client: { case_worker_clients: { user_id: user.id } }
+      else
+        can :read, ProgressNote
+      end
       can :manage, Family
       can :manage, Partner
       can :manage, Case, { case_type: 'KC', exited: false }
@@ -154,7 +199,11 @@ class Ability
     elsif user.manager?
       can :manage, AbleScreeningQuestion
       can :create, Client
-      can :manage, Client, case_worker_clients: { user_id: User.where('manager_ids && ARRAY[:user_id]::integer[] OR id = :user_id', { user_id: user.id }).map(&:id) }
+      # Phase 5.5: compute the manager's team-user-id set ONCE and reuse it for BOTH the Client rule
+      # and the new (narrowed) ProgressNote rule, so the two rules cannot drift. Character-identical
+      # to the expression that previously lived inline on the Client rule (pure refactor when OFF).
+      team_ids = User.where('manager_ids && ARRAY[:user_id]::integer[] OR id = :user_id', { user_id: user.id }).map(&:id)
+      can :manage, Client, case_worker_clients: { user_id: team_ids }
       can :manage, User, id: User.where('manager_ids && ARRAY[?]::integer[]', user.id).map(&:id)
       can :manage, User, id: user.id
       can :manage, Case
@@ -170,7 +219,14 @@ class Ability
       can :manage, ClientEnrollment
       can :manage, ClientEnrollmentTracking
       can :manage, LeaveProgram
-      can :read, ProgressNote
+      # Phase 5.5: scope ProgressNote read to the manager's TEAM caseload (reuse team_ids above),
+      # not org-wide. Manager Client access is team-caseload only (no status branch), so a single
+      # narrowed rule matches the Client population exactly.
+      if @narrow
+        can :read, ProgressNote, client: { case_worker_clients: { user_id: team_ids } }
+      else
+        can :read, ProgressNote
+      end
     end
   end
 end
