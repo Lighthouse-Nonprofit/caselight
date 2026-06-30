@@ -41,14 +41,23 @@ module FormBuilderAttachments
   end
 
   def properties_params
-    if controller_name == 'client_enrollments' || controller_name == 'client_enrolled_programs'
-      params[:client_enrollment][:properties]
-    elsif controller_name == 'client_enrollment_trackings' || controller_name == 'client_enrolled_program_trackings'
-      params[:client_enrollment_tracking][:properties]
-    elsif controller_name == 'leave_programs' || controller_name == 'leave_enrolled_programs'
-      params[:leave_program][:properties]
-    elsif controller_name == 'custom_field_properties'
-      params[:custom_field_property][:properties]
-    end
+    raw =
+      if controller_name == 'client_enrollments' || controller_name == 'client_enrolled_programs'
+        params[:client_enrollment][:properties]
+      elsif controller_name == 'client_enrollment_trackings' || controller_name == 'client_enrolled_program_trackings'
+        params[:client_enrollment_tracking][:properties]
+      elsif controller_name == 'leave_programs' || controller_name == 'leave_enrolled_programs'
+        params[:leave_program][:properties]
+      elsif controller_name == 'custom_field_properties'
+        params[:custom_field_property][:properties]
+      end
+    # The dynamic form-field hash arrives as UNPERMITTED ActionController::Parameters (keys vary per
+    # form, so they cannot be statically permitted). Phase 4 Tier 5 made `properties` an encrypted
+    # :json attribute whose AR cast calls #to_h on the assigned value, and #to_h on unpermitted params
+    # raises ActionController::UnfilteredParameters. permit! the whole sub-hash — it is a single JSON
+    # blob (no model-column mass-assignment surface). permit! mutates and returns the SAME object, so
+    # the callers' `properties_params.values.map { ... }` cleanup persists into the later merge (which
+    # `to_unsafe_h` — a fresh copy each call — would not).
+    raw.respond_to?(:permit!) ? raw.permit! : raw
   end
 end
