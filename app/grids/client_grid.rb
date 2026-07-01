@@ -9,7 +9,7 @@ class ClientGrid
   # (clients.status, a plaintext enum, is kept). Alphabetical-by-name display ordering moves to Ruby in
   # `name_sorted_assets` below (mirrors the Tier 2 current_address + Tier 3 UserGrid name-order drops).
   scope do
-    Client.includes({ cases: [:family, :partner] }, :referral_source, :received_by, :followed_up_by, :province, :assessments, :birth_province).order('clients.status')
+    Client.includes({ cases: [:family, :partner] }, { client_enrollments: :program_stream }, :referral_source, :received_by, :followed_up_by, :province, :assessments, :birth_province).order('clients.status')
   end
 
   # In-memory alphabetical-by-name ordering for the encrypted name columns: `assets` returns the

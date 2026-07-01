@@ -1,0 +1,32 @@
+- initials = [object.given_name, object.family_name].map { |p| p.to_s.strip.first }.compact.join.upcase.presence || '?'
+- streams  = object.client_enrollments.map { |ce| ce.program_stream.name if ce.program_stream }.compact.uniq
+- shown    = streams.first(4)
+- extra    = streams.size - shown.size
+%li.record-card-item
+  %article.record-card{ 'aria-labelledby' => "client-card-#{object.id}-name" }
+    .record-card__body
+      .record-card__avatar{ 'aria-hidden' => 'true' }= initials
+      .record-card__ident
+        %h3.record-card__name{ id: "client-card-#{object.id}-name" }
+          = link_to object.name.presence || t('.unknown', default: 'Unknown'), client_path(object), class: 'record-card__name-link'
+        %p.record-card__meta
+          - if object.code.present?
+            %span.record-card__code= object.code
+          - if object.gender.present?
+            %span.record-card__sep{ 'aria-hidden' => 'true' } ·
+            %span.record-card__gender= object.gender.try(:titleize)
+          - if object.slug.present?
+            %span.record-card__sep{ 'aria-hidden' => 'true' } ·
+            %span.record-card__slug= "##{object.slug}"
+        .record-card__status
+          = status_style(object.status.to_s.sub(/\AActive .*/, 'Active'))
+      - if shown.any?
+        %ul.record-card__tags{ 'aria-label' => t('.program_streams', default: 'Program streams') }
+          - shown.each do |name|
+            %li.record-card__tag= name
+          - if extra > 0
+            %li.record-card__tag.record-card__tag--more{ title: streams.join(', ') }= "+#{extra}"
+    %footer.record-card__actions
+      = link_to client_path(object), class: 'btn btn-xs btn-info btn-outline', 'aria-label' => (t('shared.actions.view', default: 'View') + ' ' + (object.name.presence || object.slug.to_s)) do
+        = fa_icon('eye', 'aria-hidden': true)
+      = render partial: 'clients/actions', locals: { object: object }

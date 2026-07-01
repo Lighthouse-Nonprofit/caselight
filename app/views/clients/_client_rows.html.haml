@@ -1,1 +1,3 @@
-= datagrid_rows(@client_grid, @client_grid.assets)
+-# Card-grid redesign retired the datagrid table on clients#index; this partial is no longer
+-# rendered (index.html.haml now iterates @client_grid.assets via clients/_client_card). Kept
+-# inert to avoid a dangling reference; safe to delete entirely.
