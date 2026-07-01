@@ -68,4 +68,4 @@
                         = render 'attachment', { ad: ad }
                   - else
                     %td.reason.text-muted
-                      %em= t('.restricted_not_authorized', default: 'Restricted — not authorized to view')
+                      = restricted_masked_notice

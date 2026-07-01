@@ -52,7 +52,7 @@ class AssessmentsController < AdminController
           'sensitivity_level' => assessment_domain.domain.try(:sensitivity)
         }
       )
-      return render plain: 'Not authorized', status: :forbidden, layout: false
+      return render template: 'errors/403', status: :forbidden, layout: false
     end
     attachment = assessment_domain.attachments[index]
     return render plain: 'Not found', status: :not_found, layout: false if attachment.nil? || attachment.file.nil?
@@ -61,7 +61,7 @@ class AssessmentsController < AdminController
     render plain: 'Not found', status: :not_found, layout: false
   rescue => e
     Rails.logger.error("[assessments#download_attachment] failing closed: #{e.class}: #{e.message}")
-    render plain: 'Not authorized', status: :forbidden, layout: false
+    render template: 'errors/403', status: :forbidden, layout: false
   end
 
   def edit

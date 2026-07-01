@@ -63,9 +63,10 @@ class ApplicationController < ActionController::Base
 
   # Phase 5(a)/AC-3: under the global verify_authorized cutover (Phase 5.6) an action that neither
   # authorized nor opted out raises this. Without a rescue it 500s. We log it and FAIL CLOSED by
-  # rendering a STATIC 403 — NOT redirect_to root_url (root is organizations#index, < ApplicationController;
-  # under check_authorization it would itself raise this, looping forever and locking out every user). A
-  # direct render cannot loop. Inert until config.x.enforce_authorization is flipped.
+  # rendering the value-free errors/403 view with layout: false — NOT redirect_to root_url (root is
+  # organizations#index, < ApplicationController; under check_authorization it would itself raise this,
+  # looping forever and locking out every user). A direct render with no layout cannot loop or
+  # re-trigger auth/masking. Inert until config.x.enforce_authorization is flipped.
   rescue_from CanCan::AuthorizationNotPerformed do |e|
     AccessLog.security_event!(
       event_type: 'authorization_not_performed',
@@ -73,7 +74,7 @@ class ApplicationController < ActionController::Base
       user: current_user,
       metadata: { 'reason' => e.message, 'controller' => controller_path, 'action' => action_name }
     )
-    render plain: 'Not authorized', status: :forbidden, layout: false
+    render template: 'errors/403', status: :forbidden, layout: false
   end
 
   def current_organization

@@ -37,4 +37,23 @@ module SensitivityHelper
     Rails.logger.error("[SensitivityHelper] domain_visible? failed (failing closed): #{e.class}: #{e.message}")
     false
   end
+
+  # --- Masked-field affordances (Phase 5.3/5.4 view vocabulary) ------------------------------------
+  # ONE place for the "this is hidden from you" chrome, so every surface annotates masking the same
+  # way. CHROME ONLY — these never emit a masked value, label, form title, or count of *what* was
+  # hidden beyond a bare tally. Which values are shown vs. hidden is decided upstream by
+  # domain_visible? / visible_custom_field_ids; these only annotate the gap those leave behind.
+
+  # Inline marker for a PARTIALLY masked list (e.g. progress-note goals): " (N restricted hidden)".
+  # Renders nothing when nothing was hidden, so callers need no `if count.positive?` guard.
+  def masked_hidden_notice(hidden_count)
+    count = hidden_count.to_i
+    return '' unless count.positive?
+    content_tag(:em, t('sensitivity.masked.hidden_count', n: count, default: ' (%{n} restricted hidden)'), class: 'text-muted')
+  end
+
+  # Full-cell marker for a row whose values are ENTIRELY masked from this viewer.
+  def restricted_masked_notice
+    content_tag(:em, t('sensitivity.masked.restricted_not_authorized', default: 'Restricted — not authorized to view'))
+  end
 end

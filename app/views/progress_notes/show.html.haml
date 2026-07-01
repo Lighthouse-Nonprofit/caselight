@@ -68,8 +68,7 @@
                       - visible_ads = @progress_note.assessment_domains.includes(:domain).select { |ad| domain_visible?(ad) }
                       - hidden_ad_count = @progress_note.assessment_domains.size - visible_ads.size
                       = visible_ads.map(&:goal).join(', ')
-                      - if hidden_ad_count.positive?
-                        %em.text-muted= " (#{hidden_ad_count} restricted hidden)"
+                      = masked_hidden_notice(hidden_ad_count)
               %tr
                 %td.spacing-first-col
                   = t('.response')
