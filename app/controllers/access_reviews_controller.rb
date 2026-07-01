@@ -21,6 +21,16 @@ class AccessReviewsController < AdminController
                          .map { |(email, rule), evs| { email: email, rule: rule, count: evs.size, last_seen: evs.first.created_at } }
                          .sort_by { |row| [-row[:count], row[:email].to_s] }
 
+    # Phase 5.6 (AC-3) cutover shadow window: surface which (controller, action, role) tuples WOULD fail
+    # the mandatory-authorization check before the org flips config.x.enforce_authorization. Pure AccessLog
+    # context (controller/action/role), no record values. The operator's is-the-allowlist-complete view.
+    @authz_shadow_events  = AccessLog.where(event_type: 'authorization_shadow')
+                                     .order_by(created_at: :desc).limit(200).to_a
+    @authz_shadow_summary = @authz_shadow_events
+                            .group_by { |e| m = e.metadata || {}; [m['controller'], m['action'], m['role']] }
+                            .map { |(controller, action, role), evs| { controller: controller, action: action, role: role, count: evs.size, last_seen: evs.first.created_at } }
+                            .sort_by { |row| [-row[:count], row[:controller].to_s, row[:action].to_s] }
+
     respond_to do |format|
       format.html
       format.csv do

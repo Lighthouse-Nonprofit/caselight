@@ -1,5 +1,11 @@
 module Api
   class CustomFieldsController < AdminController
+    # Phase 5.6 (AC-3) allowlist (only: the AJAX helpers): form-builder metadata helpers --
+    # fetch_custom_fields returns CustomField form titles/entity types; fields returns property KEY names
+    # for one form. Never client record VALUES. RESIDUAL (tracked): fetch_custom_fields enumerates form
+    # taxonomy across tenants (config disclosure, no PII). Also on the TenantBoundary cross-tenant allowlist.
+    skip_authorization_check only: [:fetch_custom_fields, :fields]
+
     def fetch_custom_fields
       render json: find_custom_field_in_organization
     end

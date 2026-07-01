@@ -11,6 +11,11 @@ RSpec.describe AccessAudit, type: :controller do
   # controller_name to "clients" to assert the derived resource_type.
   controller(ApplicationController) do
     include AccessAudit
+    # Phase 5.6 (AC-3): ApplicationController now runs the AuthorizationShadow after_action, which would
+    # log an extra 'authorization_shadow' AccessLog row for this default-open anonymous fixture and skew
+    # the read-logging counts below. Real controllers authorize or skip; mirror that so this concern
+    # spec measures ONLY AccessAudit's read rows.
+    skip_authorization_check
 
     def show
       head :ok

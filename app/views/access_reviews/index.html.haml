@@ -64,3 +64,32 @@
             %td= row[:last_seen]&.strftime('%Y-%m-%d %H:%M')
 - else
   %p.text-muted No shadow divergences recorded yet.
+
+-# Phase 5.6 (AC-3) authorization-cutover SHADOW window. While config.x.enforce_authorization is OFF, lists
+-# -- per controller/action/role -- how often an action WOULD have failed the mandatory-authorization check
+-# (would 403 once the flag is flipped). Review until only expected allowlist/authorized actions appear.
+.row
+  .col-md-12
+    %h4 Authorization-Cutover Shadow (AC-3)
+    %p.text-muted
+      Global authorization cutover shadow window (enforcement OFF). Actions that WOULD fail the mandatory authorization check, by controller/action/role. Review before flipping enforce_authorization.
+- if @authz_shadow_summary.present?
+  .table-responsive
+    %table.table.table-striped.table-condensed
+      %thead
+        %tr
+          %th Controller
+          %th Action
+          %th Role
+          %th Count
+          %th Last Seen
+      %tbody
+        - @authz_shadow_summary.each do |row|
+          %tr
+            %td= row[:controller]
+            %td= row[:action]
+            %td= row[:role]
+            %td= row[:count]
+            %td= row[:last_seen]&.strftime('%Y-%m-%d %H:%M')
+- else
+  %p.text-muted No authorization-cutover divergences recorded yet.

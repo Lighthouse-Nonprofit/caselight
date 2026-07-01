@@ -1,6 +1,11 @@
 class SessionsController < Devise::SessionsController
   include WebauthnRelyingParty
 
+  # Phase 5.6 (AC-3) allowlist: custom two-step-MFA + passkey LOGIN controller. Every action runs while
+  # UNauthenticated or mid-login establishing the session -- no current_user/resource to authorize.
+  # Warden/Devise gate it. AuthN, not AuthZ.
+  skip_authorization_check
+
   before_action :set_whodunnit, :set_current_ngo, :detect_browser
   # The Visit row is recorded only once the user is ACTUALLY signed in — for MFA accounts that is
   # the verify_otp step, not the (deferred) first-factor create; for passkeys, the passkey_callback step.

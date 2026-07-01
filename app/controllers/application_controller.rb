@@ -6,9 +6,20 @@ class ApplicationController < ActionController::Base
   # Phase 5.5 (AC-6) least-privilege SHADOW: LOG-ONLY until config.x.enforce_least_privilege
   # (default OFF) is flipped -- records what the narrowed ProgressNote/version rules WOULD deny.
   include LeastPrivilegeShadow
+  # Phase 5.6 (AC-3) GLOBAL AUTHORIZATION CUTOVER -- SHADOW: LOG-ONLY until config.x.enforce_authorization
+  # (default OFF). Records (controller/action/role only) which actions WOULD fail the mandatory check.
+  include AuthorizationShadow
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :null_session, if: proc { |c| c.request.format == 'application/json' }
+
+  # Phase 5.6 (AC-3): GLOBAL authorization cutover. check_authorization registers a single after_action
+  # that raises CanCan::AuthorizationNotPerformed for any action that neither authorized a resource
+  # (authorize!/load_and_authorize_resource set @_authorized) NOR opted out via skip_authorization_check.
+  # Gated on the EXISTING Phase-5.0 flag (default OFF): flag OFF => the if: predicate is false => the
+  # after_action returns WITHOUT raising => byte-identical to today. Flag ON => the existing static-403
+  # rescue_from catches the raise. The predicate reads config.x live, so the route-smoke can force it ON.
+  check_authorization if: :enforce_authorization?
 
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :find_association, if: :devise_controller?
@@ -66,6 +77,13 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  # Phase 5.6 (AC-3): SHADOW-FIRST switch for the global cutover. True ONLY when the org has flipped
+  # config.x.enforce_authorization. While false, check_authorization's after_action is inert AND the
+  # gated authorize! calls in the four formerly-default-open holes are inert (byte-identical to today).
+  def enforce_authorization?
+    Rails.application.config.x.enforce_authorization == true
+  end
 
   def configure_permitted_parameters
     # Devise 4 (Rails 5) replaced the `.for(scope) << :attr` sanitizer API with

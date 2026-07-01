@@ -4,6 +4,11 @@ class ClientsController < AdminController
   include ClientGridOptions
 
   load_and_authorize_resource find_by: :slug, except: :quantitative_case
+  # Phase 5.6 (AC-3) allowlist (only: [:quantitative_case]): this action is ALREADY excepted from
+  # load_and_authorize_resource above, so under enforcement it would raise unless explicitly skipped. It
+  # returns QuantitativeCase reference/lookup definitions (form-config data, not client PII) to populate a
+  # dropdown. Explicit minimal skip makes the intent deterministic and the hard-CI guard pass.
+  skip_authorization_check only: [:quantitative_case]
 
   before_action :find_client, only: [:show, :edit, :update, :destroy]
   before_action :set_association, except: [:index, :destroy]

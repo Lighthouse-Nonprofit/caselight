@@ -2,6 +2,11 @@ require 'google/apis/calendar_v3'
 require 'signet/oauth_2/client'
 
 class CalendarsController < AdminController
+  # Phase 5.6 (AC-3) allowlist (whole-controller): Google Calendar OAuth + one-way sync. Every action
+  # (redirect/callback/index/sync) operates strictly on current_user / session -- no addressable resource,
+  # no other-user data. Behind authenticate_user! (AdminController).
+  skip_authorization_check
+
   # One-way sync of a user's client Tasks into their Google Calendar via OAuth2.
   # Credentials come from ENV (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); the feature
   # is dormant until those are set and a user enables it (users.calendar_integration).

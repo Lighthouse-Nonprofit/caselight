@@ -1,4 +1,9 @@
 class RegistrationsController < Devise::RegistrationsController
+  # Phase 5.6 (AC-3) allowlist: Devise self-account controller. new/create are hard-disabled; edit/update/
+  # destroy act on the SIGNED-IN user's OWN record via authenticate_scope! (Devise resource == self).
+  # No CanCan resource to authorize.
+  skip_authorization_check
+
   before_action :notify_user, :set_sidebar_basic_info, only: [:edit, :update]
   before_action :set_paper_trail_whodunnit
 

@@ -1,5 +1,9 @@
 module Api
   class ProgramStreamsController < AdminController
+    # Phase 5.6 (AC-3) allowlist (only: the field helpers): return enrollment/tracking/exit property KEY
+    # names (form-structure metadata), never client values. can :read, ProgramStream exists for all roles.
+    skip_authorization_check only: [:enrollment_fields, :tracking_fields, :exit_program_fields]
+
     def enrollment_fields
       program_stream = ProgramStream.find params[:program_stream_id]
       client_enrollment_ids = ClientEnrollment.find_by_program_stream_id(program_stream.id).ids

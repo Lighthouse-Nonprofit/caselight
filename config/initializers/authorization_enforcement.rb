@@ -5,9 +5,12 @@
 # config/initializers/two_factor.rb (enforce_mfa_for_privileged) and the AccessAudit
 # access_logging_enabled flag.
 #
-#  enforce_authorization   => when true, ApplicationController turns on CanCanCan
-#                             check_authorization + after_action :verify_authorized.
-#                             Until then only the LOG-ONLY shadow after_action runs.
+#  enforce_authorization   => when true (Phase 5.6, AC-3), ApplicationController turns on CanCanCan
+#                             check_authorization: every action must authorize a resource or be
+#                             skip_authorization_check'd, else CanCan::AuthorizationNotPerformed -> the
+#                             static-403 rescue. Until then only the LOG-ONLY AuthorizationShadow
+#                             after_action runs. (NB: verify_authorized is a Pundit concept, NOT used here;
+#                             row-level narrowing is the SEPARATE config.x.enforce_least_privilege flag.)
 #  enforce_tenant_boundary => when true, TenantBoundary refuses (HTTP 409) a request
 #                             whose Apartment schema != the host-derived tenant.
 #                             Until then it is LOG-ONLY (security_event 'tenant_mismatch').

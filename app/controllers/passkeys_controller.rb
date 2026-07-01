@@ -16,6 +16,10 @@
 class PasskeysController < AdminController
   include WebauthnRelyingParty
 
+  # Phase 5.6 (AC-3) allowlist: self-service WebAuthn credential management -- every action operates ONLY
+  # on current_user.webauthn_credentials (subject is always self). authenticate_user! gates it.
+  skip_authorization_check
+
   # The JSON ceremony POSTs send X-CSRF-Token from the page meta tag (see the inline JS); the default
   # AdminController forgery protection (raise on mismatch) still applies.
   def show

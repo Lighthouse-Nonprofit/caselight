@@ -1,5 +1,9 @@
 module Api
   class ClientAdvancedSearchesController < AdminController
+    # Phase 5.6 (AC-3) allowlist (whole-controller): AJAX query-builder field-schema descriptors
+    # (AdvancedSearches::*Fields). All five actions return form/field METADATA only, never client values.
+    skip_authorization_check
+
     def get_basic_field
       advanced_filter_fields = AdvancedSearches::ClientFields.new(user: current_user).render
       render json: advanced_filter_fields
