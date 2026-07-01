@@ -1,0 +1,26 @@
+- type_labels = { 'birth_family' => 'Household', 'emergency' => 'Priority Intake', 'foster' => 'Sponsor Household', 'inactive' => 'Closed', 'kinship' => 'Active' }
+- type_label  = type_labels[object.family_type] || object.family_type.to_s.titleize
+- hh          = entity_name(object)
+- initials    = hh.to_s.split(/\s+/).first(2).map { |p| p.to_s.first }.join.upcase.presence || '?'
+%li.record-card-item
+  %article.record-card{ 'aria-labelledby' => "family-card-#{object.id}-name" }
+    .record-card__body
+      .record-card__avatar.record-card__avatar--family{ 'aria-hidden' => 'true' }= initials
+      .record-card__ident
+        %h3.record-card__name{ id: "family-card-#{object.id}-name" }
+          = link_to hh, family_path(object), class: 'record-card__name-link'
+        %p.record-card__meta
+          - if object.code.present?
+            %span.record-card__code= object.code
+          %span.record-card__sep{ 'aria-hidden' => 'true' } ·
+          %span.record-card__id= "##{object.id}"
+          - if object.province.try(:name).present?
+            %span.record-card__sep{ 'aria-hidden' => 'true' } ·
+            %span.record-card__province= object.province.name
+      %ul.record-card__tags{ 'aria-label' => t('.family_meta', default: 'Household details') }
+        %li.record-card__tag.record-card__tag--type= type_label
+        %li.record-card__tag.record-card__tag--count= t('.member_count', default: '%{count} members', count: object.member_count)
+    %footer.record-card__actions
+      = link_to family_path(object), class: 'btn btn-xs btn-info btn-outline', 'aria-label' => (t('shared.actions.view', default: 'View') + ' ' + hh.to_s) do
+        = fa_icon('eye', 'aria-hidden': true)
+      = render partial: 'families/actions', locals: { object: object }

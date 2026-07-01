@@ -1,0 +1,185 @@
+// =============================================================================
+//  base/_refresh.scss  —  CaseLight visual refresh  (final synthesis)
+//  SCSS-only, non-breaking. Imported LAST in wrapbootstrap/style.scss so equal-
+//  specificity rules win by source order (no !important except where reversing
+//  an upstream !important, documented inline).
+// =============================================================================
+$refresh-font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  "Helvetica Neue", Helvetica, Arial, sans-serif;
+$refresh-radius: 4px;
+$refresh-radius-sm: 3px;
+$refresh-radius-pill: 10rem;
+$refresh-shadow-sm: 0 1px 2px rgba(31, 58, 95, 0.06);
+$refresh-shadow: 0 1px 3px rgba(31, 58, 95, 0.08), 0 1px 2px rgba(31, 58, 95, 0.06);
+$refresh-shadow-md: 0 4px 12px rgba(31, 58, 95, 0.10);
+$refresh-focus-ring: 0 0 0 3px rgba(44, 110, 155, 0.35);
+$refresh-border: #e2e6ea;
+
+body {
+  font-family: $refresh-font-stack;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: $refresh-font-stack;
+  font-weight: 600;
+  line-height: 1.25;
+  color: $text-color;
+}
+h1, .h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+h2, .h2 { font-size: 23px; font-weight: 600; letter-spacing: -0.01em; }
+h3, .h3 { font-size: 18px; font-weight: 600; margin-top: 8px; }
+h4, .h4 { font-size: 15px; font-weight: 600; margin-top: 6px; }
+h5, .h5 { font-size: 13px; font-weight: 600; margin-top: 5px; }
+h6, .h6 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+a { color: $lazur; transition: color 0.12s ease-in-out; }
+a:hover, a:active, a:focus { color: darken($lazur, 12%); }
+
+.ibox { margin-bottom: 24px; }
+.ibox-title, .ibox-content, .ibox-footer { border-color: $refresh-border; }
+.ibox-title {
+  border-style: solid; border-width: 1px; border-bottom: none;
+  border-top: 2px solid $refresh-border;
+  border-radius: $refresh-radius $refresh-radius 0 0;
+  padding: 14px 18px; min-height: 49px; box-shadow: $refresh-shadow-sm;
+  h1, h2, h3, h4, h5 { margin-top: 0; margin-bottom: 0; }
+  h5 { font-size: 14px; font-weight: 600; letter-spacing: 0.01em; }
+}
+.ibox-content {
+  border-style: solid; border-width: 0 1px 1px 1px;
+  border-radius: 0 0 $refresh-radius $refresh-radius;
+  padding: 18px 20px 20px; box-shadow: $refresh-shadow;
+}
+.ibox-title:last-child {
+  border-bottom: 1px solid $refresh-border; border-radius: $refresh-radius;
+}
+.ibox-footer { border-top: 1px solid $refresh-border; }
+.panel { border-color: $refresh-border; border-radius: $refresh-radius; box-shadow: $refresh-shadow; }
+.panel-heading { border-radius: $refresh-radius $refresh-radius 0 0; }
+
+.btn {
+  border-radius: $refresh-radius; font-weight: 600;
+  transition: background-color 0.12s ease-in-out, border-color 0.12s ease-in-out,
+    color 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+}
+// Padding restated ONLY on the plain .btn — sized variants (btn-xs/sm/lg) and
+// shape variants (rounded/circle) keep their own bootstrap-sass button-size().
+.btn:not(.btn-xs):not(.btn-sm):not(.btn-lg):not(.btn-rounded):not(.btn-circle) {
+  padding: 7px 14px;
+}
+// Re-fill navy primary + neutralize the .btn-outline.btn-primary login submit
+// (2-class specificity beats single-class .btn-outline — no !important).
+.btn-primary, .btn-primary.btn-outline {
+  background-color: $navy; border-color: $navy; color: #ffffff;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active,
+.btn-primary.btn-outline:hover, .btn-primary.btn-outline:focus, .btn-primary.btn-outline:active {
+  background-color: darken($navy, 5%); border-color: darken($navy, 5%); color: #ffffff;
+}
+// btn-warning: white on $yellow = 1.9:1 FAIL -> navy text on amber = 7.93:1.
+.btn-warning, .btn-warning:hover, .btn-warning:focus, .btn-warning:active,
+.btn-warning.active, .btn-warning.btn-outline:hover { color: #16273D; }
+// btn-danger passes AA via the $red darken in variables.scss (white on #D63653 = 4.65:1).
+
+.form-control, .single-line {
+  border: 1px solid #d9dde2; border-radius: $refresh-radius-sm; padding: 7px 12px;
+  transition: border-color 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+}
+// Branded harbor focus ring via box-shadow. Upstream sets border-color:$navy
+// !important on focus; we keep that navy edge and add the glow (box-shadow has
+// no competing !important, so it wins cleanly).
+.form-control:focus, .single-line:focus {
+  border-color: $navy !important; box-shadow: $refresh-focus-ring;
+}
+.has-error .form-control:focus { border-color: $red !important; box-shadow: 0 0 0 3px rgba(214, 54, 83, 0.30); }
+.has-warning .form-control:focus { border-color: darken($yellow, 8%) !important; box-shadow: 0 0 0 3px rgba(248, 172, 89, 0.32); }
+.has-success .form-control:focus { border-color: $navy !important; box-shadow: $refresh-focus-ring; }
+.input-group-addon { border-radius: $refresh-radius-sm; border-color: #d9dde2; }
+// The borderless 60px navbar search must not get the input ring box.
+.navbar-form-custom .form-control:focus { box-shadow: none; }
+
+.table > thead > tr > th {
+  border-bottom: 2px solid $refresh-border; color: #5a6270; font-weight: 600;
+  font-size: 12px; letter-spacing: 0.03em; text-transform: uppercase; padding: 10px 12px;
+}
+.table > tbody > tr > td, .table > tfoot > tr > td, .table > tbody > tr > th {
+  border-top: 1px solid $refresh-border; padding: 10px 12px;
+}
+.table-hover > tbody > tr:hover, .table-hover > tbody > tr:hover > td, .table-hover > tbody > tr:hover > th {
+  background-color: rgba(44, 110, 155, 0.05);
+}
+.table-bordered > thead > tr > th, .table-bordered > thead > tr > td {
+  background-color: #f6f8fa; border-color: $refresh-border;
+}
+
+.navbar-static-top, .navbar-fixed-top {
+  border-bottom: 1px solid $refresh-border; box-shadow: $refresh-shadow-sm;
+}
+.nav > li > a {
+  color: #b9c3d1; transition: background-color 0.12s ease-in-out, color 0.12s ease-in-out;
+}
+.nav > li.active { border-left: 4px solid $amber; background: darken($nav-bg, 4%); }
+.nav > li.active > a { color: #ffffff; font-weight: 600; }
+.navbar-default .nav > li > a:hover, .navbar-default .nav > li > a:focus {
+  background-color: darken($nav-bg, 4%); color: #ffffff;
+}
+// Matches the theme's own descendant shape (navigation.scss:249).
+.nav-second-level li a { color: #9aa9bd; }
+.nav-header .text-muted { color: #9aa9bd; }
+.dropdown-menu { border-radius: $refresh-radius; box-shadow: $refresh-shadow-md; }
+.dropdown-menu > li > a { border-radius: $refresh-radius-sm; }
+
+.label, .badge {
+  font-family: $refresh-font-stack; border-radius: $refresh-radius-pill;
+  font-weight: 600; letter-spacing: 0.02em;
+}
+.label { padding: 3px 9px; color: #4a4a4a; }
+.badge { padding: 3px 8px; }
+.label-warning, .badge-warning, .label-warning-light, .badge-warning-light { color: #16273D; }
+// label/badge-danger passes AA via the $red darken in variables.scss.
+// Filled colored labels/badges keep legible WHITE text. The .label{color} above is for the light
+// DEFAULT label + form chips only; without this, the dark-bg pills (label-primary "Active" status +
+// the notification count) rendered dark-on-navy = invisible.
+.label-primary, .label-success, .label-info, .label-danger,
+.badge-primary, .badge-success, .badge-info, .badge-danger { color: #ffffff; }
+#side-menu .label-primary { background-color: $amber; color: #16273D; }
+
+// ---- FOCUS STATES: one consistent visible ring; reverses buttons.scss
+//      `.btn:focus{outline:none !important}` (a11y regression). :focus-visible
+//      for keyboard, with a progressive-enhancement drop of the mouse ring.
+a:focus-visible, .btn:focus-visible, button:focus-visible, select:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible, .nav > li > a:focus-visible,
+.dropdown-menu > li > a:focus-visible {
+  outline: 2px solid $lazur; outline-offset: 2px; box-shadow: $refresh-focus-ring;
+}
+.btn:focus, .btn:focus-visible {
+  outline: 2px solid $lazur !important; outline-offset: 2px; box-shadow: $refresh-focus-ring;
+}
+// Where :focus-visible is supported, don't ring a mouse click on buttons. No
+// @supports wrapper — sassc 2.4.0 rejects `@supports selector(...)`; the bare
+// `:not(:focus-visible)` selector compiles fine and is inert on legacy engines.
+.btn:focus:not(:focus-visible) { outline: none !important; box-shadow: none; }
+// On the dark sidebar an amber ring reads better than a faint harbor one.
+.navbar-static-side .nav > li > a:focus-visible, .nav-header a:focus-visible {
+  outline: 2px solid $amber; outline-offset: -2px; box-shadow: none;
+}
+// Inputs already carry the branded box-shadow ring on :focus.
+.form-control:focus-visible, .single-line:focus-visible { outline: 2px solid transparent; }
+@media (prefers-reduced-motion: reduce) {
+  a, .btn, .form-control, .single-line, .nav > li > a { transition: none; }
+}
+
+// ---- LOGIN / DEVISE AUTH CARD (scoped to the session body ids; no markup/logo touched)
+body[id="sessions-new"], body[id="sessions-create"] {
+  .ibox {
+    max-width: 420px; margin-left: auto; margin-right: auto;
+    border-radius: $refresh-radius; box-shadow: $refresh-shadow-md; overflow: hidden;
+  }
+  .ibox-title { border-top: 2px solid $amber; box-shadow: none; border-radius: 0; }
+  .ibox-content { box-shadow: none; border-radius: 0; padding: 22px 26px 26px; }
+  .btn-primary { padding: 9px 14px; font-weight: 600; letter-spacing: 0.01em; }
+}

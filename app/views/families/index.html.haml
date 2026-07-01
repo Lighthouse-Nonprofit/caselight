@@ -18,8 +18,18 @@
       .ibox-title
         %h5= @results
         %span.label.label-info= t('.results')
+        %form.record-cards__sort{ method: 'get', action: families_url, role: 'search', 'aria-label' => t('.sort_label', default: 'Sort households') }
+          - (params[:family_grid] || {}).each do |k, v|
+            - next if %w(order descending).include?(k.to_s)
+            - if v.is_a?(Array)
+              - v.each { |item| concat hidden_field_tag("family_grid[#{k}][]", item) }
+            - else
+              = hidden_field_tag("family_grid[#{k}]", v)
+          %label.sr-only{ for: 'family_grid_order' }= t('.sort_label', default: 'Sort households')
+          = select_tag 'family_grid[order]', options_for_select([[t('.sort_name', default: 'Name'), 'name'], [t('.sort_members', default: 'Members'), 'member_count'], [t('.sort_province', default: 'State'), 'province']], params.dig(:family_grid, :order)), include_blank: t('.sort_default', default: 'Sort by…'), id: 'family_grid_order', class: 'form-control input-sm record-cards__sort-select', onchange: 'this.form.submit()'
       .ibox-content
-        .families-table
-          = datagrid_table @family_grid, html: { class: 'table table-bordered table-striped table-hover families'}
+        %h2#families-list-heading.sr-only= t('.card_list_label', default: 'Households')
+        %ul.record-cards{ role: 'list', 'aria-labelledby' => 'families-list-heading' }
+          = render partial: 'families/family_card', collection: @family_grid.assets, as: :object
       .ibox-footer.text-center
         = paginate @family_grid.assets

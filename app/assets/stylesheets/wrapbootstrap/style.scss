@@ -49,6 +49,10 @@
 // Your custom style to override base style
 @import "base/custom";
 
+// CaseLight visual refresh — MUST load last so its equal-specificity overrides
+// win the cascade over every INSPINIA base/* partial (and base/custom) above.
+@import "base/refresh";
+
 // Clear layout on print mode
 @media print {
   nav.navbar-static-side {

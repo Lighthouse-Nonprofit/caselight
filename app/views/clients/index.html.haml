@@ -40,15 +40,19 @@
       .ibox-title
         %h5= @results
         %span.label.label-info= t('.results')
+        %form.record-cards__sort{ method: 'get', action: clients_url, role: 'search', 'aria-label' => t('.sort_label', default: 'Sort individuals') }
+          - (params[:client_grid] || {}).each do |k, v|
+            - next if %w(order descending).include?(k.to_s)
+            - if v.is_a?(Array)
+              - v.each { |item| concat hidden_field_tag("client_grid[#{k}][]", item) }
+            - else
+              = hidden_field_tag("client_grid[#{k}]", v)
+          %label.sr-only{ for: 'client_grid_order' }= t('.sort_label', default: 'Sort individuals')
+          = select_tag 'client_grid[order]', options_for_select([[t('.sort_status', default: 'Status'), 'status'], [t('.sort_id', default: 'ID'), 'slug'], [t('.sort_age', default: 'Age'), 'age'], [t('.sort_province', default: 'State'), 'province']], params.dig(:client_grid, :order)), include_blank: t('.sort_default', default: 'Sort by…'), id: 'client_grid_order', class: 'form-control input-sm record-cards__sort-select', onchange: 'this.form.submit()'
       .ibox-content
-        .clients-table{ data: { 'info-load' => t('.load'), 'info-end' => t('.end') } }
-          %table.table.table-bordered.table-striped.table-hover.clients
-            %caption.sr-only= t('.grid_caption', default: 'Clients')
-            %thead
-              = datagrid_header(@client_grid)
-            %tbody.page
-              = render 'client_rows'
-
-          %span.hidden{id:"sinfo", 'data-infoshow' => t('.sInfoShow'), 'data-infoto' => t('.sInfoTo'), 'data-infototal' => t('.sInfoTotal')}
+        %h2#clients-list-heading.sr-only= t('.grid_caption', default: 'Clients')
+        %ul.record-cards{ role: 'list', 'aria-labelledby' => 'clients-list-heading', data: { 'info-load' => t('.load'), 'info-end' => t('.end') } }
+          = render partial: 'clients/client_card', collection: @client_grid.assets, as: :object
+        %span.hidden{ id: 'sinfo', 'data-infoshow' => t('.sInfoShow'), 'data-infoto' => t('.sInfoTo'), 'data-infototal' => t('.sInfoTotal') }
       .ibox-footer.text-center
         = paginate @client_grid.assets

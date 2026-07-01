@@ -1,0 +1,12 @@
+// Card-grid redesign: families-index-specific card tweaks. The shared .record-cards /
+// .record-card look is defined once in clients/_cards.scss (scoped to both
+// body[id='clients-index'] and body[id='families-index']). This file only adds the
+// household member-count chip accent (white pill to distinguish it from the amber type chip).
+
+body[id='families-index'] {
+  .record-card__tag--count {
+    color: #4b5563;
+    background: #fff;
+    font-weight: 600;
+  }
+}
