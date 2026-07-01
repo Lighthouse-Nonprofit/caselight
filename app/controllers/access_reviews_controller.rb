@@ -11,6 +11,16 @@ class AccessReviewsController < AdminController
                  .to_a
                  .sort_by { |u| u.name.to_s.downcase } # name is deterministically encrypted (Tier 3) -> sort in memory, never ORDER BY
 
+    # Phase 5.5 (AC-6) shadow window: surface how often each staff member's access WOULD have been
+    # denied by the narrowed rules before the org flips config.x.enforce_least_privilege. Pure
+    # AccessLog context (counts + rule), no record values. Tenant-isolated by AccessLog default_scope.
+    @lp_shadow_events  = AccessLog.where(event_type: 'least_privilege_shadow')
+                                  .order_by(created_at: :desc).limit(200).to_a
+    @lp_shadow_summary = @lp_shadow_events
+                         .group_by { |e| [e.user_email, (e.metadata || {})['rule']] }
+                         .map { |(email, rule), evs| { email: email, rule: rule, count: evs.size, last_seen: evs.first.created_at } }
+                         .sort_by { |row| [-row[:count], row[:email].to_s] }
+
     respond_to do |format|
       format.html
       format.csv do

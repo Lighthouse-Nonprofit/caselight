@@ -37,3 +37,30 @@
           %td= ('yes' if u.respond_to?(:access_locked?) && u.access_locked?)
           %td= ('yes' if u.disable?)
           %td= u.created_at&.strftime('%Y-%m-%d')
+
+-# Phase 5.5 (AC-6) least-privilege SHADOW window. While config.x.enforce_least_privilege is OFF,
+-# this lists -- per staff member + rule -- how often the narrowed ProgressNote/version rules WOULD
+-# have denied access. Validation evidence to review BEFORE flipping the flag. Counts only, no records.
+.row
+  .col-md-12
+    %h4 Least-Privilege Shadow Divergences
+    %p.text-muted
+      AC-6 shadow window (enforcement OFF). How often the narrowed rules WOULD have denied access, per staff member. Review before enabling enforcement.
+- if @lp_shadow_summary.present?
+  .table-responsive
+    %table.table.table-striped.table-condensed
+      %thead
+        %tr
+          %th User
+          %th Rule
+          %th Count
+          %th Last Seen
+      %tbody
+        - @lp_shadow_summary.each do |row|
+          %tr
+            %td= row[:email]
+            %td= row[:rule]
+            %td= row[:count]
+            %td= row[:last_seen]&.strftime('%Y-%m-%d %H:%M')
+- else
+  %p.text-muted No shadow divergences recorded yet.
