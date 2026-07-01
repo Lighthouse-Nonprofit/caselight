@@ -10,7 +10,11 @@ Rails.application.routes.draw do
   get   'admin/enforcement_settings', to: 'enforcement_settings#show',   as: :enforcement_settings
   patch 'admin/enforcement_settings', to: 'enforcement_settings#update'
 
-  devise_for :users, controllers: { registrations: 'registrations', sessions: 'sessions', passwords: 'passwords' }
+  # password_expired -> the app's thin PasswordExpiredController (< Devise::PasswordExpiredController) so it
+  # matches the other custom devise controllers here: skip_authorization_check satisfies the Phase-5.6
+  # coverage guard the same way sessions/registrations/passwords do. The route auto-emits once
+  # :password_expirable is on the User model; this maps it to the app subclass.
+  devise_for :users, controllers: { registrations: 'registrations', sessions: 'sessions', passwords: 'passwords', password_expired: 'password_expired' }
 
   # Second-factor (TOTP / recovery code) step of the two-stage login (FedRAMP IA-2(1)). Reachable only
   # mid-login, after a correct password for an MFA-enabled account (see SessionsController#create).

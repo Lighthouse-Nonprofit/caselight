@@ -1,3 +1,8 @@
+-# Resilience: this shared layout partial is rendered on EVERY authenticated page, but @notification
+-# is only assigned by AdminController/RegistrationsController before_actions. Controllers that inherit
+-# ApplicationController directly (e.g. devise-security's Devise::PasswordExpiredController) render the
+-# layout without it, which 500'd on @notification.all_count. Build it from current_user when unset.
+- @notification ||= UserNotification.new(current_user)
 - if current_user.calendar_integration?
   = link_to calendars_path, title: 'Google Calendar', 'aria-label': t('shared.actions.google_calendar', default: 'Google Calendar'), class: 'notification-text-color' do
     %i.fa.fa-calendar-plus-o.fa-fw{"aria-hidden" => "true"}

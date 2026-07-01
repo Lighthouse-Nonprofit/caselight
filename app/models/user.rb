@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
   # FedRAMP IA-2(1) / IA-5 / AC-7 / AC-12, SC-28.
   devise :two_factor_authenticatable, :two_factor_backupable, :registerable,
          :recoverable, :rememberable, :trackable, :secure_validatable,
-         :lockable, :timeoutable, :password_archivable
+         :lockable, :timeoutable, :password_archivable, :password_expirable
 
   # --- MFA helpers ---
   # Whether this account has TOTP two-factor enabled (i.e. completed enrollment).
@@ -31,6 +31,52 @@ class User < ActiveRecord::Base
   # config flag that defaults OFF, so this is informational until the org switches enforcement on.
   def mfa_privileged?
     roles == 'admin' || roles.to_s.include?('manager')
+  end
+
+  # === Runtime-enforcing security toggles (per-tenant, fail-safe to Devise config) ===================
+  # Each reads the CURRENT Apartment tenant's EnforcementSetting via the tenant-keyed request memo and
+  # falls back to the Devise config default when unset/blank/error. With no row/blank column every one of
+  # these is byte-identical to today.
+
+  # Toggle 2 (AC-12 idle-session timeout). Devise Timeoutable calls this INSTANCE method per user
+  # (Devise::Models::Timeoutable#timeout_in). Blank/error => super => self.class.timeout_in => 30 min.
+  # Range 1..1440 is enforced at write, so a bad value can never be stored.
+  def timeout_in
+    mins = EnforcementSetting.effective_value(:idle_timeout_minutes, config_default: nil)
+    mins.present? ? mins.to_i.minutes : super
+  end
+
+  # Toggle 3 (AC-7 lockout). Devise Lockable reads these at the CLASS level
+  # (Devise::Models::Lockable::ClassMethods). super reaches the Devise config reader (10 / 1.hour).
+  # ADMIN-BRICK FLOOR: maximum_attempts clamps to >= LOCKOUT_ATTEMPTS_FLOOR (3) even if a bad value
+  # reached the DB (the model also validates >= 3, so it can't be persisted through the panel).
+  def self.maximum_attempts
+    v = EnforcementSetting.effective_value(:lockout_max_attempts, config_default: nil)
+    v.present? ? [v.to_i, EnforcementSetting::LOCKOUT_ATTEMPTS_FLOOR].max : super
+  end
+
+  def self.unlock_in
+    mins = EnforcementSetting.effective_value(:lockout_unlock_in_minutes, config_default: nil)
+    mins.present? ? mins.to_i.minutes : super
+  end
+
+  # Toggle 4 (IA-5 password max age). devise-security :password_expirable provides the whole feature —
+  # before_save stamping of password_changed_at on encrypted_password change, need_change_password? /
+  # password_expired?, the auto-included handle_password_change before_action (already on every controller
+  # today, inert), and Devise::PasswordExpiredController + view + route. We ONLY override the config reader.
+  #
+  # SHIP-BLOCKER NEUTRALIZER: the gem's GLOBAL default is Devise.expire_password_after == 3.months
+  # (verified in the container). Returning FALSE when unset makes password_expiration_enabled? false =>
+  # need_change_password? false => zero redirects (feature OFF); WITHOUT this, enabling the module would
+  # force-expire EVERY user on their next login.
+  #
+  # FOOTGUN NOTE: the gem's `with_expired_password` / `without_expired_password` class scopes call
+  # `expire_password_after.seconds` and will raise NoMethodError (false.seconds) while expiry is OFF. They
+  # are never called by the app or by devise-security internals today; guard any future caller with a
+  # positive day count or password_expiration_enabled? before invoking them.
+  def self.expire_password_after
+    days = EnforcementSetting.effective_value(:password_max_age_days, config_default: nil)
+    days.present? ? days.to_i.days : false
   end
 
   has_paper_trail
