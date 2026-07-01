@@ -104,7 +104,7 @@ group :development, :test do
   # Test stack bumped for Rails 7.0 / Ruby 3.3 (the old caps don't support either):
   gem 'rspec-rails', '~> 8.0'        # was ~> 3.5 -> 6.0 -> 8.0 (PR #20); needs config.fixture_paths (done)
   gem 'factory_bot_rails', '~> 6.0'  # was ~> 4.8
-  gem 'launchy',              '~> 2.4', '>= 2.4.3'
+  gem 'launchy',              '~> 3.1'
   gem 'capybara',             '~> 3.0' # was ~> 2.5
   # poltergeist (~> 1.9.0) removed: PhantomJS is dead and the gem doesn't run on Ruby 3.3. The
   # feature specs that used it were already deferred to a cuprite port (see REMOVED-FEATURES.md).
