@@ -1,7 +1,9 @@
 %div{ class: "form-group i-checks #{field_with(field_props['label'],errors)}" }
-  %label.control-label{ class: required?(field_props['required'] || false) }
-    %abbr{ title: 'required' }= '*' if field_props['required'] || false
+  - _gid = field_id_for(f, field_props['label'])
+  %label.control-label{ id: "#{_gid}_label", class: required?(field_props['required'] || false) }
+    %abbr{ title: t('shared.fields.required', default: 'required'), 'aria-hidden': 'true' }= '*' if field_props['required'] || false
     = field_props['label']
-  = f.input field_props['label'], collection: field_props['values'].map { |f| [f['label'], f['label']] }, as: :check_boxes, required: (field_props['required'] || false), label: false, input_html: { name: "#{f.object_name}[#{field_props['label']}][]", title: field_props['description']}
-  %span.help-block
+  %div{ role: 'group', 'aria-labelledby': "#{_gid}_label", 'aria-describedby': "#{_gid}_help", 'aria-required': ((field_props['required'] || false) ? 'true' : nil) }
+    = f.input field_props['label'], collection: field_props['values'].map { |f| [f['label'], f['label']] }, as: :check_boxes, required: (field_props['required'] || false), label: false, input_html: { name: "#{f.object_name}[#{field_props['label']}][]", title: field_props['description']}
+  %span.help-block{ id: "#{_gid}_help" }
     = field_message(field_props['label'], errors)

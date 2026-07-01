@@ -1,11 +1,12 @@
 %div{data: {used: "#{f.object.file.any?}"}}
+  - _fid = "fbattach_#{property['name']}".tr('^-a-zA-Z0-9:.', '_')
   = f.input :name, as: :hidden, input_html: { name: "#{entity.object_name}[form_builder_attachments_attributes][#{property['name'].split('-').last}][name]", value: property['label'] }
-  %label.control-label
-    %abbr{ title: 'repuired' }
+  %label.control-label{ for: _fid }
+    %abbr{ title: t('shared.fields.required', default: 'required'), 'aria-hidden': 'true' }
       = '*' if property['required'].present? && f.object.file.empty?
     = property['label']
-  = f.input :file, as: :file, label: false, required: property['required'].present?, input_html: { name: "#{entity.object_name}[form_builder_attachments_attributes][#{property['name'].split('-').last}][file][]", multiple: property['multiple'].present? }
-  %span.help-block.hidden
+  = f.input :file, as: :file, label: false, required: property['required'].present?, input_html: { name: "#{entity.object_name}[form_builder_attachments_attributes][#{property['name'].split('-').last}][file][]", multiple: property['multiple'].present?, id: _fid, 'aria-describedby': "#{_fid}_help", 'aria-required': (property['required'].present? ? 'true' : nil) }
+  %span.help-block.hidden{ id: "#{_fid}_help" }
     =t('cannot_be_blank')
   %p
     %i.small="#{t('.allow_file_size')} (.jpg, .jpeg, .png, .doc, .docx, .xls, .xlsx, .pdf)"

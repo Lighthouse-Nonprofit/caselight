@@ -1,5 +1,7 @@
 - if grid.html_columns(*options[:columns]).any?
   = content_tag :table, options[:html] do
+    - caption_text = options[:caption] || grid.class.name.underscore.humanize
+    %caption.sr-only= caption_text
     %thead.head-width
       = datagrid_header(grid, options)
     %tbody

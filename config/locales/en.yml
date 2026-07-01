@@ -679,6 +679,7 @@ en:
       tracking: Tracking
       quantitative: Quantitative Type
     index:
+      grid_caption: Client search results
       client_column: Client basic columns
       custom_form_column: Custom form columns
       program_stream_column: Program stream columns
@@ -1001,6 +1002,7 @@ en:
     index:
       add_new_client: Add New Individual
       advanced_search: Advanced Search
+      grid_caption: Clients
       assessments: Assessments
       case_statistics: Case Statistics
       client_amount: Client Amounts
@@ -3156,6 +3158,25 @@ en:
   review_problem: 'Please review the problems below:'
   save: Save
   shared:
+    fields:
+      required: required
+    actions:
+      edit: Edit
+      delete: Delete
+      delete_attachment: Delete attachment
+      view: View
+      preview: Preview
+      copy: Copy
+      download: Download
+      filter: Toggle search filters
+      lock: Disable user
+      unlock: Enable user
+      collapse: Collapse panel
+      fullscreen: Toggle fullscreen
+      toggle_menu: Toggle navigation menu
+      account_menu: Account menu
+      notifications: Notifications
+      google_calendar: Google Calendar
     form_builder:
       list_attachment:
         are_you_sure: Are you sure you want to delete?
