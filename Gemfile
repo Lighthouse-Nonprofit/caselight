@@ -39,7 +39,7 @@ gem 'webauthn', '~> 3.4'
 gem 'haml', '~> 5.2'
 gem 'haml-rails', '~> 2.0'
 gem 'dotenv-rails', '~> 2.2'
-gem 'roo',                    '~> 2.2'
+gem 'roo',                    '~> 3.0'
 # Ruby 3.4+/4.0 dropped csv from the default gems; roo (and CSV report exports)
 # require it, so it must be an explicit dependency now (Ruby 4 migration).
 gem 'csv'
