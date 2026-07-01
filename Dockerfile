@@ -10,8 +10,10 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Node is needed only for execjs asset precompilation. Binary tarball keeps the
-# version pinned and independent of apt.
-RUN curl -fsSL https://nodejs.org/dist/v8.17.0/node-v8.17.0-linux-x64.tar.xz \
+# version pinned and independent of apt. Pinned to Node 24 "Krypton" — the current
+# active LTS (supported into 2028). Bump within an active LTS line at each refresh;
+# do NOT drift back to an EOL line.
+RUN curl -fsSL https://nodejs.org/dist/v24.18.0/node-v24.18.0-linux-x64.tar.xz \
       | tar -xJ -C /usr/local --strip-components=1
 
 WORKDIR /app
