@@ -32,6 +32,11 @@ module TenantBoundary
     return if expected.nil?
     return if tenant_matches?(expected, current)
 
+    # Phase 5 capstone: resolve the effective flag ONCE (persisted per-tenant override else config.x boot
+    # default; fails SAFE to config.x = OFF) so the logged `enforced` metadata matches the actual gate.
+    enforced = EnforcementSetting.enabled?(:enforce_tenant_boundary,
+                                           config_default: Rails.application.config.x.enforce_tenant_boundary == true)
+
     AccessLog.security_event!(
       event_type: 'tenant_mismatch',
       request: request,
@@ -41,11 +46,11 @@ module TenantBoundary
         'current_tenant'  => current,
         'controller'      => controller_path,
         'action'          => action_name,
-        'enforced'        => !!Rails.application.config.x.enforce_tenant_boundary
+        'enforced'        => enforced
       }
     )
 
-    return unless Rails.application.config.x.enforce_tenant_boundary
+    return unless enforced
     self.response_body = nil
     head :conflict
   rescue StandardError => e

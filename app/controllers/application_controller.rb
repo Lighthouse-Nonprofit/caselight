@@ -21,6 +21,10 @@ class ApplicationController < ActionController::Base
   # rescue_from catches the raise. The predicate reads config.x live, so the route-smoke can force it ON.
   check_authorization if: :enforce_authorization?
 
+  # Belt-and-suspenders: RequestStore's Rack middleware clears its store each request, but a defensive
+  # per-request reset guarantees the enforcement-flag memo can never leak across requests on a pooled
+  # thread (tenant-keyed too). Cheap: a single Hash#delete of one key.
+  before_action { EnforcementSetting.clear_cache! }
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :find_association, if: :devise_controller?
   before_action :set_locale
@@ -82,7 +86,12 @@ class ApplicationController < ActionController::Base
   # config.x.enforce_authorization. While false, check_authorization's after_action is inert AND the
   # gated authorize! calls in the four formerly-default-open holes are inert (byte-identical to today).
   def enforce_authorization?
-    Rails.application.config.x.enforce_authorization == true
+    # Phase 5 capstone: read the PERSISTED per-tenant override if set, else the config.x boot default.
+    # EnforcementSetting.enabled? fails SAFE to the config.x default (OFF) on any store error, so this
+    # predicate can never accidentally turn enforcement ON. With no override row it returns exactly the
+    # config.x value the route-smoke spec forces -> no Phase-5 regression.
+    EnforcementSetting.enabled?(:enforce_authorization,
+                                config_default: Rails.application.config.x.enforce_authorization == true)
   end
 
   def configure_permitted_parameters

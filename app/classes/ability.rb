@@ -3,7 +3,12 @@ class Ability
 
   # Phase 5.5 (AC-6): a single source of truth for the least-privilege flag. Read here ONLY.
   def self.least_privilege_enforced?
-    Rails.application.config.x.enforce_least_privilege == true
+    # Phase 5 capstone: persisted per-tenant override if set, else the config.x boot default. Fails SAFE
+    # to config.x (OFF) on any store error. `Ability#initialize` reads this once per build (current_ability
+    # is per-request) -> a flip takes effect on the NEXT request's Ability. The force_least_privilege:
+    # SHADOW seam is untouched (the shadow still builds a throwaway narrowed ability regardless).
+    EnforcementSetting.enabled?(:enforce_least_privilege,
+                                config_default: Rails.application.config.x.enforce_least_privilege == true)
   end
 
   # force_least_privilege is the SHADOW seam: LeastPrivilegeShadow builds a throwaway

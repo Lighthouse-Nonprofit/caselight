@@ -23,7 +23,8 @@ RSpec.describe 'Phase 5.6 authorization coverage guard', type: :request do
     'client_advanced_searches'     => %w[index],         # 5.6: authorize! :read, Client (flag-gated)
     'api/form_builder_attachments' => %w[destroy],       # 5.6: authorize! :update, @attachment.form_buildable (flag-gated)
     'papertrail_queries'           => %w[index],         # 5.6: authorize! :read, DataTracker
-    'notifications'                => %w[index]           # 5.6: authorize! :read, Notification
+    'notifications'                => %w[index],          # 5.6: authorize! :read, Notification
+    'enforcement_settings'         => %w[show update]     # Phase 5 capstone: authorize! :manage, EnforcementSetting (in-body before_action + explicit)
   }.freeze
 
   KNOWN_ORPHAN_CONTROLLERS = %w[able_screens/answer_submissions/clients].freeze

@@ -120,3 +120,14 @@
             = link_to data_trackers_path do
               = fa_icon('area-chart')
               %span.nav-label= t('.changelogs')
+        -# Phase 5 capstone — admin-only AC-2/AC-3 security surfaces. Both gated on the SAME :manage that the
+        -# enforcement-settings controller authorizes, so only admin sees them (no new role checks needed).
+        - if can? :manage, EnforcementSetting
+          %li{ class: active_menu('access_reviews') }
+            = link_to access_review_path do
+              = fa_icon('check-square-o')
+              %span.nav-label= t('.access_review')
+          %li{ class: active_menu('enforcement_settings') }
+            = link_to enforcement_settings_path do
+              = fa_icon('shield')
+              %span.nav-label= t('.enforcement_settings')

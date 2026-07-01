@@ -23,8 +23,11 @@ module AuthorizationShadow
   private
 
   def detect_unauthorized_action
-    # Once enforcing, check_authorization is the live mechanism -- no shadow, no double-handling.
-    return if Rails.application.config.x.enforce_authorization == true
+    # Once enforcing, check_authorization is the live mechanism -- no shadow, no double-handling. Read the
+    # SAME resolved predicate the enforcement gate reads (persisted override else config.x) so a UI flip to
+    # ON stops the shadow logging -> no split-brain (enforcing via the store but still shadow-logging).
+    return if EnforcementSetting.enabled?(:enforce_authorization,
+                                          config_default: Rails.application.config.x.enforce_authorization == true)
     # The EXACT condition check_authorization will test when flipped ON.
     return if instance_variable_defined?(:@_authorized)
 
