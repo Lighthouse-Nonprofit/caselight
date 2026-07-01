@@ -47,7 +47,8 @@
                     - if k == 'enrollment' || k == 'exit_program'
                       - next if v[0] == '{}' || v[0] == {} || v[0] == '[]'
                       - if v[0].present?
-                        - v[0].class == String ? values = eval(v[0]) : values = v[0]
+                        - values = SafeVersionValue.parse(v[0]) || v[0]
+                        - next unless values.respond_to?(:each_with_index)
                         - values.each_with_index do |value, fields_index|
                           - index = 1
                           - value.each do |key, value|
@@ -70,7 +71,8 @@
                   %td.col-sm-4.truncate
                     - if k == 'enrollment' || k == 'exit_program'
                       - if v[1].present? && (v[1] != '{}' || v[1] != {} || v[1] != '[]')
-                        - v[1].class == String ? values = eval(v[1]) : values = v[1]
+                        - values = SafeVersionValue.parse(v[1]) || v[1]
+                        - next unless values.respond_to?(:each_with_index)
                         - values.each_with_index do |value, fields_index|
                           - index = 1
                           - value.each do |key, value|

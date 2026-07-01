@@ -45,9 +45,9 @@
                     = version_attribute(k, version.item_type)
                   %td.col-sm-4.truncate
                     - if k == 'properties'
-                      - values = v[0]
-                      - values = eval(v[0]) if v[0].class == String
+                      - values = SafeVersionValue.parse(v[0]) || v[0]
                       - next if values == '{}'
+                      - next unless values.respond_to?(:each)
                       - if values.present?
                         %ul
                           - values.each do |key, value|
@@ -56,8 +56,8 @@
                               = display_custom_properties(value)
                     - elsif k == 'fields'
                       - if v[0].present?
-                        - values = v[0]
-                        - values = eval(v[0]) if v[0].class == String
+                        - values = SafeVersionValue.parse(v[0]) || v[0]
+                        - next unless values.respond_to?(:each_with_index)
                         - values.each_with_index do |value, fields_index|
                           - index = 1
                           - value.each do |key, value|
@@ -66,7 +66,7 @@
                                 %li="#{key}: #{value}"
                               - index += 1
                             - else
-                              - unless key == 'values'
+                              - unless key.to_sym == :values
                                 %ul
                                   %li
                                     ="#{key}: #{value}"
@@ -74,9 +74,9 @@
                       = version_value_format(v[0], k, v)
                   %td.col-sm-4.truncate
                     - if k == 'properties'
-                      - values = v[1]
-                      - values = eval(v[1]) if v[1].class == String
+                      - values = SafeVersionValue.parse(v[1]) || v[1]
                       - next if values == '{}'
+                      - next unless values.respond_to?(:each)
                       - if values.present?
                         %ul
                           - values.each do |key, value|
@@ -85,8 +85,8 @@
                               = display_custom_properties(value)
                     - elsif k == 'fields'
                       - if v[1].present? && (v[1] != '{}' || v[1] != {})
-                        - values = v[1]
-                        - values = eval(v[1]) if v[1].class == String
+                        - values = SafeVersionValue.parse(v[1]) || v[1]
+                        - next unless values.respond_to?(:each_with_index)
                         - values.each_with_index do |value, fields_index|
                           - index = 1
                           - value.each do |key, value|
@@ -95,7 +95,7 @@
                                 %li="#{key}: #{value}"
                               - index += 1
                             - else
-                              - unless key == 'values'
+                              - unless key.to_sym == :values
                                 %ul
                                   %li
                                     ="#{key}: #{value}"
