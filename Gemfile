@@ -17,7 +17,7 @@ gem 'jquery-ui-rails'
 # sass-rails 5.1.0 relaxed the railties cap to allow Rails 6 while still using ruby-sass
 # (the sprockets engine), so the legacy bourbon/neat/bootstrap-sass scss keeps compiling —
 # avoids migrating to sassc (sass-rails 6), which those old libraries don't support.
-gem 'sass-rails', '~> 5.1.0'
+gem 'sass-rails', '~> 6.0.0'
 gem 'sprockets', '~> 3.7'
 # Terser (ES2015+-native JS minifier) replaced uglifier in Unit 11: uglifier wraps the
 # ES5-only UglifyJS and cannot minify modern vendored JS (Chart.js v4's getters/arrows/const),
