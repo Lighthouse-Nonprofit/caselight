@@ -19,6 +19,27 @@ class EnforcementSetting < ApplicationRecord
   # The exact set of flags this store overlays. An unknown flag is a programming error, not a silent miss.
   FLAGS = %i[enforce_authorization enforce_least_privilege enforce_tenant_boundary].freeze
 
+  # NEW boolean three-state setting that rides the SAME enabled? path as FLAGS but is NOT part of FLAGS,
+  # so the shadow-rendering view loop + compute_changes iteration over FLAGS are untouched. require_mfa's
+  # config default is FALSE (today = only mfa_privileged? users are nudged).
+  BOOL_EXTRA = %i[require_mfa].freeze
+
+  # NEW value settings (minutes / count / days). NULL/blank => the Devise config default (fail-safe = today).
+  # These do NOT go through enabled? (which is boolean); they go through effective_value.
+  VALUE_SETTINGS = %i[idle_timeout_minutes lockout_max_attempts lockout_unlock_in_minutes password_max_age_days].freeze
+
+  # HARD lockout floor (AC-7 admin-brick prevention): fewer than 3 attempts would lock an admin after a
+  # couple of typos. REJECTED at write (validation below) AND clamped at read (User.maximum_attempts uses
+  # [v, LOCKOUT_ATTEMPTS_FLOOR].max) so even a hand-edited/console row can never lock after 1-2 failures.
+  LOCKOUT_ATTEMPTS_FLOOR = 3
+
+  # Range validation so a bad value can NEVER be stored (update! raises RecordInvalid -> the panel
+  # re-renders with the error rather than bricking auth). allow_nil keeps the three-state "unset => default".
+  validates :idle_timeout_minutes,      numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 1440 }, allow_nil: true
+  validates :lockout_max_attempts,      numericality: { only_integer: true, greater_than_or_equal_to: LOCKOUT_ATTEMPTS_FLOOR, less_than_or_equal_to: 100 }, allow_nil: true
+  validates :lockout_unlock_in_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 5, less_than_or_equal_to: 1440 }, allow_nil: true
+  validates :password_max_age_days,     numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 3650 }, allow_nil: true
+
   belongs_to :updated_by, class_name: 'User', optional: true
 
   # Resolve a flag to its EFFECTIVE boolean: persisted override if the row carries a non-nil value for it,
@@ -62,7 +83,14 @@ class EnforcementSetting < ApplicationRecord
 
     { enforce_authorization: row.enforce_authorization,
       enforce_least_privilege: row.enforce_least_privilege,
-      enforce_tenant_boundary: row.enforce_tenant_boundary }
+      enforce_tenant_boundary: row.enforce_tenant_boundary,
+      # new three-state boolean (rides enabled?)
+      require_mfa: row.require_mfa,
+      # new integer VALUE settings (ride effective_value)
+      idle_timeout_minutes: row.idle_timeout_minutes,
+      lockout_max_attempts: row.lockout_max_attempts,
+      lockout_unlock_in_minutes: row.lockout_unlock_in_minutes,
+      password_max_age_days: row.password_max_age_days }
   rescue StandardError => e
     Rails.logger.error("[EnforcementSetting] load_overrides failed (fail-safe -> config default): #{e.class}: #{e.message}")
     {}
@@ -96,5 +124,39 @@ class EnforcementSetting < ApplicationRecord
   # The EFFECTIVE state (override applied) for display + audit-diff. Uses the SAME resolver as the gate.
   def effective(flag)
     self.class.enabled?(flag, config_default: self.class.config_default_for(flag))
+  end
+
+  # Resolve a VALUE setting to its EFFECTIVE integer: the persisted override if the row carries a
+  # non-blank value, ELSE the caller-supplied config_default. MIRRORS enabled? exactly: per-request
+  # memoized via the SAME tenant-keyed current_override, and FAILS SAFE to config_default on ANY error.
+  # Never raises. Never auto-seeds (current_override is read-only).
+  #
+  #   EnforcementSetting.effective_value(:idle_timeout_minutes,
+  #     config_default: EnforcementSetting.config_default_for_value(:idle_timeout_minutes))
+  def self.effective_value(key, config_default:)
+    override = current_override(key) # per-request memoized; Integer / nil
+    return config_default if override.blank?
+
+    Integer(override)
+  rescue StandardError => e
+    Rails.logger.error("[EnforcementSetting] effective_value(#{key}) failed (fail-safe -> config default): #{e.class}: #{e.message}")
+    config_default
+  end
+
+  # The Devise config default for a VALUE setting in its NATIVE unit (minutes / count / days) — the SINGLE
+  # key->Devise mapping, reused by the User overrides' fallback and the panel's placeholder hints.
+  # password_max_age_days has NO Devise expiry concept => nil (unset = OFF).
+  def self.config_default_for_value(key)
+    case key
+    when :idle_timeout_minutes      then (Devise.timeout_in.to_i / 60)
+    when :lockout_max_attempts      then Devise.maximum_attempts
+    when :lockout_unlock_in_minutes then (Devise.unlock_in.to_i / 60)
+    when :password_max_age_days     then nil
+    end
+  end
+
+  # EFFECTIVE value (override applied) for display + audit. Same resolver as the runtime reads.
+  def effective_value(key)
+    self.class.effective_value(key, config_default: self.class.config_default_for_value(key))
   end
 end

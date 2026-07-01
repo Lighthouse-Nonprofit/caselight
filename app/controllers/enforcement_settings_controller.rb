@@ -31,48 +31,72 @@ class EnforcementSettingsController < AdminController
     authorize! :manage, EnforcementSetting # explicit per-action authorize (defense-in-depth; also the guard's contract)
     @setting = EnforcementSetting.instance # WRITE path: lazily create the row on first flip
 
-    changes = compute_changes(@setting, flag_params)
+    changes = compute_changes(@setting, setting_params)
 
-    @setting.update!(flag_params.merge(updated_by_id: current_user.id))
-    EnforcementSetting.clear_cache! # this-request + next-request reads reflect the flip promptly
+    @setting.update!(setting_params.merge(updated_by_id: current_user.id))
+    EnforcementSetting.clear_cache! # this-request + next-request reads reflect the change promptly
 
     audit_flag_changes(changes) if changes.any?
 
     redirect_to enforcement_settings_path,
                 notice: t('enforcement_settings.flash.updated', default: 'Enforcement settings saved for this organization.')
+  rescue ActiveRecord::RecordInvalid => e
+    # A bad value (e.g. lockout below the floor of 3, or an out-of-range timeout) must NOT brick the
+    # editing session or auth: re-render the panel with the message and persist NOTHING. @setting holds
+    # the rejected in-memory values; the memo is untouched so runtime reads are unaffected.
+    flash.now[:alert] = e.record.errors.full_messages.to_sentence
+    load_shadow_summaries
+    render :show, status: :unprocessable_entity
   end
 
   private
 
-  # STRONG PARAMS: only the three known flags, nothing else can be written through this controller. Blank
-  # ('' from the "Use system default" option) -> nil (clear override); 'true'/'false' -> boolean.
-  def flag_params
-    permitted = params.require(:enforcement_setting).permit(*EnforcementSetting::FLAGS)
-    EnforcementSetting::FLAGS.index_with do |flag|
+  # STRONG PARAMS: only the known flags + settings. Blank ('' from the "Use system default" option) => nil
+  # (clear the override). Boolean flags cast to true/false. Integer settings: blank => nil; a present but
+  # non-numeric string is passed THROUGH unchanged so the model's numericality validation fires and the
+  # 422 re-render shows the error (rather than silently clearing the override on a fat-fingered value).
+  def setting_params
+    keys = EnforcementSetting::FLAGS + EnforcementSetting::BOOL_EXTRA + EnforcementSetting::VALUE_SETTINGS
+    permitted = params.require(:enforcement_setting).permit(*keys)
+    result = {}
+    (EnforcementSetting::FLAGS + EnforcementSetting::BOOL_EXTRA).each do |flag|
       raw = permitted[flag]
-      raw.blank? ? nil : ActiveModel::Type::Boolean.new.cast(raw)
+      result[flag] = raw.blank? ? nil : ActiveModel::Type::Boolean.new.cast(raw)
     end
+    EnforcementSetting::VALUE_SETTINGS.each do |key|
+      raw = permitted[key]
+      result[key] = raw.blank? ? nil : raw # model numericality validates/casts; non-numeric -> RecordInvalid
+    end
+    result
   end
 
-  # {flag => [old_stored, new_stored]} for only the flags whose stored value actually changed.
+  # {key => [old_stored, new_stored]} for only the flags/settings whose stored value actually changed.
   def compute_changes(setting, new_values)
-    EnforcementSetting::FLAGS.each_with_object({}) do |flag, acc|
-      old_stored = setting.public_send(flag)
-      new_stored = new_values[flag]
-      acc[flag] = [old_stored, new_stored] unless old_stored == new_stored
+    keys = EnforcementSetting::FLAGS + EnforcementSetting::BOOL_EXTRA + EnforcementSetting::VALUE_SETTINGS
+    keys.each_with_object({}) do |key, acc|
+      old_stored = setting.public_send(key)
+      new_stored = new_values[key]
+      acc[key] = [old_stored, new_stored] unless old_stored == new_stored
     end
   end
 
-  # AU-2 security event: ONE row carrying the diff for the request. CONTEXT-ONLY metadata (flag name,
-  # old->new state, actor role) — NEVER any record data. security_event! self-rescues (a Mongo blip never
-  # 500s the flip); the PG row + updated_by_id/updated_at remain the authoritative change record.
+  # AU-2 security event — coarse metadata (flag name, on/off/default for booleans; numeric from->to for
+  # value settings). Numeric policy values (minutes / count / days) are configuration, not PII/secrets, so
+  # logging them is acceptable. NEVER any record data. security_event! self-rescues (a Mongo blip never 500s).
   def audit_flag_changes(changes)
+    bool_keys = (EnforcementSetting::FLAGS + EnforcementSetting::BOOL_EXTRA)
     AccessLog.security_event!(
       event_type: 'enforcement_flag_changed',
       request: request,
       user: current_user,
       metadata: {
-        'changes' => changes.map { |flag, (old_v, new_v)| { 'flag' => flag.to_s, 'from' => fmt(old_v), 'to' => fmt(new_v) } },
+        'changes' => changes.map do |key, (old_v, new_v)|
+          if bool_keys.include?(key)
+            { 'flag' => key.to_s, 'from' => fmt(old_v), 'to' => fmt(new_v) }
+          else
+            { 'setting' => key.to_s, 'from' => (old_v.nil? ? 'default' : old_v.to_s), 'to' => (new_v.nil? ? 'default' : new_v.to_s) }
+          end
+        end,
         'actor_role' => current_user.roles,
         'source' => 'enforcement_settings_ui'
       }

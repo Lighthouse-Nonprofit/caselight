@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_30_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_01_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -386,6 +386,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_30_000001) do
     t.integer "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "require_mfa"
+    t.integer "idle_timeout_minutes"
+    t.integer "lockout_max_attempts"
+    t.integer "lockout_unlock_in_minutes"
+    t.integer "password_max_age_days"
   end
 
   create_table "families", id: :serial, force: :cascade do |t|
@@ -967,6 +972,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_30_000001) do
     t.boolean "otp_required_for_login", default: false, null: false
     t.string "otp_backup_codes", array: true
     t.string "webauthn_id"
+    t.datetime "password_changed_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["organization_id"], name: "index_users_on_organization_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

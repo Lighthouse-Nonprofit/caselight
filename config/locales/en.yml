@@ -1249,6 +1249,34 @@ en:
       review_link: Open the full Access Review report
     flash:
       updated: Enforcement settings saved for this organization.
+    settings:
+      option:
+        'on': 'On (require for all users)'
+        'off': 'Off'
+        default: Use system default
+      # NOTE: %{value} — NOT %{default}. %{default} is a RESERVED i18n interpolation key (raises
+      # I18n::ReservedInterpolationKey). The view passes `value:` as the interpolation variable.
+      blank_hint: 'Leave blank to use the system default (%{value}).'
+      require_mfa:
+        name: Require two-factor authentication (all users) (IA-2(1))
+        description: When On, every signed-in user without 2FA is redirected to enroll before continuing. The default nudges only privileged (admin/manager) accounts. This is an enrollment prompt, never a lockout — the enrollment page and this settings page stay reachable.
+      idle_timeout:
+        name: Idle session timeout (AC-12)
+        description: Minutes of inactivity before a session is invalidated and re-authentication is required. Blank uses the system default (30 minutes). Allowed range 1-1440.
+        label: 'Idle timeout (minutes)'
+        placeholder: System default (30)
+      lockout:
+        name: Account lockout threshold (AC-7)
+        description: Consecutive failed sign-ins before an account is locked, and how long until it auto-unlocks. Blank uses the system defaults (10 attempts / 60 minutes).
+        floor_note: 'For safety, the attempt threshold cannot be set below 3 — a lower value could lock out administrators after a couple of typos.'
+        attempts_label: 'Max failed attempts (minimum 3)'
+        unlock_label: 'Auto-unlock after (minutes)'
+      password_expiry:
+        name: Password expiry / rotation (IA-5)
+        description: Maximum password age in days. When set, a user whose password is older is prompted to change it at next login (never locked out; the change-password page requires the current password and enforces complexity + no-reuse). Blank means passwords never expire (recommended per NIST 800-63B unless a policy requires rotation).
+        label: 'Max password age (days)'
+        placeholder: No expiry (default)
+        blank_hint: 'Leave blank for no expiry (the default).'
   data_trackers:
     index:
       able_screening_questions: Able Screening Questions

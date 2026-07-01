@@ -168,9 +168,15 @@ Devise.setup do |config|
   config.password_archiving_count = 5
   config.deny_old_passwords = true
 
-  # NOTE: periodic password EXPIRATION (:password_expirable) is intentionally NOT enabled — current
-  # NIST 800-63B / FedRAMP Rev 5 guidance discourages forced periodic rotation absent evidence of
-  # compromise, favouring length + history + MFA. Documented as a deliberate control decision.
+  # ==> Configuration for :password_expirable (devise-security) — password max-age / rotation (IA-5).
+  # :password_expirable IS enabled on the User model, but it is PANEL-GATED and DEFAULT OFF. We deliberately
+  # do NOT set config.expire_password_after here — the gem's global default is 3.months, and setting it
+  # (or leaving the model reader unoverridden) would force-expire EVERY user on their next login. Instead
+  # User.expire_password_after returns the per-tenant EnforcementSetting :password_max_age_days when set,
+  # else FALSE (feature off) — so with the panel unset, no password ever expires (today's behavior).
+  # NIST 800-63B / FedRAMP Rev 5 discourage blanket periodic rotation; this leaves it OFF by default and
+  # lets an org opt in per-tenant. No-reuse (:password_archivable, count 5) + length + MFA remain the
+  # primary IA-5 controls.
 
   # Email regex used to validate email formats. It simply asserts that
   # one (and only one) @ exists in the given string. This is mainly

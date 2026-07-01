@@ -83,6 +83,69 @@
         - elsif flag == :enforce_tenant_boundary
           %p.text-muted= t('enforcement_settings.shadow.tenant_count', count: @tenant_mismatch_count)
 
+  -# ===== Runtime-enforcing auth toggles (IA-2(1) / AC-12 / AC-7 / IA-5) — separate from the shadow flags =====
+
+  -# Toggle 1 — Require MFA (three-state boolean; distinct On/Off/Default wording). Enroll NUDGE, never a block.
+  - mfa_override = @setting.require_mfa
+  .ibox
+    .ibox-title
+      %h4= t('enforcement_settings.settings.require_mfa.name')
+      .pull-right
+        %span.text-muted= mfa_override.nil? ? t('enforcement_settings.state.default') : t('enforcement_settings.state.overridden')
+    .ibox-content
+      %p.text-muted= t('enforcement_settings.settings.require_mfa.description')
+      .form-group
+        = f.select :require_mfa,
+                   [[t('enforcement_settings.settings.option.on'), 'true'],
+                    [t('enforcement_settings.settings.option.off'), 'false'],
+                    [t('enforcement_settings.settings.option.default'), '']],
+                   { selected: (mfa_override.nil? ? '' : mfa_override.to_s) },
+                   { class: 'form-control' }
+
+  -# Toggle 2 — Idle session timeout (minutes).
+  .ibox
+    .ibox-title
+      %h4= t('enforcement_settings.settings.idle_timeout.name')
+    .ibox-content
+      %p.text-muted= t('enforcement_settings.settings.idle_timeout.description')
+      .form-group
+        = f.label :idle_timeout_minutes, t('enforcement_settings.settings.idle_timeout.label')
+        = f.number_field :idle_timeout_minutes, value: @setting.idle_timeout_minutes,
+                         min: 1, max: 1440, step: 1, class: 'form-control',
+                         placeholder: t('enforcement_settings.settings.idle_timeout.placeholder')
+        %span.help-block= t('enforcement_settings.settings.blank_hint', value: EnforcementSetting.config_default_for_value(:idle_timeout_minutes))
+
+  -# Toggle 3 — Account lockout threshold (attempts, floor 3) + auto-unlock window (minutes).
+  .ibox
+    .ibox-title
+      %h4= t('enforcement_settings.settings.lockout.name')
+    .ibox-content
+      %p.text-muted= t('enforcement_settings.settings.lockout.description')
+      %p.text-muted= t('enforcement_settings.settings.lockout.floor_note')
+      .form-group
+        = f.label :lockout_max_attempts, t('enforcement_settings.settings.lockout.attempts_label')
+        = f.number_field :lockout_max_attempts, value: @setting.lockout_max_attempts,
+                         min: EnforcementSetting::LOCKOUT_ATTEMPTS_FLOOR, max: 100, step: 1, class: 'form-control',
+                         placeholder: EnforcementSetting.config_default_for_value(:lockout_max_attempts)
+      .form-group
+        = f.label :lockout_unlock_in_minutes, t('enforcement_settings.settings.lockout.unlock_label')
+        = f.number_field :lockout_unlock_in_minutes, value: @setting.lockout_unlock_in_minutes,
+                         min: 5, max: 1440, step: 1, class: 'form-control',
+                         placeholder: EnforcementSetting.config_default_for_value(:lockout_unlock_in_minutes)
+
+  -# Toggle 4 — Password max age (days). Blank => no expiry (default OFF).
+  .ibox
+    .ibox-title
+      %h4= t('enforcement_settings.settings.password_expiry.name')
+    .ibox-content
+      %p.text-muted= t('enforcement_settings.settings.password_expiry.description')
+      .form-group
+        = f.label :password_max_age_days, t('enforcement_settings.settings.password_expiry.label')
+        = f.number_field :password_max_age_days, value: @setting.password_max_age_days,
+                         min: 1, max: 3650, step: 1, class: 'form-control',
+                         placeholder: t('enforcement_settings.settings.password_expiry.placeholder')
+        %span.help-block= t('enforcement_settings.settings.password_expiry.blank_hint')
+
   .form-group
     = f.submit t('enforcement_settings.save'), class: 'btn btn-primary'
     = link_to t('enforcement_settings.shadow.review_link'), access_review_path, class: 'btn btn-default'

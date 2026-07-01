@@ -105,17 +105,29 @@ class ApplicationController < ActionController::Base
     ])
   end
 
-  # FedRAMP IA-2(1): privileged accounts (admin + managers) must use MFA. Enforcement is gated behind
-  # config.x.enforce_mfa_for_privileged (default OFF — see config/initializers/two_factor.rb), so this
-  # is a no-op until the org switches it on. When on, a privileged user without MFA is sent to enroll.
+  # FedRAMP IA-2(1). Two independent ENROLL-NUDGE scopes, additive:
+  #   - config.x.enforce_mfa_for_privileged (boot flag, default OFF): nudge PRIVILEGED users (admin+mgrs).
+  #   - EnforcementSetting require_mfa (panel three-state, default OFF): nudge ALL signed-in users.
+  # A signed-in user WITHOUT 2FA is nudged if they fall in the currently-required scope. It is an ENROLL
+  # NUDGE (redirect to the reachable enrollment page), NEVER a hard block: the devise / two_factor_settings
+  # / enforcement_settings exemptions keep login, the enroll page, and THIS admin panel reachable, so an
+  # admin who flips require_mfa ON can still enroll AND still reach the panel to flip it back. With
+  # require_mfa unset AND config.x.enforce_mfa_for_privileged OFF, nobody is nudged => byte-identical to today.
   def require_mfa_for_privileged
-    return unless Rails.configuration.x.enforce_mfa_for_privileged
-    return unless user_signed_in? && current_user.mfa_privileged? && !current_user.two_factor_enabled?
-    return if devise_controller? || controller_name == 'two_factor_settings'
+    return unless user_signed_in?
+    return if current_user.two_factor_enabled? # already enrolled -> nothing to nudge
+
+    require_all        = EnforcementSetting.enabled?(:require_mfa, config_default: false)
+    require_privileged = Rails.configuration.x.enforce_mfa_for_privileged && current_user.mfa_privileged?
+    return unless require_all || require_privileged
+
+    # Reachability escape hatches (nudge-not-block): the enroll page + login/logout + THIS panel.
+    return if devise_controller?
+    return if %w[two_factor_settings enforcement_settings].include?(controller_name)
 
     redirect_to two_factor_settings_path,
                 alert: t('two_factor.enrollment_required',
-                         default: 'Your role requires two-factor authentication. Please set it up to continue.')
+                         default: 'Two-factor authentication is required for your account. Please set it up to continue.')
   end
 
   # Audit context for the structured (lograge) request log — FedRAMP AU-3. Rails calls this for every
