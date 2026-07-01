@@ -1,8 +1,8 @@
 .row
   .col-xs-12
     .pull-left
-      %button.btn.btn-primary.btn-filter{"aria-expanded" => 'false', "data-target" => '#user-search-form', "data-toggle" => 'collapse', type: 'button'}
-        %i.fa.fa-filter
+      %button.btn.btn-primary.btn-filter{"aria-expanded" => 'false', "aria-label" => t('shared.actions.filter', default: 'Toggle search filters'), "data-target" => '#user-search-form', "data-toggle" => 'collapse', type: 'button'}
+        %i.fa.fa-filter{"aria-hidden" => "true"}
     .pull-right
       - if can? :manage, :all
         = link_to "#{I18n.t('users.index.add_new_user')}", new_user_path, class: 'btn btn-primary'
@@ -19,10 +19,10 @@
         %h5= @results
         %span.label.label-info= t('.results')
         .ibox-tools
-          %a.collapse-link
-            %i.fa.fa-chevron-up
-          %a.fullscreen-link
-            %i.fa.fa-expand
+          %a.collapse-link{"aria-label" => t('shared.actions.collapse', default: 'Collapse panel')}
+            %i.fa.fa-chevron-up{"aria-hidden" => "true"}
+          %a.fullscreen-link{"aria-label" => t('shared.actions.fullscreen', default: 'Toggle fullscreen')}
+            %i.fa.fa-expand{"aria-hidden" => "true"}
       .ibox-content
         .users-table
           = datagrid_table @user_grid, html: { class: 'table table-bordered table-striped table-hover users'}

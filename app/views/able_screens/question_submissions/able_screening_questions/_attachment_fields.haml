@@ -2,4 +2,4 @@
 = f.input :image, type: :file, label: false, input_html: { class: 'hide', id: 'able-image' }
 #image
   .question-image
-    = image_tag f.object.image, class: 'img-thumbnail'
+    = image_tag f.object.image, class: 'img-thumbnail', alt: t('.image_alt', default: 'Uploaded question image')

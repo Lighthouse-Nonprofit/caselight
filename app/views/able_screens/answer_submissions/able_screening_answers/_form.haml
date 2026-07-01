@@ -37,10 +37,10 @@
                                   .row
                                     .col-xs-12.text-center.able-screening-image
                                       - if answer_builder.object.has_image?
-                                        = image_tag(answer_builder.object.able_screening_question.attachments.first.try(:image).try(:thumb).try(:url))
+                                        = image_tag(answer_builder.object.able_screening_question.attachments.first.try(:image).try(:thumb).try(:url), alt: t('.question_image', default: 'Screening question image'))
                                       - else
                                         .image-default
-                                          = image_tag('image-placeholder.png')
+                                          = image_tag('image-placeholder.png', alt: '')
                                   .row
                                     .col-xs-12.text-center
                                       %h5= answer_builder.object.able_screening_question.question

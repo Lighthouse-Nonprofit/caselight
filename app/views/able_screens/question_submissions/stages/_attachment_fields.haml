@@ -2,4 +2,4 @@
 = f.input :image, type: :file, label: false, input_html: { class: 'hide stage-image' }
 #image
   .question-image.thumbnail
-    = image_tag f.object.image
+    = image_tag f.object.image, alt: t('.image_alt', default: 'Uploaded stage image')

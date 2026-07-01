@@ -1,4 +1,4 @@
 - if can? :manage, Family
-  = link_to edit_family_path(object), class: 'btn btn-xs btn-success btn-outline' do
-    = fa_icon('pencil')
+  = link_to edit_family_path(object), class: 'btn btn-xs btn-success btn-outline', 'aria-label': t('shared.actions.edit', default: 'Edit') do
+    = fa_icon('pencil', 'aria-hidden': true)
   = remove_link(object, {case: object.cases_count})
