@@ -53,7 +53,7 @@ gem 'ffaker',                 '~> 2.25.0'
 gem 'draper', '~> 4.0'
 gem 'datagrid',               '~> 1.4.2'
 gem 'active_model_serializers', '~> 0.10.0'
-gem 'sinatra', '~> 2.0', require: false
+gem 'sinatra', '~> 3.2', require: false
 # rack-cors removed (Phase 1): the only CORS config was a vestigial `origins '*'` block for the
 # removed mobile/token-auth API. Remaining /api endpoints are same-origin AJAX (no CORS needed).
 gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on auth endpoints (AC-7, SC-5)
