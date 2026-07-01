@@ -134,8 +134,15 @@ CIF.Custom_fieldsNew = CIF.Custom_fieldsCreate = CIF.Custom_fieldsEdit = CIF.Cus
             ngo_name = field.ngo_name.replace(/\s/g,"+")
             url_origin = document.location.origin
             preview_link = "#{url_origin}/fields/preview?custom_field_id=#{field.id}&ngo_name=#{ngo_name}"
-            $('#livesearch').append("<li><span class='col-xs-8'>#{field.form_title} (#{field.ngo_name})</span>
-            <span class='col-xs-4 text-right'><a href=#{preview_link}>#{previewTranslation}</a></span></li>")
+            # POAM-004 / DOM-XSS fix: build the result row with safe jQuery element construction.
+            # .text() escapes the admin/cross-org form_title + ngo_name (stored-XSS channel); .attr()
+            # sets a properly-quoted href (the old unquoted `href=#{preview_link}` allowed break-out).
+            # No interpolated HTML string reaches the DOM.
+            $li = $('<li>')
+            $('<span>', class: 'col-xs-8').text("#{field.form_title} (#{field.ngo_name})").appendTo($li)
+            $right = $('<span>', class: 'col-xs-4 text-right').appendTo($li)
+            $('<a>').text(previewTranslation).attr('href', preview_link).appendTo($right)
+            $('#livesearch').append($li)
 
   _preventRemoveFields = (fields) ->
     labelFields = $('label.field-label')
