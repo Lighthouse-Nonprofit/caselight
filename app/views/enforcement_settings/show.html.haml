@@ -1,0 +1,92 @@
+-# Phase 5 capstone — ADMIN FLAG-CONTROL-ROOM (AC-3 / CM-5). A plain server-rendered PATCH form (NO inline
+-# JS / onclick / <script> — CSP-safe; CSRF token via form_with). Each flag shows current EFFECTIVE state,
+-# whether it is an explicit override vs the system default, a three-way selector, and the INLINE shadow
+-# evidence beneath it. All values auto-escaped by HAML.
+.row
+  .col-md-12
+    %h3= t('enforcement_settings.title')
+    %p.text-muted= t('enforcement_settings.subtitle')
+    %p.text-muted
+      %strong= t('enforcement_settings.scope_note')
+      = "(#{Organization.current.try(:short_name)})"
+    .alert.alert-warning
+      = t('enforcement_settings.warning_html')
+
+= form_with url: enforcement_settings_path, method: :patch, scope: :enforcement_setting, local: true do |f|
+  - EnforcementSetting::FLAGS.each do |flag|
+    - effective = @setting.effective(flag)
+    - override  = @setting.public_send(flag)
+    .ibox
+      .ibox-title
+        %h4= t("enforcement_settings.flags.#{flag}.name")
+        .pull-right
+          - if effective
+            %span.label.label-danger= t('enforcement_settings.state.enforcing')
+          - else
+            %span.label.label-default= t('enforcement_settings.state.shadow')
+          %span.text-muted
+            = override.nil? ? t('enforcement_settings.state.default') : t('enforcement_settings.state.overridden')
+      .ibox-content
+        %p.text-muted= t("enforcement_settings.flags.#{flag}.description")
+        .form-group
+          = f.select flag,
+                     [[t('enforcement_settings.option.enforcing'), 'true'],
+                      [t('enforcement_settings.option.shadow'), 'false'],
+                      [t('enforcement_settings.option.default'), '']],
+                     { selected: (override.nil? ? '' : override.to_s) },
+                     { class: 'form-control' }
+
+        -# INLINE shadow evidence per flag (the loop-closer).
+        - if flag == :enforce_least_privilege
+          %h5= t('enforcement_settings.shadow.lp_title')
+          - if @lp_shadow_summary.present?
+            .table-responsive
+              %table.table.table-striped.table-condensed
+                %thead
+                  %tr
+                    %th User
+                    %th Rule
+                    %th Count
+                    %th Last Seen
+                %tbody
+                  - @lp_shadow_summary.each do |row|
+                    %tr
+                      %td= row[:email]
+                      %td= row[:rule]
+                      %td= row[:count]
+                      %td= row[:last_seen]&.strftime('%Y-%m-%d %H:%M')
+          - else
+            %p.text-muted= t('enforcement_settings.shadow.none')
+        - elsif flag == :enforce_authorization
+          %h5= t('enforcement_settings.shadow.authz_title')
+          - if @authz_shadow_summary.present?
+            %p.text-danger= t('enforcement_settings.shadow.authz_callout', count: @authz_shadow_summary.size)
+            .table-responsive
+              %table.table.table-striped.table-condensed
+                %thead
+                  %tr
+                    %th Controller
+                    %th Action
+                    %th Role
+                    %th Count
+                    %th Last Seen
+                %tbody
+                  - @authz_shadow_summary.each do |row|
+                    %tr
+                      %td= row[:controller]
+                      %td= row[:action]
+                      %td= row[:role]
+                      %td= row[:count]
+                      %td= row[:last_seen]&.strftime('%Y-%m-%d %H:%M')
+          - else
+            %p.text-muted= t('enforcement_settings.shadow.none')
+        - elsif flag == :enforce_tenant_boundary
+          %p.text-muted= t('enforcement_settings.shadow.tenant_count', count: @tenant_mismatch_count)
+
+  .form-group
+    = f.submit t('enforcement_settings.save'), class: 'btn btn-primary'
+    = link_to t('enforcement_settings.shadow.review_link'), access_review_path, class: 'btn btn-default'
+
+- if @setting.persisted? && @setting.updated_at.present?
+  %p.text-muted
+    = t('enforcement_settings.last_changed', who: (@setting.updated_by&.email || @setting.updated_by_id || 'system'), when: @setting.updated_at.strftime('%Y-%m-%d %H:%M'))

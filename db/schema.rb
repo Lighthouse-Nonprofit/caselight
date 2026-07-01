@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_26_000003) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_30_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -377,6 +377,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_26_000003) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.string "code", default: ""
+  end
+
+  create_table "enforcement_settings", force: :cascade do |t|
+    t.boolean "enforce_authorization"
+    t.boolean "enforce_least_privilege"
+    t.boolean "enforce_tenant_boundary"
+    t.integer "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "families", id: :serial, force: :cascade do |t|

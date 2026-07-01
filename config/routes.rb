@@ -5,6 +5,11 @@ Rails.application.routes.draw do
   # Phase 5(e) AC-2(j) access recertification report (admin-only; see AccessReviewsController).
   get 'admin/access_review', to: 'access_reviews#index', as: :access_review
 
+  # Phase 5 capstone — ADMIN FLAG-CONTROL-ROOM (NIST AC-3 / CM-5). Ordinary in-tenant admin route (so
+  # TenantBoundary sees expected == current); singleton-per-tenant, so a GET show + PATCH update (no :id).
+  get   'admin/enforcement_settings', to: 'enforcement_settings#show',   as: :enforcement_settings
+  patch 'admin/enforcement_settings', to: 'enforcement_settings#update'
+
   devise_for :users, controllers: { registrations: 'registrations', sessions: 'sessions', passwords: 'passwords' }
 
   # Second-factor (TOTP / recovery code) step of the two-stage login (FedRAMP IA-2(1)). Reachable only

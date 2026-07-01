@@ -1206,6 +1206,41 @@ en:
       partners: Community Partners
       referral_sources: Referral Sources
       staffs: Staff Members
+  enforcement_settings:
+    title: Security Enforcement
+    subtitle: Runtime control of this organization's Phase-5 security enforcement flags.
+    warning_html: These switches ENABLE or DISABLE live security enforcement for THIS organization. Review the shadow findings below BEFORE enabling. Turning on authorization enforcement makes every action require explicit authorization.
+    scope_note: 'Scope: this organization only'
+    save: Save enforcement settings
+    last_changed: 'Last changed by %{who} at %{when}'
+    state:
+      enforcing: ENFORCING
+      shadow: shadow / off
+      overridden: 'persisted override'
+      default: 'system default'
+    option:
+      enforcing: Enforcing
+      shadow: Shadow (off)
+      default: Use system default
+    flags:
+      enforce_authorization:
+        name: Global authorization enforcement (AC-3)
+        description: Requires every controller action to explicitly authorize. When enabling, review the authorization-cutover shadow below — any action listed WOULD return 403.
+      enforce_least_privilege:
+        name: Least-privilege narrowing (AC-6)
+        description: Scopes progress-note and version reads to need-to-know. When enabling, review the least-privilege shadow below — any row listed WOULD be denied.
+      enforce_tenant_boundary:
+        name: Tenant-boundary tripwire (SC-7)
+        description: Refuses any request whose data schema does not match the host tenant. Under normal operation zero mismatches are expected.
+    shadow:
+      lp_title: 'Least-privilege shadow — would-deny (review before enabling)'
+      authz_title: 'Authorization-cutover shadow — would-403 (review before enabling)'
+      authz_callout: '%{count} distinct action(s) WOULD 403 — review before enabling.'
+      tenant_count: '%{count} tenant-mismatch event(s) recorded (0 expected).'
+      none: No shadow divergences recorded yet.
+      review_link: Open the full Access Review report
+    flash:
+      updated: Enforcement settings saved for this organization.
   data_trackers:
     index:
       able_screening_questions: Able Screening Questions
@@ -2591,9 +2626,11 @@ en:
         other: There are %{count} client enrollment trackings form overdue.
     side_menu:
       able_screening_questions: Able Screening Questions
+      access_review: Access Review
       account: Account
       agencies: Agencies
       changelogs: Changelogs
+      enforcement_settings: Security Enforcement
       clients: Individuals
       custom_fields: Form Builder
       dashboards: Dashboards

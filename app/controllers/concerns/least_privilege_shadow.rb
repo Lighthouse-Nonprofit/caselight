@@ -24,8 +24,11 @@ module LeastPrivilegeShadow
   private
 
   def detect_least_privilege_divergence
-    # Only shadow while the flag is OFF; once enforcing, the narrowed Ability IS the live one.
-    return if Rails.application.config.x.enforce_least_privilege == true
+    # Only shadow while the flag is OFF; once enforcing, the narrowed Ability IS the live one. Read the SAME
+    # resolved predicate Ability.least_privilege_enforced? reads (persisted override else config.x) so a UI
+    # flip to ON stops shadow logging -> no split-brain.
+    return if EnforcementSetting.enabled?(:enforce_least_privilege,
+                                          config_default: Rails.application.config.x.enforce_least_privilege == true)
     return unless current_user && response.successful?
 
     # CHEAP GATE FIRST: confirm this (controller, action, role) is one the narrowing touches
