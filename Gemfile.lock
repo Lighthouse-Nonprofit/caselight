@@ -571,7 +571,7 @@ GEM
       rspec-core (~> 3.0, >= 3.0.0)
       sidekiq (>= 2.4.0)
     rspec-support (3.13.7)
-    rubocop (1.88.0)
+    rubocop (1.88.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -772,7 +772,7 @@ DEPENDENCIES
   rspec-activemodel-mocks
   rspec-rails (~> 8.0)
   rspec-sidekiq
-  rubocop (~> 1.88.0)
+  rubocop (~> 1.88.1)
   sass-rails (~> 5.1.0)
   shoulda-matchers
   shoulda-whenever (~> 0.0.2)
