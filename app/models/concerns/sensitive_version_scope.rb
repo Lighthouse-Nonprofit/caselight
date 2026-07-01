@@ -49,23 +49,13 @@ module SensitiveVersionScope
     nil
   end
 
+  # Delegates to the shared SafeVersionValue ladder (single source of truth for the JSON->YAML.safe_load
+  # parse; same permitted-class set). Keeps the already-a-Hash short-circuit for destroyed-row payloads
+  # and the empty-value short-circuit so behaviour is preserved exactly (an empty Array/empty object -> nil).
   def version_object_hash(version)
     raw = (version.object rescue nil)
     return raw if raw.is_a?(Hash)
     return nil if raw.nil? || (raw.respond_to?(:empty?) && raw.empty?)
-    return nil unless raw.is_a?(String)
-    begin
-      JSON.parse(raw)
-    rescue JSON::ParserError
-      begin
-        YAML.safe_load(
-          raw,
-          permitted_classes: [Time, Date, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone, Symbol, BigDecimal],
-          aliases: true
-        )
-      rescue StandardError
-        nil
-      end
-    end
+    SafeVersionValue.parse(raw)
   end
 end

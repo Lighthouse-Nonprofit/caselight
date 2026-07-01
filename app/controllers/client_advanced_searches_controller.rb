@@ -64,7 +64,7 @@ class ClientAdvancedSearchesController < AdminController
   end
 
   def program_stream_values
-    program_stream_value? ? eval(@advanced_search_params[:program_selected]) : []
+    program_stream_value? ? AdvancedSearches::IdList.parse(@advanced_search_params[:program_selected]) : []
   end
 
   def get_client_basic_fields
@@ -72,7 +72,7 @@ class ClientAdvancedSearchesController < AdminController
   end
 
   def custom_form_values
-    custom_form_value? ? eval(@advanced_search_params[:custom_form_selected]) : []
+    custom_form_value? ? AdvancedSearches::IdList.parse(@advanced_search_params[:custom_form_selected]) : []
   end
 
   def get_custom_form_fields

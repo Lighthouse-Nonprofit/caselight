@@ -208,6 +208,10 @@ class ClientGrid
     scope.where(id: ids)
   end
 
+  # POAM-004 Unit 2: whitelisted numeric-comparison operators; no eval, no string interpolation.
+  # `operation` is a user-selectable datagrid dynamic-filter operator -- an unknown/nil value fails closed.
+  DOMAIN_SCORE_OPS = { '=' => :==, '==' => :==, '!=' => :!=, '>' => :>, '<' => :<, '>=' => :>=, '<=' => :<= }.freeze
+
   filter(:all_domains, :dynamic, select: ['All CSI'], header: -> { I18n.t('datagrid.columns.clients.domains') }) do |(field, operation, value), scope|
     value = value.to_i
     assessment_id = []
@@ -215,11 +219,8 @@ class ClientGrid
       arr = []
       a_id = []
       ad.each do |v|
-        if operation == '='
-          arr.push v.score == value.to_i ? true : false
-        else
-          arr.push eval("#{v.score}#{operation}#{value}") ? true : false
-        end
+        op = DOMAIN_SCORE_OPS[operation]
+        arr.push(op ? v.score.to_i.public_send(op, value.to_i) : false)
         a_id.push v.assessment_id
       end
       if !arr.include?(false)

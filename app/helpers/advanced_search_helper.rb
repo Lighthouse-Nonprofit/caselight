@@ -1,12 +1,12 @@
 module AdvancedSearchHelper
   def custom_form_values
     has_custom_form_selected = has_advanced_search? && advanced_search_params[:custom_form_selected].present?
-    has_custom_form_selected ? eval(advanced_search_params[:custom_form_selected]) : []
+    has_custom_form_selected ? AdvancedSearches::IdList.parse(advanced_search_params[:custom_form_selected]) : []
   end
 
   def program_stream_values
     has_program_selected = has_advanced_search? && advanced_search_params[:program_selected].present?
-    has_program_selected ? eval(advanced_search_params[:program_selected]) : []
+    has_program_selected ? AdvancedSearches::IdList.parse(advanced_search_params[:program_selected]) : []
   end
 
   def quantitative_check

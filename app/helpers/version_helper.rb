@@ -20,7 +20,7 @@ module VersionHelper
   def version_value_format(val, k = '', both_val = [])
     version_values_regular.each do |key, value|
       if value.include?(k) && val.present?
-        obj = model_name(key).find_by(id: val)
+        obj = model_name(key)&.find_by(id: val)
         val = obj.present? ? obj.name : "##{val}"
       end
       val
@@ -163,7 +163,7 @@ module VersionHelper
   end
 
   def model_name(key)
-    eval(key.to_s.singularize.classify)
+    key.to_s.singularize.classify.safe_constantize
   end
 
   def version_values

@@ -13,9 +13,9 @@
                     = version_attribute(k, version.item_type)
                   %td.col-sm-4.truncate
                     - if k == 'properties'
-                      - values = v[0]
-                      - values = eval(v[0]) if v[0].class == String
+                      - values = SafeVersionValue.parse(v[0]) || v[0]
                       - next if values == '{}'
+                      - next unless values.respond_to?(:each)
                       - if values.present?
                         %ul
                           - values.each do |key, value|
@@ -26,9 +26,9 @@
                       = version_value_format(v[0], k, v)
                   %td.col-sm-4.truncate
                     - if k == 'properties'
-                      - values = v[1]
-                      - values = eval(v[1]) if v[1].class == String
+                      - values = SafeVersionValue.parse(v[1]) || v[1]
                       - next if values == '{}'
+                      - next unless values.respond_to?(:each)
                       - if values.present?
                         %ul
                           - values.each do |key, value|
