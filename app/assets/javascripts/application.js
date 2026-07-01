@@ -1,6 +1,10 @@
 // FRAMEWORK
 //= require jquery
-//= require jquery_ujs
+// UNIT 12: rails-ujs (bundled in actionview 7.2) replaced the legacy jquery_ujs (jquery-rails).
+// Same data-method/data-confirm/data-remote CSRF layer + auto-start, but jQuery-free and the
+// supported path on Rails 7. Drop-in: no ajax:* handlers and no $.rails API use in this app.
+// (jquery-rails still provides the `jquery` asset above; only its UJS shim is retired.)
+//= require rails-ujs
 //= require jquery-ui
 //= require bootstrap-sprockets
 //= require jquery.steps.min
