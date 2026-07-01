@@ -13,6 +13,7 @@
     %link{ rel: 'apple-touch-icon', href: image_path('brand/apple-touch-icon-180.png') }
     = stylesheet_link_tag    'application', media: 'all'
     = csrf_meta_tags
+    = csp_meta_tag
 
   %body{id: "#{controller_name}-#{params[:action]}", class: "pace-done #{authorized_body}"}
     = render 'layouts/identifier' if Rails.env.staging?

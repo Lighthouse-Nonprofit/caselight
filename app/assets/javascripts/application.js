@@ -90,6 +90,8 @@
 //= require shared/version_per_page_form
 //= require notifications/index
 //= require sessions/new
+//= require sessions/new_passkey
+//= require passkeys/show
 //= require case/quarterly_reports/index
 //= require client_advanced_searches/index
 //= require program_streams/form
