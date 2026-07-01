@@ -287,8 +287,9 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
-    haml (5.2.2)
-      temple (>= 0.8.0)
+    haml (7.2.0)
+      temple (>= 0.8.2)
+      thor
       tilt
     haml-rails (2.1.0)
       actionpack (>= 5.1)
@@ -736,7 +737,7 @@ DEPENDENCIES
   fullcalendar-rails (~> 3.9.0.0)
   google-apis-calendar_v3
   guard-rspec (~> 4.6)
-  haml (~> 5.2)
+  haml (~> 7.2)
   haml-rails (~> 2.0)
   jbuilder (~> 2.0)
   jquery-datatables-rails (~> 3.4)

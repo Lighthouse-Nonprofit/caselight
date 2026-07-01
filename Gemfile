@@ -36,7 +36,7 @@ gem 'rqrcode', '~> 2.0'             # QR codes for TOTP enrollment
 gem 'webauthn', '~> 3.4'
 # haml-rails 2.x gives Rails 6 compatibility; pin haml itself to 5.2 — haml 6 is a parser
 # rewrite that risks breaking the app's many .haml views. (haml 6 migration is its own future step.)
-gem 'haml', '~> 5.2'
+gem 'haml', '~> 7.2'
 gem 'haml-rails', '~> 2.0'
 gem 'dotenv-rails', '~> 2.2'
 gem 'roo',                    '~> 2.2'
