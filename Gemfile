@@ -82,7 +82,7 @@ gem 'wkhtmltopdf-binary-edge', '~> 0.12.6.0'
 gem 'browser',                '~> 6.2'  # was ~> 2.1 (PR #25); firefox?/platform.mac? unchanged, vestigial modern? spec-stub removed
 gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
-gem 'paper_trail', '~> 15.0'
+gem 'paper_trail', '~> 17.0'
 gem 'carrierwave',            '~> 3.1'
 gem 'mini_magick',            '~> 4.5'
 gem 'font-awesome-rails',     '~> 4.7'
