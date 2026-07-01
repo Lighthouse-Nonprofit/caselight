@@ -5,12 +5,12 @@ module ProgramStreamHelper
 
   def delete_button(program)
     if program.client_enrollments.present?
-      content_tag(:div, '', class: 'btn btn-outline btn-danger btn-xs disabled') do
-        fa_icon('trash')
+      content_tag(:div, '', class: 'btn btn-outline btn-danger btn-xs disabled', 'aria-disabled': 'true') do
+        fa_icon('trash', 'aria-hidden': true)
       end
     else
-      link_to program_stream_path(program), method: 'delete',  data: { confirm: t('.are_you_sure') }, class: 'btn btn-outline btn-danger btn-xs' do
-        fa_icon('trash')
+      link_to program_stream_path(program), method: 'delete',  data: { confirm: t('.are_you_sure') }, class: 'btn btn-outline btn-danger btn-xs', 'aria-label': t('shared.actions.delete', default: 'Delete') do
+        fa_icon('trash', 'aria-hidden': true)
       end
     end
   end

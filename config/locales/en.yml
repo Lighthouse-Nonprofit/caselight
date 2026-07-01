@@ -32,6 +32,8 @@ en:
       able_screening_answers:
         create:
           successfully_created: Able Screening Answers has been successfully created.
+        answer_fields:
+          question_image: Screening question image
         form:
           answer: Answer
           from: From
@@ -39,10 +41,12 @@ en:
           stage: Stage
           to: To
           year: Year
+          question_image: Screening question image
     question_submissions:
       able_screening_questions:
         attachment_fields:
           browse: Browse
+          image_alt: Uploaded question image
         create:
           successfully_created: Successfully created
         destroy:
@@ -67,6 +71,7 @@ en:
           questions: Questions
         attachment_fields:
           browse: Browse
+          image_alt: Uploaded stage image
         create:
           successfully_created: Successfully created
         destroy:
@@ -868,6 +873,7 @@ en:
     answer_fields:
       answer: Answer
       yes_no: Yes/No
+      question_image: Screening question image
     client_answers:
       answer: A
       client_able_answers: Client Able Answers

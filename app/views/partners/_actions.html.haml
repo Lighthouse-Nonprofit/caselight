@@ -1,4 +1,4 @@
 - if can? :manage, Partner
-  = link_to edit_partner_path(object), class: 'btn btn-outline btn-success btn-xs' do
-    = fa_icon('pencil')
+  = link_to edit_partner_path(object), class: 'btn btn-outline btn-success btn-xs', 'aria-label': t('shared.actions.edit', default: 'Edit') do
+    = fa_icon('pencil', 'aria-hidden': true)
   = remove_link(object, { partner_case: object.cases_count})
