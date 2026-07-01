@@ -43,6 +43,7 @@
       .ibox-content
         .clients-table{ data: { 'info-load' => t('.load'), 'info-end' => t('.end') } }
           %table.table.table-bordered.table-striped.table-hover.clients
+            %caption.sr-only= t('.grid_caption', default: 'Clients')
             %thead
               = datagrid_header(@client_grid)
             %tbody.page

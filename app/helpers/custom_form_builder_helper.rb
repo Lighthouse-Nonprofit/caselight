@@ -15,6 +15,17 @@ module CustomFormBuilderHelper
     errors[field.to_sym].join(', ') if errors[field.to_sym].present?
   end
 
+  # A11y (Section 508 / WCAG 1.3.1, 4.1.2): compute ONE stable, HTML-VALID element id
+  # for a dynamic custom-form field so the hand-built <label for=>, the generated input
+  # id, and the .help-block (aria-describedby target) all reference the same string.
+  # Mirrors ActionView's sanitize_to_id (name.to_s.delete(']').tr('^-a-zA-Z0-9:.', '_')).
+  # This REPLACES simple_form 5.4.1's default id, which currently interpolates the raw
+  # label (spaces/parens => an INVALID HTML id). Deliberate, beneficial change; the
+  # duplicate-label collision behavior is unchanged from today.
+  def field_id_for(builder, label)
+    "#{builder.object_name}[#{label}]".delete(']').tr('^-a-zA-Z0-9:.', '_')
+  end
+
   # Matches a value that is ENTIRELY a date (optionally whitespace-padded). Anchoring
   # with \A..\z means free text that merely CONTAINS a date-like substring is left as
   # typed instead of being silently reformatted (data loss) or 500ing on an invalid date.

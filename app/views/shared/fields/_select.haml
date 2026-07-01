@@ -1,7 +1,8 @@
 %div{ class: "form-group #{field_with(field_props['label'],errors)}" }
-  %label.control-label{ class: required?(field_props['required'] || false) }
-    %abbr{ title: 'required' }= '*' if field_props['required'] || false
+  - _fid = field_id_for(f, field_props['label'])
+  %label.control-label{ for: _fid, class: required?(field_props['required'] || false) }
+    %abbr{ title: t('shared.fields.required', default: 'required'), 'aria-hidden': 'true' }= '*' if field_props['required'] || false
     = field_props['label']
-  = f.input field_props['label'], collection: field_props['values'].map { |f| [f['label'], f['label']] }, required: (field_props['required'] || false), input_html: { class: field_props['ClassName'], multiple: field_props['multiple'].present?, name: "#{f.object_name}[#{field_props['label']}][]", placeholder: field_props['placeholder'] }, label: false
-  %span.help-block
+  = f.input field_props['label'], collection: field_props['values'].map { |f| [f['label'], f['label']] }, required: (field_props['required'] || false), input_html: { class: field_props['ClassName'], multiple: field_props['multiple'].present?, name: "#{f.object_name}[#{field_props['label']}][]", placeholder: field_props['placeholder'], id: _fid, 'aria-describedby': "#{_fid}_help", 'aria-required': ((field_props['required'] || false) ? 'true' : nil) }, label: false
+  %span.help-block{ id: "#{_fid}_help" }
     = field_message(field_props['label'], errors)
