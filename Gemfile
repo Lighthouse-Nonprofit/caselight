@@ -51,7 +51,7 @@ gem 'csv'
 gem 'fog-aws'
 gem 'ffaker',                 '~> 2.25.0'
 gem 'draper', '~> 4.0'
-gem 'datagrid',               '~> 1.4.2'
+gem 'datagrid',               '~> 2.0.9'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'sinatra', '~> 2.0', require: false
 # rack-cors removed (Phase 1): the only CORS config was a vestigial `origins '*'` block for the
