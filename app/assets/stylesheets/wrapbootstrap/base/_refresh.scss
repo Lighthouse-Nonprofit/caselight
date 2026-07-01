@@ -141,6 +141,11 @@ a:hover, a:active, a:focus { color: darken($lazur, 12%); }
 .badge { padding: 3px 8px; }
 .label-warning, .badge-warning, .label-warning-light, .badge-warning-light { color: #16273D; }
 // label/badge-danger passes AA via the $red darken in variables.scss.
+// Filled colored labels/badges keep legible WHITE text. The .label{color} above is for the light
+// DEFAULT label + form chips only; without this, the dark-bg pills (label-primary "Active" status +
+// the notification count) rendered dark-on-navy = invisible.
+.label-primary, .label-success, .label-info, .label-danger,
+.badge-primary, .badge-success, .badge-info, .badge-danger { color: #ffffff; }
 #side-menu .label-primary { background-color: $amber; color: #16273D; }
 
 // ---- FOCUS STATES: one consistent visible ring; reverses buttons.scss
