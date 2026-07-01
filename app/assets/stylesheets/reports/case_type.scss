@@ -1,5 +1,5 @@
 body[id="statistics-case_type"] {
-  .highcharts-legend-item path{
-    cursor: pointer;
-  }
+  // UNIT 11: removed the dead legend-path cursor rule — charts now render to a <canvas>
+  // (canvas-drawn legend, no legend <path> DOM node); the clickable-slice pointer cursor is
+  // handled in-canvas via the chart onHover handler. No page-scoped styles remain.
 }

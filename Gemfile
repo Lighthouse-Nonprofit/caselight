@@ -19,7 +19,10 @@ gem 'jquery-ui-rails'
 # avoids migrating to sassc (sass-rails 6), which those old libraries don't support.
 gem 'sass-rails', '~> 5.1.0'
 gem 'sprockets', '~> 3.7'
-gem 'uglifier',               '>= 1.3.0'
+# Terser (ES2015+-native JS minifier) replaced uglifier in Unit 11: uglifier wraps the
+# ES5-only UglifyJS and cannot minify modern vendored JS (Chart.js v4's getters/arrows/const),
+# even with harmony:true. Terser is the modern Rails default and handles ES5+ES6 alike.
+gem 'terser',                 '~> 1.2'
 gem 'coffee-rails', '~> 4.2'
 gem 'jbuilder',               '~> 2.0'
 gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q-gxcg-73hx)

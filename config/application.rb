@@ -1,9 +1,9 @@
 require File.expand_path('../boot', __FILE__)
 
 # Load only the frameworks CaseLight uses, instead of `require "rails/all"`. Omitting
-# action_text, active_storage, action_cable, action_mailbox: they're unused, and on Rails 7.1
-# their *.esm.js assets (ES modules) break the uglifier precompile ("Uglifier::Error" on
-# actiontext.esm.js — uglifier can't parse import/export).
+# action_text, active_storage, action_cable, action_mailbox: they're unused (and historically
+# their *.esm.js ES-module assets tripped the old uglifier precompile; the JS compressor is now
+# Terser, which handles ES modules, but these frameworks stay omitted as genuinely unused).
 require "rails"
 require "active_record/railtie"
 require "active_job/railtie"

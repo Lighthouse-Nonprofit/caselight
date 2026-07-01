@@ -56,7 +56,11 @@ CIF.ClientsIndex = do ->
       allowClear: true
 
   _formatReportxAxis = ->
-    Highcharts.setOptions global: useUTC: false
+    # UNIT 11: was a global useUTC:false call on the former charting library. Chart.js has no
+    # such global and the line-chart x-axis is CATEGORICAL (pre-formatted string labels, never
+    # date-parsed), so no timezone normalization is needed. Kept as a no-op so the _init() call
+    # list and this module's shape stay unchanged.
+    return
 
   _handleHideShowReport = ->
     $('#client-statistic').click ->
