@@ -5,13 +5,13 @@ $dark-gray: #c2c2c2;  // Default color
 $blue: #2C6E9B;       // Success color
 $lazur: #2C6E9B;      // Info color (harbor blue — in-palette, replaces stock cyan)
 $yellow: #f8ac59;     // Warrning color
-$red: #ED5565;        // Danger color
+$red: #D63653;        // Danger color (darkened from #ED5565 so #fff text passes AA at 4.65:1)
 
 // Various colors
 $text-color: #333333;   // Body text
 $gray: #f3f3f4;         // Background wrapper color
 $light-gray: #D1DADE;   // Default label, badget
-$label-badget-color: #5E5E5E;
+$label-badget-color: #454545;   // darkened so default label/badge text passes AA on #D1DADE (6.75:1, was 4.57:1)
 $light-blue:#f3f6fb;
 
 // Spiner color and margin
@@ -32,9 +32,9 @@ $boxed-width: 1200px;
 $boxed-backgound: image-url('patterns/shattered.png');
 
 //Border radius for buttons
-$btn-border-radius: 3px;
+$btn-border-radius: 4px;
 
 //Navigation
 $nav-bg: #16273D;
 $nav-profil-pattern: image-url("patterns/header-profile-skin-2.png");
-$nav-text-color: #a7b1c2;
+$nav-text-color: #b9c3d1;   // brightened for crisper AA on $nav-bg (8.47:1, was 6.98:1)
