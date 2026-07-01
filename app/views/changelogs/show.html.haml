@@ -9,6 +9,6 @@
                 = @changelog.change_version
                 %small= @changelog.created_at.strftime('%d %B, %Y')
             .panel-body
-              %p= sanitize(@changelog.description)
+              %p= render_rich_text(@changelog.description)
             .panel-footer
               = link_to t('.back'), changelogs_path, class: 'btn btn-default btn-back'
