@@ -42,9 +42,10 @@ Rails.application.configure do
   # Apache or NGINX already handles this.
   config.serve_static_files = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
-  # Compress JavaScripts and CSS. harmony: true lets uglifier minify ES6 (some bundled/vendored
-  # JS now uses `const`/arrow fns); without it precompile aborts on "Unexpected token: keyword (const)".
-  config.assets.js_compressor = Uglifier.new(harmony: true)
+  # Compress JavaScripts and CSS with Terser (ES2015+-native). Replaced Uglifier.new(harmony: true)
+  # in Unit 11: even harmony-mode uglifier (ES5 UglifyJS) aborts on Chart.js v4's modern syntax
+  # ("Unexpected token: operator (=)"). Terser minifies ES5 and ES6+ alike.
+  config.assets.js_compressor = :terser
   # config.assets.css_compressor = :sass
 
 
