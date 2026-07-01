@@ -81,7 +81,7 @@ class CustomFieldPropertiesController < AdminController
       @breakglass_formable     = @custom_formable
       return render template: 'break_glass_grants/prompt'
     end
-    render plain: 'Not authorized', status: :forbidden, layout: false
+    render template: 'errors/403', status: :forbidden, layout: false
   end
 
   def custom_field_property_params

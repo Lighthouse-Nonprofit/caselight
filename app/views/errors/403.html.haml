@@ -1,0 +1,30 @@
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %title Error 403 (Not Authorized)
+    %meta{:content => "width=device-width,initial-scale=1", :name => "viewport"}/
+    = stylesheet_link_tag 'application', media: 'all'
+    -# Phase 5 / frontend Unit 9: the sensitivity-gated denial page. Self-contained (layout: false) so it
+    -# never re-triggers authorization/masking and can be rendered from ANY controller (incl. the
+    -# CanCan::AuthorizationNotPerformed rescue) without a redirect loop. VALUE-FREE by design: generic
+    -# copy only, never a record/field/form-title. Status 403 is set by the caller (render ..., status: :forbidden).
+    :css
+      body { padding-top: 10%; }
+      h1 { font-size: 100px; font-weight: bold; color: #E6483D; }
+      h3 { font-size: 40px; font-weight: bold; }
+      p  { font-size: 16px; }
+      a.btn { background: #E6483D; border-color: #E6483D; font-weight: bold; }
+      a.btn:hover { background: #EC281A; border-color: #EC281A; }
+      .error-content { margin-top: 5%; padding-bottom: 5%; }
+  %body{ id: 'errors-403', style: 'background-color: #fff;' }
+    .container
+      .row
+        .col-xs-12.text-center.error-content
+          -# No org logo here (unlike 404/500): this page renders on EVERY sensitivity denial, and
+          -# image_tag on an empty ImageUploader raises ("can't resolve image into URL") when the tenant
+          -# has no logo — a 500 on the denial page would be far worse than a missing decorative mark.
+          %h1 403
+          %h3.text-uppercase Not authorized
+          %p.text-uppercase.text-muted You don't have access to this information.
+          %a.btn.btn-success.btn-lg.text-uppercase{:href => "/"} Go Home
