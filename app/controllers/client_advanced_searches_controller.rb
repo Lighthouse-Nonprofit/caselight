@@ -8,6 +8,12 @@ class ClientAdvancedSearchesController < AdminController
   before_action :choose_grid
 
   def index
+    # Phase 5.6 (AC-3): primary client advanced-search + XLS bulk-export surface. It scoped results via
+    # Client.accessible_by(current_ability) but did ZERO CanCan authorization -> default-open. It must
+    # AUTHORIZE (a client-data export is never allowlisted). All 8 roles hold :read Client, so this is
+    # non-breaking; gated behind enforce_authorization? to keep flag-OFF byte-identical (surfaces as a
+    # shadow row while OFF) and to satisfy check_authorization when ON.
+    authorize! :read, Client if enforce_authorization?
     return unless has_params?
     basic_rules          = JSON.parse @basic_filter_params
     clients              = AdvancedSearches::ClientAdvancedSearch.new(basic_rules, Client.accessible_by(current_ability))

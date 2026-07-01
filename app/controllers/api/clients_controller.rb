@@ -2,6 +2,14 @@ module Api
   class ClientsController < AdminController
     include SensitiveFields # Phase 5.3 — per-tenant visible_custom_field_ids + visible_domain_levels (record-less => break_glass: [])
 
+    # Phase 5.6 (AC-3) allowlist (only: [:compare]): cross-org dedup JSON that authorizes DIFFERENTLY --
+    # it returns org-wide identity matches but applies Phase-5.3 sensitive-field/domain MASKING via
+    # ClientSerializer (break_glass: []) instead of a record-level CanCan authorize. RESIDUAL
+    # (POAM-AC3-COMPARE): a signed-in user can confirm a basic-identity match exists in any tenant
+    # regardless of caseload; masking limits this to non-sensitive identity fields. Also on the
+    # TenantBoundary cross-tenant allowlist (orthogonal to authz).
+    skip_authorization_check only: [:compare]
+
     def compare
       render json: { clients: find_client_in_organization }
     end

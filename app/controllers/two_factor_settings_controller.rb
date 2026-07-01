@@ -8,6 +8,10 @@ require 'rqrcode'
 # populated: notify_user sets @notification for the top navbar and set_sidebar_basic_info sets
 # the sidebar counts. AdminController also runs authenticate_user!.
 class TwoFactorSettingsController < AdminController
+  # Phase 5.6 (AC-3) allowlist: self-service TOTP enrollment -- every action operates ONLY on current_user.
+  # authenticate_user! gates it.
+  skip_authorization_check
+
   def show
     @user = current_user
     unless @user.two_factor_enabled?
