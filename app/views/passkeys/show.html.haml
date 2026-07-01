@@ -28,83 +28,9 @@
           %p.text-muted You have no passkeys yet.
 
         %hr
-        #passkey-register-area
+        #passkey-register-area{ data: { options_url: passkey_registration_options_path, passkeys_url: passkeys_path } }
           .form-group
             = label_tag :passkey_nickname, 'Name this device'
             = text_field_tag :passkey_nickname, nil, class: 'form-control', placeholder: 'e.g. My laptop, YubiKey', maxlength: 60
           %button#passkey-register.btn.btn-primary{ type: 'button' } Register this device
           %span#passkey-register-status.text-danger.m-l
-
-:javascript
-  (function () {
-    var area = document.getElementById('passkey-register-area');
-    if (!window.PublicKeyCredential) {
-      document.getElementById('passkey-unsupported').style.display = 'block';
-      if (area) { area.style.display = 'none'; }
-      return;
-    }
-    // base64url <-> ArrayBuffer (WebAuthn options arrive as base64url; responses must be re-encoded).
-    function b64uToBuf(s) {
-      s = s.replace(/-/g, '+').replace(/_/g, '/');
-      while (s.length % 4) { s += '='; }
-      var bin = atob(s), buf = new Uint8Array(bin.length);
-      for (var i = 0; i < bin.length; i++) { buf[i] = bin.charCodeAt(i); }
-      return buf.buffer;
-    }
-    function bufToB64u(buf) {
-      var bytes = new Uint8Array(buf), s = '';
-      for (var i = 0; i < bytes.length; i++) { s += String.fromCharCode(bytes[i]); }
-      return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-    function csrf() {
-      var m = document.querySelector('meta[name=csrf-token]');
-      return m ? m.content : '';
-    }
-    function postJSON(url, body) {
-      return fetch(url, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrf() },
-        body: JSON.stringify(body || {})
-      });
-    }
-    function setStatus(msg, isError) {
-      var el = document.getElementById('passkey-register-status');
-      el.textContent = msg || '';
-      el.className = (isError ? 'text-danger' : 'text-success') + ' m-l';
-    }
-
-    document.getElementById('passkey-register').addEventListener('click', function () {
-      var nickname = document.getElementById('passkey_nickname').value;
-      setStatus('Waiting for your device...', false);
-      postJSON('#{passkey_registration_options_path}', {}).then(function (r) {
-        return r.json();
-      }).then(function (options) {
-        options.challenge = b64uToBuf(options.challenge);
-        options.user.id = b64uToBuf(options.user.id);
-        (options.excludeCredentials || []).forEach(function (c) { c.id = b64uToBuf(c.id); });
-        return navigator.credentials.create({ publicKey: options });
-      }).then(function (cred) {
-        var payload = {
-          nickname: nickname,
-          credential: {
-            id: cred.id,
-            rawId: bufToB64u(cred.rawId),
-            type: cred.type,
-            response: {
-              clientDataJSON: bufToB64u(cred.response.clientDataJSON),
-              attestationObject: bufToB64u(cred.response.attestationObject)
-            }
-          }
-        };
-        return postJSON('#{passkeys_path}', payload);
-      }).then(function (r) {
-        return r.json().then(function (j) { return { ok: r.ok, body: j }; });
-      }).then(function (res) {
-        if (res.ok) { window.location = '#{passkeys_path}'; }
-        else { setStatus(res.body.error || 'Registration failed.', true); }
-      }).catch(function (e) {
-        setStatus((e && e.message) || 'Registration was cancelled.', true);
-      });
-    });
-  })();
