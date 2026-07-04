@@ -1,19 +1,20 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-# Card-grid redesign (surface B): the clients index no longer renders a datagrid <table>. Its
-# accessible name now comes from a visually-hidden <h2> ('Clients') that the card list references
-# via aria-labelledby, plus role='list'. This request spec (CI-covered spec/requests) drives
-# GET /clients as an admin and asserts that landmark wiring is present and correct. NON-VACUOUS:
-# it checks the sr-only heading text, that the heading id is the list's aria-labelledby target,
-# role='list', and that the heading precedes the list it labels. Attribute-order-independent.
+# Card-grid redesign (surface B): the clients index card list has a visually-hidden <h2> ('Clients')
+# that the card list references via aria-labelledby, plus role='list'. This request spec (CI-covered
+# spec/requests) asserts that landmark wiring. NOTE: Workstream A added a role branch -- admins /
+# strategic overviewers now get the LIMITED GRID (its own <caption> landmark), and the CARD list only
+# renders for managers / case workers. So this card-landmark contract is exercised under a case worker.
+# NON-VACUOUS: it checks the sr-only heading text, that the heading id is the list's aria-labelledby
+# target, role='list', and that the heading precedes the list it labels. Attribute-order-independent.
 RSpec.describe 'clients/index accessible list landmark (surface B)', type: :request do
   after(:each) { ClientHistory.delete_all rescue nil }
 
   let(:password) { 'SecurePass123!' }
-  let(:admin)    { create(:user, roles: 'admin', password: password, password_confirmation: password) }
+  let(:worker)   { create(:user, roles: 'case worker', password: password, password_confirmation: password) }
 
-  before { post user_session_path, params: { user: { email: admin.email, password: password } } }
+  before { post user_session_path, params: { user: { email: worker.email, password: password } } }
 
   it 'renders an sr-only Clients heading wired to the card list via aria-labelledby + role=list' do
     get clients_path
