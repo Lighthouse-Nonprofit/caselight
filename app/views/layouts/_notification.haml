@@ -3,9 +3,13 @@
 -# ApplicationController directly (e.g. devise-security's Devise::PasswordExpiredController) render the
 -# layout without it, which 500'd on @notification.all_count. Build it from current_user when unset.
 - @notification ||= UserNotification.new(current_user)
-- if current_user.calendar_integration?
-  = link_to calendars_path, title: 'Google Calendar', 'aria-label': t('shared.actions.google_calendar', default: 'Google Calendar'), class: 'notification-text-color' do
-    %i.fa.fa-calendar-plus-o.fa-fw{"aria-hidden" => "true"}
+-# The internal calendar (tasks/appointments) is available to every authenticated user and does NOT
+-# require Google integration -- so its nav link must always show. (It was previously gated behind
+-# current_user.calendar_integration?, the Google-SYNC opt-in that defaults OFF, which hid the only way
+-# to reach the calendar for anyone who hadn't enabled Google sync. The Google Sync button itself stays
+-# gated inside calendars/index.) Generic label + icon; the Google-specific affordance lives on the page.
+= link_to calendars_path, title: t('shared.actions.calendar', default: 'Calendar'), 'aria-label': t('shared.actions.calendar', default: 'Calendar'), class: 'notification-text-color' do
+  %i.fa.fa-calendar.fa-fw{"aria-hidden" => "true"}
 %li.dropdown
   %a.dropdown-toggle.count-info{"aria-label" => t('shared.actions.notifications', default: 'Notifications'), "data-toggle" => "dropdown", :href => "#"}
     %i.fa.fa-bell{"aria-hidden" => "true"}
