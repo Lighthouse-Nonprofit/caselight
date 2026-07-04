@@ -38,4 +38,25 @@ module FamiliesHelper
       object.case_history
     end
   end
+
+  def family_member_chips(family, limit: 4)
+    members = family.clients.to_a.uniq
+    return content_tag(:span, safe_join(['—']), class: 'record-grid__empty', 'aria-hidden' => 'true') if members.empty?
+
+    shown = members.first(limit)
+    extra = members.size - shown.size
+
+    items = shown.map do |client|
+      content_tag(:li, link_to(entity_name(client), client_path(client), class: 'record-grid__member-link'),
+                  class: 'record-grid__member-link-item')
+    end
+    if extra.positive?
+      items << content_tag(:li, "+#{extra}",
+                           class: 'record-grid__member-more record-grid__member-link-item',
+                           title: members.map { |c| entity_name(c) }.join(', '))
+    end
+
+    content_tag(:ul, safe_join(items), class: 'record-grid__member-links',
+                'aria-label' => I18n.t('datagrid.columns.families.clients', default: 'Members'))
+  end
 end

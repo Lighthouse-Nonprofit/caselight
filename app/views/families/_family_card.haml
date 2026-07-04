@@ -2,6 +2,9 @@
 - type_label  = type_labels[object.family_type] || object.family_type.to_s.titleize
 - hh          = entity_name(object)
 - initials    = hh.to_s.split(/\s+/).first(2).map { |p| p.to_s.first }.join.upcase.presence || '?'
+- members     = object.clients.to_a.uniq
+- shown_m     = members.first(4)
+- extra_m     = members.size - shown_m.size
 %li.record-card-item
   %article.record-card{ 'aria-labelledby' => "family-card-#{object.id}-name" }
     .record-card__body
@@ -20,6 +23,12 @@
       %ul.record-card__tags{ 'aria-label' => t('.family_meta', default: 'Household details') }
         %li.record-card__tag.record-card__tag--type= type_label
         %li.record-card__tag.record-card__tag--count= t('.member_count', default: '%{count} members', count: object.member_count)
+      - if shown_m.any?
+        %ul.record-card__members{ 'aria-label' => t('.household_members', default: 'Household members') }
+          - shown_m.each do |client|
+            %li.record-card__member= link_to entity_name(client), client_path(client), class: 'record-card__member-link'
+          - if extra_m > 0
+            %li.record-card__member.record-card__member--more{ title: members.map { |c| entity_name(c) }.join(', ') }= "+#{extra_m}"
     %footer.record-card__actions
       = link_to family_path(object), class: 'btn btn-xs btn-info btn-outline', 'aria-label' => (t('shared.actions.view', default: 'View') + ' ' + hh.to_s) do
         = fa_icon('eye', 'aria-hidden': true)

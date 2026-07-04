@@ -12,12 +12,18 @@ RSpec.describe 'Card-grid index security', type: :request do
   after(:each) { ClientHistory.delete_all rescue nil }
 
   let(:password) { 'SecurePass123!' }
-  let(:admin)    { create(:user, roles: 'admin', password: password, password_confirmation: password) }
 
-  before { post user_session_path, params: { user: { email: admin.email, password: password } } }
+  def sign_in_as(user)
+    post user_session_path, params: { user: { email: user.email, password: password } }
+  end
 
+  # Workstream A introduced the role branch: admin? / strategic_overviewer? now get the LIMITED GRID,
+  # everyone else keeps the CARD grid. So the card-grid contract is exercised under a NON-admin role.
   describe 'clients#index cards' do
+    let(:worker)  { create(:user, roles: 'case worker', password: password, password_confirmation: password) }
     let!(:client) { create(:client, given_name: 'Cardy', family_name: 'McCardface', status: 'Referred') }
+
+    before { client.users << worker; sign_in_as(worker) }
 
     # A RESTRICTED custom form filled with a sentinel value. The card must NOT emit this value or
     # the form title (the sensitivity-gated custom-field data lives only on the detail/show page,
@@ -53,11 +59,14 @@ RSpec.describe 'Card-grid index security', type: :request do
   end
 
   describe 'families#index cards' do
+    let(:manager) { create(:user, roles: 'manager', password: password, password_confirmation: password) }
     let!(:family) do
       create(:family, name: 'Harbor House', code: 'HH-1', family_type: 'kinship',
              male_adult_count: 1, female_adult_count: 1, male_children_count: 2, female_children_count: 0,
              case_history: 'FAMILY_SENTINEL_DO_NOT_LEAK')
     end
+
+    before { sign_in_as(manager) }
 
     it 'renders core household fields + landmark + filter form + pagination + sort, but no encrypted narrative' do
       get families_path
