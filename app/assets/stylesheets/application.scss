@@ -74,3 +74,7 @@
 @import 'leave_programs/*';
 @import 'trackings/*';
 @import 'client_program_stream';
+
+// SLO4HOME polish pass — imported LAST for cascade priority (Casebook/CharityTracker-inspired
+// calm on detail pages + the household-members chips). Scoped to show pages; theme untouched.
+@import 'refresh_polish';

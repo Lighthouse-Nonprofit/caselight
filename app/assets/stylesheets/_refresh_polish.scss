@@ -1,0 +1,138 @@
+// SLO4HOME polish pass (2026-07-04) — Casebook / CharityTracker-inspired calm.
+// Scoped to detail (show) surfaces + the new members list so the theme, admin tables,
+// and index grids elsewhere stay untouched. Imported LAST in application.scss for cascade
+// priority. Uses only confirmed refresh tokens ($navy/$lazur/$light-blue); literals otherwise.
+
+$rp-hairline: #e2e6ea;
+$rp-label:    #6b7688;
+$rp-value:    #2b3648;
+$rp-radius:   6px;
+
+// --- Detail-page panels: gentle elevation + rounding (show pages only) ---
+body[id$="-show"] {
+  .ibox {
+    border-radius: $rp-radius;
+    box-shadow: 0 1px 3px rgba(31, 58, 95, .06), 0 1px 1px rgba(31, 58, 95, .04);
+  }
+  .ibox-title {
+    border-bottom: 1px solid $rp-hairline;
+
+    h5 {
+      font-weight: 600;
+      color: $navy;
+      letter-spacing: .01em;
+    }
+  }
+}
+
+// --- Detail "About" attribute tables -> clean label/value rows (Casebook style).
+// Family summary + the client-show About-Individual panels share the .spacing-first-col label cell.
+.family-summary,
+body[id="clients-show"] .first-table,
+body[id="clients-show"] .second-table {
+  table {
+    width: 100%;
+    margin-bottom: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  td {
+    border: 0 !important;
+    border-bottom: 1px solid $rp-hairline !important;
+    padding: 11px 16px !important;
+    vertical-align: top;
+    color: $rp-value;
+  }
+
+  tr:last-child td { border-bottom: 0 !important; }
+  tr:hover td { background: rgba($lazur, .035); }
+
+  td.spacing-first-col {
+    width: 36%;
+    color: $rp-label;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    white-space: normal;
+  }
+
+  td strong {
+    color: $navy;
+    font-weight: 600;
+  }
+}
+
+// --- Household members: clean linked chips (index card, grid + detail all share the tokens) ---
+.household-members__heading {
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: $rp-label;
+  font-size: .72rem;
+  font-weight: 700;
+  margin: 2px 0 12px;
+}
+
+ul.household-members {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.household-members__item { margin: 0; }
+
+.household-members__link {
+  display: inline-block;
+  padding: 5px 13px;
+  background: $light-blue;
+  border: 1px solid $rp-hairline;
+  border-radius: 999px;
+  color: $lazur;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: background-color .12s ease, border-color .12s ease;
+
+  &:hover,
+  &:focus {
+    background: rgba($lazur, .12);
+    border-color: rgba($lazur, .35);
+    color: darken($lazur, 10%);
+    text-decoration: none;
+  }
+}
+
+.household-members__empty {
+  color: #8a94a6;
+  font-style: italic;
+}
+
+// --- Client show: calmer person header + attribute table ---
+body[id="clients-show"] {
+  .show-name {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $navy;
+  }
+
+  .client-info {
+    margin-top: 4px;
+    color: $rp-label;
+  }
+
+  table.table.small {
+    td {
+      border-color: $rp-hairline;
+      padding: 9px 12px;
+      color: $rp-value;
+    }
+
+    strong { color: $navy; }
+  }
+}

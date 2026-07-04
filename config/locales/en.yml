@@ -438,6 +438,29 @@ en:
   calendars:
     index:
       sync_with_google: Sync with Google Calendar
+    task_modal:
+      title: New task
+      subtitle: Create a task for someone in a program you manage.
+      program: Program
+      select_program: Select a program
+      person: Person
+      select_program_first: Choose a program first
+      select_person: Select a person
+      loading: Loading…
+      no_people: No people you manage are enrolled in this program
+      load_error: Couldn't load people — please try again
+      domain: Domain
+      select_domain: Select a domain
+      task_name: Task
+      task_name_placeholder: e.g. Home visit, submit paperwork
+      completion_date: Date
+      remind_at: Remind me (optional)
+      close: Close
+      cancel: Cancel
+      create: Create task
+      creating: Creating…
+      error_required: Please choose a program, a person, a domain, and enter a task.
+      error_save: Sorry — the task couldn't be created. Please try again.
   cancel: Cancel
   cannot_be_blank: can't be blank
   cannot_be_greater: can't be greater than %{count}

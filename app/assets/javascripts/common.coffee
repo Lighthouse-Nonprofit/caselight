@@ -52,7 +52,10 @@ CIF.Common =
       "showMethod": "fadeIn",
       "hideMethod": "fadeOut"
     }
-    messageInfo = $("#wrapper").data()
+    # `#wrapper` is rendered on every page by the app layout, but guard anyway: jQuery `.data()` returns
+    # undefined for an empty set, and `Object.keys(undefined)` throws -- which would abort CIF.Common.init
+    # and, with it, EVERY page module that runs after it (the calendar, etc.). Fail safe to `{}`.
+    messageInfo = $("#wrapper").data() or {}
     if Object.keys(messageInfo).length > 0
       if messageInfo.messageType == 'notice'
         toastr.success(messageInfo.message, '', messageOption)

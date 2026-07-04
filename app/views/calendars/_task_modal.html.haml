@@ -1,0 +1,47 @@
+-# Date-click task-creation modal for the calendar (SLO4HOME revision, Workstream B2).
+-# Program -> Person (AJAX-filtered to clients the current user can see + is active-enrolled in that program)
+-# -> Domain (required) -> Task -> date (prefilled from the click). Behavior lives in calendars/index.coffee
+-# (no inline JS -- CSP-safe). Program + Domain are small static lists rendered server-side; Person is loaded
+-# from /api/calendars/program_clients, whose accessible_by scope is the security boundary.
+#taskModal.modal.fade{ tabindex: '-1', role: 'dialog', 'aria-labelledby' => 'taskModalLabel', 'aria-hidden' => 'true' }
+  .modal-dialog{ role: 'document' }
+    .modal-content
+      %form#new-task-form.task-modal-form{ 'data-error-required' => t('calendars.task_modal.error_required'), 'data-error-save' => t('calendars.task_modal.error_save') }
+        .modal-header
+          %button.close{ type: 'button', 'data-dismiss' => 'modal', 'aria-label' => t('calendars.task_modal.close') }
+            %span{ 'aria-hidden' => 'true' } &times;
+          %h4#taskModalLabel.modal-title= t('calendars.task_modal.title')
+          %p.text-muted.task-modal-subtitle= t('calendars.task_modal.subtitle')
+        .modal-body
+          .alert.alert-danger.task-modal-error.hidden{ role: 'alert', 'aria-live' => 'assertive' }
+          .form-group
+            %label.control-label{ for: 'task-program' }= t('calendars.task_modal.program')
+            %select#task-program.form-control{ 'aria-required' => 'true' }
+              %option{ value: '' }= t('calendars.task_modal.select_program')
+              - ProgramStream.ordered.each do |program_stream|
+                %option{ value: program_stream.id }= program_stream.name
+          .form-group
+            %label.control-label{ for: 'task-client' }= t('calendars.task_modal.person')
+            %select#task-client.form-control{ disabled: true, 'aria-required' => 'true', 'data-placeholder-empty' => t('calendars.task_modal.select_program_first'), 'data-placeholder-loading' => t('calendars.task_modal.loading'), 'data-placeholder-select' => t('calendars.task_modal.select_person'), 'data-placeholder-none' => t('calendars.task_modal.no_people'), 'data-placeholder-error' => t('calendars.task_modal.load_error') }
+              %option{ value: '' }= t('calendars.task_modal.select_program_first')
+          .form-group
+            %label.control-label{ for: 'task-domain' }= t('calendars.task_modal.domain')
+            %select#task-domain.form-control{ 'aria-required' => 'true' }
+              %option{ value: '' }= t('calendars.task_modal.select_domain')
+              - Domain.all.each do |domain|
+                %option{ value: domain.id }= "#{domain.name} #{domain.identity}".strip
+          .form-group
+            %label.control-label{ for: 'task-name' }= t('calendars.task_modal.task_name')
+            %input#task-name.form-control{ type: 'text', 'aria-required' => 'true', placeholder: t('calendars.task_modal.task_name_placeholder'), maxlength: '255' }
+          .form-group
+            %label.control-label{ for: 'task-completion-date' }= t('calendars.task_modal.completion_date')
+            .input-group.date
+              %input#task-completion-date.form-control.date-picker{ type: 'text', 'aria-required' => 'true' }
+              %span.input-group-addon
+                %i.fa.fa-calendar-check-o
+          .form-group
+            %label.control-label{ for: 'task-remind-at' }= t('calendars.task_modal.remind_at')
+            %input#task-remind-at.form-control.date-picker{ type: 'text' }
+        .modal-footer
+          %button.btn.btn-default{ type: 'button', 'data-dismiss' => 'modal' }= t('calendars.task_modal.cancel')
+          %button#task-submit.btn.btn-primary{ type: 'submit', 'data-label-create' => t('calendars.task_modal.create'), 'data-label-creating' => t('calendars.task_modal.creating') }= t('calendars.task_modal.create')
