@@ -1,5 +1,4 @@
-- type_labels = { 'birth_family' => 'Household', 'emergency' => 'Priority Intake', 'foster' => 'Sponsor Household', 'inactive' => 'Closed', 'kinship' => 'Active' }
-- type_label  = type_labels[object.family_type] || object.family_type.to_s.titleize
+- type_label  = object.family_type.to_s.titleize.presence
 - hh          = entity_name(object)
 - initials    = hh.to_s.split(/\s+/).first(2).map { |p| p.to_s.first }.join.upcase.presence || '?'
 - members     = object.clients.to_a.uniq
@@ -21,7 +20,8 @@
             %span.record-card__sep{ 'aria-hidden' => 'true' } ·
             %span.record-card__province= object.province.name
       %ul.record-card__tags{ 'aria-label' => t('.family_meta', default: 'Household details') }
-        %li.record-card__tag.record-card__tag--type= type_label
+        - if type_label.present?
+          %li.record-card__tag.record-card__tag--type= type_label
         %li.record-card__tag.record-card__tag--count= t('.member_count', default: '%{count} members', count: object.member_count)
       - if shown_m.any?
         %ul.record-card__members{ 'aria-label' => t('.household_members', default: 'Household members') }
