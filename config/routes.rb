@@ -219,6 +219,7 @@ Rails.application.routes.draw do
 
     resources :calendars do
       get :find_event, on: :collection
+      get :program_clients, on: :collection
     end
 
     resources :clients do
