@@ -1,11 +1,12 @@
 -# Limited grid for admin? / strategic_overviewer? on clients#index.
+- can_read_program = can?(:read, ProgramStream)
 .record-grid
   %table.record-grid__table{ role: 'table' }
     %caption.sr-only= t('.grid_caption', default: 'Individuals')
     %thead
       %tr
         %th{ scope: 'col' }= t('datagrid.columns.clients.name', default: 'Name')
-        %th{ scope: 'col' }= t('datagrid.columns.clients.id', default: 'ID')
+        %th{ scope: 'col' }= t('datagrid.columns.clients.case_manager', default: 'Case Manager')
         %th{ scope: 'col' }= t('datagrid.columns.clients.gender_age', default: 'Gender / Age')
         %th{ scope: 'col' }= t('datagrid.columns.clients.status', default: 'Status')
         %th{ scope: 'col' }= t('datagrid.columns.clients.program_streams', default: 'Programs')
@@ -13,16 +14,19 @@
           %span.sr-only= t('datagrid.columns.clients.manage', default: 'Actions')
     %tbody
       - clients.each do |object|
-        - streams = object.client_enrollments.map { |ce| ce.program_stream.name if ce.program_stream }.compact.uniq
-        - shown   = streams.first(4)
-        - extra   = streams.size - shown.size
-        - age_str = (pluralize(object.age_as_years, 'yr') + ' ' + pluralize(object.age_extra_months, 'mo') if object.date_of_birth.present?)
+        - streams  = object.client_enrollments.map(&:program_stream).compact.uniq
+        - shown    = streams.first(4)
+        - extra    = streams.size - shown.size
+        - managers = order_case_worker(object)
+        - age_str  = (pluralize(object.age_as_years, 'yr') + ' ' + pluralize(object.age_extra_months, 'mo') if object.date_of_birth.present?)
         %tr.record-grid__row
           %th.record-grid__name{ scope: 'row' }
             = link_to object.name.presence || t('.unknown', default: 'Unknown'), client_path(object), class: 'record-grid__name-link'
-          %td.record-grid__id
-            - if object.slug.present?
-              %span.record-grid__slug= "##{object.slug}"
+          %td.record-grid__case-manager
+            - if managers.any?
+              = safe_join(managers.map { |case_worker| user(case_worker) }.compact, ', ')
+            - else
+              %span.record-grid__empty{ 'aria-hidden' => 'true' } —
           %td.record-grid__demo
             - if object.gender.present?
               %span.record-grid__gender= object.gender.try(:titleize)
@@ -35,10 +39,14 @@
           %td.record-grid__programs
             - if shown.any?
               %ul.record-grid__tags{ 'aria-label' => t('datagrid.columns.clients.program_streams', default: 'Programs') }
-                - shown.each do |name|
-                  %li.record-grid__tag= name
+                - shown.each do |program_stream|
+                  %li.record-grid__tag
+                    - if can_read_program
+                      = link_to program_stream.name, program_stream_path(program_stream), class: 'record-grid__tag-link'
+                    - else
+                      = program_stream.name
                 - if extra > 0
-                  %li.record-grid__tag.record-grid__tag--more{ title: streams.join(', ') }= "+#{extra}"
+                  %li.record-grid__tag.record-grid__tag--more{ title: streams.map(&:name).join(', ') }= "+#{extra}"
             - else
               %span.record-grid__empty{ 'aria-hidden' => 'true' } —
           %td.record-grid__actions.text-center
