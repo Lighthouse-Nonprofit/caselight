@@ -136,3 +136,17 @@ body[id="clients-show"] {
     strong { color: $navy; }
   }
 }
+
+// --- Linked program-stream chips (individuals grid + card): keep the pill look, not default link blue.
+// The chip's <li> carries the visual (bg/border/color); the <a> just inherits it, underlining on hover.
+.record-grid__tag-link,
+.record-card__tag-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: inherit;
+    text-decoration: underline;
+  }
+}

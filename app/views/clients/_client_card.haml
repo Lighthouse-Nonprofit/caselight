@@ -1,5 +1,6 @@
 - initials = [object.given_name, object.family_name].map { |p| p.to_s.strip.first }.compact.join.upcase.presence || '?'
-- streams  = object.client_enrollments.map { |ce| ce.program_stream.name if ce.program_stream }.compact.uniq
+- can_read_program = can?(:read, ProgramStream)
+- streams  = object.client_enrollments.map(&:program_stream).compact.uniq
 - shown    = streams.first(4)
 - extra    = streams.size - shown.size
 %li.record-card-item
@@ -22,10 +23,14 @@
           = status_style(object.status.to_s.sub(/\AActive .*/, 'Active'))
       - if shown.any?
         %ul.record-card__tags{ 'aria-label' => t('.program_streams', default: 'Program streams') }
-          - shown.each do |name|
-            %li.record-card__tag= name
+          - shown.each do |program_stream|
+            %li.record-card__tag
+              - if can_read_program
+                = link_to program_stream.name, program_stream_path(program_stream), class: 'record-card__tag-link'
+              - else
+                = program_stream.name
           - if extra > 0
-            %li.record-card__tag.record-card__tag--more{ title: streams.join(', ') }= "+#{extra}"
+            %li.record-card__tag.record-card__tag--more{ title: streams.map(&:name).join(', ') }= "+#{extra}"
     %footer.record-card__actions
       = link_to client_path(object), class: 'btn btn-xs btn-info btn-outline', 'aria-label' => (t('shared.actions.view', default: 'View') + ' ' + (object.name.presence || object.slug.to_s)) do
         = fa_icon('eye', 'aria-hidden': true)
