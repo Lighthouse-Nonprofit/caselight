@@ -67,6 +67,7 @@ class UsersController < AdminController
   def destroy
     if @user.no_any_associated_objects?
       @user.destroy
+      AccessLog.record_destroyed!(self, @user)  # Phase 6 (AU-2), values-free
       redirect_to users_url, notice: t('.successfully_deleted')
     else
       redirect_to users_url, alert: t('.alert')

@@ -56,8 +56,13 @@ audit.
 - **Authorization denials** — `event_type: "access_denied"`. Emitted from the
   `CanCan::AccessDenied` and `Pundit::NotAuthorizedError` `rescue_from` blocks
   in `ApplicationController`.
+- **Record deletions** — `event_type: "record_destroyed"` (Phase 6). Emitted from
+  the SUCCESS branch of the Client/Family/Partner/User destroy actions via
+  `AccessLog.record_destroyed!` — ids/types only (values-free); a guarded/blocked
+  destroy writes nothing. Pairs with the retained (PII-redacted) paper_trail
+  destroy version as the who-deleted-what-when evidence.
 
-All four event types are written to the **one** `AccessLog` model
+All these event types are written to the **one** `AccessLog` model
 (`app/models/access_log.rb`), keeping the event taxonomy in a single place.
 **Read-access** logging can be toggled via `config.x.access_logging_enabled`
 (defaults **true**), following the existing `config/initializers/two_factor.rb`

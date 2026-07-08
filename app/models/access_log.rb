@@ -30,10 +30,11 @@ class AccessLog
   field :tenant,        type: String, default: -> { Organization.current.try(:short_name) }
 
   # event_type taxonomy (the ONE coherent vocabulary shared by every write path):
-  #   "read"           — a successful show/index of a sensitive resource
-  #   "login_failure"  — a failed authentication attempt
-  #   "account_locked" — the attempted account is now locked out
-  #   "access_denied"  — an authenticated user was refused (CanCan/Pundit)
+  #   "read"             — a successful show/index of a sensitive resource
+  #   "login_failure"    — a failed authentication attempt
+  #   "account_locked"   — the attempted account is now locked out
+  #   "access_denied"    — an authenticated user was refused (CanCan/Pundit)
+  #   "record_destroyed" — a successful destroy of a primary record (Phase 6, AU-2; values-free)
   field :event_type,    type: String
 
   field :user_id,       type: Integer  # nullable (unauthenticated events have no user)
@@ -102,6 +103,35 @@ class AccessLog
     rescue => e
       # Never let auditing break the request it is auditing.
       Rails.logger.error("[AccessLog] record_read! failed: #{e.class}: #{e.message}")
+      nil
+    end
+
+    # Record a successful destroy of a primary record (Phase 6 deletion lifecycle, AU-2).
+    # Values-free by construction: ids/types only, never record contents. Call from the destroy
+    # action's SUCCESS branch (a blocked/guarded destroy is not a deletion and writes nothing).
+    # Same resilience contract as record_read! — auditing never breaks the request.
+    def record_destroyed!(controller, resource)
+      req  = controller.request
+      user = controller.respond_to?(:current_user) ? controller.current_user : nil
+      # Unwrap a Draper decorator (clients#destroy holds a decorated @client) so the
+      # row records the MODEL class, not "ClientDecorator".
+      record = resource.respond_to?(:model) ? resource.model : resource
+
+      write!(
+        event_type:    "record_destroyed",
+        user_id:       user.try(:id),
+        user_email:    user.try(:email),
+        resource_type: record.class.name,
+        resource_id:   record.id.to_s,
+        controller:    controller.controller_name,
+        action:        controller.action_name,
+        http_method:   req.request_method,
+        path:          req.fullpath,
+        remote_ip:     req.remote_ip,
+        request_id:    req.request_id
+      )
+    rescue => e
+      Rails.logger.error("[AccessLog] record_destroyed! failed: #{e.class}: #{e.message}")
       nil
     end
 
