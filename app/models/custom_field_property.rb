@@ -46,7 +46,11 @@ class CustomFieldProperty < ActiveRecord::Base
 
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
 
-  has_paper_trail
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — custom-form VALUES (the Tier-5 encrypted `properties` Hash)
+  # must not sit decrypted in version rows. The changelog/data-trackers panels keep who/when/event
+  # (+ custom_field_id, which SensitiveVersionScope keys on); the properties before/after diff is gone.
+  has_paper_trail skip: %i[properties]
+  include RedactedUpdateVersions  # properties-only saves still write a values-free who/when version
 
   after_save :create_client_history, if: :client_form?
 
