@@ -19,7 +19,9 @@ class LeaveProgram < ActiveRecord::Base
 
   after_create :set_client_status
 
-  has_paper_trail
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — keep the Tier-5 encrypted properties out of version payloads.
+  has_paper_trail skip: %i[properties]
+  include RedactedUpdateVersions  # properties-only saves still write a values-free who/when version
 
   scope :find_by_program_stream_id, -> (value) { where(program_stream_id: value) }
 
