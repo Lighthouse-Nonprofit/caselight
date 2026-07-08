@@ -79,8 +79,16 @@ class User < ActiveRecord::Base
     days.present? ? days.to_i.days : false
   end
 
-  has_paper_trail
-
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — keep the Tier-3 encrypted staff PII out of version payloads,
+  # PLUS credential material that must never sit in a version row regardless of encryption status:
+  # encrypted_password (bcrypt hash), otp_secret (encrypted by devise-two-factor inside
+  # :two_factor_authenticatable), otp_backup_codes (hashed recovery codes), tokens (devise_token_auth
+  # vestige), reset_password_token/unlock_token (live reset/unlock secrets). Literal list;
+  # drift-guarded by paper_trail_redaction_spec.
+  has_paper_trail skip: %i[email uid first_name last_name mobile
+                           encrypted_password otp_secret otp_backup_codes tokens
+                           reset_password_token unlock_token]
+  include RedactedUpdateVersions  # skipped-only edits still write a values-free who/when version
 
   belongs_to :province,   counter_cache: true
   belongs_to :department, counter_cache: true

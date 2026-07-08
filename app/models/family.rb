@@ -9,7 +9,11 @@ class Family < ActiveRecord::Base
   has_many :custom_field_properties, as: :custom_formable, dependent: :destroy
   has_many :custom_fields, through: :custom_field_properties, as: :custom_formable
 
-  has_paper_trail
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — keep the encrypted PII columns out of version payloads
+  # (who/when survives; before/after values for these fields do not). Literal list; drift-guarded
+  # by paper_trail_redaction_spec.
+  has_paper_trail skip: %i[caregiver_information case_history address]
+  include RedactedUpdateVersions  # skipped-only edits still write a values-free who/when version
 
   validates :family_type, presence: true, inclusion: { in: FAMILY_TYPE }
   validates :code, uniqueness: { case_sensitive: false }, if: -> { code.present? }
