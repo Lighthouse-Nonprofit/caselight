@@ -13,6 +13,9 @@ class UsersController < AdminController
         @user_grid.scope { |scope| scope.accessible_by(current_ability).page(params[:page]).per(20) }
       end
       f.xls do
+        # Phase 6 (U1): the export must honor the same ability scope as the HTML branch —
+        # without this the XLS emitted the full UserGrid scope regardless of viewer.
+        @user_grid.scope { |scope| scope.accessible_by(current_ability) }
         send_data @user_grid.to_xls, filename: "user_report-#{Time.now}.xls"
       end
     end

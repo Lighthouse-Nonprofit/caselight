@@ -13,6 +13,8 @@ class PartnersController < AdminController
         @partner_grid.scope { |scope| scope.page(params[:page]).per(20) }
       end
       f.xls do
+        # Phase 6 (U1): scope the export by ability (bulk-exfil hygiene; mirrors clients#index).
+        @partner_grid.scope { |scope| scope.accessible_by(current_ability) }
         send_data @partner_grid.to_xls, filename: "partner_report-#{Time.now}.xls"
       end
     end
