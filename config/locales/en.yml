@@ -1301,6 +1301,12 @@ en:
         label: 'Max password age (days)'
         placeholder: No expiry (default)
         blank_hint: 'Leave blank for no expiry (the default).'
+      inactive_disable:
+        name: Inactive-account auto-disable (AC-2(3))
+        description: Days of inactivity (no sign-in) before a staff account is automatically disabled by the daily maintenance run. A disabled account cannot sign in but keeps its records and can be re-enabled from its user page. The last enabled administrator is never auto-disabled. Blank means the daily run only reports would-be candidates and disables nobody.
+        label: 'Disable after inactive (days, minimum 30)'
+        placeholder: Off — report only (default)
+        blank_hint: 'Leave blank to keep auto-disable off (the daily run stays report-only).'
   data_trackers:
     index:
       able_screening_questions: Able Screening Questions

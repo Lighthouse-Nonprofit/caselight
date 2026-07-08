@@ -35,6 +35,8 @@ class AccessLog
   #   "account_locked"   — the attempted account is now locked out
   #   "access_denied"    — an authenticated user was refused (CanCan/Pundit)
   #   "record_destroyed" — a successful destroy of a primary record (Phase 6, AU-2; values-free)
+  #   "account_disabled" — an inactive account auto-disabled by accounts:disable_inactive (Phase 6)
+  #   "record_exported"  — a subject-access export written by privacy:subject_access_export (Phase 6)
   field :event_type,    type: String
 
   field :user_id,       type: Integer  # nullable (unauthenticated events have no user)
@@ -106,7 +108,7 @@ class AccessLog
       nil
     end
 
-    # Record a successful destroy of a primary record (Phase 6 deletion lifecycle, AU-2).
+    # Record a successful destroy of a primary record (Phase 6 deletion lifecycle, AU-2; #93).
     # Values-free by construction: ids/types only, never record contents. Call from the destroy
     # action's SUCCESS branch (a blocked/guarded destroy is not a deletion and writes nothing).
     # Same resilience contract as record_read! — auditing never breaks the request.
@@ -132,6 +134,24 @@ class AccessLog
       )
     rescue => e
       Rails.logger.error("[AccessLog] record_destroyed! failed: #{e.class}: #{e.message}")
+      nil
+    end
+
+    # Record a REQUEST-LESS system event (Phase 6, #95): scheduled/rake maintenance actions like
+    # account_disabled that happen outside any HTTP request (every other writer demands one).
+    # Values-free metadata contract applies. Same never-raise resilience.
+    def system_event!(event_type:, user: nil, metadata: {})
+      write!(
+        event_type: event_type,
+        user_id:    user.try(:id),
+        user_email: user.try(:email),
+        controller: nil,
+        action:     nil,
+        path:       nil,
+        metadata:   (metadata || {}).merge('source' => 'system')
+      )
+    rescue => e
+      Rails.logger.error("[AccessLog] system_event! failed: #{e.class}: #{e.message}")
       nil
     end
 

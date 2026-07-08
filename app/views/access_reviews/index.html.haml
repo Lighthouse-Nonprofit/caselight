@@ -38,6 +38,33 @@
           %td= ('yes' if u.disable?)
           %td= u.created_at&.strftime('%Y-%m-%d')
 
+-# Phase 6 (AC-2 lifecycle): disabled staff still holding caseload assignments — the reviewer's
+-# reassignment worklist. Login is blocked for these accounts, but their clients stay assigned to
+-# them until manually reassigned.
+.row
+  .col-md-12
+    %h4 Disabled Staff Still Holding Caseloads
+    %p.text-muted
+      These accounts cannot sign in (disabled) but still have clients assigned. Reassign their caseloads so work is not routed to a dead account.
+- if @disabled_with_caseload.present?
+  .table-responsive
+    %table.table.table-striped.table-condensed
+      %thead
+        %tr
+          %th Staff
+          %th Role
+          %th Caseload
+          %th Last Sign-In
+      %tbody
+        - @disabled_with_caseload.each do |u|
+          %tr
+            %td= link_to u.name, user_path(u)
+            %td= u.roles.titleize
+            %td= u.case_worker_clients.size
+            %td= u.last_sign_in_at&.strftime('%Y-%m-%d')
+- else
+  %p.text-muted None — no disabled account holds a caseload.
+
 -# Phase 5.5 (AC-6) least-privilege SHADOW window. While config.x.enforce_least_privilege is OFF,
 -# this lists -- per staff member + rule -- how often the narrowed ProgressNote/version rules WOULD
 -# have denied access. Validation evidence to review BEFORE flipping the flag. Counts only, no records.
