@@ -23,7 +23,7 @@ gem 'sprockets', '~> 3.7'
 # ES5-only UglifyJS and cannot minify modern vendored JS (Chart.js v4's getters/arrows/const),
 # even with harmony:true. Terser is the modern Rails default and handles ES5+ES6 alike.
 gem 'terser',                 '~> 1.2'
-gem 'coffee-rails', '~> 4.2'
+gem 'coffee-rails', '~> 5.0'
 gem 'jbuilder',               '~> 2.0'
 gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q-gxcg-73hx)
 gem 'bootstrap-sass',         '~> 3.4.1'
