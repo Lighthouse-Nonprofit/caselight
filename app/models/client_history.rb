@@ -26,7 +26,10 @@ class ClientHistory
     # case_ids, etc.) can be stale-empty when this runs inside an after_save, so the history
     # would omit them. A fresh load queries the current associations.
     client = Client.find(client.id)
-    attributes = client.attributes
+    # Phase 6 (SC-28 / POAM-SC28-HIST): `attributes` returns DECRYPTED values for the encrypted
+    # columns — scrub them (and every embedded snapshot below) so the shared Mongo history stops
+    # being a plaintext PII shadow of the encrypted Postgres columns. Ids/statuses/dates survive.
+    attributes = HistoryPiiFilter.scrub(Client, client.attributes)
     attributes = attributes.merge('quantitative_case_ids' => client.quantitative_case_ids) if client.quantitative_case_ids.any?
     attributes = attributes.merge('agency_ids' => client.agency_ids) if client.agency_ids.any?
     attributes = attributes.merge('case_ids' => client.case_ids) if client.case_ids.any?
@@ -38,47 +41,57 @@ class ClientHistory
 
   private
 
+  # Every embedded snapshot below routes through HistoryPiiFilter.scrub — a no-op for models with
+  # no encrypted attributes (Agency/Case/QuantitativeCase today), load-bearing for User/Family/
+  # CustomFieldProperty. try(:attributes) may be nil (record since deleted); scrub passes nil through.
+
   def create_client_quantitative_case_history
     object['quantitative_case_ids'].each do |quantitative_case_id|
-      quantitative_case = QuantitativeCase.find_by(id: quantitative_case_id).try(:attributes)
+      quantitative_case = HistoryPiiFilter.scrub(QuantitativeCase, QuantitativeCase.find_by(id: quantitative_case_id).try(:attributes))
       client_quantitative_case_histories.create(object: quantitative_case)
     end
   end
 
   def create_agency_client_history
     object['agency_ids'].each do |agency_id|
-      agency = Agency.find_by(id: agency_id).try(:attributes)
+      agency = HistoryPiiFilter.scrub(Agency, Agency.find_by(id: agency_id).try(:attributes))
       agency_client_histories.create(object: agency)
     end
   end
 
   def create_case_client_history
     object['case_ids'].each do |case_id|
-      c_case = Case.find_by(id: case_id).try(:attributes)
+      c_case = HistoryPiiFilter.scrub(Case, Case.find_by(id: case_id).try(:attributes))
       case_client_histories.create(object: c_case)
     end
   end
 
   def create_case_worker_client_history
+    # Phase 6: the staff snapshot used to carry the full User attribute hash — email, names, mobile,
+    # password hash, OTP secret, sign-in IPs. The scrub removes all of it (EXTRA_DENYLIST covers the
+    # credential/IP columns); the old IP-stringify lines are gone because they would re-add the keys
+    # as "" after the scrub.
     object['user_ids'].each do |user_id|
-      case_worker = User.find_by(id: user_id).try(:attributes)
-      case_worker['current_sign_in_ip'] = case_worker['current_sign_in_ip'].to_s
-      case_worker['last_sign_in_ip'] = case_worker['last_sign_in_ip'].to_s
+      case_worker = HistoryPiiFilter.scrub(User, User.find_by(id: user_id).try(:attributes))
       case_worker_client_histories.create(object: case_worker)
     end
   end
 
   def create_client_custom_field_property_history
     object['custom_field_property_ids'].each do |ccfp_id|
-      custom_field_property               = CustomFieldProperty.find_by(id: ccfp_id).try(:attributes)
-      custom_field_property['properties'] = format_custom_field_property(custom_field_property)
+      custom_field_property = HistoryPiiFilter.scrub(CustomFieldProperty, CustomFieldProperty.find_by(id: ccfp_id).try(:attributes))
+      # Post-scrub the Tier-5 encrypted `properties` values are absent; format only what remains
+      # (nil-guard keeps the legacy label-normalization from raising inside an after_save).
+      if custom_field_property.is_a?(Hash) && custom_field_property['properties'].present?
+        custom_field_property['properties'] = format_custom_field_property(custom_field_property)
+      end
       client_custom_field_property_histories.create(object: custom_field_property)
     end
   end
 
   def create_client_family_history
     object['family_ids'].each do |family_id|
-      family = Family.find_by(id: family_id).try(:attributes)
+      family = HistoryPiiFilter.scrub(Family, Family.find_by(id: family_id).try(:attributes))
       client_family_histories.create(object: family)
     end
   end
