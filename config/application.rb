@@ -100,6 +100,18 @@ module CifWeb
       'Referrer-Policy'                   => 'strict-origin-when-cross-origin'
     }
 
+    # YAML-column safe_load allowlist (data-only classes, no code-execution gadgets). paper_trail's
+    # serializer deserializes versions.object/object_changes through this list; the Rails default is
+    # [Symbol], so any version payload holding a Date/Time raised Psych::DisallowedClass — reify broke
+    # outright and Version#changeset silently returned {} (the changelog UI rendered value-empty rows)
+    # ever since the psych-4 / Rails-7 upgrade. TimeWithZone/TimeZone/HashWithIndifferentAccess cover
+    # AR attribute values and legacy 4.2-era payload rows.
+    config.active_record.yaml_column_permitted_classes = [
+      Symbol, Date, Time, DateTime, BigDecimal,
+      ActiveSupport::TimeWithZone, ActiveSupport::TimeZone,
+      ActiveSupport::HashWithIndifferentAccess
+    ]
+
     # custom error page
     config.exceptions_app = self.routes
   end

@@ -13,6 +13,9 @@ class UsersController < AdminController
         @user_grid.scope { |scope| scope.accessible_by(current_ability).page(params[:page]).per(20) }
       end
       f.xls do
+        # Phase 6 (U1): the export must honor the same ability scope as the HTML branch —
+        # without this the XLS emitted the full UserGrid scope regardless of viewer.
+        @user_grid.scope { |scope| scope.accessible_by(current_ability) }
         send_data @user_grid.to_xls, filename: "user_report-#{Time.now}.xls"
       end
     end
@@ -67,6 +70,7 @@ class UsersController < AdminController
   def destroy
     if @user.no_any_associated_objects?
       @user.destroy
+      AccessLog.record_destroyed!(self, @user)  # Phase 6 (AU-2), values-free
       redirect_to users_url, notice: t('.successfully_deleted')
     else
       redirect_to users_url, alert: t('.alert')

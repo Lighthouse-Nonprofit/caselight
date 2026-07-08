@@ -11,7 +11,9 @@ class ProgressNote < ActiveRecord::Base
   has_many :attachments, dependent: :destroy
   accepts_nested_attributes_for :attachments, allow_destroy: true, reject_if: :all_blank
 
-  has_paper_trail
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — keep encrypted narrative PII out of version payloads (drift-guarded).
+  has_paper_trail skip: %i[response additional_note]
+  include RedactedUpdateVersions  # skipped-only edits still write a values-free who/when version
 
   # Phase 4 Tier 1 — encrypt sensitive case-note narrative at rest (SC-28, SOC 2 C1.1).
   # NON-DETERMINISTIC. response / additional_note are display/export-only: ProgressNoteGrid renders

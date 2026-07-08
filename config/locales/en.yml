@@ -912,6 +912,7 @@ en:
     create:
       successfully_created: Client has been successfully created.
     destroy:
+      alert: Individual cannot be deleted while they have cases or program enrollments. Close or remove those first.
       successfully_deleted: Client has been successfully deleted.
     edit:
       edit_client_title: Edit Client

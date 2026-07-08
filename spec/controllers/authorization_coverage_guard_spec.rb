@@ -24,7 +24,8 @@ RSpec.describe 'Phase 5.6 authorization coverage guard', type: :request do
     'api/form_builder_attachments' => %w[destroy],       # 5.6: authorize! :update, @attachment.form_buildable (flag-gated)
     'papertrail_queries'           => %w[index],         # 5.6: authorize! :read, DataTracker
     'notifications'                => %w[index],          # 5.6: authorize! :read, Notification
-    'enforcement_settings'         => %w[show update]     # Phase 5 capstone: authorize! :manage, EnforcementSetting (in-body before_action + explicit)
+    'enforcement_settings'         => %w[show update],    # Phase 5 capstone: authorize! :manage, EnforcementSetting (in-body before_action + explicit)
+    'downloads'                    => %w[show]            # Phase 6 U7: authorize! :read on the readable PARENT in a before_action (authorize_record!) + sensitivity gate; proven by spec/requests/authorized_downloads_spec.rb
   }.freeze
 
   KNOWN_ORPHAN_CONTROLLERS = %w[able_screens/answer_submissions/clients].freeze
