@@ -6,7 +6,9 @@ class Partner < ActiveRecord::Base
   has_many :custom_field_properties, as: :custom_formable, dependent: :destroy
   has_many :custom_fields, through: :custom_field_properties, as: :custom_formable
 
-  has_paper_trail
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — keep encrypted PII out of version payloads (drift-guarded).
+  has_paper_trail skip: %i[address]
+  include RedactedUpdateVersions  # skipped-only edits still write a values-free who/when version
 
   # Phase 4 Tier 2 — encrypt address PII at rest (SC-28). NON-DETERMINISTIC; the address_like scope +
   # PartnerGrid address filter were removed in this change. contact_person_*/background stay searchable

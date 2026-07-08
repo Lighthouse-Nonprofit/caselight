@@ -58,7 +58,17 @@ class Client < ActiveRecord::Base
   # has_many :surveys,        dependent: :destroy
   has_many :progress_notes, dependent: :destroy
 
-  has_paper_trail
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — versions must not carry a plaintext copy of the encrypted
+  # PII columns (paper_trail serializes DECRYPTED attribute values). skip: omits these from BOTH
+  # `object` and `object_changes`, so the changelog keeps who/when/event for every change but no
+  # longer shows before/after values for PII fields. The list is LITERAL (not derived) because this
+  # macro runs before the `encrypts` declarations below — the paper_trail_redaction_spec drift-guard
+  # fails CI if a future `encrypts` is added without a matching skip entry.
+  has_paper_trail skip: %i[given_name family_name local_given_name local_family_name
+                           reason_for_referral background exit_note rejected_note
+                           relevant_referral_information current_address school_name
+                           house_number street_number village commune district live_with]
+  include RedactedUpdateVersions  # skipped-only edits still write a values-free who/when version
 
   # Phase 4 Tier 1 — field-level encryption at rest for sensitive narrative PII (FedRAMP SC-28,
   # SOC 2 C1.1). NON-DETERMINISTIC: these columns are never equality/range/iLIKE queried. The only

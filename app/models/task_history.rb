@@ -12,7 +12,10 @@ class TaskHistory
   after_save :create_case_worker_task_history, if: -> { object.key?("user_ids") }
 
   def self.initial(task)
-    attributes = task.attributes
+    # Phase 6 (SC-28 / POAM-SC28-HIST): scrub encrypted attributes from the snapshot (a no-op for
+    # Task today; future-proof). StaffMonthlyReport reads object.completion_date / completed /
+    # user_ids — all non-PII, all preserved.
+    attributes = HistoryPiiFilter.scrub(Task, task.attributes)
     attributes = attributes.merge('user_ids' => task.user_ids) if task.user_ids.any?
     create(object: attributes)
   end
@@ -20,10 +23,10 @@ class TaskHistory
   private
 
   def create_case_worker_task_history
+    # Phase 6: staff snapshot scrubbed (email/names/mobile/credentials/sign-in IPs removed); the old
+    # IP-stringify lines would re-add the keys as "" post-scrub, so they are gone.
     object['user_ids'].each do |user_id|
-      case_worker = User.find_by(id: user_id).try(:attributes)
-      case_worker['current_sign_in_ip'] = case_worker['current_sign_in_ip'].to_s
-      case_worker['last_sign_in_ip'] = case_worker['last_sign_in_ip'].to_s
+      case_worker = HistoryPiiFilter.scrub(User, User.find_by(id: user_id).try(:attributes))
       case_worker_task_histories.create(object: case_worker)
     end
   end
