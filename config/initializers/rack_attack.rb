@@ -9,9 +9,10 @@ class Rack::Attack
   # present for Sidekiq). A per-process MemoryStore in test keeps the suite hermetic and lets
   # the throttle spec clear counters without touching the shared Redis (where Sidekiq lives).
   #
-  # NB: use a RAW Redis client, not ActiveSupport::Cache::RedisCacheStore — the latter requires
-  # redis-rb >= 4.0.1, but Sidekiq 4.1 pins redis-rb 3.x (the 4->7 sidekiq bump is POAM-001).
-  # rack-attack wraps a bare Redis connection via its RedisStoreProxy, which works on redis-rb 3.x.
+  # NB: redis-rb is now an EXPLICIT Gemfile dependency (~> 5) — sidekiq 7 (POAM-001 closed) moved
+  # to redis-client internally, so nothing else pulls the redis gem in. rack-attack wraps the bare
+  # connection via its RedisStoreProxy (supports redis-rb 4/5); the old redis-rb-3 constraint from
+  # the sidekiq-4 era is gone.
   require 'redis'
   Rack::Attack.cache.store =
     if Rails.env.test?

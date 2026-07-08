@@ -53,10 +53,15 @@ gem 'ffaker',                 '~> 2.25.0'
 gem 'draper', '~> 4.0'
 gem 'datagrid',               '~> 1.4.2'
 gem 'active_model_serializers', '~> 0.10.0'
-gem 'sinatra', '~> 2.0', require: false
+# sinatra REMOVED (Phase 6 / POAM-003): it existed only as the sidekiq-4 web-UI dependency, was
+# require: false, and Sidekiq::Web was never mounted anywhere. sidekiq >= 6 ships its own rack app.
 # rack-cors removed (Phase 1): the only CORS config was a vestigial `origins '*'` block for the
 # removed mobile/token-auth API. Remaining /api endpoints are same-origin AJAX (no CORS needed).
 gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on auth endpoints (AC-7, SC-5)
+# Explicit redis-rb for rack_attack's throttle store (config/initializers/rack_attack.rb uses raw
+# Redis.new). Previously an implicit transitive dep of sidekiq 4; sidekiq 7 switched to redis-client,
+# so without this line the redis gem would silently drop out of the bundle and break rack-attack.
+gem 'redis', '~> 5.4'
 gem 'lograge', '~> 0.14'      # Phase 3: structured (JSON) request logging with audit tags (AU-3)
 gem 'rails-erd'
 gem 'phony_rails',            '~> 0.15.0'
@@ -97,7 +102,13 @@ gem 'dropzonejs-rails',       '~> 0.8.5'
 # mixins/functions were ever used, and bourbon 4.x pins thor ~> 0.19, which conflicts with
 # Rails 6's railties (thor >= 0.20.3). Dropping the dead imports unblocks the thor bump.
 gem 'jquery_query_builder-rails', '~> 0.5.0'
-gem 'sidekiq',                '~> 4.1.0'
+# sidekiq 4 -> 7 (Phase 6 / POAM-001: XSS + 2x DoS CVEs). 7.x uses redis-client internally (the
+# explicit redis gem above keeps rack-attack working); Sidekiq.default_worker_options renamed to
+# default_job_options (initializer updated); no Sidekiq::Extensions (.delay) usage existed to convert.
+gem 'sidekiq',                '~> 7.3'
+# connection_pool 3.0 changed TimedStack#pop's signature and crashes sidekiq 7.3's scheduler thread
+# (ArgumentError at boot, caught by the U11 smoke). Pin to the 2.x line sidekiq 7 was built against.
+gem 'connection_pool',        '~> 2.5'
 # mongo driver unpinned now that the server is MongoDB 6.0 (the 2.19 cap was only to keep the
 # EOL 3.6 server working). mongoid ~> 8.0 pulls a compatible mongo 2.x.
 gem 'mongoid', '~> 8.0'
