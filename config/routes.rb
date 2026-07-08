@@ -10,6 +10,14 @@ Rails.application.routes.draw do
   get   'admin/enforcement_settings', to: 'enforcement_settings#show',   as: :enforcement_settings
   patch 'admin/enforcement_settings', to: 'enforcement_settings#update'
 
+  # Phase 6 (POAM-SC28-UPLOADS) — the ONE authorized serve path for CarrierWave uploads now that
+  # UploadsStaticGuard denies all raw /uploads/** (except the public org logo). Whitelist-constrained;
+  # ?version=thumb serves the image thumbnail inline (screening-question <img> tags).
+  get 'downloads/:record_type/:record_id/:mount(/:index)',
+      to: 'downloads#show', as: :authorized_download,
+      constraints: { record_type: /attachment|custom_field_property|case_note_domain_group|form_builder_attachment/,
+                     record_id: /\d+/, mount: /file|image|attachments/, index: /\d+/ }
+
   # password_expired -> the app's thin PasswordExpiredController (< Devise::PasswordExpiredController) so it
   # matches the other custom devise controllers here: skip_authorization_check satisfies the Phase-5.6
   # coverage guard the same way sessions/registrations/passwords do. The route auto-emits once
