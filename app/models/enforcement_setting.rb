@@ -26,7 +26,10 @@ class EnforcementSetting < ApplicationRecord
 
   # NEW value settings (minutes / count / days). NULL/blank => the Devise config default (fail-safe = today).
   # These do NOT go through enabled? (which is boolean); they go through effective_value.
-  VALUE_SETTINGS = %i[idle_timeout_minutes lockout_max_attempts lockout_unlock_in_minutes password_max_age_days].freeze
+  # inactive_disable_days (Phase 6, AC-2(3)): NULL => auto-disable OFF (the scheduled rake runs
+  # report-only); a value => accounts idle longer than N days are disabled by accounts:disable_inactive.
+  VALUE_SETTINGS = %i[idle_timeout_minutes lockout_max_attempts lockout_unlock_in_minutes password_max_age_days
+                      inactive_disable_days].freeze
 
   # HARD lockout floor (AC-7 admin-brick prevention): fewer than 3 attempts would lock an admin after a
   # couple of typos. REJECTED at write (validation below) AND clamped at read (User.maximum_attempts uses
@@ -39,6 +42,8 @@ class EnforcementSetting < ApplicationRecord
   validates :lockout_max_attempts,      numericality: { only_integer: true, greater_than_or_equal_to: LOCKOUT_ATTEMPTS_FLOOR, less_than_or_equal_to: 100 }, allow_nil: true
   validates :lockout_unlock_in_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 5, less_than_or_equal_to: 1440 }, allow_nil: true
   validates :password_max_age_days,     numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 3650 }, allow_nil: true
+  # 30-day floor: a fat-fingered low value must never disable a whole org's staff overnight.
+  validates :inactive_disable_days,     numericality: { only_integer: true, greater_than_or_equal_to: 30, less_than_or_equal_to: 3650 }, allow_nil: true
 
   belongs_to :updated_by, class_name: 'User', optional: true
 
@@ -90,7 +95,8 @@ class EnforcementSetting < ApplicationRecord
       idle_timeout_minutes: row.idle_timeout_minutes,
       lockout_max_attempts: row.lockout_max_attempts,
       lockout_unlock_in_minutes: row.lockout_unlock_in_minutes,
-      password_max_age_days: row.password_max_age_days }
+      password_max_age_days: row.password_max_age_days,
+      inactive_disable_days: row.inactive_disable_days }
   rescue StandardError => e
     Rails.logger.error("[EnforcementSetting] load_overrides failed (fail-safe -> config default): #{e.class}: #{e.message}")
     {}
@@ -152,6 +158,7 @@ class EnforcementSetting < ApplicationRecord
     when :lockout_max_attempts      then Devise.maximum_attempts
     when :lockout_unlock_in_minutes then (Devise.unlock_in.to_i / 60)
     when :password_max_age_days     then nil
+    when :inactive_disable_days     then nil # Phase 6 AC-2(3): unset = auto-disable OFF (report-only)
     end
   end
 

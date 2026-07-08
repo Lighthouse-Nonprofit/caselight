@@ -105,6 +105,24 @@ class AccessLog
       nil
     end
 
+    # Record a REQUEST-LESS system event (Phase 6): scheduled/rake maintenance actions like
+    # account_disabled that happen outside any HTTP request (every other writer demands one).
+    # Values-free metadata contract applies. Same never-raise resilience.
+    def system_event!(event_type:, user: nil, metadata: {})
+      write!(
+        event_type: event_type,
+        user_id:    user.try(:id),
+        user_email: user.try(:email),
+        controller: nil,
+        action:     nil,
+        path:       nil,
+        metadata:   (metadata || {}).merge('source' => 'system')
+      )
+    rescue => e
+      Rails.logger.error("[AccessLog] system_event! failed: #{e.class}: #{e.message}")
+      nil
+    end
+
     # Record a security event (login_failure / account_locked / access_denied) from
     # a raw ActionDispatch::Request (Warden hook has env, the rescues have request).
     # user is optional — unauthenticated failures have none. Same resilience contract.
