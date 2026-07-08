@@ -12,6 +12,11 @@ ignore:
   - CVE-2023-26141
   # POAM-002 — CLOSED: simple_form 4.1.0 -> 5.4.1. IDs removed (GHSA-r74q-gxcg-73hx, CVE-2019-16676);
   #             the incorrect-access-control advisory no longer matches the lockfile, so CI stays green without the ignore.
+  # POAM-011 — webrick 1.9.2 (transitive via rackup; thin serves production, webrick serves NOTHING)
+  #            CVE-2026-38969 trailer-reparse request smuggling; no patched release yet (advisory
+  #            published 2026-07-07). Re-check for a patched webrick / drop with the rack 3 work.
+  - GHSA-h4w6-wx8r-p68v
+  - CVE-2026-38969
   # POAM-003 — sinatra 2.2.4 (transitive via sidekiq web UI) -> resolves with the sidekiq bump
   - GHSA-hxx2-7vcw-mqr3   # CVE-2024-21510 untrusted input (Medium)
   - GHSA-mr3q-g2mv-mr4q   # ReDoS via ETag (Unknown)
