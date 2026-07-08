@@ -10,10 +10,12 @@ class ProgressNotesController < AdminController
     @progress_note_grid = ProgressNoteGrid.new(params.fetch(:progress_note_grid, {}).merge!(current_client: @client))
     respond_to do |f|
       f.html do
-        @progress_note_grid.scope { |scope| scope.where(client_id: @client.id).page(params[:page]).per(20) }
+        # Phase 6 (U1): + accessible_by — a no-op while the ProgressNote rule is broad, but the
+        # Phase-5.5 narrowed rules then apply here automatically when enforce_least_privilege flips.
+        @progress_note_grid.scope { |scope| scope.accessible_by(current_ability).where(client_id: @client.id).page(params[:page]).per(20) }
       end
       f.xls do
-        @progress_note_grid.scope { |scope| scope.where(client_id: @client.id) }
+        @progress_note_grid.scope { |scope| scope.accessible_by(current_ability).where(client_id: @client.id) }
         send_data @progress_note_grid.to_xls, filename: "progress_note_report-#{Time.now}.xls"
       end
     end
