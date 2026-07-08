@@ -6,7 +6,7 @@
         %tr
           %td= original_filename(attachment)
           %td
-            = link_to preview_or_download(attachment), attachment.url, class: 'btn btn-info btn-sm btn-download'
+            = link_to preview_or_download(attachment), authorized_download_path('custom_field_property', custom_field_property.id, 'attachments', index), class: 'btn btn-info btn-sm btn-download'
           %td.text-center
             = link_to (polymorphic_path([@custom_formable, custom_field_property], custom_field_id: @custom_field, file_index: index)), method: :delete, data: { confirm: t('.are_you_sure') } do
               %i.fa.fa-trash.btn.btn-outline.btn-danger.btn-xs
