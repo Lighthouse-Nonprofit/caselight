@@ -71,6 +71,7 @@ class FamiliesController < AdminController
   def destroy
     if @family.cases_count.zero?
       @family.destroy
+      AccessLog.record_destroyed!(self, @family)  # Phase 6 (AU-2), values-free
       redirect_to families_url, notice: t('.successfully_deleted')
     else
       redirect_to families_url, alert: t('.alert')

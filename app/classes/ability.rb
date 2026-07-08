@@ -233,5 +233,13 @@ class Ability
         can :read, ProgressNote
       end
     end
+
+    # Phase 6 (deletion lifecycle, AC-6): under least-privilege narrowing, destroying an individual
+    # becomes ADMIN-ONLY. Placed after the role branches so CanCan's later-rule-wins strips :destroy
+    # from every non-admin role's `can :manage, Client` in one place. Shadow-first like the other
+    # @narrow rules: with the flag OFF this is inert; would-be denials surface in the AccessReview
+    # least-privilege shadow table before any flip. The unconditional associated-records guard in
+    # ClientsController#destroy protects the dangerous cascade regardless of this flag.
+    cannot :destroy, Client if @narrow && !user.admin?
   end
 end

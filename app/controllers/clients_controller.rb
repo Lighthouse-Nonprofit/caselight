@@ -99,9 +99,17 @@ class ClientsController < AdminController
   end
 
   def destroy
-    @client.reload.destroy
-
-    redirect_to clients_url, notice: t('.successfully_deleted')
+    # Phase 6 — Client was the ONLY unguarded destroy (Family/Partner/User all guard on associated
+    # records): a single click hard-cascaded the entire client subtree (cases, enrollments, notes,
+    # assessments, custom forms, files). Mirror the sibling pattern: block while case history or
+    # program enrollments exist. The destroy itself is audited (AU-2 record_destroyed, values-free).
+    if @client.cases.exists? || @client.client_enrollments.exists?
+      redirect_to clients_url, alert: t('.alert')
+    else
+      @client.reload.destroy
+      AccessLog.record_destroyed!(self, @client)
+      redirect_to clients_url, notice: t('.successfully_deleted')
+    end
   end
 
   def quantitative_case

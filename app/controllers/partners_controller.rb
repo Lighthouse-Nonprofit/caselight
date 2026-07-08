@@ -59,6 +59,7 @@ class PartnersController < AdminController
   def destroy
     if @partner.cases_count.zero?
       @partner.destroy
+      AccessLog.record_destroyed!(self, @partner)  # Phase 6 (AU-2), values-free
       redirect_to partners_url, notice: t('.successfully_deleted')
     else
       redirect_to partners_url, alert: t('.alert')
