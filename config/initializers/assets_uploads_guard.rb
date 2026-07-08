@@ -1,25 +1,40 @@
 # frozen_string_literal: true
 
-# Phase 5.3 (NIST AC-6 / SC-28) — assessment_domain attachments are stored on the CarrierWave :file
-# backend under public/uploads/assessment_domain/attachments/<id>/<file> and would otherwise be served
-# directly by Rails' static file middleware (config.serve_static_files) at a GUESSABLE URL, bypassing
-# the sensitivity-gated download action. Deny ALL direct static requests under that path; the ONLY
-# supported serve path is GET .../assessments/:id/assessment_domains/:adid/attachments/:index
-# (AssessmentsController#download_attachment), which authorizes :read on the client AND checks the
-# domain's sensitivity before send_file. Returns a static 403 (never a redirect, never the bytes).
+# Phase 5.3 -> Phase 6 (NIST AC-6 / SC-28, POAM-SC28-UPLOADS). CarrierWave stores under
+# public/uploads/<model>/<mount>/<id>/<file>, which Rails' static file middleware would serve at a
+# GUESSABLE URL with no authorization. Phase 5.3 denied only assessment_domain; Phase 6 closes the
+# rest: deny ALL of /uploads/** EXCEPT the organization logo (login-page branding, non-PII, must
+# stay public). The only supported serve paths are the authorized controllers —
+# AssessmentsController#download_attachment (assessment_domain) and DownloadsController#show
+# (everything else) — which authorize the readable parent record and apply the Phase-5.3
+# sensitivity gates before send_file. Returns a static 403 (never a redirect, never the bytes).
+#
+# ENV kill-switch (rollback without a deploy): UPLOADS_GUARD_ALLOW_ALL=1 restores the Phase-5.3
+# assessment_domain-only deny. Documented in the Phase-6 PR; remove once the new routes have soaked.
 class UploadsStaticGuard
-  DENY = %r{\A/uploads/assessment_domain/}i.freeze
+  DENY_ALL    = %r{\A/uploads/}i.freeze
+  ALLOW       = %r{\A/uploads/organization/}i.freeze
+  DENY_LEGACY = %r{\A/uploads/assessment_domain/}i.freeze
 
   def initialize(app)
     @app = app
+    @legacy_mode = ENV['UPLOADS_GUARD_ALLOW_ALL'] == '1'
   end
 
   def call(env)
     path = env['PATH_INFO'].to_s
-    if path.match?(DENY)
+    if denied?(path)
       return [403, { 'Content-Type' => 'text/plain', 'X-Content-Type-Options' => 'nosniff' }, ['Not authorized']]
     end
     @app.call(env)
+  end
+
+  private
+
+  def denied?(path)
+    return path.match?(DENY_LEGACY) if @legacy_mode
+
+    path.match?(DENY_ALL) && !path.match?(ALLOW)
   end
 end
 

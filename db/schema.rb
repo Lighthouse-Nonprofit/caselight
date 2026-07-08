@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_01_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_07_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
@@ -391,6 +391,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_01_000001) do
     t.integer "lockout_max_attempts"
     t.integer "lockout_unlock_in_minutes"
     t.integer "password_max_age_days"
+    t.integer "inactive_disable_days"
   end
 
   create_table "families", id: :serial, force: :cascade do |t|

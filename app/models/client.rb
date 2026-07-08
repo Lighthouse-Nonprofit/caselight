@@ -130,6 +130,11 @@ class Client < ActiveRecord::Base
   after_create :set_slug_as_alias
   after_update :set_able_status, if: proc { |client| client.able_state.blank? && answers.any? }
   after_save :create_client_history
+  # Phase 6 (deletion lifecycle): a destroyed client's Mongo history docs are subject-linked records
+  # with no reader — complete the erasure. The (PII-free, post-redaction) paper_trail destroy version
+  # is deliberately KEPT as the who-deleted-what-when evidence. after_commit + rescue: a Mongo outage
+  # must never fail or roll back the destroy.
+  after_commit :purge_client_histories, on: :destroy
 
   # Tier 4: the 4 name columns are DETERMINISTICALLY encrypted — iLIKE substring over ciphertext is
   # impossible; exact equality still works. Rewritten to where(col: value) (AR serializes value to the
@@ -400,5 +405,14 @@ class Client < ActiveRecord::Base
 
   def create_client_history
     ClientHistory.initial(self)
+  end
+
+  # Phase 6: remove this client's Mongo history documents on destroy (embedded child histories die
+  # with the parent doc). delete_all — no Mongoid callbacks needed. The tenant default_scope applies,
+  # so only the current tenant's docs are touched. Never raises into the (already-committed) destroy.
+  def purge_client_histories
+    ClientHistory.where('object.id' => id).delete_all
+  rescue StandardError => e
+    Rails.logger.error("[Client] post-destroy history purge failed for ##{id}: #{e.class}: #{e.message}")
   end
 end

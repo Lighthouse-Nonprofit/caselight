@@ -7,7 +7,7 @@ class AccessReviewsController < AdminController
   def index
     authorize! :read, :access_review # admin-only via `can :manage, :all`; also satisfies verify_authorized at the 5.6 cutover
 
-    @users = User.includes(:department)
+    @users = User.includes(:department, :case_worker_clients)
                  .to_a
                  .sort_by { |u| u.name.to_s.downcase } # name is deterministically encrypted (Tier 3) -> sort in memory, never ORDER BY
 
@@ -31,6 +31,11 @@ class AccessReviewsController < AdminController
                             .map { |(controller, action, role), evs| { controller: controller, action: action, role: role, count: evs.size, last_seen: evs.first.created_at } }
                             .sort_by { |row| [-row[:count], row[:controller].to_s, row[:action].to_s] }
 
+    # Phase 6 (AC-2 lifecycle): disabled staff still holding caseload assignments — nobody can log in
+    # as them, but their clients remain assigned and never re-routed. The reviewer's reassignment
+    # worklist (reassignment tooling itself is product work, tracked separately).
+    @disabled_with_caseload = @users.select { |u| u.disable? && u.case_worker_clients.size.positive? }
+
     respond_to do |format|
       format.html
       format.csv do
@@ -48,7 +53,7 @@ class AccessReviewsController < AdminController
     CSV.generate(headers: true) do |csv|
       csv << ['User ID', 'Name', 'Email', 'Role', 'Manager ID', 'Last Sign In', 'Current Sign In',
               'Sign In Count', 'MFA Enabled', 'MFA Gap (privileged w/o MFA)', 'Passkeys',
-              'Locked', 'Failed Attempts', 'Disabled', 'Created']
+              'Locked', 'Failed Attempts', 'Disabled', 'Caseload Count', 'Created']
       users.each do |u|
         mfa_gap = u.mfa_privileged? && !u.two_factor_enabled?
         csv << [u.id, u.name, u.email, u.roles, u.manager_id,
@@ -56,7 +61,8 @@ class AccessReviewsController < AdminController
                 (u.two_factor_enabled? ? 'yes' : 'no'), (mfa_gap ? 'YES' : 'no'),
                 u.webauthn_credentials.size,
                 (u.respond_to?(:access_locked?) && u.access_locked? ? 'yes' : 'no'),
-                u.failed_attempts, (u.disable? ? 'yes' : 'no'), u.created_at&.iso8601]
+                u.failed_attempts, (u.disable? ? 'yes' : 'no'),
+                u.case_worker_clients.size, u.created_at&.iso8601]
       end
     end
   end

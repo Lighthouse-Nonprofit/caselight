@@ -13,6 +13,8 @@ class PartnersController < AdminController
         @partner_grid.scope { |scope| scope.page(params[:page]).per(20) }
       end
       f.xls do
+        # Phase 6 (U1): scope the export by ability (bulk-exfil hygiene; mirrors clients#index).
+        @partner_grid.scope { |scope| scope.accessible_by(current_ability) }
         send_data @partner_grid.to_xls, filename: "partner_report-#{Time.now}.xls"
       end
     end
@@ -57,6 +59,7 @@ class PartnersController < AdminController
   def destroy
     if @partner.cases_count.zero?
       @partner.destroy
+      AccessLog.record_destroyed!(self, @partner)  # Phase 6 (AU-2), values-free
       redirect_to partners_url, notice: t('.successfully_deleted')
     else
       redirect_to partners_url, alert: t('.alert')

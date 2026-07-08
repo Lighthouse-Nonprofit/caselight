@@ -13,6 +13,10 @@ class FamiliesController < AdminController
         @family_grid.scope { |scope| scope.page(params[:page]).per(20) }
       end
       f.xls do
+        # Phase 6 (U1): scope the export by ability (bulk-exfil hygiene; mirrors clients#index).
+        # The HTML branch is deliberately left as-is — index reachability is already gated by
+        # load_and_authorize_resource, and re-scoping HTML is tracked separately (POA&M).
+        @family_grid.scope { |scope| scope.accessible_by(current_ability) }
         send_data @family_grid.to_xls, filename: "family_report-#{Time.now}.xls"
       end
     end
@@ -67,6 +71,7 @@ class FamiliesController < AdminController
   def destroy
     if @family.cases_count.zero?
       @family.destroy
+      AccessLog.record_destroyed!(self, @family)  # Phase 6 (AU-2), values-free
       redirect_to families_url, notice: t('.successfully_deleted')
     else
       redirect_to families_url, alert: t('.alert')

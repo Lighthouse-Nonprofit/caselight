@@ -146,6 +146,20 @@
                          placeholder: t('enforcement_settings.settings.password_expiry.placeholder')
         %span.help-block= t('enforcement_settings.settings.password_expiry.blank_hint')
 
+  -# Phase 6 — AC-2(3) inactive-account auto-disable threshold (days). Blank => OFF: the daily
+  -# accounts:disable_inactive run stays report-only and disables nobody.
+  .ibox
+    .ibox-title
+      %h4= t('enforcement_settings.settings.inactive_disable.name')
+    .ibox-content
+      %p.text-muted= t('enforcement_settings.settings.inactive_disable.description')
+      .form-group
+        = f.label :inactive_disable_days, t('enforcement_settings.settings.inactive_disable.label')
+        = f.number_field :inactive_disable_days, value: @setting.inactive_disable_days,
+                         min: 30, max: 3650, step: 1, class: 'form-control',
+                         placeholder: t('enforcement_settings.settings.inactive_disable.placeholder')
+        %span.help-block= t('enforcement_settings.settings.inactive_disable.blank_hint')
+
   .form-group
     = f.submit t('enforcement_settings.save'), class: 'btn btn-primary'
     = link_to t('enforcement_settings.shadow.review_link'), access_review_path, class: 'btn btn-default'
