@@ -15,7 +15,7 @@ that the primary Postgres columns now encrypt.
 | **ID** | POAM-SC28-HIST |
 | **Control** | SC-28 (Protection of Information at Rest), SC-28(1) (cryptographic protection) |
 | **Severity** | Medium (demo box, synthetic data) / **High** (must close before real data) |
-| **Status** | **Open — accepted for the synthetic-data demo box; blocking for the real-data host** |
+| **Status** | **REMEDIATED (Phase 6, 2026-07-07)** — code merged (#89 paper_trail redaction, #90 Mongo snapshot filter, #98 one-time scrub); dev scrub executed + verified (441 version rows, 43 ClientHistory docs, all verifies PASS). **Closes fully when the box scrub+verify runs at the Phase-6 deploy** (attach that run's PASS output here as the closure evidence). |
 | **Discovered** | Phase 4 (encryption-at-rest) close-out review |
 
 ### The gap
