@@ -22,11 +22,16 @@ module HistoryPiiFilter
                  current_sign_in_ip last_sign_in_ip].freeze
   }.freeze
 
+  # The denylist for a class — public so the one-time scrub of PRE-EXISTING Mongo docs
+  # (lib/tasks/history_redaction.rake, Phase 6 U4) derives its $unset paths from the SAME source.
+  def self.scrub_keys_for(klass)
+    Array(klass.try(:encrypted_attributes)).map(&:to_s) + EXTRA_DENYLIST.fetch(klass.name, [])
+  end
+
   def self.scrub(klass, attrs)
     return attrs unless attrs.is_a?(Hash)
 
-    denied = Array(klass.try(:encrypted_attributes)).map(&:to_s) +
-             EXTRA_DENYLIST.fetch(klass.name, [])
+    denied = scrub_keys_for(klass)
     return attrs if denied.empty?
 
     attrs.except(*denied)
