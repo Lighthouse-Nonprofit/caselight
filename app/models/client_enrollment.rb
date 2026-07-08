@@ -21,7 +21,9 @@ class ClientEnrollment < ActiveRecord::Base
   validates :enrollment_date, presence: true
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
 
-  has_paper_trail
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — keep the Tier-5 encrypted properties out of version payloads.
+  has_paper_trail skip: %i[properties]
+  include RedactedUpdateVersions  # properties-only saves still write a values-free who/when version
 
   scope :enrollments_by,              ->(client)         { where(client_id: client) }
   scope :find_by_program_stream_id,   ->(value)          { where(program_stream_id: value) }

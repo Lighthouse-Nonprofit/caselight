@@ -16,7 +16,9 @@ class ClientEnrollmentTracking < ActiveRecord::Base
 
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
 
-  has_paper_trail
+  # Phase 6 (SC-28 / POAM-SC28-HIST) — keep the Tier-5 encrypted properties out of version payloads.
+  has_paper_trail skip: %i[properties]
+  include RedactedUpdateVersions  # properties-only saves still write a values-free who/when version
 
   scope :ordered, -> { order(:created_at) }
   scope :enrollment_trackings_by, -> (tracking) { where(tracking_id: tracking) }
