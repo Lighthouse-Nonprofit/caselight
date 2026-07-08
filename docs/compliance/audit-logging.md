@@ -71,6 +71,13 @@ safe (a missing flag keeps logging ON). **Security events** (login_failure /
 account_locked / access_denied) are **always recorded regardless of this flag** —
 the toggle governs only the `read` event type.
 
+**Phase-6 additions to the taxonomy** (each values-free; see `app/models/access_log.rb`):
+`record_destroyed` (successful destroys of primary records — clients/families/partners/users;
+emitted from the destroy success branches), `account_disabled` (AC-2(3) inactive-account
+auto-disable, written by `accounts:disable_inactive` via the request-less
+`AccessLog.system_event!`), and `record_exported` (subject-access exports, written by
+`privacy:subject_access_export` — the export FILE is the payload; the log row never is).
+
 **Inherited from infra:** OS / container / reverse-proxy events (SSH sessions,
 sudo, network ACL hits) are audited at the host layer, not by CaseLight.
 

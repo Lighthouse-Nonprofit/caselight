@@ -52,17 +52,23 @@ therefore use deterministic encryption. Trade-off: name search is now **exact an
 `Client#name` render lowercase everywhere). Case-insensitive name search would require the declined
 `blind_index` sidecar; it is a documented, accepted limitation for the pilot.
 
-**Tier 5 (JSONB) — PENDING (separate later workflow):** the polymorphic custom-form values in the
-`.properties` JSONB columns (CustomFieldProperty et al.) are **not yet encrypted**, and the custom-form
-search over them is untouched. Sensitive PII entered through custom fields is therefore **not** covered
-by SC-28 until Tier 5 lands. Tracked as the next encryption workflow.
+**Tier 5 (JSONB) — MERGED** (PR #47; this paragraph previously said PENDING and had gone stale —
+refreshed in Phase 6): the polymorphic custom-form `.properties` values on CustomFieldProperty,
+ClientEnrollment, ClientEnrollmentTracking and LeaveProgram are encrypted **non-deterministically**
+(jsonb → text + `attribute :json` + `encrypts`; the Hash read interface is preserved). The four
+JSONB-SQL search builders were rewritten to in-Ruby decrypt-and-filter via
+`AdvancedSearches::PropertiesFilter`. Backfill/verify ran per tenant (dev + the pilot box, all
+tiers PASS). Register: `ENCRYPTION_TIERS` in `lib/tasks/encryption.rake`.
 
 ## Residual gaps (tracked, not silently accepted)
 
-1. **History stores hold plaintext PII** — the Mongo `*_history` models and the paper_trail `versions`
-   table keep plaintext copies of the encrypted fields. This is the largest residual SC-28 gap and has
-   its own entry: **[POAM-SC28-HIST](history-store-sc28-poam.md)** (accepted for the synthetic demo
-   box; hard gate before real data).
+1. **History stores — REMEDIATED (Phase 6).** The Mongo `*_history` models and the paper_trail
+   `versions` table used to keep plaintext copies of the encrypted fields. Closed by redaction at
+   the source (paper_trail `skip:` lists + the forced values-free who/when versions, #89; the
+   `HistoryPiiFilter` snapshot scrub, #90) plus a one-time in-place scrub + verify of pre-existing
+   rows (`history_redaction.rake`, #98 — executed and verified on dev; the box run happens at the
+   Phase-6 deploy). Status + closure evidence: **[POAM-SC28-HIST](history-store-sc28-poam.md)**.
+   The full field-by-field map now lives in **[pii-inventory.md](pii-inventory.md)**.
 
 2. **`Client.date_of_birth` — PLAINTEXT (locked decision).** DOB stays plaintext: the `Client.filter`
    date-of-birth `EXTRACT(MONTH/YEAR)` clause and DOB's role in age/range queries and reporting would
