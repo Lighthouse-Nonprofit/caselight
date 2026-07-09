@@ -82,6 +82,7 @@ See the **[User Guide](docs/user-guide.md)** for a screen-by-screen walkthrough.
 ## Documentation
 
 - **[User Guide](docs/user-guide.md)** — a screen-by-screen walkthrough for staff.
+- **Printable PDFs** ([`docs/pdf/`](docs/pdf)) — a [User Guide](docs/pdf/CaseLight-User-Guide.pdf), an [Administrator Guide](docs/pdf/CaseLight-Administrator-Guide.pdf), and a [Brochure](docs/pdf/CaseLight-Brochure.pdf).
 - **[Compliance program](docs/compliance/)** — System Security Plan, SOC 2 control matrix, policies,
   the POA&M, and a reproducible evidence bundle (`rake compliance:evidence`).
 - **[SECURITY.md](SECURITY.md)** — data-handling posture and the production gate for real client data.

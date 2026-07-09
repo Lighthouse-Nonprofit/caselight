@@ -17,6 +17,11 @@ This guide walks through the app the way staff actually use it, role by role and
 > **All screenshots in this guide show synthetic demo data** — fictional names, addresses, and
 > records generated for demonstration. No real client information appears anywhere.
 
+> **Printable editions:** polished PDFs live in [`docs/pdf/`](pdf/) —
+> [User Guide](pdf/CaseLight-User-Guide.pdf),
+> [Administrator Guide](pdf/CaseLight-Administrator-Guide.pdf), and a
+> [Brochure](pdf/CaseLight-Brochure.pdf).
+
 ## Contents
 
 1. [Signing in](#1-signing-in)
@@ -31,6 +36,7 @@ This guide walks through the app the way staff actually use it, role by role and
 10. [Custom forms — the form builder](#10-custom-forms--the-form-builder-administrators)
 11. [Security & administration](#11-security--administration-administrators)
 12. [Data protection & privacy](#12-data-protection--privacy)
+13. [Administration reference — the Manage menu](#13-administration-reference--the-manage-menu)
 
 ---
 
@@ -225,3 +231,47 @@ production gate for **real** client data are in [`../SECURITY.md`](../SECURITY.m
 
 > **Pilot data is synthetic only.** Moving to real client records is a deliberate, separate decision
 > that requires meeting the production gate documented in `SECURITY.md`.
+
+---
+
+## 13. Administration reference — the Manage menu
+
+Administrators configure CaseLight from the **Manage** menu (plus **Users** and **Partners**). The form
+builder ([§10](#10-custom-forms--the-form-builder-administrators)), program streams
+([§6](#6-programs--enrollments)), and assessment domains ([§8](#8-assessments--domains)) are covered
+above; the remaining items are reference lists that populate dropdowns and organize your work. The
+**[Administrator Guide PDF](pdf/CaseLight-Administrator-Guide.pdf)** is the full walkthrough.
+
+### Users
+
+One account per staff member, each with a role. Add users, and export the roster to XLS.
+
+<p align="center"><img src="screenshots/manage-users.jpg" alt="Users" width="860"></p>
+
+### Reference lists
+
+| Manage item | What it's for |
+|---|---|
+| **Agencies** | Partner and referring organizations |
+| **Departments** | Internal structure for staff |
+| **Domain Groups** | Grouping for assessment domains |
+| **Donors** | Funding sources, for reporting |
+| **Referral Sources** | How clients reach you |
+| **Quantitative Types** | Countable service categories |
+| **Types of Note** | Categories for progress notes |
+
+<p align="center">
+  <img src="screenshots/manage-agencies.jpg" width="49%" alt="Agencies">
+  <img src="screenshots/manage-referral-sources.jpg" width="49%" alt="Referral sources">
+</p>
+<p align="center">
+  <img src="screenshots/manage-domain-groups.jpg" width="49%" alt="Domain groups">
+  <img src="screenshots/manage-quantitative-types.jpg" width="49%" alt="Quantitative types">
+</p>
+
+### Partners
+
+External partner organizations you coordinate with get their own records and custom forms, tracked
+separately from the individuals you serve.
+
+<p align="center"><img src="screenshots/partners.jpg" alt="Partners" width="860"></p>
