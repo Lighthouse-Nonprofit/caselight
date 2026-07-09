@@ -32,7 +32,10 @@ class ApplicationController < ActionController::Base
   before_action :require_mfa_for_privileged
 
   rescue_from ActiveRecord::RecordNotFound do |exception|
-   render file: "#{Rails.root}/app/views/errors/404", layout: false, status: :not_found
+    # `render file:` demands a path to an actual file; the extensionless path did not exist and raised
+    # ArgumentError (=> every not-found became a 500). Mirror the working errors/403 handler below and
+    # render the themed template so a missing record yields the clean 404 page it always intended to.
+    render template: 'errors/404', layout: false, status: :not_found
   end
 
   helper_method :current_organization
