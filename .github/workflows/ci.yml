@@ -20,8 +20,26 @@ jobs:
         with:
           ruby-version: "4.0"
           bundler-cache: true
-      - name: Brakeman (SAST, fails on NEW findings vs the committed baseline)
+      - name: Brakeman (SAST, --compare against the committed baseline)
         run: mkdir -p tmp && bundle exec brakeman --no-pager --compare config/brakeman_baseline.json -f json -o tmp/brakeman.json
+      - name: Fail on NEW Brakeman findings
+        # brakeman --compare writes the diff and exits 0, so the gate must parse .new[] itself —
+        # without this, a new SAST finding produced a (discarded) report but a GREEN build (Phase 7 fix).
+        run: |
+          new_count=$(jq '.new | length' tmp/brakeman.json)
+          echo "New Brakeman findings vs baseline: $new_count"
+          if [ "$new_count" -ne 0 ]; then
+            echo "::error::Brakeman found $new_count new finding(s) not in config/brakeman_baseline.json"
+            jq -r '.new[] | "  - \(.warning_type) — \(.file):\(.line) — \(.message)"' tmp/brakeman.json
+            exit 1
+          fi
+      - name: Upload Brakeman report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brakeman-report
+          path: tmp/brakeman.json
+          if-no-files-found: warn
       - name: bundler-audit (dependency CVEs; ignores tracked in .bundler-audit.yml -> POA&M)
         run: |
           bundle exec bundle-audit update
