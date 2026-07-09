@@ -7,6 +7,20 @@
 
 <p align="center"><em>Open-source case management for nonprofits — by Lighthouse Nonprofit Technologies.</em></p>
 
+<p align="center">
+  <img alt="CaseLight dashboard" src="docs/screenshots/dashboard.jpg" width="820">
+</p>
+
+<p align="center">
+  <a href="docs/user-guide.md"><b>User Guide</b></a> ·
+  <a href="#features">Features</a> ·
+  <a href="#security--authentication">Security</a> ·
+  <a href="docs/compliance/">Compliance</a> ·
+  <a href="#quickstart">Quickstart</a>
+</p>
+
+<p align="center"><sub>Screens throughout the docs show synthetic demo data only.</sub></p>
+
 **CaseLight** is a containerized, modernized fork of **OSCaR** (Open Source
 Case-management and Record-keeping), maintained by **Lighthouse Nonprofit Technologies**
 for nonprofit case management — tracking individuals, households, programs, assessments,
@@ -38,6 +52,41 @@ maintained versions:
 Intentionally **not** carried over from upstream for the current pilot scope: the Khmer
 locale, the Thredded community forum, and the v1 mobile API.
 
+## Features
+
+CaseLight models the real shape of frontline casework — and lets staff reshape it without code.
+
+- **Individuals & households** — every person sits inside a household, cross-linked and one click
+  apart, with assigned case managers, referral source, status, and program tags.
+- **Configurable without code** — custom forms, enrollable **program streams**, and structured
+  **assessments** are all built and edited in-app via a drag-and-drop form builder; no migrations.
+- **Programs over time** — enroll people in the programs you actually run and log dated check-ins;
+  tasks, case notes, and documents live on every case.
+- **Role-aware views** — administrators and directors get a dense, sortable roster; managers and case
+  workers get cards scoped to their own caseload.
+- **Shared calendar** — appointments, recertifications, and milestones, scoped to each user's caseload.
+- **Security, visible to admins** — field-level sensitivity, break-glass emergency access, a per-org
+  enforcement console mapped to NIST controls, encryption at rest, and an append-only audit trail.
+
+See the **[User Guide](docs/user-guide.md)** for a screen-by-screen walkthrough.
+
+<p align="center">
+  <img src="docs/screenshots/client-detail.jpg" width="49%" alt="An individual's record">
+  <img src="docs/screenshots/form-builder.jpg" width="49%" alt="The form builder with a sensitivity selector">
+</p>
+<p align="center">
+  <img src="docs/screenshots/clients-cards.jpg" width="49%" alt="Caseload cards">
+  <img src="docs/screenshots/access-review.jpg" width="49%" alt="The Access Review report">
+</p>
+
+## Documentation
+
+- **[User Guide](docs/user-guide.md)** — a screen-by-screen walkthrough for staff.
+- **[Compliance program](docs/compliance/)** — System Security Plan, SOC 2 control matrix, policies,
+  the POA&M, and a reproducible evidence bundle (`rake compliance:evidence`).
+- **[SECURITY.md](SECURITY.md)** — data-handling posture and the production gate for real client data.
+- **[Quickstart](#quickstart)** — stand it up with Docker.
+
 ## Credits & license
 
 CaseLight is a fork of **OSCaR — Open Source Case-management and Record-keeping**,
@@ -58,7 +107,7 @@ your fork's source accordingly.
 | Rails | 7.2.3.1 | |
 | PostgreSQL | 17 | primary relational store (pg 1.5) |
 | MongoDB | 6.0 | change / audit history (Mongoid 8.1) |
-| Redis + Sidekiq | redis 5 / sidekiq 4 | background jobs |
+| Redis + Sidekiq | redis 7 / sidekiq 7.3 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
 | App server | thin | behind a TLS reverse proxy (force_ssl + HSTS) |
 
@@ -138,6 +187,22 @@ Confidentiality · Privacy)** auditability at the application layer. What's in p
   removed only by the sanctioned `rake audit:purge`. Control narrative in
   [`docs/compliance/audit-logging.md`](docs/compliance/audit-logging.md) (FedRAMP **AU-2/3/6/9/11/12**,
   SOC 2 **CC7.2/7.3**).
+
+**Authorization & data protection**
+- **Role-based access control** (CanCanCan + Pundit) with **field-level sensitivity** — forms and
+  assessment domains are classified **Standard / Restricted / Emergency-only**, and records mask what a
+  role isn't cleared to see.
+- **Break-glass emergency access** — an eligible worker can self-elevate to an emergency-only field for
+  one hour, with a mandatory reason and the audit record written *first*; scoped to the record and
+  auto-expiring.
+- **Per-organization enforcement console** — a *Security Enforcement* panel toggles authorization
+  (AC-3), least-privilege (AC-6), tenant-boundary (SC-7), MFA (IA-2), idle timeout (AC-12), lockout
+  (AC-7), password expiry (IA-5), and inactive-account auto-disable (AC-2(3)) — each with a shadow
+  window to review impact before enabling.
+- **Data lifecycle** — retention/deletion routines, guarded and audited record deletion, history-store
+  redaction, and a subject-access export.
+- **Compliance package** — a System Security Plan, SOC 2 control matrix, policy set, and a reproducible
+  `rake compliance:evidence` bundle live in [`docs/compliance/`](docs/compliance).
 
 **Secure SDLC**
 - Every pull request runs **Brakeman** (SAST), **bundler-audit** (dependency CVEs), **gitleaks**
