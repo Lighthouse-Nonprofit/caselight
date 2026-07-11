@@ -29,7 +29,11 @@
       %hr
       .row
         .col-xs-12
-          = f.text_area :description, class: 'tinymce', label: t('.description'), input_html: { rows: 30 }
+          / POAM-017a: Trix (vendored) replaced the EOL TinyMCE 4. The hidden input carries the
+          / HTML; <trix-editor input=...> binds itself and keeps it synced on every change.
+          %label.control-label{ for: 'domain_description_editor' }= t('.description')
+          = f.hidden_field :description, id: 'domain_description_trix_input'
+          %trix-editor#domain_description_editor.trix-content.rich-text-editor--tall{ input: 'domain_description_trix_input', 'aria-label' => t('.description') }
   .ibox-footer
     = f.submit t('.save'), class: 'btn btn-primary form-btn'
     = link_to t('.cancel'), domains_path, class: 'btn btn-default form-btn'

@@ -1,0 +1,37 @@
+// POAM-017a — Trix editor chrome, scoped to match the app's authoring surface.
+//
+// The retired TinyMCE 4 config exposed exactly: bold, italic, numbered list,
+// bullet list (plugins: 'lists', menubar: false). Trix ships more controls in
+// its default toolbar; hide the extras so the authoring surface (and therefore
+// the HTML the sanitizer sees) stays what the app supports. Buttons are hidden,
+// not removed — harmless if a keyboard shortcut reaches one, since
+// render_rich_text's allowlist governs output.
+trix-toolbar .trix-button-group--file-tools, // attachments (blocked in rich_text.js too)
+trix-toolbar .trix-button--icon-heading-1,
+trix-toolbar .trix-button--icon-quote,
+trix-toolbar .trix-button--icon-code,
+trix-toolbar .trix-button--icon-strike,
+trix-toolbar .trix-button--icon-link,
+trix-toolbar .trix-button--icon-decrease-nesting-level,
+trix-toolbar .trix-button--icon-increase-nesting-level {
+  display: none;
+}
+
+// Editor sizing to match the old TinyMCE boxes (progress notes 250px, domain
+// description 480px) and INSPINIA/Bootstrap-3 form-control styling.
+trix-editor.trix-content {
+  min-height: 250px;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #e5e6e7; // matches the theme's .form-control border
+  border-radius: 1px;
+  padding: 6px 12px;
+
+  &:focus {
+    border-color: #1ab394; // theme focus accent (see wrapbootstrap buttons/inputs)
+  }
+
+  &.rich-text-editor--tall {
+    min-height: 480px;
+  }
+}

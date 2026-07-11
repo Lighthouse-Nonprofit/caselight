@@ -651,8 +651,6 @@ GEM
     thor (1.5.0)
     tilt (2.8.0)
     timeout (0.6.1)
-    tinymce-rails (4.9.11.1)
-      railties (>= 3.1.1)
     tpm-key_attestation (0.14.1)
       bindata (~> 2.4)
       openssl (> 2.0)
@@ -782,7 +780,6 @@ DEPENDENCIES
   terser (~> 1.2)
   thin
   tilt (~> 2.0)
-  tinymce-rails (~> 4.5)
   typhoeus
   webauthn (~> 3.4)
   whenever (~> 1.1.2)
