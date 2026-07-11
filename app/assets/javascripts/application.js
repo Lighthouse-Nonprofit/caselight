@@ -74,7 +74,6 @@
 
 //APPLICATION JS
 //= require check_duplicate_array.js
-//= require advanced_filter_builder
 //= require custom_form_builder
 //= require table_scroll
 //= require filters

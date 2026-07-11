@@ -35,23 +35,27 @@
 CIF.RuleBuilder = (function () {
   const PLACEHOLDER_VALUE = '-1';
 
+  // Button labels are QueryBuilder's defaults — the views' translation data-attribute plumbing
+  // always resolved to undefined, so the defaults are what has always rendered. The operator
+  // labels are the app overrides every legacy option object carried as literals; baking them in
+  // retires the four duplicated option blocks. ('between' was never overridden.)
   const DEFAULT_LANG = {
     add_rule: 'Add rule',
     add_group: 'Add group',
     delete_group: 'Delete',
     delete_rule: '',
     operators: {
-      equal: 'equal',
-      not_equal: 'not equal',
-      less: 'less',
-      less_or_equal: 'less or equal',
-      greater: 'greater',
-      greater_or_equal: 'greater or equal',
-      contains: 'contains',
-      not_contains: 'not contains',
+      equal: 'is',
+      not_equal: 'is not',
+      less: '<',
+      less_or_equal: '<=',
+      greater: '>',
+      greater_or_equal: '>=',
+      contains: 'includes',
+      not_contains: 'excludes',
       between: 'between',
-      is_empty: 'is empty',
-      is_not_empty: 'is not empty',
+      is_empty: 'is blank',
+      is_not_empty: 'is not blank',
     },
   };
 

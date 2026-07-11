@@ -17,6 +17,7 @@ CIF.Client_advanced_searchesIndex = (function () {
   this.exitCheckbox = $('#exit-form-checkbox');
   this.customFormSelected = [];
   this.programSelected = [];
+  let ruleBuilder;
 
   const _init = function () {
     this.filterTranslation = '';
@@ -68,7 +69,7 @@ CIF.Client_advanced_searchesIndex = (function () {
   var _handleAddQuantitativeFilter = function () {
     const fields = $('#quantitative-fields').data('fields');
     return $('#quantitative-type-checkbox').on('ifChecked', function () {
-      $('#builder').queryBuilder('addFilter', fields);
+      ruleBuilder.addFilter(fields);
       return _initSelect2();
     });
   };
@@ -331,8 +332,11 @@ CIF.Client_advanced_searchesIndex = (function () {
       data: { ids },
       method: 'GET',
       success(response) {
-        const fieldList = response.client_advanced_searches;
-        $('#builder').queryBuilder('addFilter', fieldList);
+        // the API renders the AdvancedSearches::*Fields array BARE — the old
+        // response.client_advanced_searches read was undefined (latent since day one;
+        // sibling of the POAM-017f "Missing filters list" defect)
+        const fieldList = response;
+        ruleBuilder.addFilter(fieldList);
         _initSelect2();
         return _addFieldToColumnPicker(element, fieldList);
       },
@@ -341,7 +345,14 @@ CIF.Client_advanced_searchesIndex = (function () {
 
   var _initBuilderFilter = function () {
     const builderFields = $('#client-builder-fields').data('fields');
-    $('#builder').queryBuilder(_queryBuilderOption(builderFields));
+    ruleBuilder = new CIF.RuleBuilder($('#builder')[0], {
+      filters: builderFields,
+      lang: {
+        add_rule: this.filterTranslation.addFilter,
+        add_group: this.filterTranslation.addGroup,
+        delete_group: this.filterTranslation.deleteGroup,
+      },
+    });
     _basicFilterSetRule();
     _initSelect2();
     return _initRuleOperatorSelect2($('#builder'));
@@ -350,7 +361,7 @@ CIF.Client_advanced_searchesIndex = (function () {
   var _handleSearch = function () {
     const self = this;
     return $('#search').on('click', function () {
-      const basicRules = $('#builder').queryBuilder('getRules');
+      const basicRules = ruleBuilder.getRules();
       const customFormValues =
         self.customFormSelected.length > 0 ? `[${self.customFormSelected}]` : undefined;
       const programValues =
@@ -387,35 +398,6 @@ CIF.Client_advanced_searchesIndex = (function () {
     }
   };
 
-  var _queryBuilderOption = function (fieldList) {
-    return {
-      inputs_separator: ' AND ',
-      icons: {
-        remove_rule: 'fa fa-minus',
-      },
-      lang: {
-        delete_rule: '',
-        add_rule: this.filterTranslation.addFilter,
-        add_group: this.filterTranslation.addGroup,
-        delete_group: this.filterTranslation.deleteGroup,
-        operators: {
-          is_empty: 'is blank',
-          is_not_empty: 'is not blank',
-          equal: 'is',
-          not_equal: 'is not',
-          less: '<',
-          less_or_equal: '<=',
-          greater: '>',
-          greater_or_equal: '>=',
-          contains: 'includes',
-          not_contains: 'excludes',
-        },
-      },
-      plugins: ['sortable', 'bt-tooltip-errors'],
-      filters: fieldList,
-    };
-  };
-
   var _columnsVisibility = function () {
     $('.columns-visibility').click((e) => e.stopPropagation());
 
@@ -444,15 +426,14 @@ CIF.Client_advanced_searchesIndex = (function () {
     });
 
   var _addRuleCallback = () =>
-    $('#builder').on('afterCreateRuleFilters.queryBuilder', function (_e, obj) {
+    $('#builder').on('rulebuilder:rule-rendered', function (_e, ruleEl) {
       _initSelect2();
-      _handleSelectOptionChange(obj);
+      _handleSelectOptionChange(ruleEl);
       return _referred_to_program();
     });
 
-  var _handleSelectOptionChange = function (obj) {
-    if (obj !== undefined) {
-      const rowBuilderRule = obj.$el[0];
+  var _handleSelectOptionChange = function (rowBuilderRule) {
+    if (rowBuilderRule !== undefined) {
       const ruleFiltersSelect = $(rowBuilderRule).find('.rule-filter-container select');
       return CIF.Select.on(ruleFiltersSelect, 'dropdown_close', () =>
         setTimeout(function () {
@@ -523,7 +504,7 @@ CIF.Client_advanced_searchesIndex = (function () {
         }
       }
     }
-    $('#builder').queryBuilder('removeFilter', values);
+    ruleBuilder.removeFilter(values);
     return _initSelect2();
   };
 
@@ -559,7 +540,7 @@ CIF.Client_advanced_searchesIndex = (function () {
   var _basicFilterSetRule = function () {
     const basicQueryRules = $('#builder').data('basic-search-rules');
     if (!$.isEmptyObject(basicQueryRules)) {
-      return $('#builder').queryBuilder('setRules', basicQueryRules);
+      return ruleBuilder.setRules(basicQueryRules);
     }
   };
 
