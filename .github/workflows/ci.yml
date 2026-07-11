@@ -57,6 +57,49 @@ jobs:
           curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz | tar -xz gitleaks
           ./gitleaks detect --source . --redact --no-banner --exit-code 1
 
+  assets:
+    name: Assets precompile (production env, mirrors the image build)
+    runs-on: ubuntu-latest
+    env:
+      # Match the production image build exactly (Dockerfile ARG BUNDLE_WITHOUT="development test").
+      # Do NOT reuse the test job's "staging demo production" — RAILS_ENV=production Bundler.require
+      # needs those groups installed (asset_sync et al.), or the boot fails before precompile starts.
+      BUNDLE_WITHOUT: "development test"
+    steps:
+      - uses: actions/checkout@v7
+      - name: System deps (libpq for the pg gem)
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+          # Different BUNDLE_WITHOUT than the test job -> segregate the bundle cache.
+          cache-version: assets-v1
+      - uses: actions/setup-node@v4
+        with:
+          # execjs/terser runtime; matches the image's pinned Node 24 LTS (Dockerfile).
+          node-version: "24"
+      - name: assets:precompile (same flags as the Dockerfile precompile step)
+        # Dummy creds/flags mirror Dockerfile:56-60 — see the comments there for why each exists
+        # (carrierwave/fog eager-load, PRECOMPILE_ASSETS DB-skip, asset_sync upload hook off).
+        run: |
+          SECRET_KEY_BASE=dummy RAILS_ENV=production PRECOMPILE_ASSETS=true \
+          ASSET_SYNC_ENABLED=false \
+          AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
+          FOG_DIRECTORY=dummy FOG_REGION=us-east-1 \
+          bundle exec rake assets:precompile
+      - name: Assert compiled bundles exist and are non-trivial
+        run: |
+          js=$(ls public/assets/application-*.js 2>/dev/null | head -1)
+          css=$(ls public/assets/application-*.css 2>/dev/null | head -1)
+          test -n "$js" || { echo "::error::no compiled application-*.js in public/assets"; exit 1; }
+          test -n "$css" || { echo "::error::no compiled application-*.css in public/assets"; exit 1; }
+          jsz=$(stat -c%s "$js"); cssz=$(stat -c%s "$css")
+          echo "application.js  = ${jsz} bytes ($js)"
+          echo "application.css = ${cssz} bytes ($css)"
+          [ "$jsz" -gt 100000 ] || { echo "::error::compiled JS suspiciously small (${jsz} bytes)"; exit 1; }
+          [ "$cssz" -gt 50000 ] || { echo "::error::compiled CSS suspiciously small (${cssz} bytes)"; exit 1; }
+
   test:
     name: Test suite (PG 17 / Mongo 6 / Redis)
     runs-on: ubuntu-latest
