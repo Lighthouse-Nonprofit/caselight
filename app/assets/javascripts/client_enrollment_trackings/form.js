@@ -13,7 +13,7 @@ CIF.Client_enrollment_trackingsNew =
         return _preventRequireFileUploader();
       };
 
-      var _initSelect2 = () => $('select').select2();
+      var _initSelect2 = () => CIF.Select.init('select');
 
       var _initFileInput = () =>
         $('.file').fileinput({

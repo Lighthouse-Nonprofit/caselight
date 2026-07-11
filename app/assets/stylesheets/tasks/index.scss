@@ -19,8 +19,9 @@ body[id='tasks-index'] {
       color: #fff;
     }
   }
-  #filtered_by_user .select2-container {
+  #filtered_by_user .ts-wrapper {
     min-width: 180px;
     margin-left: 10px;
+    display: inline-block;
   }
 }

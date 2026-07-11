@@ -124,13 +124,8 @@ CIF.Custom_fieldsNew =
       };
 
       var _select2 = function () {
-        $('#custom_field_entity_type').select2({
-          minimumInputLength: 0,
-        });
-        return $('#custom_field_frequency').select2({
-          minimumInputLength: 0,
-          allowClear: true,
-        });
+        CIF.Select.init('#custom_field_entity_type');
+        return CIF.Select.init('#custom_field_frequency', { allowClear: true });
       };
 
       var _retrieveData = (url) =>

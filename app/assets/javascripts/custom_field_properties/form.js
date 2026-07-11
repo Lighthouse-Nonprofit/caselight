@@ -11,7 +11,7 @@ CIF.Custom_field_propertiesNew =
       };
       // _handlePreventCheckbox()
 
-      var _initSelect2 = () => $('select').select2();
+      var _initSelect2 = () => CIF.Select.init('select');
 
       var _initUploader = () =>
         $('.file').fileinput({

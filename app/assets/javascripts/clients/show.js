@@ -6,7 +6,7 @@ CIF.ClientsShow = (function () {
     return _initSelect2();
   };
 
-  var _initSelect2 = () => $('select').select2();
+  var _initSelect2 = () => CIF.Select.init('select');
 
   var _rejectModal = function () {
     const note = $('#client_rejected_note').val();

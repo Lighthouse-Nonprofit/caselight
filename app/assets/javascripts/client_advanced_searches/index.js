@@ -55,11 +55,9 @@ CIF.Client_advanced_searchesIndex = (function () {
   };
 
   var _initSelect2 = function () {
-    $('#custom-form-select, #program-stream-select, #quantitative-case-select').select2();
-    $('.rule-filter-container select').select2({ width: '250px' });
-    return $('.rule-operator-container select, .rule-value-container select').select2({
-      width: 'resolve',
-    });
+    CIF.Select.init('#custom-form-select, #program-stream-select, #quantitative-case-select');
+    CIF.Select.init('.rule-filter-container select', { width: '250px' });
+    return CIF.Select.init('.rule-operator-container select, .rule-value-container select');
   };
 
   var _setValueToBuilderSelected = function () {
@@ -108,7 +106,7 @@ CIF.Client_advanced_searchesIndex = (function () {
         return _handleRemoveFilterBuilder(name, EXIT_PROGRAM_TRANSTATE);
       });
       $('.program-association input[type="checkbox"]').iCheck('uncheck');
-      return $('#program-stream-select').select2('val', '');
+      return CIF.Select.setValue('#program-stream-select', '');
     });
   };
 
@@ -183,8 +181,9 @@ CIF.Client_advanced_searchesIndex = (function () {
 
   var _handleSelect2RemoveProgram = function () {
     const self = this;
-    return $('#program-stream-select').on('select2-removed', function (element) {
-      const programName = element.choice.text;
+    return CIF.Select.on('#program-stream-select', 'item_remove', function (removedValue, selectEl) {
+      // was select2 v3's element.choice.text — recover the removed option's label natively
+      const programName = CIF.Select.optionText(selectEl, removedValue);
       const programStreamKeyword = ['Enrollment', 'Tracking', 'Exit Program'];
       _.forEach(programStreamKeyword, function (value) {
         const headerClass = _formatSpecialCharacter(`${programName.trim()} ${value}`);
@@ -192,7 +191,7 @@ CIF.Client_advanced_searchesIndex = (function () {
       });
 
       $.map(self.programSelected, function (val, i) {
-        if (parseInt(val) === parseInt(element.val)) {
+        if (parseInt(val) === parseInt(removedValue)) {
           return self.programSelected.splice(i, 1);
         }
       });
@@ -202,7 +201,7 @@ CIF.Client_advanced_searchesIndex = (function () {
         _handleRemoveFilterBuilder(programName, TRACKING_TRANSTATE);
         return _handleRemoveFilterBuilder(programName, EXIT_PROGRAM_TRANSTATE);
       });
-      if ($.isEmptyObject($(this).val())) {
+      if ($.isEmptyObject($(selectEl).val())) {
         const programStreamAssociation = $('.program-association');
         $(programStreamAssociation).find('.i-checks').iCheck('uncheck');
         return $(programStreamAssociation).hide();
@@ -212,8 +211,7 @@ CIF.Client_advanced_searchesIndex = (function () {
 
   var _handleProgramSelectChange = function () {
     const self = this;
-    return $('#program-stream-select').on('select2-selecting', function (psElement) {
-      const programId = psElement.val;
+    return CIF.Select.on('#program-stream-select', 'item_add', function (programId) {
       self.programSelected.push(programId);
       $('.program-association').show();
       if ($('#enrollment-checkbox').prop('checked')) {
@@ -246,29 +244,30 @@ CIF.Client_advanced_searchesIndex = (function () {
       });
 
       self.customFormSelected = [];
-      $('.custom-form select').select2('val', '');
+      CIF.Select.setValue('.custom-form select', '');
       return $('.custom-form').hide();
     });
   };
 
   var _customFormSelectChange = function () {
     const self = this;
-    return $('#custom-form-wrapper select').on('select2-selecting', function (element) {
-      self.customFormSelected.push(element.val);
-      return _addCustomBuildersFields(element.val, CUSTOM_FORM_URL);
+    return CIF.Select.on('#custom-form-wrapper select', 'item_add', function (value) {
+      self.customFormSelected.push(value);
+      return _addCustomBuildersFields(value, CUSTOM_FORM_URL);
     });
   };
 
   var _customFormSelectRemove = function () {
     const self = this;
-    return $('#custom-form-wrapper select').on('select2-removed', function (element) {
-      const removeValue = element.choice.text;
+    return CIF.Select.on('#custom-form-wrapper select', 'item_remove', function (removedValue, selectEl) {
+      // was select2 v3's element.choice.text — recover the removed option's label natively
+      const removeValue = CIF.Select.optionText(selectEl, removedValue);
       let formTitle = removeValue.trim();
       formTitle = _formatSpecialCharacter(`${formTitle} Custom Form`);
 
       _removeCheckboxColumnPicker('#custom-form-column', formTitle);
       $.map(self.customFormSelected, function (val, i) {
-        if (parseInt(val) === parseInt(element.val)) {
+        if (parseInt(val) === parseInt(removedValue)) {
           return self.customFormSelected.splice(i, 1);
         }
       });
@@ -455,7 +454,7 @@ CIF.Client_advanced_searchesIndex = (function () {
     if (obj !== undefined) {
       const rowBuilderRule = obj.$el[0];
       const ruleFiltersSelect = $(rowBuilderRule).find('.rule-filter-container select');
-      return $(ruleFiltersSelect).on('select2-close', () =>
+      return CIF.Select.on(ruleFiltersSelect, 'dropdown_close', () =>
         setTimeout(function () {
           _initSelect2();
           return _initRuleOperatorSelect2(rowBuilderRule);
@@ -465,13 +464,15 @@ CIF.Client_advanced_searchesIndex = (function () {
   };
 
   var _filterSelectChange = () =>
-    $('.rule-filter-container select').on('select2-close', () => setTimeout(() => _initSelect2()));
+    CIF.Select.on('.rule-filter-container select', 'dropdown_close', () =>
+      setTimeout(() => _initSelect2()),
+    );
 
   var _initRuleOperatorSelect2 = function (rowBuilderRule) {
     const operatorSelect = $(rowBuilderRule).find('.rule-operator-container select');
-    return $(operatorSelect).on('select2-close', () =>
+    return CIF.Select.on(operatorSelect, 'dropdown_close', () =>
       setTimeout(() =>
-        $(rowBuilderRule).find('.rule-value-container select').select2({ width: '180px' }),
+        CIF.Select.init($(rowBuilderRule).find('.rule-value-container select'), { width: '180px' }),
       ),
     );
   };
@@ -488,7 +489,7 @@ CIF.Client_advanced_searchesIndex = (function () {
         var label = optGroup[0].label.split('|');
         if ($(label).last()[0].trim() === resourcelabel && label[0].trim() === resourceName) {
           var container = $(select).parents('.rule-container');
-          $(container).find('select').select2('destroy');
+          CIF.Select.destroy($(container).find('select'));
           $(container).find('.rule-header button').trigger('click');
         }
       }

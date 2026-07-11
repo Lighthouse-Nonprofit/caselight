@@ -52,11 +52,7 @@ CIF.Progress_notesNew =
         }
       };
 
-      var _select2 = () =>
-        $('select').select2({
-          minimumInputLength: 0,
-          allowClear: true,
-        });
+      var _select2 = () => CIF.Select.init('select', { allowClear: true });
 
       var _toggleOtherLocation = function () {
         const selectedOption = $('.progress_note_location select option:selected');

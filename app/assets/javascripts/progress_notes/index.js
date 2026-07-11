@@ -6,11 +6,7 @@ CIF.Progress_notesIndex = (function () {
     return _getProgressNotePath();
   };
 
-  var _select2 = () =>
-    $('select').select2({
-      minimumInputLength: 0,
-      allowClear: true,
-    });
+  var _select2 = () => CIF.Select.init('select', { allowClear: true });
 
   var _fixedHeaderTableColumns = function () {
     $('.progress_notes-table').removeClass('table-responsive');

@@ -10,10 +10,7 @@ CIF.Able_screening_questionsNew =
         return _initUploader();
       };
 
-      var _initialSelect2 = () =>
-        $('.select2').select2({
-          theme: 'bootstrap',
-        });
+      var _initialSelect2 = () => CIF.Select.init('.select2');
 
       var _initUploader = function () {
         const image = $('.question-image img');
@@ -27,9 +24,7 @@ CIF.Able_screening_questionsNew =
 
       const _reloadAfterCocoon = () =>
         $('.container-fluid').on('cocoon:after-insert', function (e, insertedItem) {
-          insertedItem.find('.select2').select2({
-            theme: 'bootstrap',
-          });
+          CIF.Select.init(insertedItem.find('.select2'));
           return _afterSelectMode();
         });
 

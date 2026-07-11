@@ -91,13 +91,9 @@ CIF.ClientsNew =
         });
 
       var _clientSelectOption = function () {
-        $('select').select2(
-          {
-            minimumInputLength: 0,
-            allowClear: true,
-          },
-          _clearSelectedOption(),
-        );
+        // pre-Tom-Select _clearSelectedOption() ran as an (ignored) 2nd argument, i.e. BEFORE init
+        _clearSelectedOption();
+        CIF.Select.init('select', { allowClear: true });
 
         return $('select.able-related-info').change(function () {
           const qtSelectedSize = $('select.able-related-info option:selected').length;

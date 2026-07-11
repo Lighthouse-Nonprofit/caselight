@@ -5,10 +5,7 @@ CIF.Client_custom_fieldsNew =
     (function () {
       const _init = () => _select2();
 
-      var _select2 = () =>
-        $('select').select2({
-          minimumInputLength: 0,
-        });
+      var _select2 = () => CIF.Select.init('select');
 
       return { init: _init };
     })();

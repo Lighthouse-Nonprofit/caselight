@@ -37,8 +37,8 @@ CIF.Program_streamsShow = CIF.Program_streamsPreview = (function () {
     });
 
   var _initSelect2 = function () {
-    $('.rule-filter-container select').select2({ width: '220px' });
-    return $('.rule-operator-container select, .rule-value-container select').select2({
+    CIF.Select.init('.rule-filter-container select', { width: '220px' });
+    return CIF.Select.init('.rule-operator-container select, .rule-value-container select', {
       width: '180px',
     });
   };

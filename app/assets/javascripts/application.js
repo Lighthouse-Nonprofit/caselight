@@ -20,7 +20,10 @@
 //= require jquery.validate.additional-methods
 //= require jquery.nicescroll.min
 //= require dataTables/jquery.dataTables
-//= require select2
+// POAM-017c: Tom Select 2.x (vendored) replaced the hand-vendored select2 3.5.2.
+// All call sites go through the CIF.Select adapter (shared/select_widget, in the
+// LOAD MODULE block below — it needs the CIF namespace).
+//= require tom-select
 //= require cocoon
 //= require image_upload_previewer/image_upload_previewer
 //= require image_upload
@@ -59,6 +62,7 @@
 
 //LOAD MODULE
 //= require namespace
+//= require shared/select_widget
 //= require util
 //= require initializer
 //= require common
