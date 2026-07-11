@@ -7,7 +7,6 @@
 // (vendor/assets shadows the jquery-datatables-rails gem's 1.10.10, which predates
 // official jQuery-3 support).
 //= require jquery3
-//= require jquery-migrate
 // UNIT 12: rails-ujs (bundled in actionview 7.2) replaced the legacy jquery_ujs (jquery-rails).
 // Same data-method/data-confirm/data-remote CSRF layer + auto-start, but jQuery-free and the
 // supported path on Rails 7. Drop-in: no ajax:* handlers and no $.rails API use in this app.

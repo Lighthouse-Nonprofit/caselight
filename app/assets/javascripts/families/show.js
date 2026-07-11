@@ -23,7 +23,7 @@ CIF.FamiliesShow = (function () {
   };
 
   var _handleScrollTable = () =>
-    $(window).load(function () {
+    $(window).on('load', function () {
       const ua = navigator.userAgent;
       if (
         !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(

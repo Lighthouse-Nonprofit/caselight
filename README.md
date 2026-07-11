@@ -28,10 +28,11 @@ and case notes.
 
 ## Status
 
-CaseLight runs a **modernized, supported backend stack**. The application was migrated off the
-end-of-life **Ruby 2.3.3 / Rails 4.2** it inherited from upstream OSCaR up to current,
-maintained versions (the frontend/asset-pipeline modernization is in progress and tracked under
-**POAM-017** in [`docs/compliance/`](docs/compliance)):
+CaseLight runs a **modernized, supported stack — backend and frontend**. The application was
+migrated off the end-of-life **Ruby 2.3.3 / Rails 4.2** it inherited from upstream OSCaR up to
+current, maintained versions, and the frontend/asset-pipeline EOL set was retired rung-by-rung
+in 2026-07 (**POAM-017a–e closed**; the remaining eval-based form/query-builder pair is tracked
+under **POAM-017f** in [`docs/compliance/`](docs/compliance)):
 
 - **Ruby 4.0.5 / Rails 7.2.3.1** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
   6.1 → 7.0 → 7.1 → 7.2), each step verified green before the next. Zeitwerk autoloading and a
@@ -112,8 +113,8 @@ your fork's source accordingly.
 | Redis + Sidekiq | redis 7 / sidekiq 7.3 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
 | App server | thin | behind a TLS reverse proxy (force_ssl + HSTS) |
-| Asset pipeline | Sprockets 3.7 + ruby-sass + CoffeeScript (build-time) | legacy — being modernized rung-by-rung (POAM-017e) |
-| Frontend JS | jQuery 1.12 (→ 3.7 planned), Bootstrap 3.4.1, TinyMCE 4 (→ Trix planned), select2 3.5, FullCalendar 3.9, Chart.js 4.4 | legacy components tracked with dated targets under POAM-017 |
+| Asset pipeline | Sprockets 4.2 + dart-sass + ES2015+ (build-time), haml 6.4 | modernized rung-by-rung 2026-07 (POAM-017e closed) |
+| Frontend JS | jQuery 3.7.1, Bootstrap 3.4.1 (accepted-tracked POAM-017g), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, Chart.js 4.4 | EOL set retired (POAM-017a–d closed); eval-based form/query builders remain, tracked POAM-017f |
 
 ## Quickstart
 
@@ -216,10 +217,13 @@ Confidentiality · Privacy)** auditability at the application layer. What's in p
 **Deployment**
 - Secrets live only in `.env` (gitignored); the image ships none, and per-deploy secrets are generated.
 - The app binds to localhost — expose it only via a **TLS-terminating reverse proxy**.
-- The **backend** stack carries no end-of-life components; rebuild the image to pick up gem/security
-  updates, and keep the edges patched (host OS, proxy, TLS). The **frontend** still carries a tracked
-  set of legacy components (TinyMCE 4 and the shipped jQuery 1.12 are the notable ones) being retired
-  rung-by-rung — see **POAM-017** in [`docs/compliance/vulnerability-poam.md`](docs/compliance/vulnerability-poam.md)
-  for the itemized list, severities, and dated remediation targets.
+- The stack carries no end-of-life **runtime** components, backend or frontend (the 2026-07
+  modernization retired TinyMCE 4, the shipped jQuery 1.12, select2 3.5, FullCalendar 3 + moment,
+  ruby-sass/CoffeeScript, Sprockets 3, and haml 5); rebuild the image to pick up gem/security
+  updates, and keep the edges patched (host OS, proxy, TLS). Two consciously tracked exceptions
+  remain — the eval-based form/query-builder libraries (**POAM-017f**, Unit-18 replacement target
+  2027-01) and the Bootstrap-3.4.1/INSPINIA theme line (**POAM-017g**, accepted, CSS-only) — see
+  [`docs/compliance/vulnerability-poam.md`](docs/compliance/vulnerability-poam.md)
+  for the itemized ledger, severities, and dated remediation targets.
 - **Pilot data is synthetic only.** Real client records are a deliberate, separate gate — see
   [`SECURITY.md`](SECURITY.md) for the controls required first.
