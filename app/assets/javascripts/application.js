@@ -1,5 +1,13 @@
 // FRAMEWORK
-//= require jquery
+// POAM-017b: `jquery3` is jquery-rails' 3.7.1 asset (the bare `jquery` name is the gem's
+// EOL 1.12.4 legacy copy — 4 CVEs fixed only in 3.5+). jquery-migrate 3.5.2 (vendored)
+// rides along TEMPORARILY: it restores removed 1.x APIs for the aging vendored plugins
+// and console.warns every deprecated call ("JQMIGRATE:"). Remove it (R13) once the
+// smoke set logs no warnings. NB dataTables below now resolves to the vendored 1.13.11
+// (vendor/assets shadows the jquery-datatables-rails gem's 1.10.10, which predates
+// official jQuery-3 support).
+//= require jquery3
+//= require jquery-migrate
 // UNIT 12: rails-ujs (bundled in actionview 7.2) replaced the legacy jquery_ujs (jquery-rails).
 // Same data-method/data-confirm/data-remote CSRF layer + auto-start, but jQuery-free and the
 // supported path on Rails 7. Drop-in: no ajax:* handlers and no $.rails API use in this app.

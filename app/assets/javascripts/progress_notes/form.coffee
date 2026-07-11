@@ -1,4 +1,11 @@
 CIF.Progress_notesNew = CIF.Progress_notesCreate = CIF.Progress_notesEdit = CIF.Progress_notesUpdate = do ->
+  # jQuery-3 fix (POAM-017b): must run at script PARSE time, not inside _init. jQuery 3's
+  # ready callback fires asynchronously AFTER native DOMContentLoaded listeners, so Dropzone's
+  # own auto-discover attached to form.dropzone first and the manual attach in _initDropzone
+  # then threw "Dropzone already attached". (On jQuery 1.x the ready handler happened to win
+  # the race, masking the latent double-init.)
+  Dropzone.autoDiscover = false
+
   _init = ->
     self.removeFile = []
     _handleEnableSubmitButtonWhenRemoveFile()
@@ -72,7 +79,6 @@ CIF.Progress_notesNew = CIF.Progress_notesCreate = CIF.Progress_notesEdit = CIF.
 
   _initDropzone = ->
     successCallBackCount = 1
-    Dropzone.autoDiscover = false
     form = $('.dropzone')
     form.dropzone(
       autoProcessQueue: false
