@@ -14,11 +14,18 @@ gem 'erubis'
 gem 'pg', '~> 1.5'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
-# sass-rails 5.1.0 relaxed the railties cap to allow Rails 6 while still using ruby-sass
-# (the sprockets engine), so the legacy bourbon/neat/bootstrap-sass scss keeps compiling —
-# avoids migrating to sassc (sass-rails 6), which those old libraries don't support.
-gem 'sass-rails', '~> 5.1.0'
+# POAM-017e (R9c): dartsass-rails (the maintained dart-sass compiler) replaced
+# sass-rails 5.1 / ruby-sass 3.7.4 (EOL 2019). dart-sass compiles application.scss into
+# app/assets/builds/application.css OUTSIDE sprockets (dartsass:build, auto-hooked into
+# assets:precompile); sprockets just serves the built file. Prerequisites landed in R9a
+# (glob imports expanded) and R9b (sprockets asset helpers eliminated). sass-rails' removal
+# also lifts its `sprockets < 4.0` pin — the R10 Sprockets-4 blocker.
+gem 'dartsass-rails', '~> 0.5'
 gem 'sprockets', '~> 3.7'
+# sprockets-rails was only ever in the bundle as sass-rails' transitive dependency — with
+# sass-rails gone it must be declared directly (config/application.rb requires
+# 'sprockets/railtie', which this gem provides).
+gem 'sprockets-rails'
 # Terser (ES2015+-native JS minifier) replaced uglifier in Unit 11: uglifier wraps the
 # ES5-only UglifyJS and cannot minify modern vendored JS (Chart.js v4's getters/arrows/const),
 # even with harmony:true. Terser is the modern Rails default and handles ES5+ES6 alike.

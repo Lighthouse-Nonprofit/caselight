@@ -4,11 +4,6 @@
  */
 /* FONT PATH
  * -------------------------- */
-//= depend_on_asset "fontawesome-webfont.eot"
-//= depend_on_asset "fontawesome-webfont.woff2"
-//= depend_on_asset "fontawesome-webfont.woff"
-//= depend_on_asset "fontawesome-webfont.ttf"
-//= depend_on_asset "fontawesome-webfont.svg"
 @font-face {
   font-family: 'FontAwesome';
   src: url('/fonts/font-awesome/fontawesome-webfont.eot');
