@@ -50,9 +50,10 @@ gem 'rqrcode', '~> 2.0'             # QR codes for TOTP enrollment
 # SessionsController (#create/#verify_otp) owns the login flow, and hand-wiring new ceremony
 # endpoints keeps passkeys strictly ADDITIVE without re-touching the password/OTP devise strategy.
 gem 'webauthn', '~> 3.4'
-# haml-rails 2.x gives Rails 6 compatibility; pin haml itself to 5.2 — haml 6 is a parser
-# rewrite that risks breaking the app's many .haml views. (haml 6 migration is its own future step.)
-gem 'haml', '~> 5.2'
+# R11: haml 6 (the Hamlit-lineage rewrite; the last deliberate version pin). Exposure was
+# audited before the bump: zero haml_tag/haml_concat/capture_haml/succeed/precede/object-ref
+# usage, filters limited to :javascript/:css (both in haml 6 core), no Haml::Options config.
+gem 'haml', '~> 6.3'
 gem 'haml-rails', '~> 2.0'
 gem 'dotenv-rails', '~> 2.2'
 gem 'roo',                    '~> 2.2'

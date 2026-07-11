@@ -3,9 +3,9 @@
     "app_path": "/app",
     "rails_version": "7.2.3.1",
     "security_warnings": 14,
-    "start_time": "2026-07-11 02:49:19 +0000",
-    "end_time": "2026-07-11 02:49:31 +0000",
-    "duration": 12.448305843,
+    "start_time": "2026-07-11 20:47:55 +0000",
+    "end_time": "2026-07-11 20:48:06 +0000",
+    "duration": 10.865317464,
     "checks_performed": [
       "BasicAuth",
       "BasicAuthTimingAttack",
@@ -89,7 +89,7 @@
     ],
     "number_of_controllers": 68,
     "number_of_models": 69,
-    "number_of_templates": 349,
+    "number_of_templates": 350,
     "ruby_version": "4.0.5",
     "brakeman_version": "8.0.5"
   },
@@ -320,7 +320,7 @@
       "check_name": "EOLRails",
       "message": "Support for Rails 7.2.3.1 ends on 2026-08-09",
       "file": "Gemfile.lock",
-      "line": 469,
+      "line": 459,
       "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
       "code": null,
       "render_path": null,
@@ -454,11 +454,6 @@
     }
   ],
   "ignored_warnings": [],
-  "errors": [
-    {
-      "error": "app/views/devise/registrations/new.html.haml:19 :: parse error on value \",\" (tCOMMA) While processing app/views/devise/registrations/new.html.haml While processing /app/app/views/devise/registrations/new.html.haml",
-      "location": "/usr/local/bundle/gems/brakeman-8.0.5/bundle/ruby/3.2.0/gems/ruby_parser-3.22.0/lib/ruby_parser.rb:41:in 'RubyParser#process'"
-    }
-  ],
+  "errors": [],
   "obsolete": []
 }
