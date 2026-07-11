@@ -25,7 +25,7 @@ CIF.ClientsNew = CIF.ClientsCreate = CIF.ClientsUpdate = CIF.ClientsEdit = do ->
           url: '/api/clients/compare'
           data: data
           dataType: "JSON"
-        }).success((json)->
+        }).done((json)-> # jQuery-3 prep: jqXHR.success was removed in 3.0
           clientId = $('#client_id').val()
           clientIds = []
           clients = json.clients

@@ -199,7 +199,8 @@ CIF.Program_streamsNew = CIF.Program_streamsEdit = CIF.Program_streamsCreate = C
       _checkDuplicateTrackingName()
 
   _handleCheckingDuplicateFields = ->
-    errorNumber = $('.form-wrap.form-builder:visible').find('.has-error').size()
+    # jQuery-3 prep: .size() was removed in 3.0; .length is identical on 1.x.
+    errorNumber = $('.form-wrap.form-builder:visible').find('.has-error').length
     if errorNumber > 0 then false else true
 
   _initProgramSteps = ->

@@ -37,7 +37,7 @@ CIF.Progress_notesNew = CIF.Progress_notesCreate = CIF.Progress_notesEdit = CIF.
         url: "/attachments/delete"
         data: { attachments: self.removeFile, progress_note_id: id }
         dataType: 'JSON'
-      ).success((json) ->
+      ).done((json) -> # jQuery-3 prep: jqXHR.success was removed in 3.0
         return false
       )
 
@@ -99,7 +99,7 @@ CIF.Progress_notesNew = CIF.Progress_notesCreate = CIF.Progress_notesEdit = CIF.
             url: '/attachments/'
             data: data
             dataType: 'JSON'
-          ).success((json) ->
+          ).done((json) -> # jQuery-3 prep: jqXHR.success was removed in 3.0
             attachments = json.attachments
             for attachment in attachments
               mockFile =

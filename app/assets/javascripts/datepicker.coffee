@@ -1,4 +1,5 @@
-$(document).on 'ready page:load', ->
+# jQuery-3 prep (POAM-017b): 'ready' event binding -> $(handler); see initializer.coffee.
+$ ->
 
   $('.date_filter, .input-group.date, #csi_start_date, #csi_end_date, #case_start_date, #case_end_date').datepicker
     autoclose: true,
