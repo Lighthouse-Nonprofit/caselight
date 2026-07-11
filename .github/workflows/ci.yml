@@ -152,5 +152,11 @@ jobs:
           bundler-cache: true
       - name: Load test schema
         run: bundle exec rails db:schema:load
+      # POAM-017e (R9c): dart-sass builds the stylesheet OUTSIDE sprockets. Request/view
+      # specs render layouts whose stylesheet_link_tag resolves app/assets/builds/
+      # application.css — on a fresh checkout that file doesn't exist and sprockets would
+      # fall back to the raw .scss (which the no-ruby-sass shim fails loudly on).
+      - name: Build the dart-sass stylesheet
+        run: bundle exec rails dartsass:build
       - name: RSpec (non-feature suite)
         run: bundle exec rspec spec/models spec/serializers spec/decorators spec/helpers spec/mailers spec/requests spec/controllers spec/lib spec/services spec/views spec/schedule_spec.rb
