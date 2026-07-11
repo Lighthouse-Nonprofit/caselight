@@ -55,11 +55,7 @@ CIF.ClientsIndex = (function () {
     return report.lineChart();
   };
 
-  var _enableSelect2 = () =>
-    $('#clients-index select').select2({
-      minimumInputLength: 0,
-      allowClear: true,
-    });
+  var _enableSelect2 = () => CIF.Select.init('#clients-index select', { allowClear: true });
 
   var _formatReportxAxis = function () {
     // UNIT 11: was a global useUTC:false call on the former charting library. Chart.js has no
@@ -165,9 +161,9 @@ CIF.ClientsIndex = (function () {
     const quantitativeData = $('#client_grid_quantitative_data');
     quantitativeType.on('change', function () {
       const qValue = quantitativeType.val();
-      const quantitativeCaesText = $('.quantitative_data').find('.select2-chosen');
-      quantitativeCaesText.text('');
-      closeTag.hide();
+      // was: blank select2 v3's displayed text (.select2-chosen) + hide its clear abbr;
+      // Tom Select's display and clear button follow the (silent) value clear instead
+      CIF.Select.setValue(quantitativeData, '');
       return _quantitativeCaes(qValue);
     });
     quantitativeData.on('change', () => closeTag.show());
@@ -184,11 +180,13 @@ CIF.ClientsIndex = (function () {
         $('#client_grid_quantitative_data').html('');
         $('#client_grid_quantitative_data').append('<option value=""></option>');
 
-        return $(data).each((index, value) =>
+        $(data).each((index, value) =>
           $('#client_grid_quantitative_data').append(
             '<option value="' + data[index].id + '">' + data[index].value + '</option>',
           ),
         );
+        // Tom Select caches options — re-import after the native <option> rebuild above
+        return CIF.Select.refresh('#client_grid_quantitative_data');
       },
       error(error) {},
     });

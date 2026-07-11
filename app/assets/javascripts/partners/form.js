@@ -5,10 +5,7 @@ CIF.PartnersNew =
     (function () {
       const _init = () => _initSelect2();
 
-      var _initSelect2 = () =>
-        $('select').select2({
-          allowClear: true,
-        });
+      var _initSelect2 = () => CIF.Select.init('select', { allowClear: true });
 
       return { init: _init };
     })();

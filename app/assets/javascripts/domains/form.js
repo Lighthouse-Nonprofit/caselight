@@ -7,6 +7,6 @@ CIF.DomainsNew =
       // partial) binds itself; app-wide Trix config lives in rich_text.js.
       const _init = () => _initSelect2();
 
-      var _initSelect2 = () => $('.select2').select2();
+      var _initSelect2 = () => CIF.Select.init('.select2');
       return { init: _init };
     })();

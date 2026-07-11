@@ -1,0 +1,84 @@
+// POAM-017c — Tom Select harmonization for the Bootstrap-3 / INSPINIA theme.
+// Tom Select ships default/bs4/bs5 themes only; this layer makes the control read like
+// the app's .form-control inputs and the retired select2 widgets, incl. the Unit-17
+// refresh conventions (1px radius, #e5e6e7 borders, #1ab394 focus accent).
+
+.ts-wrapper {
+  min-height: 34px; // BS3 input-sm/base control height
+
+  // Tom Select copies the original select's classes onto the wrapper — including
+  // Bootstrap's .form-control (borders/padding/height), which double-boxes the
+  // control. Neutralize the wrapper; only .ts-control carries the input chrome.
+  &.form-control {
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    height: auto;
+    background: transparent;
+  }
+
+  &.single,
+  &.multi {
+    .ts-control {
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 1px solid #e5e6e7;
+      border-radius: 1px;
+      background-color: #fff;
+      font-size: 13px;
+      color: inherit;
+      box-shadow: none;
+    }
+  }
+
+  &.focus .ts-control {
+    border-color: #1f3a5f; // brand navy — matches the retired select2 skin (common_index.scss)
+    box-shadow: none;
+  }
+
+  // single-select dropdown caret, matching select2's arrow affordance
+  &.single .ts-control::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    margin-top: -1px;
+    border: 4px solid transparent;
+    border-top-color: #999;
+  }
+
+  &.multi .ts-control > .item {
+    background: #f3f3f4; // theme chip grey (select2 v3 chip look)
+    border: 1px solid #e5e6e7;
+    border-radius: 1px;
+    color: inherit;
+    padding: 1px 6px;
+  }
+
+  &.disabled .ts-control,
+  select:disabled + .ts-wrapper .ts-control {
+    background-color: #eee;
+    cursor: not-allowed;
+  }
+}
+
+.ts-dropdown {
+  border: 1px solid #e5e6e7;
+  border-radius: 1px;
+  font-size: 13px;
+  z-index: 2050; // above modals (.modal z-index 2040 in the theme)
+
+  .active {
+    background-color: #1f3a5f; // brand navy highlight, as the retired select2 skin had
+    color: #fff;
+  }
+
+  .create {
+    display: none; // create:false app-wide; never show the "Add ..." row
+  }
+}
+
+// datagrid filter forms: keep the control inside its column like the old widget
+.grid-form .ts-wrapper {
+  width: 100%;
+}

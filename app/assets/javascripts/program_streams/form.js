@@ -45,13 +45,10 @@ CIF.Program_streamsNew =
         }
       };
 
-      var _initSelect2 = () => $('#description select, #rule-tab select').select2();
+      var _initSelect2 = () => CIF.Select.init('#description select, #rule-tab select');
 
       var _initSelect2TimeOfFrequency = () =>
-        $('.program_stream_trackings_frequency select').select2({
-          minimumInputLength: 0,
-          allowClear: true,
-        });
+        CIF.Select.init('.program_stream_trackings_frequency select', { allowClear: true });
 
       const _handleRemoveProgramList = function () {
         const programExclusive = $('#program_stream_program_exclusive');
@@ -60,20 +57,26 @@ CIF.Program_streamsNew =
         return _selectOptonMutualDependence(programExclusive, mutualDependence);
       };
 
+      // NB (POAM-017c): these two selects flip option `disabled` flags on EACH OTHER.
+      // select2 v3 read the native options live on every open; Tom Select caches them,
+      // so every native toggle is followed by a selection-preserving resyncOptions.
       var _selectOptonProgramExclusive = function (programExclusive, mutualDependence) {
         if ($(programExclusive).val() !== null) {
           for (var value of $(programExclusive).val()) {
             $(mutualDependence).find(`option[value=${value}]`).attr('disabled', true);
           }
+          CIF.Select.resyncOptions(mutualDependence);
         }
 
-        $(programExclusive).on('select2-selecting', (select) =>
-          $(mutualDependence).find(`option[value=${select.val}]`).attr('disabled', true),
-        );
+        CIF.Select.on(programExclusive, 'item_add', function (value) {
+          $(mutualDependence).find(`option[value=${value}]`).attr('disabled', true);
+          return CIF.Select.resyncOptions(mutualDependence);
+        });
 
-        return $(programExclusive).on('select2-removed', (select) =>
-          $(mutualDependence).find(`option[value=${select.val}]`).removeAttr('disabled'),
-        );
+        return CIF.Select.on(programExclusive, 'item_remove', function (value) {
+          $(mutualDependence).find(`option[value=${value}]`).removeAttr('disabled');
+          return CIF.Select.resyncOptions(mutualDependence);
+        });
       };
 
       var _selectOptonMutualDependence = function (programExclusive, mutualDependence) {
@@ -81,15 +84,18 @@ CIF.Program_streamsNew =
           for (var value of mutualDependence.val()) {
             $(programExclusive).find(`option[value=${value}]`).attr('disabled', true);
           }
+          CIF.Select.resyncOptions(programExclusive);
         }
 
-        $(mutualDependence).on('select2-selecting', (select) =>
-          $(programExclusive).find(`option[value=${select.val}]`).attr('disabled', true),
-        );
+        CIF.Select.on(mutualDependence, 'item_add', function (value) {
+          $(programExclusive).find(`option[value=${value}]`).attr('disabled', true);
+          return CIF.Select.resyncOptions(programExclusive);
+        });
 
-        return $(mutualDependence).on('select2-removed', (select) =>
-          $(programExclusive).find(`option[value=${select.val}]`).removeAttr('disabled'),
-        );
+        return CIF.Select.on(mutualDependence, 'item_remove', function (value) {
+          $(programExclusive).find(`option[value=${value}]`).removeAttr('disabled');
+          return CIF.Select.resyncOptions(programExclusive);
+        });
       };
 
       const _handleSelectTab = function () {
@@ -147,10 +153,12 @@ CIF.Program_streamsNew =
       };
 
       var _handleSelectOptionChange = () =>
-        $('select').on('select2-selecting', (e) =>
+        // re-init the operator/value selects the queryBuilder swaps in after a rule change
+        // (CIF.Select.init is idempotent, so already-live widgets are untouched)
+        CIF.Select.on('select', 'item_add', () =>
           setTimeout(
             () =>
-              $('.rule-operator-container select, .rule-value-container select').select2({
+              CIF.Select.init('.rule-operator-container select, .rule-value-container select', {
                 width: '180px',
               }),
             100,
@@ -520,8 +528,7 @@ CIF.Program_streamsNew =
 
       var _handleRemoveFrequency = function () {
         const frequencies = $('.program_stream_trackings_frequency select');
-        return $(frequencies).on('select2-removed', function (element) {
-          const select = element.currentTarget;
+        return CIF.Select.on(frequencies, 'item_remove', function (value, select) {
           const nestedField = $(select).parents('.nested-fields');
           const timeOfFrequency = $(nestedField).find(
             '.program_stream_trackings_time_of_frequency input',
@@ -534,10 +541,9 @@ CIF.Program_streamsNew =
 
       var _handleSelectFrequency = function () {
         const frequencies = $('.program_stream_trackings_frequency select');
-        return $(frequencies).on('select2-selecting', function (element) {
-          const select = element.currentTarget;
+        return CIF.Select.on(frequencies, 'item_add', function (selectedValue, select) {
           const frequencyNote = select.parentElement.nextElementSibling;
-          const frequencyValue = _convertFrequency(element.val);
+          const frequencyValue = _convertFrequency(selectedValue);
 
           const nested = $(select).parents('.nested-fields');
           const timeOfFrequency = $(nested).find(

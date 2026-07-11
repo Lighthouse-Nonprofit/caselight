@@ -11,10 +11,7 @@ CIF.StagesNew =
         return _initEditUploader();
       };
 
-      var _initialSelect2 = () =>
-        $('.select2').select2({
-          theme: 'bootstrap',
-        });
+      var _initialSelect2 = () => CIF.Select.init('.select2');
 
       var _initEditUploader = () =>
         $('.nested-fields').each(function () {
@@ -34,9 +31,7 @@ CIF.StagesNew =
       var _reloadAfterCocoon = () =>
         $('#page-wrapper').on('cocoon:after-insert', function (e, insertedItem) {
           const newImageId = +new Date();
-          insertedItem.find('.select2').select2({
-            theme: 'bootstrap',
-          });
+          CIF.Select.init(insertedItem.find('.select2'));
           _initUploader(insertedItem);
           return _afterSelectMode();
         });

@@ -30,7 +30,7 @@ CIF.Data_trackersIndex = (function () {
     });
   };
 
-  var _initSelect2 = () => $('select').select2();
+  var _initSelect2 = () => CIF.Select.init('select');
 
   var _handleSetRules = function () {
     let rules = $('#rule-before').data('program-rules');

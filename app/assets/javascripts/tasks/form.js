@@ -8,11 +8,13 @@ CIF.TasksNew =
         return _disableButtonSave();
       };
 
-      var _initSelect2 = () => $('select').select2();
+      var _initSelect2 = () => CIF.Select.init('select');
 
       var _disableButtonSave = () =>
         $('input[type=submit]').on('click', function (e) {
-          const domain = $('#select2-chosen-1').text();
+          // was select2 v3's #select2-chosen-1 (the first widget's displayed text);
+          // read the underlying domain select directly instead of widget internals
+          const domain = CIF.Select.selectedText('#task_domain_id');
           const taskName = $('#task_name').val();
           const taskCompletionDate = $('#task_completion_date').val();
           if (domain !== '' && taskName !== '' && taskCompletionDate !== '') {
