@@ -39,6 +39,8 @@ cache, and job queue are not exposed to the network.
 | MongoDB | 6.0 (Mongoid 8.1) | Change-history + access-audit store (single shared DB, tenant-field-scoped) |
 | Redis + Sidekiq | 7 / 7.3 | Background jobs (mailers, reports) |
 | Node | 24 LTS (build-time) | Terser JS compression / asset precompilation |
+| Asset pipeline | Sprockets 3.7 + ruby-sass 3.7.4 + CoffeeScript (build-time; **legacy — POAM-017e**) | SCSS/JS compilation |
+| Browser JS | jQuery 1.12.4 (→ 3.7 per POAM-017b), Bootstrap 3.4.1 (patched final), TinyMCE 4 (→ Trix per POAM-017a), select2 3.5, FullCalendar 3.9 + moment, Chart.js 4.4 | UI (**legacy set tracked under POAM-017**, dated targets) |
 | App server | thin, behind Dockerized Caddy (`proxy` profile) | HTTP |
 
 The CI service containers (`postgres:17`, `mongo:6.0`, `redis:7`) match this set. Auth is Devise
