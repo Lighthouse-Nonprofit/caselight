@@ -122,7 +122,9 @@ gem 'dropzonejs-rails',       '~> 0.8.5'
 # bourbon (~> 4.2) + neat (~> 1.8) removed: they were imported in application.scss but no
 # mixins/functions were ever used, and bourbon 4.x pins thor ~> 0.19, which conflicts with
 # Rails 6's railties (thor >= 0.20.3). Dropping the dead imports unblocks the thor bump.
-gem 'jquery_query_builder-rails', '~> 0.5.0'
+# jquery_query_builder-rails removed (R12A / POAM-017f): its doT templating compiled via
+# new Function -- the bundle's last unsafe-eval consumer. Replaced by the hand-rolled
+# CIF.RuleBuilder (app/assets/javascripts/shared/rule_builder.js), same DOM/serialization contract.
 # sidekiq 4 -> 7 (Phase 6 / POAM-001: XSS + 2x DoS CVEs). 7.x uses redis-client internally (the
 # explicit redis gem above keeps rack-attack working); Sidekiq.default_worker_options renamed to
 # default_job_options (initializer updated); no Sidekiq::Extensions (.delay) usage existed to convert.

@@ -35,9 +35,6 @@
 //= require dropzone
 //= require form-builder.min.js
 //= require form-render.min.js
-//= require jquery.extendext
-//= require doT
-//= require query-builder
 //= require stickyfill.js
 //= require lodash/lodash.min.js
 
