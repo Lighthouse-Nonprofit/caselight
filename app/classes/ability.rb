@@ -38,6 +38,12 @@ class Ability
     # controller name, so a `can :create, BreakGlassGrant` (class) rule would NOT match.
     can :create, :break_glass_grant
 
+    # Phase 5.6 follow-up fix: the notifications page authorizes the SYMBOL :notification (there is
+    # no Notification model — the data is UserNotification, a current_user-scoped PORO). The original
+    # 5.6 edit authorized the bare constant, so /notifications raised NameError (500) for every role;
+    # the grant its comment described was also never added. Same class-less pattern as above.
+    can :read, :notification
+
     if user.admin?
       can :manage, :all
     elsif user.strategic_overviewer?

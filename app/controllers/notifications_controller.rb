@@ -1,10 +1,11 @@
 class NotificationsController < AdminController
   def index
     # Phase 5.6 (AC-3): per-user notifications view (UserNotification.new(current_user)) was default-open.
-    # Authorize :read, Notification (granted to all roles in Ability; the data is already current_user-
-    # scoped) so the action satisfies check_authorization and the cutover smoke/guard ship green, rather
-    # than leaving it as a hard-CI failure. Resolves the SHADOW-window finding for this controller.
-    authorize! :read, Notification
+    # Authorize the SYMBOL :notification (granted to all roles in Ability; the data is already
+    # current_user-scoped) so the action satisfies check_authorization. NB: there is no Notification
+    # MODEL — the original 5.6 edit authorized the bare constant, which raised NameError on every
+    # visit (the page 500'd for all roles). Same class-less pattern as :break_glass_grant.
+    authorize! :read, :notification
     entity_custom_field = params[:entity_custom_field]
     client_enrollment_tracking = params[:client_enrollment_tracking]
     if entity_custom_field.present?
