@@ -65,6 +65,7 @@
 //LOAD MODULE
 //= require namespace
 //= require shared/select_widget
+//= require shared/rule_builder
 //= require util
 //= require initializer
 //= require common

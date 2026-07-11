@@ -1,0 +1,97 @@
+// CIF.RuleBuilder styling (POAM-017f / 12A) — replaces the vendored
+// query-builder.default.css. Same class skeleton as jQuery QueryBuilder 2.5.2
+// (.rules-group-container / .rule-container / *-container), Bootstrap-3-native
+// controls, scoped under the .rule-builder root the module adds.
+.rule-builder {
+  .rules-group-container {
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    background: rgba(250, 240, 210, 0.5);
+    padding: 10px;
+    padding-bottom: 6px;
+    margin: 4px 0;
+  }
+
+  .rules-group-header {
+    margin-bottom: 10px;
+
+    &::after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+
+    .group-conditions {
+      input[type='radio'] {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+      }
+
+      label {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .rules-list {
+    list-style: none;
+    padding: 0 0 0 15px;
+    margin: 0;
+    border-left: 2px solid #d0d0d0;
+  }
+
+  .rule-container {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 4px 0;
+
+    &::after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+  }
+
+  .rules-group-container .rules-list > .rules-group-container {
+    margin-left: 0;
+  }
+
+  .rule-filter-container,
+  .rule-operator-container,
+  .rule-value-container {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 5px 0 0;
+  }
+
+  .rule-filter-container select,
+  .rule-operator-container select,
+  .rule-value-container select,
+  .rule-value-container input {
+    display: inline-block;
+    width: auto;
+    min-width: 90px;
+    padding: 4px 8px;
+    height: 30px;
+  }
+
+  .error-container {
+    display: none;
+    float: left;
+    margin-right: 5px;
+    color: #f56954;
+    cursor: help;
+  }
+
+  .has-error {
+    border-color: #f56954;
+    background: rgba(245, 105, 84, 0.08);
+
+    > .error-container,
+    > .rules-group-header > .error-container {
+      display: inline-block;
+    }
+  }
+}
