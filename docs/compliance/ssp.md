@@ -39,8 +39,9 @@ cache, and job queue are not exposed to the network.
 | MongoDB | 6.0 (Mongoid 8.1) | Change-history + access-audit store (single shared DB, tenant-field-scoped) |
 | Redis + Sidekiq | 7 / 7.3 | Background jobs (mailers, reports) |
 | Node | 24 LTS (build-time) | Terser JS compression / asset precompilation |
-| Asset pipeline | Sprockets 3.7 + ruby-sass 3.7.4 + CoffeeScript (build-time; **legacy — POAM-017e**) | SCSS/JS compilation |
-| Browser JS | jQuery 1.12.4 (→ 3.7 per POAM-017b), Bootstrap 3.4.1 (patched final), TinyMCE 4 (→ Trix per POAM-017a), select2 3.5, FullCalendar 3.9 + moment, Chart.js 4.4 | UI (**legacy set tracked under POAM-017**, dated targets) |
+| Asset pipeline | Sprockets 4.2 + dart-sass (dartsass-rails 0.5) + ES2015+ JS, haml 6.4 (POAM-017e **closed**, R6/R9–R11) | SCSS/JS compilation |
+| Browser JS | jQuery 3.7.1, Bootstrap 3.4.1 (patched final; accepted-tracked POAM-017g), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, Chart.js 4.4 | UI (EOL set retired R3–R8; remaining eval-based form/query builders tracked under **POAM-017f** → Unit 18) |
+| PDF engine | wkhtmltopdf 0.12.6.1-3 (official bookworm build, sha256-pinned in the Dockerfile) | Government-report PDF download (upstream sunset tracked, POAM-019) |
 | App server | thin, behind Dockerized Caddy (`proxy` profile) | HTTP |
 
 The CI service containers (`postgres:17`, `mongo:6.0`, `redis:7`) match this set. Auth is Devise

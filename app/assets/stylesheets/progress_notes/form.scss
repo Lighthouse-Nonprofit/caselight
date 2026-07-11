@@ -21,7 +21,9 @@ body[id=progress_notes-update]{
     padding-top: 20px;
   }
   .dropzone .dz-preview .dz-image {
-    background: url('/images/file.png');
+    // upstream set a background of /images/file.png here — an image that has never
+    // existed in the repo, so every preview tile issued a silent 404; the thumbnail
+    // stays hidden exactly as before
     img {
       display: none;
     }
