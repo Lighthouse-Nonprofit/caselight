@@ -82,8 +82,9 @@ gem 'bootstrap-datepicker-rails', '~> 1.5'
 # can't take. The v3 assets (select2.js / select2.scss / select2-bootstrap.css / images) are now
 # vendored under vendor/assets, so `//= require select2` and `@import 'select2'` still resolve.
 gem 'jquery-validation-rails'
-gem 'fullcalendar-rails',     '~> 3.9.0.0'
-gem 'momentjs-rails',         '~> 2.29.4'
+# fullcalendar-rails (~> 3.9) + momentjs-rails removed (POAM-017d): the calendar runs on a
+# vendored FullCalendar 6 standard bundle (vendor/assets/javascripts/fullcalendar.js) —
+# jQuery/moment-free. moment's only call sites were inside calendars/index.js and died here.
 gem 'google-apis-calendar_v3', require: false # Task -> Google Calendar sync (re-added; see REMOVED-FEATURES.md)
 gem 'kaminari', '~> 1.1'
 gem 'jquery-datatables-rails', '~> 3.4'

@@ -236,10 +236,6 @@ GEM
       reline
     friendly_id (5.7.0)
       activerecord (>= 4.0.0)
-    fullcalendar-rails (3.9.0.0)
-      jquery-rails (>= 4.0.5, < 5.0.0)
-      jquery-ui-rails (>= 5.0.2)
-      momentjs-rails (>= 2.9.0)
     globalid (1.4.0)
       activesupport (>= 6.1)
     google-apis-calendar_v3 (0.55.0)
@@ -376,8 +372,6 @@ GEM
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
     minitest (5.27.0)
-    momentjs-rails (2.29.4.1)
-      railties (>= 3.1)
     mongo (2.24.1)
       base64
       bson (>= 4.14.1, < 6.0.0)
@@ -721,7 +715,6 @@ DEPENDENCIES
   font-awesome-rails (~> 4.7)
   foreman (~> 0.87)
   friendly_id (~> 5.7.0)
-  fullcalendar-rails (~> 3.9.0.0)
   google-apis-calendar_v3
   guard-rspec (~> 4.6)
   haml (~> 5.2)
@@ -741,7 +734,6 @@ DEPENDENCIES
   loofah (~> 2.3)
   mail_interceptor (~> 0.0.7)
   mini_magick (~> 4.5)
-  momentjs-rails (~> 2.29.4)
   mongoid (~> 8.0)
   mongoid-rspec (~> 4.2)
   nokogiri (~> 1.16)
