@@ -28,9 +28,10 @@ and case notes.
 
 ## Status
 
-CaseLight runs a **modernized, supported stack**. The application was migrated off the
+CaseLight runs a **modernized, supported backend stack**. The application was migrated off the
 end-of-life **Ruby 2.3.3 / Rails 4.2** it inherited from upstream OSCaR up to current,
-maintained versions:
+maintained versions (the frontend/asset-pipeline modernization is in progress and tracked under
+**POAM-017** in [`docs/compliance/`](docs/compliance)):
 
 - **Ruby 4.0.5 / Rails 7.2.3.1** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
   6.1 → 7.0 → 7.1 → 7.2), each step verified green before the next. Zeitwerk autoloading and a
@@ -111,6 +112,8 @@ your fork's source accordingly.
 | Redis + Sidekiq | redis 7 / sidekiq 7.3 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
 | App server | thin | behind a TLS reverse proxy (force_ssl + HSTS) |
+| Asset pipeline | Sprockets 3.7 + ruby-sass + CoffeeScript (build-time) | legacy — being modernized rung-by-rung (POAM-017e) |
+| Frontend JS | jQuery 1.12 (→ 3.7 planned), Bootstrap 3.4.1, TinyMCE 4 (→ Trix planned), select2 3.5, FullCalendar 3.9, Chart.js 4.4 | legacy components tracked with dated targets under POAM-017 |
 
 ## Quickstart
 
@@ -213,7 +216,10 @@ Confidentiality · Privacy)** auditability at the application layer. What's in p
 **Deployment**
 - Secrets live only in `.env` (gitignored); the image ships none, and per-deploy secrets are generated.
 - The app binds to localhost — expose it only via a **TLS-terminating reverse proxy**.
-- The stack carries **no end-of-life components**; rebuild the image to pick up gem/security updates,
-  and keep the edges patched (host OS, proxy, TLS).
+- The **backend** stack carries no end-of-life components; rebuild the image to pick up gem/security
+  updates, and keep the edges patched (host OS, proxy, TLS). The **frontend** still carries a tracked
+  set of legacy components (TinyMCE 4 and the shipped jQuery 1.12 are the notable ones) being retired
+  rung-by-rung — see **POAM-017** in [`docs/compliance/vulnerability-poam.md`](docs/compliance/vulnerability-poam.md)
+  for the itemized list, severities, and dated remediation targets.
 - **Pilot data is synthetic only.** Real client records are a deliberate, separate gate — see
   [`SECURITY.md`](SECURITY.md) for the controls required first.
