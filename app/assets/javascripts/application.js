@@ -47,7 +47,10 @@
 // only upload path).
 //= require trix
 //= require rich_text
-//= require moment
+// POAM-017d: FullCalendar 6 standard bundle (vendored; jQuery/moment-free — the moment
+// require died with the fullcalendar-rails/momentjs-rails gems). FC6 injects its CSS via a
+// runtime <style> element, so the CSP enforce flip (POAM-017f) must keep
+// style-src 'unsafe-inline' unless a style-nonce pass is added.
 //= require fullcalendar
 //= require bootstrap_file_input/purify.min.js
 //= require bootstrap_file_input/fileinput.js

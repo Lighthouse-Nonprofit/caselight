@@ -1,56 +1,69 @@
 CIF.CalendarsIndex = (function () {
+  // POAM-017d: FullCalendar 6 (vendored standard bundle, jQuery/moment-free) replaced the
+  // fullcalendar-rails 3.9 + momentjs-rails gems. Module-level instance so the task modal
+  // can refetchEvents() after a create. The /api/calendars/find_event FEED CONTRACT and the
+  // all-day heuristic are deliberately unchanged.
+  let calendar = null;
+
   const _init = function () {
     _calendars();
     return _bindTaskModal();
   };
 
-  // fullCalendar event FEED (function form, not a static array) so a task created via the modal can be
-  // reflected immediately with refetchEvents(). Root-relative URL (leading slash) + .done/.fail (the app's
-  // jQuery is 1.x today, but this stays correct if it is ever upgraded past the removed .success/.error).
-  const _eventsFeed = (start, end, timezone, callback) =>
+  // FC6 events-as-function: (fetchInfo, success, failure). The feed still returns the whole
+  // set (it never used the visible range). On failure render an empty calendar and never
+  // leave the spinner hanging — same behavior as before.
+  const _eventsFeed = (fetchInfo, success, failure) =>
     $.ajax({
       type: 'GET',
       url: '/api/calendars/find_event',
       dataType: 'JSON',
     })
       .done(function (json) {
-        callback(_fillFullCalendarArray((json && json.calendars) || []));
+        success(_fillFullCalendarArray((json && json.calendars) || []));
         return $('.loader').hide();
       })
-      .fail(() =>
-        // Never leave the spinner hanging if the feed fails; the (empty) calendar still renders.
-        $('.loader').hide(),
-      );
+      .fail(function () {
+        success([]);
+        return $('.loader').hide();
+      });
 
-  var _calendars = () =>
-    $('#calendar').fullCalendar({
-      header: {
+  var _calendars = function () {
+    const el = document.getElementById('calendar');
+    if (!el) {
+      return;
+    }
+    calendar = new FullCalendar.Calendar(el, {
+      headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'agendaDay,agendaWeek,month,agendaFourDay',
+        // FC3 agendaDay/agendaWeek/month -> FC6 timeGrid/dayGrid names
+        right: 'timeGridDay,timeGridWeek,dayGridMonth,timeGridFourDay',
       },
       views: {
-        agendaFourDay: {
-          type: 'agenda',
+        timeGridFourDay: {
+          type: 'timeGrid',
           duration: { days: 4 },
           buttonText: '4 days',
         },
       },
       events: _eventsFeed,
-      dayClick(date, jsEvent, view) {
-        return _openTaskModal(date);
+      dateClick(info) {
+        return _openTaskModal(info);
       },
-      eventRender(event, element) {
-        return element.popover({
+      eventDidMount(info) {
+        return $(info.el).popover({
           animation: true,
           delay: 200,
           placement: 'top',
-          content: event.title,
+          content: info.event.title,
           trigger: 'hover',
           container: 'body',
         });
       },
     });
+    return calendar.render();
+  };
 
   var _fillFullCalendarArray = function (eventLists) {
     const events = [];
@@ -64,13 +77,20 @@ CIF.CalendarsIndex = (function () {
       }
       events.push({
         title: summary,
-        start: moment.parseZone(startDate),
-        end: moment.parseZone(endDate),
+        // moment.parseZone displayed the timestamp's OWN wall clock; FC6's default 'local'
+        // timezone would shift Z-suffixed feed times into the browser zone (a task dated
+        // the 15th at 00:00Z rendered on the evening of the 14th — caught in QA). Strip
+        // the offset so FC6 renders the feed's wall time as-is, matching the old widget.
+        start: _wallTime(startDate),
+        end: _wallTime(endDate),
         allDay: fullDate,
       });
     }
     return events;
   };
+
+  var _wallTime = (value) =>
+    String(value != null ? value : '').replace(/(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/, '');
 
   // ---- Date-click task modal -------------------------------------------------
 
@@ -83,7 +103,7 @@ CIF.CalendarsIndex = (function () {
     return select.html('<option value="">' + _escape(text) + '</option>');
   };
 
-  var _openTaskModal = function (date) {
+  var _openTaskModal = function (info) {
     const modal = $('#taskModal');
     if (!modal.length) {
       return;
@@ -94,7 +114,9 @@ CIF.CalendarsIndex = (function () {
     $('#task-remind-at').val('');
     $('#task-client').prop('disabled', true);
     _resetClientSelect('placeholder-empty');
-    $('#task-completion-date').val(date && date.format ? date.format('YYYY-MM-DD') : '');
+    // FC6 dateClick info.dateStr is ISO (date-only in dayGrid, datetime in timeGrid) —
+    // first 10 chars = the YYYY-MM-DD the old moment .format() produced
+    $('#task-completion-date').val(info && info.dateStr ? info.dateStr.slice(0, 10) : '');
     _hideTaskError();
     return modal.modal('show');
   };
@@ -168,7 +190,7 @@ CIF.CalendarsIndex = (function () {
     })
       .done(function () {
         $('#taskModal').modal('hide');
-        return $('#calendar').fullCalendar('refetchEvents');
+        return calendar && calendar.refetchEvents();
       })
       .fail(() => _showTaskError(form.data('error-save')))
       .always(() => submit.prop('disabled', false).text(submit.data('label-create')));
