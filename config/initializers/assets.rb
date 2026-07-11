@@ -6,8 +6,7 @@ Rails.application.config.assets.version = '1.0'
 # Add additional assets to the asset load path
 # Rails.application.config.assets.paths << Emoji.images_path
 
-# Precompile additional assets.
-# application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
-
-# Rich text editor for the Domain
-Rails.application.config.assets.precompile += %w(jquery.nicescroll.js animate.css toastr.min.css custom.css green.png)
+# The precompile set lives in app/assets/config/manifest.js (Sprockets 4, R10).
+# The loose entries that used to be added here (jquery.nicescroll.js, animate.css,
+# toastr.min.css, custom.css, green.png) were verified unreferenced or relocated to
+# public/ during R9b/R10.

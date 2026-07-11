@@ -21,7 +21,11 @@ gem 'jquery-ui-rails'
 # (glob imports expanded) and R9b (sprockets asset helpers eliminated). sass-rails' removal
 # also lifts its `sprockets < 4.0` pin — the R10 Sprockets-4 blocker.
 gem 'dartsass-rails', '~> 0.5'
-gem 'sprockets', '~> 3.7'
+# POAM-017e/R10: sprockets 4 (the maintained line; 3.x is frozen). Unblocked by R9c —
+# sass-rails pinned `sprockets < 4.0`. Sprockets 4 reads app/assets/config/manifest.js
+# for the precompile set and no longer ships the ruby-sass/coffee engines the R6/R9c
+# neutralizing shims guarded against.
+gem 'sprockets', '~> 4.2'
 # sprockets-rails was only ever in the bundle as sass-rails' transitive dependency — with
 # sass-rails gone it must be declared directly (config/application.rb requires
 # 'sprockets/railtie', which this gem provides).
