@@ -27,3 +27,7 @@ vendor/data
 .seeded
 .env.*
 !.env.example
+
+# dart-sass build output (dartsass:build); only .keep is committed
+/app/assets/builds/*
+!/app/assets/builds/.keep

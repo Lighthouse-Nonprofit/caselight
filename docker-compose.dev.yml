@@ -43,3 +43,18 @@ services:
       - .:/app
     command: bundle exec sidekiq -e development
 
+  # POAM-017e (R9c): dart-sass compiles application.scss OUTSIDE sprockets, so the dev
+  # server no longer recompiles scss on the fly — this watcher rebuilds
+  # app/assets/builds/application.css on every stylesheet edit. Own service (not foreman
+  # inside `app`) so its logs stay separate and thin keeps its PTY for byebug.
+  css:
+    build:
+      context: .
+      args:
+        BUNDLE_WITHOUT: "staging demo production"
+    volumes:
+      - .:/app
+    command: bundle exec rails dartsass:watch
+    environment:
+      - RAILS_ENV=development
+
