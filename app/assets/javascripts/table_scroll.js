@@ -16,7 +16,7 @@ CIF.TableScroll = class TableScroll {
   }
 
   hideScrollOnMobile() {
-    return $(window).load(function () {
+    return $(window).on('load', function () {
       const ua = navigator.userAgent;
       if (
         !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(

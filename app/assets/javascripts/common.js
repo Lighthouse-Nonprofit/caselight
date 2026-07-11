@@ -42,7 +42,7 @@ CIF.Common = {
   },
 
   validateFilterNumber() {
-    return $(window).load(() => $('input[type="number"]').attr('min', '0'));
+    return $(window).on('load', () => $('input[type="number"]').attr('min', '0'));
   },
 
   initNotification() {
