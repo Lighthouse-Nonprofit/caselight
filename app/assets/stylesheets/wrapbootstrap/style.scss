@@ -8,8 +8,13 @@
 // Google Fonts
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&lang=en");
 
-// Bootstra
-@import "bootstrap-sprockets";
+// Bootstrap
+// POAM-017e (R9b): "bootstrap-sprockets" is gone — it wired bootstrap's glyphicon
+// @font-face through the sprockets font-path() helper, which dart-sass (R9c) would emit
+// as literal broken CSS. With $bootstrap-sass-asset-helper unset, bootstrap concatenates
+// $icon-font-path as a plain string; the 5 glyphicon font files are served undigested
+// from public/fonts/bootstrap/ (copied out of the bootstrap-sass gem).
+$icon-font-path: '/fonts/bootstrap/';
 @import "bootstrap";
 
 // Variables, Mixins

@@ -21,7 +21,7 @@ body[id=progress_notes-update]{
     padding-top: 20px;
   }
   .dropzone .dz-preview .dz-image {
-    background: image-url('file.png');
+    background: url('/images/file.png');
     img {
       display: none;
     }

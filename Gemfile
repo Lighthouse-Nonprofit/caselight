@@ -87,7 +87,9 @@ gem 'jquery-validation-rails'
 # jQuery/moment-free. moment's only call sites were inside calendars/index.js and died here.
 gem 'google-apis-calendar_v3', require: false # Task -> Google Calendar sync (re-added; see REMOVED-FEATURES.md)
 gem 'kaminari', '~> 1.1'
-gem 'jquery-datatables-rails', '~> 3.4'
+# jquery-datatables-rails removed (POAM-017e R9b): its DataTables asset was already shadowed
+# by the vendored 1.13.11 (R5, jQuery-3 floor), and the gem's sass-rails dependency would pin
+# `sprockets < 4.0` in the lock even after the compiler swap.
 gem 'friendly_id',            '~> 5.7.0'
 gem 'wicked_pdf',             '~> 2.8'  # was ~> 1.0 (PR #17); render API unchanged 1->2, keep wkhtmltopdf-binary-edge 0.12.6
 gem 'wkhtmltopdf-binary-edge', '~> 0.12.6.0'
@@ -97,7 +99,9 @@ gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 15.0'
 gem 'carrierwave',            '~> 3.1'
 gem 'mini_magick',            '~> 4.5'
-gem 'font-awesome-rails',     '~> 4.7'
+# font-awesome-rails removed (POAM-017e R9b): the gem shipped only a .css.erb (sprockets
+# font-path helpers dart-sass can't evaluate) + fonts. Now vendored as plain css
+# (vendor/assets/stylesheets/font-awesome.css) + undigested fonts (public/fonts/font-awesome/).
 gem 'spreadsheet',            '~> 1.3.5'
 # ros-apartment 3.x supports Rails 7.0/7.1; on Ruby 3.3 the 3.1+ Ruby-version caps no longer bind.
 gem 'ros-apartment', '~> 3.1', require: 'apartment'

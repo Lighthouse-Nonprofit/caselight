@@ -29,12 +29,12 @@ $sidebar-width: 220px;
 
 // Boxed layout width
 $boxed-width: 1200px;
-$boxed-backgound: image-url('patterns/shattered.png');
+$boxed-backgound: url('/images/patterns/shattered.png');
 
 //Border radius for buttons
 $btn-border-radius: 4px;
 
 //Navigation
 $nav-bg: #16273D;
-$nav-profil-pattern: image-url("patterns/header-profile-skin-2.png");
+$nav-profil-pattern: url('/images/patterns/header-profile-skin-2.png');
 $nav-text-color: #b9c3d1;   // brightened for crisper AA on $nav-bg (8.47:1, was 6.98:1)
