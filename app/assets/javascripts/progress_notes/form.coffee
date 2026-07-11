@@ -7,15 +7,8 @@ CIF.Progress_notesNew = CIF.Progress_notesCreate = CIF.Progress_notesEdit = CIF.
     _toggleOtherLocation()
     _triggerLocationChanged()
     _handleSubmitForm()
-    _tinyMCE()
-
-  _tinyMCE = ->
-    tinymce.init
-      selector: 'textarea.tinymce'
-      height : '250'
-      plugins: 'lists'
-      toolbar: 'bold italic numlist bullist'
-      menubar: false
+    # POAM-017a: TinyMCE init removed — the Trix editors (<trix-editor> in the form
+    # partial) bind themselves; app-wide Trix config lives in rich_text.js.
 
   _handleSubmitForm = ->
     self = @

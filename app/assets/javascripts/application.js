@@ -31,7 +31,11 @@
 //= require stickyfill.js
 //= require lodash/lodash.min.js
 
-//= require tinymce
+// POAM-017a: Trix 2 (vendored) replaced the EOL TinyMCE 4. rich_text holds the app-wide
+// Trix config (attachments disabled — the render sanitizer denies <img>; Dropzone is the
+// only upload path).
+//= require trix
+//= require rich_text
 //= require moment
 //= require fullcalendar
 //= require bootstrap_file_input/purify.min.js

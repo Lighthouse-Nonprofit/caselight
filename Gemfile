@@ -69,9 +69,10 @@ gem 'typhoeus'
 gem 'foreman',                '~> 0.87'
 gem 'cancancan', '~> 3.0'
 gem 'pundit', '~> 2.0'
-# ~> 4.5 (not 4.5.6): stays on the TinyMCE 4 editor (the app's init JS is v4) but allows a later
-# 4.x gem that uses File.exist? — 4.5.7 calls File.exists?, removed in Ruby 3.2.
-gem 'tinymce-rails',          '~> 4.5'
+# tinymce-rails (~> 4.5) removed (POAM-017a): TinyMCE 4 hit EOL in 2022 — an unpatchable rich-text
+# editor on the clinical-notes path. Replaced by Trix 2 (MIT, 37signals), vendored under
+# vendor/assets (trix.js / trix.scss) like select2 below; the render path (render_rich_text
+# sanitizer allowlist) is unchanged and already covers Trix's output tags.
 gem 'bootstrap-datepicker-rails', '~> 1.5'
 # select2-rails (~> 3.5.9.3) removed: it pins thor ~> 0.14, which conflicts with railties 6.1
 # (thor ~> 1.0), and its only 6.1-compatible line is select2-rails 4.x = select2 v4 JS — a breaking
