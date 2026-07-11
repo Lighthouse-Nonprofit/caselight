@@ -16,5 +16,9 @@ CIF.Initializer =
     if @currentPage()
       CIF.Initializer.exec(@currentPage())
 
-$(document).on 'ready page:load', ->
+# jQuery-3 prep (POAM-017b): the 'ready' EVENT was removed in jQuery 3 (and jquery-migrate
+# does not restore it) — binding it via .on() would leave this app-wide dispatcher, and
+# therefore ALL page JS, silently dead after the upgrade. $(handler) is the supported form
+# on every jQuery version. 'page:load' was a vestigial Turbolinks event (no turbolinks here).
+$ ->
   CIF.Initializer.init()

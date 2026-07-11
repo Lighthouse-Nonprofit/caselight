@@ -1,4 +1,5 @@
-$(document).on 'ready page:load', ->
+# jQuery-3 prep (POAM-017b): 'ready' event binding -> $(handler); see initializer.coffee.
+$ ->
 
   indexes = ['clients-index','families-index','partners-index','users-index', 'progress_notes-index'];
   body = $('body').attr('id')
