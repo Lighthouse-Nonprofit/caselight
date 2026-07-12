@@ -57,6 +57,11 @@ class Rack::Attack
     req.ip if %w[/passkeys /passkeys/options].include?(req.path) && req.post?
   end
 
+  # CSP violation reports (POAM-017f) — unauthenticated by design; bound log-spam / DoS.
+  throttle('csp_reports/ip', limit: 30, period: 60.seconds) do |req|
+    req.ip if req.path == '/csp_reports' && req.post?
+  end
+
   # Throttled requests get Rack::Attack's default 429 (Too Many Requests) response.
 end
 

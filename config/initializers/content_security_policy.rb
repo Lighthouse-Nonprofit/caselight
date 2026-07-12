@@ -1,27 +1,81 @@
-# Content Security Policy — FedRAMP SC-7 / SI-10, SOC 2 CC6.6 / CC6.8.
+# Content Security Policy — FedRAMP SC-7 / SI-10, SOC 2 CC6.6 / CC6.8. (POAM-017f)
 #
-# Started in REPORT-ONLY. The app still ships inline <script> and inline styles, and a few views
-# eval() stringified data (tracked as POAM-004), so an *enforced* policy would break pages today.
-# Report-only emits the policy as Content-Security-Policy-Report-Only: the browser evaluates it and
-# would report violations but blocks nothing. This lets us:
-#   1. ship a documented baseline CSP now (auditable control), and
-#   2. tighten toward an enforced, nonce-based policy in a later pass — drop :unsafe_inline /
-#      :unsafe_eval, add per-request nonces, wire a report_uri, then flip report_only -> false.
+# History: shipped report-only with :https / :unsafe_inline / :unsafe_eval while the front-end
+# still carried inline scripts, eval-based template libraries (queryBuilder+doT, formBuilder 1.x)
+# and external assets (Google Fonts, a CDN bootstrap link on the error pages, an imgur spinner).
+# All of that is gone:
+#   - R12A/R12B retired the eval sources (queryBuilder/doT replaced by CIF.RuleBuilder;
+#     formBuilder upgraded to the eval-free 3.x),
+#   - R12C-1 self-hosted the fonts (public/fonts/open-sans/), de-CDN'd the 404/500 pages,
+#     extracted the last two inline onchange handlers, and localized the spinner.
+# Every directive now pins to 'self'; scripts are additionally nonce-checked per request.
+#
+# ENFORCEMENT is env-flag driven (the two_factor.rb ENV.fetch/Boolean-cast pattern — but
+# boot-time ENV only, NOT the per-tenant EnforcementSetting panel: CSP is app-global Rack
+# middleware config memoized into env_config at boot, so it cannot be tenant-toggled and a
+# change always requires a restart/redeploy):
+#   ENFORCE_CSP unset/false -> Content-Security-Policy-Report-Only (shadow mode: browsers
+#                              evaluate and REPORT to /csp_reports but block nothing).
+#   ENFORCE_CSP=true        -> Content-Security-Policy (violations BLOCK, and still report).
+# 12C-2 ships the default OFF for the report-only soak; 12C-3 flips the default to enforce,
+# keeping ENFORCE_CSP=false in .env as the operational kill switch.
+#
+# NB: never introduce full-page HTML caching while the nonce generator exists — the nonce is
+# minted per request and a cached page would pin a stale one.
 Rails.application.configure do
+  config.x.enforce_csp =
+    ActiveModel::Type::Boolean.new.cast(ENV.fetch('ENFORCE_CSP', false))
+
   config.content_security_policy do |policy|
     policy.default_src     :self
     policy.base_uri        :self
     policy.object_src      :none
     policy.frame_ancestors :self
-    # :unsafe_inline / :unsafe_eval are required by the current (un-refactored) front-end; they are
-    # the reason this policy ships report-only rather than enforced.
-    policy.script_src      :self, :https, :unsafe_inline, :unsafe_eval
-    policy.style_src       :self, :https, :unsafe_inline
-    policy.img_src         :self, :https, :data
-    policy.font_src        :self, :https, :data
-    policy.connect_src     :self, :https
+    # No frames anywhere app-wide (12C census: zero iframes) — pin shut rather than inherit
+    # the default-src fallback. The report-only soak validates this for free; relax to :self
+    # with a citation if reports surface a legitimate same-origin frame.
+    policy.frame_src       :none
+    # form-action has NO default-src fallback — unset means unrestricted. Every form posts
+    # same-origin.
+    policy.form_action     :self
+    # Nonce-based scripts (generator below adds 'nonce-…' per request). 'self' keeps the
+    # Sprockets bundle (and debug-mode split files) loading WITHOUT per-tag nonces; the nonce
+    # exists for any deliberate future inline <script nonce: true>. A nonce makes browsers
+    # ignore 'unsafe-inline' in this directive, so it is dropped outright — as are
+    # :unsafe_eval (eval sources retired, R12A/B) and :https (no third-party scripts).
+    policy.script_src      :self
+    # 'unsafe-inline' is KEPT for style, deliberately (documented POAM-017f residual):
+    # FullCalendar 6 and formBuilder 3.x inject runtime <style> elements, the 403/404/500
+    # pages use haml :css filters, and legacy inline style= attributes exist throughout.
+    # NO nonce on style-src (see nonce_directives below). :https dropped — fonts and the
+    # error-page css are self-hosted as of R12C-1.
+    policy.style_src       :self, :unsafe_inline
+    # :data kept (iCheck/datepicker sprites, formBuilder's base64 icon font pairs with
+    # font-src, canvas exports); :https dropped — the imgur spinner was localized in R12C-1.
+    policy.img_src         :self, :data
+    policy.font_src        :self, :data
+    policy.connect_src     :self
+    # worker-src / manifest-src / media-src / child-src stay unset ON PURPOSE: no Workers,
+    # no web-app manifest, no <audio>/<video> exist, and their fallback chains already land
+    # on default-src 'self'. Pinning them would add header bytes without changing policy.
+    #
+    # Violation reports -> the in-app collector (CspReportsController -> structured
+    # Rails.logger line; throttled in rack_attack.rb). report-uri is deprecated-in-spec but
+    # universally supported; report-to still needs a separate Reporting-Endpoints header and
+    # consistent browser support — revisit if browsers actually drop report-uri.
+    policy.report_uri      '/csp_reports'
   end
 
-  # Observe-only for now (blocks nothing). Flip to false to enforce once the front-end is CSP-clean.
-  config.content_security_policy_report_only = true
+  # Fresh 128-bit nonce per request. SecureRandom, NOT session.id: the session id is stable
+  # for the life of the session (a leaked value would whitelist attacker <script> for days),
+  # and sessionless responses would have none. Rails memoizes the generated value per request
+  # (request.content_security_policy_nonce), so the header, csp_meta_tag, and any nonce: true
+  # helper agree within one response.
+  config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }
+  # Nonce on script-src ONLY. A nonce on style-src would make browsers IGNORE the
+  # 'unsafe-inline' we still rely on for FullCalendar/formBuilder's injected styles.
+  config.content_security_policy_nonce_directives = %w[script-src]
+
+  # Shadow-first flip (Phase-5 discipline): report-only unless/until config.x.enforce_csp.
+  config.content_security_policy_report_only = !config.x.enforce_csp
 end
