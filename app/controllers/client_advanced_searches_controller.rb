@@ -11,9 +11,12 @@ class ClientAdvancedSearchesController < AdminController
     # Phase 5.6 (AC-3): primary client advanced-search + XLS bulk-export surface. It scoped results via
     # Client.accessible_by(current_ability) but did ZERO CanCan authorization -> default-open. It must
     # AUTHORIZE (a client-data export is never allowlisted). All 8 roles hold :read Client, so this is
-    # non-breaking; gated behind enforce_authorization? to keep flag-OFF byte-identical (surfaces as a
-    # shadow row while OFF) and to satisfy check_authorization when ON.
-    authorize! :read, Client if enforce_authorization?
+    # non-breaking in every mode. UNCONDITIONAL since 2026-07-12: the 5.6-era `if enforce_authorization?`
+    # gate kept flag-OFF behavior byte-identical but left @_authorized unset, so the AuthorizationShadow
+    # detector logged this page as a would-403 on the Security Enforcement console FOREVER — a false
+    # positive (the cutover spec proves all 8 roles pass enforced). Authorizing unconditionally is
+    # behavior-neutral for every role and makes the AC-3 readiness report truthful.
+    authorize! :read, Client
     return unless has_params?
     basic_rules          = JSON.parse @basic_filter_params
     clients              = AdvancedSearches::ClientAdvancedSearch.new(basic_rules, Client.accessible_by(current_ability))

@@ -23,6 +23,14 @@ class AccessLog
   # mutability we explicitly forbid below).
   include Mongoid::Timestamps::Created
 
+  # How far back the shadow-divergence REVIEW surfaces look (Security Enforcement console +
+  # Access Review report). The rows themselves are append-only and kept per the retention
+  # policy — this only scopes the READINESS reports: "what would break based on RECENT
+  # usage". Without a window, a fixed finding's historical rows sat in the last-200 query
+  # forever and the console kept reporting a would-403 that could no longer happen
+  # (found 2026-07-12 via client_advanced_searches).
+  SHADOW_REVIEW_WINDOW = 14.days
+
   # AU-9: pin every query to the current tenant. try(:short_name) tolerates a nil
   # Organization.current (console/jobs) without raising.
   default_scope { where(tenant: Organization.current.try(:short_name)) }

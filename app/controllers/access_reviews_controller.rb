@@ -14,7 +14,11 @@ class AccessReviewsController < AdminController
     # Phase 5.5 (AC-6) shadow window: surface how often each staff member's access WOULD have been
     # denied by the narrowed rules before the org flips config.x.enforce_least_privilege. Pure
     # AccessLog context (counts + rule), no record values. Tenant-isolated by AccessLog default_scope.
+    # WINDOWED to AccessLog::SHADOW_REVIEW_WINDOW (2026-07-12): readiness is about RECENT usage —
+    # stale rows for already-fixed findings must age out (mirror of enforcement_settings#show).
+    review_window = AccessLog::SHADOW_REVIEW_WINDOW.ago
     @lp_shadow_events  = AccessLog.where(event_type: 'least_privilege_shadow')
+                                  .where(:created_at.gte => review_window)
                                   .order_by(created_at: :desc).limit(200).to_a
     @lp_shadow_summary = @lp_shadow_events
                          .group_by { |e| [e.user_email, (e.metadata || {})['rule']] }
@@ -25,6 +29,7 @@ class AccessReviewsController < AdminController
     # the mandatory-authorization check before the org flips config.x.enforce_authorization. Pure AccessLog
     # context (controller/action/role), no record values. The operator's is-the-allowlist-complete view.
     @authz_shadow_events  = AccessLog.where(event_type: 'authorization_shadow')
+                                     .where(:created_at.gte => review_window)
                                      .order_by(created_at: :desc).limit(200).to_a
     @authz_shadow_summary = @authz_shadow_events
                             .group_by { |e| m = e.metadata || {}; [m['controller'], m['action'], m['role']] }

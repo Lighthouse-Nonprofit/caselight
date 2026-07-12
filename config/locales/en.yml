@@ -1265,10 +1265,10 @@ en:
         name: Tenant-boundary tripwire (SC-7)
         description: Refuses any request whose data schema does not match the host tenant. Under normal operation zero mismatches are expected.
     shadow:
-      lp_title: 'Least-privilege shadow — would-deny (review before enabling)'
-      authz_title: 'Authorization-cutover shadow — would-403 (review before enabling)'
-      authz_callout: '%{count} distinct action(s) WOULD 403 — review before enabling.'
-      tenant_count: '%{count} tenant-mismatch event(s) recorded (0 expected).'
+      lp_title: 'Least-privilege shadow — would-deny, last 14 days (review before enabling)'
+      authz_title: 'Authorization-cutover shadow — would-403, last 14 days (review before enabling)'
+      authz_callout: '%{count} distinct action(s) WOULD 403 in the last 14 days — review before enabling.'
+      tenant_count: '%{count} tenant-mismatch event(s) in the last 14 days (0 expected).'
       none: No shadow divergences recorded yet.
       review_link: Open the full Access Review report
     flash:

@@ -20,7 +20,7 @@ RSpec.describe 'Phase 5.6 authorization coverage guard', type: :request do
     'access_reviews'               => %w[index],         # authorize! :read, :access_review
     'break_glass_grants'           => %w[create],        # authorize_resource class: false (symbol)
     'attachments'                  => %w[index delete],  # 5.6: authorize! :read/:destroy, Attachment (flag-gated)
-    'client_advanced_searches'     => %w[index],         # 5.6: authorize! :read, Client (flag-gated)
+    'client_advanced_searches'     => %w[index],         # 5.6: authorize! :read, Client (UNCONDITIONAL since 2026-07-12 — the flag-gated form left a permanent false-positive shadow row on the enforcement console; all 8 roles hold :read Client so un-gating is behavior-neutral)
     'api/form_builder_attachments' => %w[destroy],       # 5.6: authorize! :update, @attachment.form_buildable (flag-gated)
     'papertrail_queries'           => %w[index],         # 5.6: authorize! :read, DataTracker
     'notifications'                => %w[index],          # 5.6: authorize! :read, Notification

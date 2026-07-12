@@ -72,7 +72,7 @@
   .col-md-12
     %h4 Least-Privilege Shadow Divergences
     %p.text-muted
-      AC-6 shadow window (enforcement OFF). How often the narrowed rules WOULD have denied access, per staff member. Review before enabling enforcement.
+      AC-6 shadow window (enforcement OFF). How often the narrowed rules WOULD have denied access, per staff member, over the last 14 days. Review before enabling enforcement.
 - if @lp_shadow_summary.present?
   .table-responsive
     %table.table.table-striped.table-condensed
@@ -99,7 +99,7 @@
   .col-md-12
     %h4 Authorization-Cutover Shadow (AC-3)
     %p.text-muted
-      Global authorization cutover shadow window (enforcement OFF). Actions that WOULD fail the mandatory authorization check, by controller/action/role. Review before flipping enforce_authorization.
+      Global authorization cutover shadow window (enforcement OFF). Actions that WOULD fail the mandatory authorization check, by controller/action/role, over the last 14 days. Review before flipping enforce_authorization.
 - if @authz_shadow_summary.present?
   .table-responsive
     %table.table.table-striped.table-condensed
