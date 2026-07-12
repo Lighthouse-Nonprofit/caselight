@@ -112,7 +112,7 @@ gem 'wicked_pdf',             '~> 2.8'  # was ~> 1.0 (PR #17); render API unchan
 gem 'browser',                '~> 6.2'  # was ~> 2.1 (PR #25); firefox?/platform.mac? unchanged, vestigial modern? spec-stub removed
 gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
-gem 'paper_trail', '~> 15.0'
+gem 'paper_trail', '~> 17.0'
 gem 'carrierwave',            '~> 3.1'
 gem 'mini_magick',            '~> 4.5'
 # font-awesome-rails removed (POAM-017e R9b): the gem shipped only a .css.erb (sprockets
