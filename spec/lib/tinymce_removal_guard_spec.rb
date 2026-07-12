@@ -33,6 +33,12 @@ RSpec.describe 'TinyMCE removal guard (POAM-017a)' do
   it 'has no tinymce init call in any JS/coffee source' do
     offenders = files_under('app/assets/javascripts', 'vendor/assets/javascripts',
                             exts: %w[.js .coffee]).select do |f|
+      # the vendored formBuilder 3.x dist references tinymce as an OPTIONAL textarea
+      # subtype (R12B) — the subtype is stripped from the builder UI (eventTextAreaOption;
+      # asserted by formbuilder_upgrade_guard_spec), window.tinymce never exists here,
+      # and no tinymce asset ships
+      next false if f.end_with?('form-builder.min.js')
+
       File.read(f, encoding: 'UTF-8').match?(/tinymce\.init|tinyMCE\.init/)
     end
     expect(offenders).to be_empty,
