@@ -25,8 +25,7 @@
             %td.name= program_stream.name
             %td.domain= program_stream.domains.pluck(:identity).join(', ')
             %td.status
-              %label{ class: "#{program_stream.completed_label_class}"}
-                = program_stream.completed_status
+              = cl_badge(program_stream.completed_status, program_stream.completed_variant)
             %td.places= program_stream.enrolled
             %td.quantity= program_stream.quantity
             %td.actions

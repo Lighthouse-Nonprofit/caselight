@@ -7,14 +7,16 @@ class ProgramStreamDecorator < Draper::Decorator
     enrollments.last.status
   end
 
-  def enrollment_status_label(client)
-    program_status = enrollment_status_value(client)
-    return if program_status.nil?
-    program_status == 'Active' ? 'label label-primary' : 'label label-danger'
+  # Badge VARIANTS, not class strings — rendering goes through the cl_badge chokepoint
+  # (BS5 prep, POAM-017g P1) so the framework class names live in exactly one helper.
+  def enrollment_status_variant(client)
+    return if enrollment_status_value(client).nil?
+
+    enrollment_status_value(client) == 'Active' ? :primary : :danger
   end
 
-  def completed_label_class
-    model.completed? ? 'label label-primary' : 'label label-danger'
+  def completed_variant
+    model.completed? ? :primary : :danger
   end
 
   def completed_status
