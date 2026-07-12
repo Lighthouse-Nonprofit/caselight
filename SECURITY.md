@@ -15,7 +15,7 @@ protection concerns.
 
 ## Stack posture
 
-The application stack is current and supported (Ruby 4.0 / Rails 7.2 / PostgreSQL 17 / MongoDB 6.0 /
+The application stack is current and supported (Ruby 4.0 / Rails 8.0 / PostgreSQL 17 / MongoDB 6.0 /
 Redis 7 / Sidekiq 7.3; see `docs/compliance/ssp.md` §1 for the authoritative pin). It receives upstream
 security patches, and the **application-layer hardening program (Phases 0–7) is complete**: secure-SDLC
 CI gates, transport/header hardening, MFA + lockout + throttling, comprehensive access + change

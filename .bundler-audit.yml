@@ -3,20 +3,18 @@
 # .github/workflows/ci.yml) fails on any NEW advisory not listed here.
 #
 # RULE: never add an ID here without a corresponding POA&M entry + target date.
-ignore:
+#
+# The list is currently EMPTY (every ledgered advisory is remediated). The explicit [] matters:
+# a bare `ignore:` key parses as nil and crashes bundler-audit's Configuration.load.
+ignore: []
   # POAM-001 — CLOSED (Phase 6): sidekiq 4.1.4 -> 7.3.9. The XSS + 2x DoS advisories no longer
   #             match the lockfile; IDs removed and CI stays green without the ignore.
   # POAM-002 — CLOSED: simple_form 4.1.0 -> 5.4.1. IDs removed (GHSA-r74q-gxcg-73hx, CVE-2019-16676);
   #             the incorrect-access-control advisory no longer matches the lockfile, so CI stays green without the ignore.
-  # POAM-011 — webrick 1.9.2 (transitive via railties -> rackup; thin serves production, webrick
-  #            serves NOTHING). CVE-2026-38969 trailer-reparse request smuggling; advisory published
-  #            2026-07-07. RE-CHECKED 2026-07-08: STILL UNPATCHED — 1.9.2 is the latest webrick on
-  #            rubygems and the advisory itself notes "Not patched (last release was 1.9.2)"; the fix
-  #            (ruby/webrick#199) is unreleased. Cannot bump (no fixed version exists) and cannot drop
-  #            (railties hard-depends on rackup, which depends on webrick). No production exposure.
-  #            Re-check when webrick > 1.9.2 ships, or when the app moves to a webrick-free handler.
-  - GHSA-h4w6-wx8r-p68v
-  - CVE-2026-38969
+  # POAM-011 — CLOSED (Rails 8 rung): webrick LEFT THE BUNDLE entirely — Rack 3 brought
+  #             rackup 2.x, which dropped its webrick dependency. The advisory no longer
+  #             matches the lockfile; IDs removed (GHSA-h4w6-wx8r-p68v, CVE-2026-38969) and
+  #             CI stays green without the ignore.
   # POAM-003 — CLOSED (Phase 6): sinatra REMOVED from the bundle entirely (it existed only as the
   #             sidekiq-4 web-UI dependency, require: false, never mounted). IDs removed.
   # POAM-005a — CLOSED: fixed by the Rails 7.1.5.2 patch (CVE-2025-55193, CVE-2025-24293). IDs removed

@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 7.2.3', '>= 7.2.3.1'  # 7.2 closes POAM-005b Rails CVEs + enables devise-two-factor 6.4 (MFA)
+gem 'rails', '~> 8.0.5'  # POAM-018: 7.2 EOL 2026-08-09. 8.0.5 = last 8.0.x bug-fix release; the 8.0
+# line is security-only until its own EOL 2026-11-07 -- the 8.1 rung is ledgered (target 2026-10-31,
+# before Brakeman's 60-day pending-EOL warning fires ~2026-09-08). Prior: 7.2 closed POAM-005b.
 gem 'nokogiri', '~> 1.16'
 gem 'loofah', '~> 2.3'
 gem 'rails-html-sanitizer', '~> 1.4'

@@ -34,8 +34,8 @@ current, maintained versions, and the frontend/asset-pipeline EOL set was retire
 in 2026-07 (**POAM-017a–e closed**; the remaining eval-based form/query-builder pair is tracked
 under **POAM-017f** in [`docs/compliance/`](docs/compliance)):
 
-- **Ruby 4.0.5 / Rails 7.2.3.1** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
-  6.1 → 7.0 → 7.1 → 7.2), each step verified green before the next. Zeitwerk autoloading and a
+- **Ruby 4.0.5 / Rails 8.0.5** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
+  6.1 → 7.0 → 7.1 → 7.2 → 8.0), each step verified green before the next. Zeitwerk autoloading and a
   modern gem set throughout (Devise 5, Mongoid 9, ros-apartment 3.4, active_model_serializers 0.10,
   paper_trail 15, factory_bot 6, …).
 - **PostgreSQL 17** as the primary store (was 9.6), **MongoDB 6.0** for change/audit history
@@ -107,7 +107,7 @@ your fork's source accordingly.
 | Component | Version | Notes |
 |---|---|---|
 | Ruby | 4.0.5 | runs inside the Docker image (`ruby:4.0`, Debian Trixie) |
-| Rails | 7.2.3.1 | |
+| Rails | 8.0.5 | Rack 3 |
 | PostgreSQL | 17 | primary relational store (pg 1.5) |
 | MongoDB | 6.0 | change / audit history (Mongoid 9.0) |
 | Redis + Sidekiq | redis 7 / sidekiq 7.3 | background jobs |
