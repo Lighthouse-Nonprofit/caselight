@@ -51,6 +51,10 @@ REDIS_URL=redis://redis:6379/0
 RAILS_ENV=production
 SECRET_KEY_BASE=$(openssl rand -hex 64)
 RAILS_SERVE_STATIC_FILES=true
+# CSP kill switch (POAM-017f): the Content-Security-Policy is ENFORCED by default.
+# Uncomment to fall back to report-only shadow mode (violations logged via /csp_reports,
+# nothing blocked) — e.g. for a post-redeploy observation window. Restart required.
+# ENFORCE_CSP=false
 
 # --- Public hostname (Rails 7 host authorization + Caddy TLS) ---
 # Set to your public hostname (e.g. cases.example.org) to restrict allowed hosts to it and

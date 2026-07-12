@@ -49,6 +49,14 @@ RSpec.describe 'Security baseline', type: :request do
       expect(csp).not_to match(/https:/)
     end
 
+    it 'enforces by default, with ENFORCE_CSP=false as the shadow-mode kill switch' do
+      # 12C-3 (2026-07-12): the code default is enforce; report_only derives from the flag.
+      expect(Rails.application.config.x.enforce_csp).to be(true)
+      expect(Rails.application.config.content_security_policy_report_only).to be(false)
+      expect(response.headers['Content-Security-Policy']).to be_present
+      expect(response.headers['Content-Security-Policy-Report-Only']).to be_blank
+    end
+
     it 'mints a fresh script nonce per request (SecureRandom, not the session id)' do
       first = response.headers['Content-Security-Policy-Report-Only'].to_s +
               response.headers['Content-Security-Policy'].to_s

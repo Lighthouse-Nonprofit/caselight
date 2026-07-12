@@ -40,7 +40,7 @@ cache, and job queue are not exposed to the network.
 | Redis + Sidekiq | 7 / 7.3 | Background jobs (mailers, reports) |
 | Node | 24 LTS (build-time) | Terser JS compression / asset precompilation |
 | Asset pipeline | Sprockets 4.2 + dart-sass (dartsass-rails 0.5) + ES2015+ JS, haml 6.4 (POAM-017e **closed**, R6/R9–R11) | SCSS/JS compilation |
-| Browser JS | jQuery 4.0.0 (+ temporary migrate-4 bridge), Bootstrap 3.4.1 (patched final; accepted-tracked POAM-017g), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4 | UI (EOL set retired R3–R8; eval libraries replaced R12A/B; CSP enforce flip pending under **POAM-017f**) |
+| Browser JS | jQuery 4.0.0 (+ temporary migrate-4 bridge), Bootstrap 3.4.1 (patched final; accepted-tracked POAM-017g), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4 | UI (EOL set retired R3–R8; eval libraries replaced R12A/B; **enforced nonce-based CSP — POAM-017f closed**) |
 | PDF engine | wkhtmltopdf 0.12.6.1-3 (official bookworm build, sha256-pinned in the Dockerfile) | Government-report PDF download (upstream sunset tracked, POAM-019) |
 | App server | thin, behind Dockerized Caddy (`proxy` profile) | HTTP |
 
@@ -112,7 +112,7 @@ resolvable code path; run `rake compliance:evidence` for a machine-checked snaps
 | Control | Status | Implementation | Evidence |
 |---|---|---|---|
 | SC-5 / AC-7 DoS / rate-limit | Implemented | rack-attack throttles on auth + 2FA + passkey endpoints | `config/initializers/rack_attack.rb` |
-| SC-7 boundary / headers | Implemented | Explicit security headers; CSP (report-only — see §5); force_ssl/assume_ssl behind proxy; `TenantBoundary` | `config/application.rb`, `content_security_policy.rb`, `tenant_boundary.rb` |
+| SC-7 boundary / headers | Implemented | Explicit security headers; **enforced nonce-based CSP** (every directive `'self'`-pinned; violation reports → `/csp_reports`; `ENFORCE_CSP=false` kill switch = report-only shadow mode); force_ssl/assume_ssl behind proxy; `TenantBoundary` | `config/application.rb`, `content_security_policy.rb`, `csp_reports_controller.rb`, `tenant_boundary.rb` |
 | SC-8 transit encryption | Partial / Inherited | force_ssl + HSTS in app; **TLS termination is Caddy/Let's Encrypt, documented but not yet stood up** (§5) | `SETUP.md`/`OPERATIONS.md`; app: `production.rb` |
 | SC-12 / SC-13 key mgmt & crypto | Implemented (pilot) / TBD (prod) | ActiveRecord Encryption; keys derived from `secret_key_base` in pilot — **real-data host MUST supply independent KMS-managed keys via ENV** | `config/initializers/active_record_encryption.rb`; `encryption-at-rest.md` §Key management |
 | SC-28 / SC-28(1) at rest | Implemented (primary + history) | Field-level encryption Tiers 1–5 (names/narratives/address/staff-PII/custom-form JSONB); history stores redacted at source + scrubbed | `encryption-at-rest.md`; `history-store-sc28-poam.md` (REMEDIATED); `tier{1..4}_encryption_spec`, `paper_trail_redaction_spec` |

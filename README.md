@@ -168,7 +168,9 @@ Confidentiality · Privacy)** auditability at the application layer. What's in p
 - **Password policy** — minimum length 12 with character-class complexity and no-reuse history.
 
 **Transport & application hardening**
-- **Enforced HTTPS** with HSTS (trusting the reverse proxy's TLS), a **Content-Security-Policy** and a
+- **Enforced HTTPS** with HSTS (trusting the reverse proxy's TLS), an **enforced, nonce-based
+  Content-Security-Policy** (every directive pinned to `'self'`; violation reports collected at
+  `/csp_reports`; `ENFORCE_CSP=false` falls back to report-only), a
   strict security-header set (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, …), and
   **secure / HttpOnly / SameSite** session cookies.
 - **Field-level encryption at rest** (Rails ActiveRecord Encryption) for sensitive values, and
