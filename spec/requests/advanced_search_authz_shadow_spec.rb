@@ -42,4 +42,41 @@ RSpec.describe 'Advanced search authorization shadow truthfulness', type: :reque
     get '/client_advanced_searches'
     expect(response).to have_http_status(:ok)
   end
+
+  describe 'shadow-review windowing (the other half of report truthfulness)' do
+    # Historical shadow rows are append-only audit — they cannot be deleted when a finding is
+    # fixed, so the READINESS surfaces must window to recent usage or they report fixed
+    # findings forever (exactly how this defect was discovered on the enforcement console).
+    def shadow_row!(controller_name, created_at)
+      AccessLog.new(
+        event_type: 'authorization_shadow',
+        user_email: admin.email,
+        metadata: { 'controller' => controller_name, 'action' => 'index',
+                    'role' => 'admin', 'enforced' => false },
+        created_at: created_at
+      ).save!
+    end
+
+    it 'the enforcement console shows only rows inside AccessLog::SHADOW_REVIEW_WINDOW' do
+      shadow_row!('stale_fixed_thing', (AccessLog::SHADOW_REVIEW_WINDOW + 1.day).ago)
+      shadow_row!('fresh_live_thing',  1.hour.ago)
+
+      get '/admin/enforcement_settings'
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('fresh_live_thing')
+      expect(response.body).not_to include('stale_fixed_thing'),
+        'a shadow row older than SHADOW_REVIEW_WINDOW is still rendered — the readiness ' \
+        'report has regressed to last-200-ever and will report fixed findings forever'
+    end
+
+    it 'the access review report applies the same window' do
+      shadow_row!('stale_fixed_thing', (AccessLog::SHADOW_REVIEW_WINDOW + 1.day).ago)
+      shadow_row!('fresh_live_thing',  1.hour.ago)
+
+      get '/admin/access_review'
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('fresh_live_thing')
+      expect(response.body).not_to include('stale_fixed_thing')
+    end
+  end
 end

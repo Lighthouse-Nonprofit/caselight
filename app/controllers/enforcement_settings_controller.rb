@@ -111,19 +111,28 @@ class EnforcementSettingsController < AdminController
 
   # INLINE shadow-divergence evidence (the loop-closer): reuse AccessReviewsController's EXACT query logic
   # so the admin sees what WOULD break before flipping. Tenant-isolated by AccessLog default_scope.
+  # WINDOWED to AccessLog::SHADOW_REVIEW_WINDOW (2026-07-12): the readiness report answers "what would
+  # break based on RECENT usage" — without the window, a fixed finding's historical rows sat in the
+  # last-200 query forever and the console kept reporting would-403s that could no longer happen.
   def load_shadow_summaries
-    lp_events = AccessLog.where(event_type: 'least_privilege_shadow').order_by(created_at: :desc).limit(200).to_a
+    window = AccessLog::SHADOW_REVIEW_WINDOW.ago
+    lp_events = AccessLog.where(event_type: 'least_privilege_shadow')
+                         .where(:created_at.gte => window)
+                         .order_by(created_at: :desc).limit(200).to_a
     @lp_shadow_summary = lp_events
                          .group_by { |e| [e.user_email, (e.metadata || {})['rule']] }
                          .map { |(email, rule), evs| { email: email, rule: rule, count: evs.size, last_seen: evs.first.created_at } }
                          .sort_by { |row| [-row[:count], row[:email].to_s] }
 
-    authz_events = AccessLog.where(event_type: 'authorization_shadow').order_by(created_at: :desc).limit(200).to_a
+    authz_events = AccessLog.where(event_type: 'authorization_shadow')
+                            .where(:created_at.gte => window)
+                            .order_by(created_at: :desc).limit(200).to_a
     @authz_shadow_summary = authz_events
                             .group_by { |e| m = e.metadata || {}; [m['controller'], m['action'], m['role']] }
                             .map { |(controller, action, role), evs| { controller: controller, action: action, role: role, count: evs.size, last_seen: evs.first.created_at } }
                             .sort_by { |row| [-row[:count], row[:controller].to_s, row[:action].to_s] }
 
-    @tenant_mismatch_count = AccessLog.where(event_type: 'tenant_mismatch').count
+    @tenant_mismatch_count = AccessLog.where(event_type: 'tenant_mismatch')
+                                      .where(:created_at.gte => window).count
   end
 end
