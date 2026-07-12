@@ -22,17 +22,25 @@ module ApplicationHelper
   end
 
   def status_style(status)
-    color = 'label-primary'
-    case status
-    when 'Referred'
-      color = 'label-danger'
-    when 'Investigating'
-      color = 'label-warning'
-    end
+    variant = case status
+              when 'Referred' then :danger
+              when 'Investigating' then :warning
+              else :primary
+              end
+    cl_badge(status, variant)
+  end
 
-    content_tag(:span, class: ['label', color]) do
-      status
-    end
+  # BS5-prep chokepoint (POAM-017g P1): every colored status pill renders through here so
+  # the BS3 'label label-*' -> BS5 'badge text-bg-*' rename is a one-method flip at the
+  # cutover instead of a view sweep. The variant allowlist also keeps model data out of
+  # the class attribute entirely (this retired the Brakeman AttributeBuilder pins on the
+  # old inline `label label-#{...}` call sites).
+  CL_BADGE_VARIANTS = %w[default primary success info warning danger].freeze
+
+  def cl_badge(text, variant, tag: :span)
+    variant = variant.to_s
+    variant = 'default' unless CL_BADGE_VARIANTS.include?(variant)
+    content_tag(tag, text, class: "label label-#{variant}")
   end
 
   def human_boolean(boolean)

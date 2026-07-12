@@ -2,10 +2,10 @@
   "scan_info": {
     "app_path": "/app",
     "rails_version": "8.0.5",
-    "security_warnings": 13,
-    "start_time": "2026-07-12 06:37:10 +0000",
-    "end_time": "2026-07-12 06:37:21 +0000",
-    "duration": 11.383494049,
+    "security_warnings": 8,
+    "start_time": "2026-07-12 18:24:32 +0000",
+    "end_time": "2026-07-12 18:24:42 +0000",
+    "duration": 9.32099549,
     "checks_performed": [
       "BasicAuth",
       "BasicAuthTimingAttack",
@@ -95,72 +95,6 @@
   },
   "warnings": [
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "04d5a782f3d05b2e19f2177b6d8669d2f8efc66314a4b719baaca6d124cf6427",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/domains/index.html.haml",
-      "line": 23,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_class(true, \"label label-#{(Unresolved Model).new.score_3_color}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "DomainsController",
-          "method": "index",
-          "line": 10,
-          "file": "app/controllers/domains_controller.rb",
-          "rendered": {
-            "name": "domains/index",
-            "file": "app/views/domains/index.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "domains/index"
-      },
-      "user_input": "(Unresolved Model).new.score_3_color",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ]
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "0c6e60f805b8e6cdeb81dee0e999f178fe9f9203d8260567d8cd6f5d0633b7f6",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/domains/index.html.haml",
-      "line": 24,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_class(true, \"label label-#{(Unresolved Model).new.score_4_color}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "DomainsController",
-          "method": "index",
-          "line": 10,
-          "file": "app/controllers/domains_controller.rb",
-          "rendered": {
-            "name": "domains/index",
-            "file": "app/views/domains/index.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "domains/index"
-      },
-      "user_input": "(Unresolved Model).new.score_4_color",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ]
-    },
-    {
       "warning_type": "Redirect",
       "warning_code": 18,
       "fingerprint": "709d0d6fc781b74c885eb29125328da3ef3b9eb58d1518e8751eaa80a8a1a393",
@@ -226,39 +160,6 @@
       ]
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "838f02e757d29b0a652525e6ec9d34ace54262b45750cc67c734de26825627b9",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/domains/index.html.haml",
-      "line": 22,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_class(true, \"label label-#{(Unresolved Model).new.score_2_color}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "DomainsController",
-          "method": "index",
-          "line": 10,
-          "file": "app/controllers/domains_controller.rb",
-          "rendered": {
-            "name": "domains/index",
-            "file": "app/views/domains/index.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "domains/index"
-      },
-      "user_input": "(Unresolved Model).new.score_2_color",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ]
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "84159ce16d4eb969abab3fd39e687418b7d0cf49b5306007f6cf1d19786022e9",
@@ -278,39 +179,6 @@
       "confidence": "Medium",
       "cwe_id": [
         89
-      ]
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "97c14200eeea99dd061c44bb90830cd8f71e1303ba5e2b234f290799077fe734",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/domains/index.html.haml",
-      "line": 21,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_class(true, \"label label-#{(Unresolved Model).new.score_1_color}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "DomainsController",
-          "method": "index",
-          "line": 10,
-          "file": "app/controllers/domains_controller.rb",
-          "rendered": {
-            "name": "domains/index",
-            "file": "app/views/domains/index.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "domains/index"
-      },
-      "user_input": "(Unresolved Model).new.score_1_color",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
       ]
     },
     {
@@ -399,39 +267,6 @@
       "confidence": "High",
       "cwe_id": [
         77
-      ]
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "f51cbfbe163442a26dc4d6617fd65653e3396d13b573d8331c225459b380f1e5",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/program_streams/show.haml",
-      "line": 7,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_class(true, \"#{ProgramStream.find(params[:id]).decorate.completed_label_class}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "ProgramStreamsController",
-          "method": "show",
-          "line": 34,
-          "file": "app/controllers/program_streams_controller.rb",
-          "rendered": {
-            "name": "program_streams/show",
-            "file": "app/views/program_streams/show.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "program_streams/show"
-      },
-      "user_input": "ProgramStream.find(params[:id]).decorate",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
       ]
     }
   ],
