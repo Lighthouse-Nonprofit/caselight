@@ -1,13 +1,13 @@
 // FRAMEWORK
 // R12D: jQuery 4.0.0, vendored (the jquery-rails gem ships no jquery4 asset and left the
-// bundle with it). jquery-migrate 4.0.2 (dev build, vendored) rides TEMPORARILY — the R5
-// playbook rerun on the new major: it restores/warns the APIs 4.0 removed ($.trim/$.proxy/
-// $.isFunction/positional selectors/Sizzle-isms...) that the aging vendored plugin set
-// still uses, and console.warns each ("JQMIGRATE:"). Remove it once the smoke set is
-// warning-free (tracked, post-CSP-soak cleanup). jQuery UI 1.14 below is 4.0-compatible
-// (>= 1.13.3 required).
+// bundle with it). The transitional jquery-migrate 4.0.2 bridge was REMOVED (post-CSP-soak
+// cleanup) after a full-surface JQMIGRATE sweep: the shipped 4.0 core still defines the
+// event shorthands and .bind/.hover (deprecated, working), and the only genuinely-removed
+// APIs with live callers (isFunction/proxy/trim/camelCase — all in vendored plugins) are
+// restored explicitly by jquery4_compat below (census + growth-ban in its guard spec).
+// jQuery UI 1.14 below is 4.0-compatible (>= 1.13.3 required).
 //= require jquery4.min
-//= require jquery-migrate
+//= require jquery4_compat
 // UNIT 12: rails-ujs (bundled in actionview 7.2) replaced the legacy jquery_ujs (jquery-rails).
 // Same data-method/data-confirm/data-remote CSRF layer + auto-start, but jQuery-free and the
 // supported path on Rails 7. Drop-in: no ajax:* handlers and no $.rails API use in this app.
