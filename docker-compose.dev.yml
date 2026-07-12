@@ -30,7 +30,7 @@ services:
     # and keep conflicting. Container still listens on 3000; browse cases.localhost:3001.
     ports: !override
       - "127.0.0.1:3001:3000"
-    command: bundle exec thin start -a 0.0.0.0 -p 3000 -e development
+    command: bundle exec puma -C config/puma.rb
     stdin_open: true   # attach for byebug/pry: docker attach <container>
     tty: true
 
@@ -46,7 +46,7 @@ services:
   # POAM-017e (R9c): dart-sass compiles application.scss OUTSIDE sprockets, so the dev
   # server no longer recompiles scss on the fly — this watcher rebuilds
   # app/assets/builds/application.css on every stylesheet edit. Own service (not foreman
-  # inside `app`) so its logs stay separate and thin keeps its PTY for byebug.
+  # inside `app`) so its logs stay separate and the app server keeps its PTY for byebug.
   css:
     build:
       context: .
