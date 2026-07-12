@@ -57,6 +57,11 @@ Rails.application.routes.draw do
     match "/#{code}", to: 'errors#show', code: code, via: :all
   end
 
+  # CSP violation report collector (POAM-017f). Browser-initiated POST (application/csp-report),
+  # sent WITHOUT credentials or a CSRF token by design — auth/CSRF/authorization are skipped in
+  # the controller; abuse is bounded by the rack_attack throttle + an 8 KB body cap.
+  post 'csp_reports', to: 'csp_reports#create'
+
   get '/dashboards'     => 'dashboards#index'
 
   get '/quantitative_data' => 'clients#quantitative_case'

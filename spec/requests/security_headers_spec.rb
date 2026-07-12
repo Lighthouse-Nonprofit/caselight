@@ -22,14 +22,43 @@ RSpec.describe 'Security baseline', type: :request do
       expect(response.headers['X-Permitted-Cross-Domain-Policies']).to eq('none')
     end
 
-    it 'ships a Content-Security-Policy in report-only mode (not yet enforced)' do
-      report_only = response.headers['Content-Security-Policy-Report-Only']
-      expect(report_only).to be_present
-      expect(report_only).to include("default-src 'self'")
-      expect(report_only).to include("object-src 'none'")
-      expect(report_only).to include("frame-ancestors 'self'")
-      # Still report-only: no enforcing CSP header yet.
-      expect(response.headers['Content-Security-Policy']).to be_blank
+    it 'ships the tightened, nonce-based CSP (report-only soak until the 12C-3 flip)' do
+      # ENFORCE_CSP is unset in test until 12C-3 flips the default -> assert whichever
+      # header the boot-time flag selected (env_config memoizes at boot; don't flip in-spec).
+      enforced = Rails.application.config.x.enforce_csp
+      header_name = enforced ? 'Content-Security-Policy' : 'Content-Security-Policy-Report-Only'
+      other_name  = enforced ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy'
+      csp = response.headers[header_name]
+      expect(csp).to be_present
+      expect(response.headers[other_name]).to be_blank
+
+      expect(csp).to include("default-src 'self'")
+      expect(csp).to include("object-src 'none'")
+      expect(csp).to include("frame-ancestors 'self'")
+      expect(csp).to include("frame-src 'none'")
+      expect(csp).to include("form-action 'self'")
+      expect(csp).to match(/script-src 'self' 'nonce-[A-Za-z0-9+\/=]+'/)
+      expect(csp).to include("style-src 'self' 'unsafe-inline'")
+      expect(csp).to include("img-src 'self' data:")
+      expect(csp).to include("font-src 'self' data:")
+      expect(csp).to include("connect-src 'self'")
+      expect(csp).to include('report-uri /csp_reports')
+      # the whole point of Unit 18:
+      expect(csp).not_to include('unsafe-eval')
+      expect(csp).not_to match(/script-src[^;]*unsafe-inline/)
+      expect(csp).not_to match(/https:/)
+    end
+
+    it 'mints a fresh script nonce per request (SecureRandom, not the session id)' do
+      first = response.headers['Content-Security-Policy-Report-Only'].to_s +
+              response.headers['Content-Security-Policy'].to_s
+      get '/users/sign_in'
+      second = response.headers['Content-Security-Policy-Report-Only'].to_s +
+               response.headers['Content-Security-Policy'].to_s
+      nonce = ->(h) { h[/'nonce-([^']+)'/, 1] }
+      expect(nonce.call(first)).to be_present
+      expect(nonce.call(second)).to be_present
+      expect(nonce.call(first)).not_to eq(nonce.call(second))
     end
 
     it 'does not advertise wide-open CORS (rack-cors removed)' do
