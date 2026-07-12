@@ -20,7 +20,7 @@ changes.
      POA&M row** with a remediation plan (`vulnerability-poam.md`).
    - **gitleaks** — fails on committed secrets (`.gitleaks.toml` allowlists synthetic placeholders).
    - **RSpec CI subset** — models/serializers/decorators/helpers/mailers/requests/controllers/lib/
-     services/views (+ schedule) against PG 17 / Mongo 6 / Redis 7 service containers.
+     services/views (+ schedule) against PG 17 / Mongo 8 / Redis 7 service containers.
 3. **Baseline configuration (CM-2).** The authoritative stack is pinned in `ssp.md` §1 and the
    Dockerfile/compose files; the CI service containers match it. Dependency updates arrive via
    **Dependabot** (weekly, grouped) and are triaged per the vulnerability-management policy — major
