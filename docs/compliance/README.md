@@ -60,7 +60,7 @@ isolation, and a named-owner incident plan. See `ssp.md` §5 + `SECURITY.md`.
   finding** (a dedicated step parses `.new[]`; the report is uploaded as a CI artifact).
 - **bundler-audit** fails on any CVE **not** listed in `.bundler-audit.yml` (every ignore → a POA&M entry).
 - **gitleaks** scans for committed secrets (`.gitleaks.toml` allowlists known synthetic placeholders).
-- **Test suite** runs against PostgreSQL 17 / MongoDB 6 / Redis 7 service containers.
+- **Test suite** runs against PostgreSQL 17 / MongoDB 8 / Redis 7 service containers.
 - **Dependabot** opens weekly update PRs for gems, the Docker base image, and Actions.
 - **`rake compliance:evidence`** bundles the read-only verifier outputs (encryption/history verify,
   break-glass smoke, retention report, bundle-audit) for a reproducible evidence snapshot / pre-deploy gate.

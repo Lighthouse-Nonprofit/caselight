@@ -15,7 +15,7 @@ Control mapping:
 
 ## 1. What this policy governs
 
-The `AccessLog` collection (Mongoid; MongoDB 6.0) holds the **access (read) log
+The `AccessLog` collection (Mongoid; MongoDB 8.0) holds the **access (read) log
 and security-event log**: `read`, `login_failure`, `account_locked`,
 `access_denied`. It is distinct from:
 - **paper_trail `versions`** (PostgreSQL, per-tenant via Apartment) — the *change*

@@ -36,7 +36,7 @@ cache, and job queue are not exposed to the network.
 | Ruby | 4.0.5 (`ruby:4.0`, Debian Trixie) | Runtime |
 | Rails | 8.0.5 (Zeitwerk, Rack 3) | Framework |
 | PostgreSQL | 17 (`pg` 1.6) | Primary relational store (schema-per-tenant) |
-| MongoDB | 6.0 (Mongoid 9.0) | Change-history + access-audit store (single shared DB, tenant-field-scoped) |
+| MongoDB | 8.0 (Mongoid 9.0) | Change-history + access-audit store (single shared DB, tenant-field-scoped) |
 | Redis + Sidekiq | 7 / 7.3 | Background jobs (mailers, reports) |
 | Node | 24 LTS (build-time) | Terser JS compression / asset precompilation |
 | Asset pipeline | Sprockets 4.2 + dart-sass (dartsass-rails 0.5) + ES2015+ JS, haml 6.4 (POAM-017e **closed**, R6/R9–R11) | SCSS/JS compilation |
@@ -44,7 +44,7 @@ cache, and job queue are not exposed to the network.
 | PDF engine | wkhtmltopdf 0.12.6.1-3 (official bookworm build, sha256-pinned in the Dockerfile) | Government-report PDF download (upstream sunset tracked, POAM-019) |
 | App server | puma 8 (threaded; config/puma.rb), behind Dockerized Caddy (`proxy` profile) | HTTP (replaced the sparsely-maintained thin, 2026-07) |
 
-The CI service containers (`postgres:17`, `mongo:6.0`, `redis:7`) match this set. Auth is Devise
+The CI service containers (`postgres:17`, `mongo:8.0`, `redis:7`) match this set. Auth is Devise
 (+ two-factor, passkeys); authorization is CanCanCan (+ Pundit hooks).
 
 ### Trust boundary

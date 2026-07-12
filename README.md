@@ -38,7 +38,7 @@ under **POAM-017f** in [`docs/compliance/`](docs/compliance)):
   6.1 → 7.0 → 7.1 → 7.2 → 8.0), each step verified green before the next. Zeitwerk autoloading and a
   modern gem set throughout (Devise 5, Mongoid 9, ros-apartment 3.4, active_model_serializers 0.10,
   paper_trail 15, factory_bot 6, …).
-- **PostgreSQL 17** as the primary store (was 9.6), **MongoDB 6.0** for change/audit history
+- **PostgreSQL 17** as the primary store (was 9.6), **MongoDB 8.0** for change/audit history
   (was 3.6), **Redis + Sidekiq** for background jobs — all migrated to current versions.
 - **Containerized deployment** so the runtime lives only inside a pinned Docker image and
   the host OS never has to carry the toolchain.
@@ -109,7 +109,7 @@ your fork's source accordingly.
 | Ruby | 4.0.5 | runs inside the Docker image (`ruby:4.0`, Debian Trixie) |
 | Rails | 8.0.5 | Rack 3 |
 | PostgreSQL | 17 | primary relational store (pg 1.5) |
-| MongoDB | 6.0 | change / audit history (Mongoid 9.0) |
+| MongoDB | 8.0 | change / audit history (Mongoid 9.0) |
 | Redis + Sidekiq | redis 7 / sidekiq 7.3 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
 | App server | puma 8 | behind a TLS reverse proxy (force_ssl + HSTS); replaced thin 2026-07 |

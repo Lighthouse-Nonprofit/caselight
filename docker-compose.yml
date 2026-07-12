@@ -1,4 +1,4 @@
-# docker-compose.yml - CaseLight pilot stack (Ruby 4.0 / Rails 8.0 / Mongo 6.0 / Postgres 17).
+# docker-compose.yml - CaseLight pilot stack (Ruby 4.0 / Rails 8.0 / Mongo 8.0 / Postgres 17).
 # Datastores are NOT published to the host; the app is published only on 127.0.0.1:3000
 # (reach it via the SSM/SSH tunnel). For public HTTPS, enable the Dockerized "caddy"
 # service via the "proxy" profile (set APP_HOST in .env first). See OPERATIONS.md / SECURITY.md.
@@ -17,7 +17,22 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongo:6.0        # Mongoid 9 supports MongoDB 3.6-8.2 (server 6.0 -> 8.0 is the next rung)
+    # mongo:8.0 (migrated from 6.0 via dump/restore, same playbook as postgres above): an
+    # in-place 6->8 image swap does NOT work — mongod refuses to start unless the data files'
+    # featureCompatibilityVersion is walked 6->7->8 one major at a time. A fresh volume starts
+    # at FCV 8.0 directly, so a major bump means: mongodump --archive -> wipe the volume ->
+    # fresh image -> mongorestore (see the Rung C runbook / OPERATIONS.md). Mongoid 9 supports
+    # server 3.6-8.2.
+    image: mongo:8.0
+    # Cap WiredTiger's cache (default = ~50% of host RAM) — this box shares its memory with
+    # Postgres, Redis, the app and sidekiq, and the history store is tiny. 0.25 GB is mongod's
+    # documented minimum.
+    command: ["--wiredTigerCacheSizeGB", "0.25"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ping:1}).ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
     volumes: [mongo:/data/db]
     restart: unless-stopped
 

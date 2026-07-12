@@ -91,6 +91,8 @@ docker compose up -d db mongo redis
 DB_USER="$(grep -E '^DATABASE_USER=' .env | cut -d= -f2)"
 echo "==> waiting for postgres"
 until docker compose exec -T db pg_isready -U "$DB_USER" >/dev/null 2>&1; do sleep 2; done
+echo "==> waiting for mongo"
+until docker compose exec -T mongo mongosh --quiet --eval 'db.runCommand({ping:1}).ok' >/dev/null 2>&1; do sleep 2; done
 
 # 5. Migrations — shared/template schema, then every tenant schema.
 docker compose run --rm app bundle exec rake db:create 2>/dev/null || true

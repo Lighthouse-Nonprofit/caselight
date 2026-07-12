@@ -101,7 +101,7 @@ jobs:
           [ "$cssz" -gt 50000 ] || { echo "::error::compiled CSS suspiciously small (${cssz} bytes)"; exit 1; }
 
   test:
-    name: Test suite (PG 17 / Mongo 6 / Redis)
+    name: Test suite (PG 17 / Mongo 8 / Redis)
     runs-on: ubuntu-latest
     env:
       RAILS_ENV: test
@@ -133,7 +133,7 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U oscar" --health-interval 5s --health-timeout 5s --health-retries 20
       mongo:
-        image: mongo:6.0
+        image: mongo:8.0
         ports: ["27017:27017"]
         options: >-
           --health-cmd "mongosh --quiet --eval 'db.runCommand({ping:1}).ok'" --health-interval 5s --health-timeout 5s --health-retries 20
