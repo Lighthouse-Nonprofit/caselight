@@ -4,7 +4,8 @@
     %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
     %title Error 404 (Not Found)
     %meta{:content => "width=device-width,initial-scale=1", :name => "viewport"}/
-    %link{:crossorigin => "anonymous", :href => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", :integrity => "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7", :rel => "stylesheet"}
+    -# the maxcdn bootstrap 3.3.6 link is gone (12C-1): the application bundle below compiles
+    -# bootstrap-sass 3.4.1 in — same as the 403 page, which has always rendered CDN-free
     = stylesheet_link_tag 'application', media: 'all'
     :css
       body {

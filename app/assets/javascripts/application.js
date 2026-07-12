@@ -71,6 +71,7 @@
 //= require namespace
 //= require shared/select_widget
 //= require shared/rule_builder
+//= require shared/auto_submit
 //= require util
 //= require initializer
 //= require common

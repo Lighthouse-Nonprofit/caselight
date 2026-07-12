@@ -28,7 +28,10 @@ CIF.ClientsIndex = (function () {
       nextSelector: 'ul.pagination a[rel=next]', // selector for the NEXT link (to page 2)
       itemSelector: 'table.clients tbody tr', // selector for all items you'll retrieve
       loading: {
-        img: 'http://i.imgur.com/qkKy8.gif',
+        // was http://i.imgur.com/qkKy8.gif — a plain-http third-party image that the
+        // enforced CSP's img-src 'self' would block (12C-1); the local spinner ships
+        // in public/images
+        img: '/images/loading.gif',
         msgText: $('.clients-table').data('info-load'),
       },
       donetext: $('.clients-table').data('info-end'),
