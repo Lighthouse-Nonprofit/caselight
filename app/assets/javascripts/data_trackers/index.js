@@ -17,13 +17,14 @@ CIF.Data_trackersIndex = (function () {
       url: '/api/program_stream_add_rule/get_fields',
       method: 'GET',
       success(response) {
-        const fieldList = response.program_stream_add_rule;
-        $('#program-rules-before').queryBuilder(_queryBuilderOption(fieldList));
-        $('#program-rules-after').queryBuilder(_queryBuilderOption(fieldList));
-        setTimeout(function () {
-          _handleRemoveButtonOnProgramRules();
-          return _handleDisabledInputs();
-        });
+        // bare-array API response (the old response.program_stream_add_rule read was
+        // undefined — POAM-017f latent defect); two independent read-only instances,
+        // one per version-diff side. readOnly renders no buttons + disables inputs,
+        // replacing the old render-then-strip hacks.
+        const fieldList = response;
+        new CIF.RuleBuilder($('#program-rules-before')[0], { filters: fieldList, readOnly: true });
+        new CIF.RuleBuilder($('#program-rules-after')[0], { filters: fieldList, readOnly: true });
+        setTimeout(() => _handleDisabledInputs());
 
         return _handleSetRules();
       },
@@ -35,39 +36,18 @@ CIF.Data_trackersIndex = (function () {
   var _handleSetRules = function () {
     let rules = $('#rule-before').data('program-rules');
     if (!$.isEmptyObject(rules)) {
-      $('#program-rules-before').queryBuilder('setRules', rules);
+      CIF.RuleBuilder.get($('#program-rules-before')[0]).setRules(rules);
     }
 
     rules = $('#rule-after').data('program-rules');
     if (!$.isEmptyObject(rules)) {
-      return $('#program-rules-after').queryBuilder('setRules', rules);
+      return CIF.RuleBuilder.get($('#program-rules-after')[0]).setRules(rules);
     }
   };
 
-  var _queryBuilderOption = (fieldList) => ({
-    inputs_separator: ' AND ',
-
-    lang: {
-      operators: {
-        is_empty: 'is blank',
-        equal: 'is',
-        not_equal: 'is not',
-        less: '<',
-        less_or_equal: '<=',
-        greater: '>',
-        greater_or_equal: '>=',
-        contains: 'includes',
-        not_contains: 'excludes',
-      },
-    },
-
-    filters: fieldList,
-  });
-
-  var _handleRemoveButtonOnProgramRules = function () {
-    $('#program-rules-before').find('button').remove();
-    return $('#program-rules-after').find('button').remove();
-  };
+  // NB cosmetic delta vs QueryBuilder: this surface's old option object omitted the
+  // is_not_empty label override, so historic rules using it now render "is not blank"
+  // instead of QB's default "is not empty" — deliberate, module-default labels apply.
 
   var _handleDisabledInputs = () =>
     $('.modal-body .rules-group-container')

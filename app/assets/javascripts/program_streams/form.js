@@ -8,6 +8,7 @@ CIF.Program_streamsNew =
       const EXIT_PROGRAM_URL = `/api/program_streams/${this.programStreamId}/exit_program_fields`;
       const TRACKING_URL = `/api/program_streams/${this.programStreamId}/tracking_fields`;
       this.formBuilder = [];
+      let programRuleBuilder;
       const _init = function () {
         this.filterTranslation = '';
         _getTranslation();
@@ -128,15 +129,20 @@ CIF.Program_streamsNew =
         });
 
       const _handleSetRules = function () {
-        let rules = $('#program_stream_rules').val();
-        rules = JSON.parse(rules.replace(/=>/g, ':'));
+        // empty on /new — this JSON.parse('') throw was previously masked by the
+        // ConfigError that killed the init before reaching here (POAM-017f defect)
+        const raw = $('#program_stream_rules').val();
+        if (!raw) {
+          return;
+        }
+        const rules = JSON.parse(raw.replace(/=>/g, ':'));
         if (!$.isEmptyObject(rules)) {
-          return $('#program-rule').queryBuilder('setRules', rules);
+          return programRuleBuilder.setRules(rules);
         }
       };
 
       var _addRuleCallback = () =>
-        $('#program-rule').on('afterCreateRuleFilters.queryBuilder', function () {
+        $('#program-rule').on('rulebuilder:rule-rendered', function () {
           _initSelect2();
           return _handleSelectOptionChange();
         });
@@ -170,13 +176,19 @@ CIF.Program_streamsNew =
           url: '/api/program_stream_add_rule/get_fields',
           method: 'GET',
           success(response) {
-            const fieldList = response.program_stream_add_rule;
-            const builder = new CIF.AdvancedFilterBuilder(
-              $('#program-rule'),
-              fieldList,
-              filterTranslation,
-            );
-            builder.initRule();
+            // the API renders the RuleFields array BARE — the old
+            // response.program_stream_add_rule read was undefined, which is what threw
+            // queryBuilder's "ConfigError: Missing filters list" on /program_streams/new
+            // (POAM-017f latent defect)
+            const fieldList = response;
+            programRuleBuilder = new CIF.RuleBuilder($('#program-rule')[0], {
+              filters: fieldList,
+              lang: {
+                add_rule: filterTranslation.addFilter,
+                add_group: filterTranslation.addGroup,
+                delete_group: filterTranslation.deleteGroup,
+              },
+            });
             setTimeout(function () {
               _handleSelectTab();
               return _initSelect2();
@@ -401,10 +413,13 @@ CIF.Program_streamsNew =
       };
 
       var _handleAddRuleBuilderToInput = function () {
-        const rules = $('#program-rule').queryBuilder('getRules');
-        if ($.isEmptyObject(rules)) {
-          $('ul.rules-list li').removeClass('has-error');
+        if (!programRuleBuilder) {
+          return;
         }
+        // null when empty/invalid -> hidden field untouched and the error paint stays,
+        // exactly the legacy behavior (the old error-clearing line here targeted
+        // 'ul.rules-list li', a selector that never matched QB 2.5's div markup)
+        const rules = programRuleBuilder.getRules();
         if (!$.isEmptyObject(rules)) {
           return $('#program_stream_rules').val(_handleStringfyRules(rules));
         }

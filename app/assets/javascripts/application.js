@@ -35,9 +35,6 @@
 //= require dropzone
 //= require form-builder.min.js
 //= require form-render.min.js
-//= require jquery.extendext
-//= require doT
-//= require query-builder
 //= require stickyfill.js
 //= require lodash/lodash.min.js
 
@@ -65,6 +62,7 @@
 //LOAD MODULE
 //= require namespace
 //= require shared/select_widget
+//= require shared/rule_builder
 //= require util
 //= require initializer
 //= require common
@@ -73,7 +71,6 @@
 
 //APPLICATION JS
 //= require check_duplicate_array.js
-//= require advanced_filter_builder
 //= require custom_form_builder
 //= require table_scroll
 //= require filters

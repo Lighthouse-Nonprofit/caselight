@@ -15,11 +15,13 @@ CIF.Program_streamsShow = CIF.Program_streamsPreview = (function () {
       url: '/api/program_stream_add_rule/get_fields',
       method: 'GET',
       success(response) {
-        const fieldList = response.program_stream_add_rule;
-        $('#program-rules').queryBuilder(_queryBuilderOption(fieldList));
+        // bare-array API response (the old response.program_stream_add_rule read was
+        // undefined — POAM-017f latent defect); readOnly renders no buttons and
+        // disables every input, replacing the old render-then-strip hacks
+        const fieldList = response;
+        new CIF.RuleBuilder($('#program-rules')[0], { filters: fieldList, readOnly: true });
         setTimeout(function () {
           _initSelect2();
-          _handleRemoveButtonOnProgramRules();
           return _handleDisabledInputs();
         });
 
@@ -46,32 +48,9 @@ CIF.Program_streamsShow = CIF.Program_streamsPreview = (function () {
   var _handleSetRules = function () {
     const rules = $('#rules').data('program-rules');
     if (!$.isEmptyObject(rules)) {
-      return $('#program-rules').queryBuilder('setRules', rules);
+      return CIF.RuleBuilder.get($('#program-rules')[0]).setRules(rules);
     }
   };
-
-  var _queryBuilderOption = (fieldList) => ({
-    inputs_separator: ' AND ',
-
-    lang: {
-      operators: {
-        is_empty: 'is blank',
-        is_not_empty: 'is not blank',
-        equal: 'is',
-        not_equal: 'is not',
-        less: '<',
-        less_or_equal: '<=',
-        greater: '>',
-        greater_or_equal: '>=',
-        contains: 'includes',
-        not_contains: 'excludes',
-      },
-    },
-
-    filters: fieldList,
-  });
-
-  var _handleRemoveButtonOnProgramRules = () => $('.panel').find('#program-rules button').remove();
 
   var _handleDisabledInputs = function () {
     $('#program-stream-info :input').attr('disabled', 'disabled');
