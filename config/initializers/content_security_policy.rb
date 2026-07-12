@@ -14,17 +14,20 @@
 # boot-time ENV only, NOT the per-tenant EnforcementSetting panel: CSP is app-global Rack
 # middleware config memoized into env_config at boot, so it cannot be tenant-toggled and a
 # change always requires a restart/redeploy):
-#   ENFORCE_CSP unset/false -> Content-Security-Policy-Report-Only (shadow mode: browsers
-#                              evaluate and REPORT to /csp_reports but block nothing).
-#   ENFORCE_CSP=true        -> Content-Security-Policy (violations BLOCK, and still report).
-# 12C-2 ships the default OFF for the report-only soak; 12C-3 flips the default to enforce,
-# keeping ENFORCE_CSP=false in .env as the operational kill switch.
+#   ENFORCE_CSP=false -> Content-Security-Policy-Report-Only (shadow mode: browsers
+#                        evaluate and REPORT to /csp_reports but block nothing).
+#   ENFORCE_CSP unset/true -> Content-Security-Policy (violations BLOCK, and still report).
+# ENFORCED BY DEFAULT since 12C-3 (flipped 2026-07-12, user-ratified): the enforce-mode
+# Playwright rehearsal recorded ZERO violations across every page + risky surface, and the
+# report-only soak's full-coverage pass (TOTP login, XLS export, Dropzone, Trix, builders,
+# calendar, error pages) logged zero real csp_violation lines. ENFORCE_CSP=false in .env is
+# the operational kill switch (documented in bootstrap.sh) — falls back to shadow mode.
 #
 # NB: never introduce full-page HTML caching while the nonce generator exists — the nonce is
 # minted per request and a cached page would pin a stale one.
 Rails.application.configure do
   config.x.enforce_csp =
-    ActiveModel::Type::Boolean.new.cast(ENV.fetch('ENFORCE_CSP', false))
+    ActiveModel::Type::Boolean.new.cast(ENV.fetch('ENFORCE_CSP', true))
 
   config.content_security_policy do |policy|
     policy.default_src     :self
@@ -76,6 +79,6 @@ Rails.application.configure do
   # 'unsafe-inline' we still rely on for FullCalendar/formBuilder's injected styles.
   config.content_security_policy_nonce_directives = %w[script-src]
 
-  # Shadow-first flip (Phase-5 discipline): report-only unless/until config.x.enforce_csp.
+  # Enforced by default (12C-3); ENFORCE_CSP=false drops back to report-only shadow mode.
   config.content_security_policy_report_only = !config.x.enforce_csp
 end
