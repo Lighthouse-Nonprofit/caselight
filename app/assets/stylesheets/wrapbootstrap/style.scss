@@ -5,8 +5,8 @@
  *
 */
 
-// Google Fonts
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&lang=en");
+// Open Sans — self-hosted (12C-1); was a Google Fonts @import url() that loaded at runtime
+@import "base/open-sans-faces";
 
 // Bootstrap
 // POAM-017e (R9b): "bootstrap-sprockets" is gone — it wired bootstrap's glyphicon

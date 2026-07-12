@@ -1,0 +1,36 @@
+// Self-hosted Open Sans (POAM-017f / 12C-1) — replaces the Google Fonts @import url()
+// that dart-sass hoisted to the top of the compiled bundle: the last runtime dependency
+// on fonts.googleapis.com / fonts.gstatic.com, unblockable once style-src/font-src drop
+// :https. Exactly the four weights the Google CSS served (300/400/600/700, normal only;
+// italics were never served and stay browser-synthesized). latin + latin-ext subsets
+// (accented client names); woff2-only — legacy browsers are already routed to
+// /unsupported_browser. Files live undigested in public/fonts/open-sans/ (R9b convention,
+// like /fonts/bootstrap/); plain-string urls on purpose — dart-sass has no asset helpers.
+// No font-display override: the v1 Google CSS set none either (parity).
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/open-sans/open-sans-300.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/open-sans/open-sans-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/open-sans/open-sans-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/open-sans/open-sans-700.woff2') format('woff2');
+}
