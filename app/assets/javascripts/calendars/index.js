@@ -168,7 +168,7 @@ CIF.CalendarsIndex = (function () {
     e.preventDefault();
     const clientId = $('#task-client').val();
     const domainId = $('#task-domain').val();
-    const name = $.trim($('#task-name').val());
+    const name = ($('#task-name').val() || '').trim(); // $.trim removed in jQuery 4
     const completionDate = $('#task-completion-date').val();
     const remindAt = $('#task-remind-at').val();
     const form = $('#new-task-form');

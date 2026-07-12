@@ -66,7 +66,9 @@ CIF.ClientsNew =
                     return result;
                   })(),
                 );
-                $.unique(organizations[0]);
+                // $.unique removed in jQuery 4 (it was DOM-node uniqueSort; this deduped
+                // name strings by side effect) — a Set dedupe keeps insertion order
+                organizations[0] = [...new Set(organizations[0])];
                 const modalText = [];
                 for (var organization of organizations[0]) {
                   modalText.push(

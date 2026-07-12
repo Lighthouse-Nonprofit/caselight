@@ -35,7 +35,7 @@ CIF.ClientsShow = (function () {
 
     return $(exitDate)
       .add(exitNote)
-      .bind('keyup change', () => _validateExitButton(formId, exitDate, exitNote));
+      .on('keyup change', () => _validateExitButton(formId, exitDate, exitNote));
   };
 
   var _exitModalValidate = function () {
@@ -47,7 +47,7 @@ CIF.ClientsShow = (function () {
 
     return $(exitDate)
       .add(exitNote)
-      .bind('keyup change', () => _validateExitButton(formId, exitDate, exitNote));
+      .on('keyup change', () => _validateExitButton(formId, exitDate, exitNote));
   };
 
   var _validateExitButton = function (formId, exitDate, exitNote) {
