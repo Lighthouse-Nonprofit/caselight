@@ -56,7 +56,7 @@ gem 'webauthn', '~> 3.4'
 # R11: haml 6 (the Hamlit-lineage rewrite; the last deliberate version pin). Exposure was
 # audited before the bump: zero haml_tag/haml_concat/capture_haml/succeed/precede/object-ref
 # usage, filters limited to :javascript/:css (both in haml 6 core), no Haml::Options config.
-gem 'haml', '~> 6.3'
+gem 'haml', '~> 7.2'
 gem 'haml-rails', '~> 3.1'
 gem 'dotenv-rails', '~> 2.2'
 gem 'roo',                    '~> 3.0'
