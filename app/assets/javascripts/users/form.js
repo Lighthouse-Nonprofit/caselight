@@ -34,8 +34,13 @@ CIF.UsersNew =
           }
         });
 
+      // Applies the manager-field state for the CURRENT role at page load. The decaffeinated
+      // original called this bare, so $(this) wrapped nothing — silently undefined on jQuery
+      // 1-3, a val() TypeError on jQuery 4 (caught by the P6 sweep on /admin/users/new).
+      // Read the role select explicitly; the change handler above keeps its own $(this).
       var _disableManagerField = function () {
-        if ($(this).val() === 'admin' || $(this).val() === 'strategic overviewer') {
+        const role = $('#user_roles').val();
+        if (role === 'admin' || role === 'strategic overviewer') {
           CIF.Select.setValue('#user_manager_id', '');
           return CIF.Select.disable('#user_manager_id');
         } else {
