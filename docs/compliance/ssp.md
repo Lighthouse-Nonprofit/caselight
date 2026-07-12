@@ -34,7 +34,7 @@ cache, and job queue are not exposed to the network.
 | Component | Version | Role |
 |---|---|---|
 | Ruby | 4.0.5 (`ruby:4.0`, Debian Trixie) | Runtime |
-| Rails | 7.2.3.1 (Zeitwerk) | Framework |
+| Rails | 8.0.5 (Zeitwerk, Rack 3) | Framework |
 | PostgreSQL | 17 (`pg` 1.6) | Primary relational store (schema-per-tenant) |
 | MongoDB | 6.0 (Mongoid 9.0) | Change-history + access-audit store (single shared DB, tenant-field-scoped) |
 | Redis + Sidekiq | 7 / 7.3 | Background jobs (mailers, reports) |

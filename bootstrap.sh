@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # bootstrap.sh — one-shot, idempotent deploy of CaseLight on the pilot box.
 #
-# CaseLight is modernized (Ruby 4.0 / Rails 7.2 / PostgreSQL 17 / Mongo 6.0). The repo carries
+# CaseLight is modernized (Ruby 4.0 / Rails 8.0 / PostgreSQL 17 / Mongo 6.0). The repo carries
 # the Dockerfile and compose files, so there is nothing to scp — just run this script.
 # Rerun any time to deploy the latest main: it fetches, hard-resets to origin/$BRANCH,
 # rebuilds, migrates (shared template + every tenant), encrypts existing rows at rest
@@ -81,7 +81,7 @@ EOF
   chmod 600 .env
 fi
 
-# 3. Build the image (Ruby 4.0 / Rails 7.2; native gems compile here — slow on first build).
+# 3. Build the image (Ruby 4.0 / Rails 8.0; native gems compile here — slow on first build).
 echo "==> docker compose build"
 docker compose build
 

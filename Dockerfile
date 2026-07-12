@@ -1,4 +1,4 @@
-# Dockerfile - CaseLight (Ruby 4.0 / Rails 7.x), modernized off the EOL 2.3.3/4.2.2 stack.
+# Dockerfile - CaseLight (Ruby 4.0 / Rails 8.x), modernized off the EOL 2.3.3/4.2.2 stack.
 # The build, not the run, is where you will spend time. See OPERATIONS.md.
 
 FROM ruby:4.0

@@ -1,11 +1,11 @@
 {
   "scan_info": {
     "app_path": "/app",
-    "rails_version": "7.2.3.1",
-    "security_warnings": 14,
-    "start_time": "2026-07-11 20:47:55 +0000",
-    "end_time": "2026-07-11 20:48:06 +0000",
-    "duration": 10.865317464,
+    "rails_version": "8.0.5",
+    "security_warnings": 13,
+    "start_time": "2026-07-12 06:37:10 +0000",
+    "end_time": "2026-07-12 06:37:21 +0000",
+    "duration": 11.383494049,
     "checks_performed": [
       "BasicAuth",
       "BasicAuthTimingAttack",
@@ -87,7 +87,7 @@
       "XMLDoS",
       "YAMLParsing"
     ],
-    "number_of_controllers": 68,
+    "number_of_controllers": 69,
     "number_of_models": 69,
     "number_of_templates": 350,
     "ruby_version": "4.0.5",
@@ -311,24 +311,6 @@
       "confidence": "Weak",
       "cwe_id": [
         79
-      ]
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 122,
-      "fingerprint": "98b26f60d776fd41ee6f088c833725145be9aac2d7c5b33780241c273622db42",
-      "check_name": "EOLRails",
-      "message": "Support for Rails 7.2.3.1 ends on 2026-08-09",
-      "file": "Gemfile.lock",
-      "line": 459,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        1104
       ]
     },
     {

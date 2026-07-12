@@ -1,4 +1,4 @@
-# docker-compose.yml - CaseLight pilot stack (Ruby 3.3 / Rails 7.1 / Mongo 6.0 / Postgres 17).
+# docker-compose.yml - CaseLight pilot stack (Ruby 4.0 / Rails 8.0 / Mongo 6.0 / Postgres 17).
 # Datastores are NOT published to the host; the app is published only on 127.0.0.1:3000
 # (reach it via the SSM/SSH tunnel). For public HTTPS, enable the Dockerized "caddy"
 # service via the "proxy" profile (set APP_HOST in .env first). See OPERATIONS.md / SECURITY.md.
