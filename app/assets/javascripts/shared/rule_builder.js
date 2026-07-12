@@ -250,14 +250,14 @@ CIF.RuleBuilder = (function () {
       if (!this.readOnly) {
         const actions = el('div', 'btn-group pull-right group-actions');
         actions.appendChild(
-          button('btn btn-xs btn-success', 'data-add', 'rule', 'glyphicon glyphicon-plus', this.lang.add_rule),
+          button('btn btn-xs btn-success', 'data-add', 'rule', 'fa fa-plus', this.lang.add_rule),
         );
         actions.appendChild(
-          button('btn btn-xs btn-success', 'data-add', 'group', 'glyphicon glyphicon-plus-sign', this.lang.add_group),
+          button('btn btn-xs btn-success', 'data-add', 'group', 'fa fa-plus-circle', this.lang.add_group),
         );
         if (level > 1) {
           actions.appendChild(
-            button('btn btn-xs btn-danger', 'data-delete', 'group', 'glyphicon glyphicon-remove', this.lang.delete_group),
+            button('btn btn-xs btn-danger', 'data-delete', 'group', 'fa fa-times', this.lang.delete_group),
           );
         }
         header.appendChild(actions);
@@ -279,7 +279,7 @@ CIF.RuleBuilder = (function () {
       header.appendChild(conditions);
 
       const errorContainer = el('div', 'error-container');
-      errorContainer.appendChild(el('i', 'glyphicon glyphicon-warning-sign'));
+      errorContainer.appendChild(el('i', 'fa fa-exclamation-triangle'));
       header.appendChild(errorContainer);
 
       group.appendChild(header);
@@ -310,7 +310,7 @@ CIF.RuleBuilder = (function () {
       rule.appendChild(header);
 
       const errorContainer = el('div', 'error-container');
-      errorContainer.appendChild(el('i', 'glyphicon glyphicon-warning-sign'));
+      errorContainer.appendChild(el('i', 'fa fa-exclamation-triangle'));
       rule.appendChild(errorContainer);
 
       rule.appendChild(el('div', 'rule-filter-container'));
