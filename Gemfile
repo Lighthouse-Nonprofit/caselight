@@ -133,9 +133,13 @@ gem 'sidekiq',                '~> 7.3'
 # connection_pool 3.0 changed TimedStack#pop's signature and crashes sidekiq 7.3's scheduler thread
 # (ArgumentError at boot, caught by the U11 smoke). Pin to the 2.x line sidekiq 7 was built against.
 gem 'connection_pool',        '~> 2.5'
-# mongo driver unpinned now that the server is MongoDB 6.0 (the 2.19 cap was only to keep the
-# EOL 3.6 server working). mongoid ~> 8.0 pulls a compatible mongo 2.x.
-gem 'mongoid', '~> 8.0'
+# Mongoid 9 (POAM-018 opening rung): Mongoid 8.1's OFFICIAL support tops out at Rails 7.2, so
+# Mongoid moves before the Rails-8 hop — 9.0.x officially supports Rails 6.0-8.0 AND MongoDB
+# server 3.6-8.2 (the upcoming server-8.0 rung), making every step an officially-supported
+# combo. Driver stays mongo 2.x unpinned (9.0 requires >= 2.18; >= 2.21 covers server 8.0;
+# the lock already resolves the newest 2.x). No mongoid.yml changes: the app deliberately
+# carries zero Mongoid feature-flag config, so 9.0 defaults apply wholesale.
+gem 'mongoid', '~> 9.0.11'
 
 group :development, :test do
   gem 'pry'
@@ -147,7 +151,9 @@ group :development, :test do
   # poltergeist (~> 1.9.0) removed: PhantomJS is dead and the gem doesn't run on Ruby 3.3. The
   # feature specs that used it were already deferred to a cuprite port (see REMOVED-FEATURES.md).
   gem 'shoulda-whenever',     '~> 0.0.2'
-  gem 'bullet', '~> 7.0'             # was ~> 6.0 (6.x rejects ActiveRecord 7.0)
+  gem 'bullet', '~> 8.0'             # 7.x hard-raises on Mongoid 9 at boot (runtime version
+                                     # sniff, invisible to gemspec audits); 8.x supports it.
+                                     # (was ~> 7.0; before that ~> 6.0 — 6.x rejected AR 7.0)
   gem 'mongoid-rspec', '~> 4.2'      # was < 4.2
   # Security scanning (Phase 0 hardening; run in CI + locally, not required at boot):
   gem 'brakeman',      require: false  # SAST — Rails static security analysis

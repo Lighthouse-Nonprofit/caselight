@@ -36,7 +36,7 @@ cache, and job queue are not exposed to the network.
 | Ruby | 4.0.5 (`ruby:4.0`, Debian Trixie) | Runtime |
 | Rails | 7.2.3.1 (Zeitwerk) | Framework |
 | PostgreSQL | 17 (`pg` 1.6) | Primary relational store (schema-per-tenant) |
-| MongoDB | 6.0 (Mongoid 8.1) | Change-history + access-audit store (single shared DB, tenant-field-scoped) |
+| MongoDB | 6.0 (Mongoid 9.0) | Change-history + access-audit store (single shared DB, tenant-field-scoped) |
 | Redis + Sidekiq | 7 / 7.3 | Background jobs (mailers, reports) |
 | Node | 24 LTS (build-time) | Terser JS compression / asset precompilation |
 | Asset pipeline | Sprockets 4.2 + dart-sass (dartsass-rails 0.5) + ES2015+ JS, haml 6.4 (POAM-017e **closed**, R6/R9–R11) | SCSS/JS compilation |

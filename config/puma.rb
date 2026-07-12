@@ -12,6 +12,12 @@ threads threads_count, threads_count
 
 workers ENV.fetch('WEB_CONCURRENCY', 0).to_i
 
+# Mongo client sockets don't survive fork — reconnect per worker if clustered mode is ever
+# enabled (WEB_CONCURRENCY > 0). Safe no-op in single mode; Mongoid 9 formalized fork handling.
+on_worker_boot do
+  Mongoid.reconnect_clients if defined?(Mongoid)
+end
+
 port ENV.fetch('PORT', 3000)
 environment ENV.fetch('RAILS_ENV', 'development')
 
