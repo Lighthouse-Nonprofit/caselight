@@ -15,7 +15,16 @@
 /log/*
 !/log/.keep
 tmp
-/public
+# public/ children are ignored (compiled assets, carrierwave uploads) EXCEPT the
+# curated static dirs the app references by absolute path (R9b fonts/sprites, R13
+# spinner, R12B mi18n lang file). NB the old blanket `/public` rule meant those
+# statics were NEVER tracked — dev worked from local files while every fresh
+# checkout (CI, a box redeploy) would have 404'd them. Caught by the R12B guard
+# spec failing on CI (public/fb-lang missing on the runner).
+/public/*
+!/public/fonts/
+!/public/images/
+!/public/fb-lang/
 .env
 .env.test
 .env.development
