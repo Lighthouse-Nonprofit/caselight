@@ -3,7 +3,10 @@
 # .github/workflows/ci.yml) fails on any NEW advisory not listed here.
 #
 # RULE: never add an ID here without a corresponding POA&M entry + target date.
-ignore:
+#
+# The list is currently EMPTY (every ledgered advisory is remediated). The explicit [] matters:
+# a bare `ignore:` key parses as nil and crashes bundler-audit's Configuration.load.
+ignore: []
   # POAM-001 — CLOSED (Phase 6): sidekiq 4.1.4 -> 7.3.9. The XSS + 2x DoS advisories no longer
   #             match the lockfile; IDs removed and CI stays green without the ignore.
   # POAM-002 — CLOSED: simple_form 4.1.0 -> 5.4.1. IDs removed (GHSA-r74q-gxcg-73hx, CVE-2019-16676);
