@@ -18,7 +18,12 @@
         }
       }
 
-    %link{:crossorigin => "anonymous", :href => "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", :integrity => "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7", :rel => "stylesheet"}
+    -# POAM-017g P3: the BS 3.3.6 print stylesheet is SELF-HOSTED (public/pdf/, sha384-verified
+    -# against the old SRI pin at vendoring) and INLINED — wkhtmltopdf previously fetched it from
+    -# maxcdn at every render (an external call carrying document context; broken offline). This
+    -# layout is PERMANENTLY pinned to BS3: wkhtmltopdf's QtWebKit cannot render Bootstrap 5's
+    -# flexbox grid, and the app bundle never loads here. Exempt from the BS5 flip codemods.
+    %style= Rails.root.join('public/pdf/bootstrap-3.3.6.min.css').read.html_safe
 
     :css
       #government-report .header-address p {
@@ -242,6 +247,8 @@
         margin-left: 20px;
       }
 
-    %link{ href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css', rel: 'stylesheet'}
+    -# (The Font Awesome 4.5 CDN link that lived here served NOTHING: no pdf-rendered view uses
+    -# an fa- class — the government-report icons are on the HTML index/form pages, which render
+    -# in the app layout. Dropped outright rather than vendored, POAM-017g P3.)
   %body{ style: 'background-color:#fff;padding-bottom:20px;padding-left:40px;padding-right:40px;', onload: 'pageNumber()' }
     = yield

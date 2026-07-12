@@ -25,6 +25,7 @@ tmp
 !/public/fonts/
 !/public/images/
 !/public/fb-lang/
+!/public/pdf/
 .env
 .env.test
 .env.development
