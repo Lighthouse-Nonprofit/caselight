@@ -112,7 +112,7 @@ your fork's source accordingly.
 | MongoDB | 6.0 | change / audit history (Mongoid 8.1) |
 | Redis + Sidekiq | redis 7 / sidekiq 7.3 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
-| App server | thin | behind a TLS reverse proxy (force_ssl + HSTS) |
+| App server | puma 8 | behind a TLS reverse proxy (force_ssl + HSTS); replaced thin 2026-07 |
 | Asset pipeline | Sprockets 4.2 + dart-sass + ES2015+ (build-time), haml 6.4 | modernized rung-by-rung 2026-07 (POAM-017e closed) |
 | Frontend JS | jQuery 4.0.0 (+ temporary migrate-4 bridge), Bootstrap 3.4.1 (accepted-tracked POAM-017g), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4 | EOL set retired (POAM-017a–d closed); eval-free rule builder replaced queryBuilder/doT; CSP enforce flip pending (POAM-017f) |
 

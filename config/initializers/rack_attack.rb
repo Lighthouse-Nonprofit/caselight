@@ -5,7 +5,7 @@
 #
 # rack-attack's Railtie inserts the middleware automatically when the gem loads.
 class Rack::Attack
-  # Counter store: Redis in real environments (shared across thin workers; Redis is already
+  # Counter store: Redis in real environments (shared across puma threads/workers; Redis is already
   # present for Sidekiq). A per-process MemoryStore in test keeps the suite hermetic and lets
   # the throttle spec clear counters without touching the shared Redis (where Sidekiq lives).
   #

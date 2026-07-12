@@ -75,4 +75,4 @@ RUN SECRET_KEY_BASE=dummy RAILS_ENV=production PRECOMPILE_ASSETS=true \
     bundle exec rake assets:precompile
 
 EXPOSE 3000
-CMD ["bundle", "exec", "thin", "start", "-a", "0.0.0.0", "-p", "3000", "-e", "production"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

@@ -42,7 +42,7 @@ cache, and job queue are not exposed to the network.
 | Asset pipeline | Sprockets 4.2 + dart-sass (dartsass-rails 0.5) + ES2015+ JS, haml 6.4 (POAM-017e **closed**, R6/R9–R11) | SCSS/JS compilation |
 | Browser JS | jQuery 4.0.0 (+ temporary migrate-4 bridge), Bootstrap 3.4.1 (patched final; accepted-tracked POAM-017g), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4 | UI (EOL set retired R3–R8; eval libraries replaced R12A/B; **enforced nonce-based CSP — POAM-017f closed**) |
 | PDF engine | wkhtmltopdf 0.12.6.1-3 (official bookworm build, sha256-pinned in the Dockerfile) | Government-report PDF download (upstream sunset tracked, POAM-019) |
-| App server | thin, behind Dockerized Caddy (`proxy` profile) | HTTP |
+| App server | puma 8 (threaded; config/puma.rb), behind Dockerized Caddy (`proxy` profile) | HTTP (replaced the sparsely-maintained thin, 2026-07) |
 
 The CI service containers (`postgres:17`, `mongo:6.0`, `redis:7`) match this set. Auth is Devise
 (+ two-factor, passkeys); authorization is CanCanCan (+ Pundit hooks).

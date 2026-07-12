@@ -178,5 +178,8 @@ group :test do
   gem 'rspec-activemodel-mocks'
 end
 
-# thin moved to the default group so the production image installs it (NOTES #8)
-gem 'thin'
+# puma replaced thin (2026-07-12): thin is single-threaded EventMachine with sparse
+# maintenance; puma is the Rails-default, actively-maintained server (threaded; optional
+# clustered workers via WEB_CONCURRENCY for when the box grows). Config in config/puma.rb;
+# stays in the default group so the production image installs it (the old NOTES #8 rationale).
+gem 'puma', '~> 8.0'
