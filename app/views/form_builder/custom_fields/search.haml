@@ -1,5 +1,5 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox.min-margin-layout
       .ibox-content
         - if @custom_fields.present?
@@ -25,4 +25,4 @@
       .text-center
         = paginate @custom_fields
       .ibox-footer
-        = link_to t('.back'), custom_fields_path, class: 'btn btn-default form-btn'
+        = link_to t('.back'), custom_fields_path, class: 'btn btn-outline-secondary form-btn'

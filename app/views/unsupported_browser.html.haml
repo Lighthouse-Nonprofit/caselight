@@ -12,15 +12,15 @@
   %body{id: "#{controller_name}-#{params[:action]}"}
     .container
       .row.unsupported-browser
-        .col-xs-12.text-center
+        .col-12.text-center
           .logo-container
             = image_tag 'logo.png', size: '72x72', alt: 'CaseLight'
-        .col-xs-12.text-center
+        .col-12.text-center
           %h1 You have been redirected due to browser compatibility issue.
           %p The browser you are using does not support our technology. Please try another browsers recommended below.
-        .col-xs-6.col-sm-4.col-sm-offset-2.text-center
+        .col-6.col-sm-4.offset-sm-2.text-center
           = link_to 'https://www.google.com/chrome/browser/', target: '_blank' do
-            = image_tag 'chrome.png', class: 'img-responsive browser', alt: 'Download Google Chrome'
-        .col-xs-6.col-sm-4.text-center
+            = image_tag 'chrome.png', class: 'img-fluid browser', alt: 'Download Google Chrome'
+        .col-6.col-sm-4.text-center
           = link_to 'https://www.mozilla.org/en-US/firefox/new/', target: '_blank' do
-            = image_tag 'firefox.png', class: 'img-responsive browser', alt: 'Download Mozilla Firefox'
+            = image_tag 'firefox.png', class: 'img-fluid browser', alt: 'Download Mozilla Firefox'

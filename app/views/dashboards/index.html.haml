@@ -36,7 +36,7 @@
                 %tr
                   %td= ps.name
                   %td.text-right
-                    %span.label.label-primary= ps.client_enrollments.where(status: 'Active').count
+                    %span.badge.text-bg-primary= ps.client_enrollments.where(status: 'Active').count
     .col-lg-6
       .ibox
         .ibox-title

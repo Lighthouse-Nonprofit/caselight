@@ -1,8 +1,8 @@
-.panel-body{ id: "tasks-domain-#{domain.id}" }
+.card-body{ id: "tasks-domain-#{domain.id}" }
   .row
-    .col-xs-12
-      = cd.association :tasks, collection: tasks.map{ |t| [t.name, t.id, {data: { completed: t.completed }}] }, as: :check_boxes, label: t('.on_going_tasks'), input_html: { class: 'i-checks task' }
+    .col-12
+      = cd.association :tasks, collection: tasks.map{ |t| [t.name, t.id, {data: { completed: t.completed }}] }, as: :check_boxes, label: t('.on_going_tasks'), input_html: { class: 'form-check-input task' }
       %div{ class: 'task-arising hidden' }
-        %label.control-label
+        %label.form-label
           = t('.tasks_arising')
         %ol.list-group{ type: '1'}

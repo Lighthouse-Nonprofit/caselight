@@ -1,5 +1,5 @@
 #home-index {
-  .panel-default {
+  .card {
     color: black;
   }
 
@@ -48,7 +48,7 @@
     }
   }
 
-  .client-panel, .family-panel {
+  .client-card, .family-card {
     .top-bar {
       margin-bottom: 15px;
     }
@@ -60,16 +60,16 @@
     h2 {
       font-size: 2.5em;
     }
-    .widget-family-panel,
-    .widget-client-panel {
+    .widget-family-card,
+    .widget-client-card {
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
       margin-bottom: 0;
       background-color: #186e6d;
       color: #ffffff;
     }
-    .widget-family-foster-panel,
-    .widget-family-kinship-panel {
+    .widget-family-foster-card,
+    .widget-family-kinship-card {
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       border: 1px solid #d8e1e3;
@@ -79,24 +79,24 @@
       color: #2c3e50;
       padding: 44px 0;
     }
-    .widget-family-foster-panel {
+    .widget-family-foster-card {
       border-bottom-right-radius: 0;
       &:hover {
         background-color: #d8e1e3;
       }
     }
-    .widget-family-kinship-panel {
+    .widget-family-kinship-card {
       border-bottom-left-radius: 0;
       &:hover {
         background-color: #e2e8ea;
       }
     }
-    .widget-client-fc-panel,
-    .widget-client-kc-panel,
-    .widget-client-ec-panel,
-    .widget-client-male-panel,
-    .widget-client-female-panel,
-    .widget-client-able-panel {
+    .widget-client-fc-card,
+    .widget-client-kc-card,
+    .widget-client-ec-card,
+    .widget-client-male-card,
+    .widget-client-female-card,
+    .widget-client-able-card {
       border-top-left-radius: 0;
       border-top-right-radius: 0;
       border-bottom-left-radius: 0;
@@ -118,47 +118,47 @@
   .text-font{
     font-size: 1.5em
   }
-  .bottom-panel {
+  .bottom-card {
     h1 {
       font-size: 2em;
     }
   }
-  .widget-able-panel,
-  .widget-agency-panel,
-  .widget-partner-panel,
-  .widget-referral-panel,
-  .widget-staff-panel {
+  .widget-able-card,
+  .widget-agency-card,
+  .widget-partner-card,
+  .widget-referral-card,
+  .widget-staff-card {
     color: #fff;
     margin-bottom: 6px;
     padding-bottom: 8px;
     padding-top: 8px;
   }
 
-  .widget-agency-panel {
+  .widget-agency-card {
     background-color: #f9c00c;
     &:hover {
       background-color: #deaa05;
     }
   }
-  .widget-able-panel {
+  .widget-able-card {
     background-color: #03a863;
     &:hover {
       background-color: #029155;
     }
   }
-  .widget-partner-panel {
+  .widget-partner-card {
     background-color: #00b9f1;
     &:hover {
       background-color: #009fcf;
     }
   }
-  .widget-referral-panel {
+  .widget-referral-card {
     background-color: #7200da;
     &:hover {
       background-color: #6000b8;
     }
   }
-  .widget-staff-panel {
+  .widget-staff-card {
       background-color: #fe4365;
     &:hover {
       background-color: #fe2149;

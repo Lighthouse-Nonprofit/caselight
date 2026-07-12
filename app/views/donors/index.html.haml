@@ -1,12 +1,12 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.donors')
+        %span.badge.text-bg-info= t('.donors')
         .ibox-tools
           - if can? :manage?, Donor
-            = link_to '#', {"data-target" => "#donorModal-", "data-toggle" => "modal", :type => "button"} do
+            = link_to '#', {"data-bs-target" => "#donorModal-", "data-bs-toggle" => "modal", :type => "button"} do
               .btn.btn-primary.btn-add
                 = t('.add_new_donor')
       .ibox-content
@@ -30,13 +30,13 @@
                   %td= donor.description
                   %td
                     - donor.clients.each do |client|
-                      %strong.label.label-default.client
+                      %strong.badge.text-bg-light.client
                         = link_to entity_name(client), client_path(client)
                   - if can? :manage, Donor
                     %td.text-center
                       = link_to '#', {class: 'btn btn-outline btn-success btn-xs',
-                                      'data-target': "#donorModal-#{donor.id}",
-                                      'data-toggle': 'modal', type: 'button'} do
+                                      'data-bs-target': "#donorModal-#{donor.id}",
+                                      'data-bs-toggle': 'modal', type: 'button'} do
                         = fa_icon('pencil')
                     %td.text-center
                       = remove_link(donor, donor_client: donor.clients.count)

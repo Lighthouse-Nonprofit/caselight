@@ -1,5 +1,5 @@
 .row
-  .col-xs-12.col-sm-6.col-sm-offset-3.col-md-4.col-md-offset-4
+  .col-12.col-sm-6.offset-sm-3.col-md-4.offset-md-4
     .ibox.normal-space
       .ibox-title.text-center
         = image_tag('brand/caselight-logo.png', alt: 'CaseLight', style: 'max-width: 260px; width: 100%; height: auto;')
@@ -9,7 +9,7 @@
           Two-factor authentication
         %p.text-muted.text-center Enter the 6-digit code from your authenticator app to finish signing in.
         = form_tag verify_two_factor_path, method: :post do
-          .form-group
+          .mb-3
             = label_tag :otp_attempt, 'Authentication code'
             = text_field_tag :otp_attempt, nil, class: 'form-control', autocomplete: 'one-time-code', inputmode: 'numeric', autofocus: true, placeholder: '123456'
           = submit_tag 'Verify and sign in', class: 'btn btn-block btn-outline btn-primary'

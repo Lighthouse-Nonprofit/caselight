@@ -1,6 +1,6 @@
-%div{ class: "i-checks form-group #{field_with(field_props['label'],errors)} #{required?(field_props['required'] || false)}" }
+%div{ class: "form-check-input mb-3 #{field_with(field_props['label'],errors)} #{required?(field_props['required'] || false)}" }
   - _gid = field_id_for(f, field_props['label'])
-  %label.control-label{ id: "#{_gid}_label", class: required?(field_props['required'] || false) }
+  %label.form-label{ id: "#{_gid}_label", class: required?(field_props['required'] || false) }
     %abbr{ title: t('shared.fields.required', default: 'required'), 'aria-hidden': 'true' }= '*' if field_props['required'] || false
     = field_props['label']
   -# Unit 8 (audit integrity): do NOT force-select the first option on a NEW record. Pre-checking a
@@ -8,5 +8,5 @@
   -# value only (nil on a new record => unselected); the `required` validation still enforces a choice.
   %div{ role: 'radiogroup', 'aria-labelledby': "#{_gid}_label", 'aria-describedby': "#{_gid}_help", 'aria-required': ((field_props['required'] || false) ? 'true' : nil) }
     = f.input field_props['label'], as: :radio_buttons, collection: field_props['values'].map { |f| [f['label'], f['label']] }, checked: f.object[field_props['label']], required: field_props['required'] || false, label: false, input_html: { title: field_props['description'], name: "#{f.object_name}[#{field_props['label']}]" }
-  %span.help-block{ id: "#{_gid}_help" }
+  %span.form-text{ id: "#{_gid}_help" }
     = field_message(field_props['label'], errors)

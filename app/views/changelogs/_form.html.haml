@@ -3,24 +3,24 @@
     .modal-dialog{:role => "document"}
       .modal-content
         .modal-header
-          %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+          %button.close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
             %span{"aria-hidden" => "true"} ×
           %h4.modal-title{ id: "changelogModal-#{changelog.id}Label" }= t('.releaselog')
         .modal-body
           = error_notification(f)
           .row
-            .col-xs-12.col-sm-3
-              .form-group
+            .col-12.col-sm-3
+              .mb-3
                 = f.input :change_version, label: false, input_html: { placeholder: t('.change_version') }
           .row
-            .col-xs-12
+            .col-12
               #changelog_type
-                .form-group
+                .mb-3
                   = f.simple_fields_for :changelog_types do |changelog_type|
                     = render 'changelog_type_fields', f: changelog_type
                   .links
                     = link_to_add_association t('.add_change'), f, :changelog_types, class: 'btn btn-outline btn-primary'
         .modal-footer
-          .pull-left
+          .float-start
             = f.submit t('.save') , class: 'btn btn-primary form-btn'
-            %button.btn.btn-outline.btn-default{"data-dismiss" => "modal", :type => "button"}= t('.cancel')
+            %button.btn.btn-outline.btn-outline-secondary{"data-bs-dismiss" => "modal", :type => "button"}= t('.cancel')

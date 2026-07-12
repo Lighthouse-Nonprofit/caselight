@@ -1,14 +1,16 @@
-// SLO4HOME polish pass (2026-07-04) — Casebook / CharityTracker-inspired calm.
-// Scoped to detail (show) surfaces + the new members list so the theme, admin tables,
-// and index grids elsewhere stay untouched. Imported LAST in application.scss for cascade
-// priority. Uses only confirmed refresh tokens ($navy/$lazur/$light-blue); literals otherwise.
+// _refresh_polish.scss — SLO4HOME show-page polish (Casebook/CharityTracker calm).
+// Part of the caselight_theme Bootstrap-5 flip (POAM-017g): thin restyle on BS5 DNA,
+// scoped to detail (show) surfaces + household-member chips; imported LAST in application.scss
+// for cascade priority. Uses local $rp-* tokens + confirmed refresh vars ($navy/$lazur/$light-blue).
 
 $rp-hairline: #e2e6ea;
 $rp-label:    #6b7688;
 $rp-value:    #2b3648;
 $rp-radius:   6px;
 
-// --- Detail-page panels: gentle elevation + rounding (show pages only) ---
+// --- Detail-page cards: gentle elevation + rounding (show pages only) ---
+// INSPINIA .ibox / .ibox-title are KEPT class names (restyled on BS5 DNA elsewhere in the theme);
+// this pass only layers the calmer elevation + navy heading treatment on show surfaces.
 body[id$="-show"] {
   .ibox {
     border-radius: $rp-radius;

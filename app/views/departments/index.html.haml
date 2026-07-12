@@ -1,12 +1,12 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.departments')
+        %span.badge.text-bg-info= t('.departments')
         .ibox-tools
           - if can? :manage?, Department
-            = link_to '#', {"data-target" => "#departmentModal-", "data-toggle" => "modal", :type => "button"} do
+            = link_to '#', {"data-bs-target" => "#departmentModal-", "data-bs-toggle" => "modal", :type => "button"} do
               .btn.btn-primary.btn-add
                 = t('.add_new_department')
       .ibox-content
@@ -28,8 +28,8 @@
                   - if can? :manage, Department
                     %td.text-center
                       = link_to '#', {class: 'btn btn-outline btn-success btn-xs',
-                                      'data-target': "#departmentModal-#{department.id}",
-                                      'data-toggle': 'modal', type: 'button'} do
+                                      'data-bs-target': "#departmentModal-#{department.id}",
+                                      'data-bs-toggle': 'modal', type: 'button'} do
                         = fa_icon('pencil')
                     %td.text-center
                       = remove_link(department, { department_usercount: department.users_count })

@@ -5,7 +5,7 @@
     %h3 Access Review
     %p.text-muted
       Periodic recertification (AC-2(j)). PER TENANT - run once per subdomain to cover all staff.
-    = link_to 'Export CSV', access_review_path(format: :csv), class: 'btn btn-default btn-sm'
+    = link_to 'Export CSV', access_review_path(format: :csv), class: 'btn btn-outline-secondary btn-sm'
 .table-responsive
   %table.table.table-striped.table-condensed
     %thead
@@ -30,9 +30,9 @@
           %td= u.sign_in_count
           %td
             - if u.two_factor_enabled?
-              %span.label.label-success on
+              %span.badge.text-bg-success on
             - else
-              %span.label.label-default off
+              %span.badge.text-bg-light off
           %td= u.webauthn_credentials.size
           %td= ('yes' if u.respond_to?(:access_locked?) && u.access_locked?)
           %td= ('yes' if u.disable?)

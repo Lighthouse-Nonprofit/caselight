@@ -1,11 +1,11 @@
-%div{ class: "form-group #{field_with(field_props['label'],errors)}" }
+%div{ class: "mb-3 #{field_with(field_props['label'],errors)}" }
   - _fid = field_id_for(f, field_props['label'])
-  %label.control-label{ for: _fid, class: required?(field_props['required'] || false) }
+  %label.form-label{ for: _fid, class: required?(field_props['required'] || false) }
     %abbr{ title: t('shared.fields.required', default: 'required'), 'aria-hidden': 'true' }= '*' if field_props['required'] || false
     = field_props['label']
   %div{ class: "date input-group #{required?(field_props['required'])}" }
     = f.text_field field_props['label'], class: "date optional form-control date-picker #{field_props['className']} #{required?((field_props['required'] || false))}", type: 'text', name: "#{f.object_name}[#{field_props['label']}]", id: _fid, 'aria-describedby': "#{_fid}_help", 'aria-required': ((field_props['required'] || false) ? 'true' : nil)
-    %span.input-group-addon
+    %span.input-group-text
       %i.fa.fa-calendar-check-o{ 'aria-hidden': 'true' }
-  %span.help-block{ id: "#{_fid}_help" }
+  %span.form-text{ id: "#{_fid}_help" }
     = field_message(field_props['label'], errors)

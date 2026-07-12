@@ -1,5 +1,5 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= "#{@client.en_and_local_name} - #{@tracking.name} - #{@program_stream.name}"
@@ -13,11 +13,11 @@
         - @client_enrollment_trackings.each_slice(2) do |n_enrollment_trackings|
           .row
             - n_enrollment_trackings.each do |enrollment_tracking|
-              .col-xs-12
+              .col-12
                 .ibox.border-left-right.border-bottom
                   .ibox-title
                     %h5= t('.created_at')
-                    %span.label.label-primary
+                    %span.badge.text-bg-primary
                       = date_format(enrollment_tracking.created_at)
                     .ibox-tools
                       - if can? :manage, ClientEnrollmentTracking

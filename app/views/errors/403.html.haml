@@ -20,7 +20,7 @@
   %body{ id: 'errors-403', style: 'background-color: #fff;' }
     .container
       .row
-        .col-xs-12.text-center.error-content
+        .col-12.text-center.error-content
           -# No org logo here (unlike 404/500): this page renders on EVERY sensitivity denial, and
           -# image_tag on an empty ImageUploader raises ("can't resolve image into URL") when the tenant
           -# has no logo — a 500 on the denial page would be far worse than a missing decorative mark.

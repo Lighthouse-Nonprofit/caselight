@@ -1,13 +1,13 @@
 .row
-  .col-xs-12
-    .panel.panel-default
-      .panel-body
+  .col-12
+    .card
+      .card-body
         .row
-          .col-xs-12.col-sm-4.col-md-3
+          .col-12.col-sm-4.col-md-3
             %h4.filter-by-item.text-center
               %u= t('.filter_by_item')
-            .panel.panel-default
-              .panel-body
+            .card
+              .card-body
                 .list-group
                   = link_to t('.all'), data_trackers_path, class: "list-group-item #{version_item_type_active?}"
                   = link_to t('.clients'), data_trackers_path(item_type: 'Client'), class: "list-group-item #{version_item_type_active?('Client')}"
@@ -42,12 +42,12 @@
                   = link_to t('.client_enrollments'), data_trackers_path(item_type: 'ClientEnrollment'), class: "list-group-item #{version_item_type_active?('ClientEnrollment')}"
                   = link_to t('.releaselogs'), data_trackers_path(item_type: 'Changelog'), class: "list-group-item #{version_item_type_active?('Changelog')}"
 
-          .col-xs-12.col-sm-8.col-md-9
+          .col-12.col-sm-8.col-md-9
             .row
-              .col-xs-12.col-md-9.col-md-push-1
+              .col-12.col-md-9.col-md-push-1
                 %h4.all-modification.text-center
                   %u= t('.all_modification')
-              .col-xs-12.col-md-3
+              .col-12.col-md-3
                 = render 'per_page_form'
-              .col-xs-12
+              .col-12
                 = render 'shared/version'

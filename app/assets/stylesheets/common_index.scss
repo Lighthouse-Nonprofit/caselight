@@ -43,7 +43,7 @@
 .boolean.optional{
   padding: 0;
 }
-.ibox-title > h5, .panel-heading > h5 {
+.ibox-title > h5, .card-header > h5 {
   font-size: 16px;
   font-weight: 600;
   color: #6B6A6C;
@@ -100,7 +100,7 @@
   margin: 10px 10px 10px 0;
 }
 
-.btn.pull-right {
+.btn.float-end {
   margin: 10px 0 10px 10px;
 }
 

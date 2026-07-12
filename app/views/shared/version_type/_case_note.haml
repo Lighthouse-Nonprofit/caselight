@@ -1,8 +1,8 @@
 / Not used yet
 - @versions.decorate.each do |version|
   - if version.item_type == "CaseNote"
-    %div{ class: "panel panel-#{version_color(version.event)}" }
-      .panel-heading
+    %div{ class: "card panel-#{version_color(version.event)}" }
+      .card-header
         %h5
           - if controller_name == 'data_trackers'
             %span
@@ -11,10 +11,10 @@
               = "##{version.item_id}."
           - else
             %span= "#{version.whodunnit} #{t('.change')}."
-          %span{ class: "pull-right label label-#{version_color(version.event)}" }
+          %span{ class: "float-end label text-bg-#{version_color(version.event)}" }
             = version.event_formated
 
-      .panel-body
+      .card-body
         .table-responsive
           %table.table.table-hover
             %thead

@@ -18,7 +18,7 @@ CIF.ClientsIndex = (function () {
 
   var _setDefaultCheckColumnVisibilityAll = function () {
     if ($('.visibility .checked').length === 0) {
-      return $('.all-visibility #all_').iCheck('check');
+      return $('.all-visibility #all_').prop('checked', true).trigger('change');
     }
   };
 
@@ -83,9 +83,11 @@ CIF.ClientsIndex = (function () {
 
     const allCheckboxes = $('.all-visibility #all_');
 
-    allCheckboxes.on('ifChecked', () => $('.visibility input[type=checkbox]').iCheck('check'));
+    allCheckboxes.on('ifChecked', () =>
+      $('.visibility input[type=checkbox]').prop('checked', true).trigger('change'),
+    );
     return allCheckboxes.on('ifUnchecked', () =>
-      $('.visibility input[type=checkbox]').iCheck('uncheck'),
+      $('.visibility input[type=checkbox]').prop('checked', false).trigger('change'),
     );
   };
 

@@ -1,11 +1,11 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5
           = "#{t('.quarterly_report_information_for')} #{entity_name(@case.client)} #{t('.with_id')} #{@quarterly_report.code}"
         .ibox-tools
-          = link_to t('.back'), :back, {class: 'button btn btn-default btn-back-default'}
+          = link_to t('.back'), :back, {class: 'button btn btn-outline-secondary btn-back-default'}
       .ibox-content
         %table.table.table-bordered
           %tr

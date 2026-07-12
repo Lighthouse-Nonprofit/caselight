@@ -13,16 +13,19 @@
 // supported path on Rails 7. Drop-in: no ajax:* handlers and no $.rails API use in this app.
 // (jquery-rails still provides the `jquery` asset above; only its UJS shim is retired.)
 //= require rails-ujs
+// POAM-017g flip: Bootstrap 5.3 JS bundle (vendored, Popper included). Replaces
+// bootstrap-sprockets (BS3). Loaded right after rails-ujs so the components (modal, dropdown,
+// collapse, tab, tooltip, popover) are on window.bootstrap before the app modules below.
+//= require bootstrap.bundle.min
 //= require jquery-ui
-//= require bootstrap-sprockets
-// TEMPORARY (P6, dies at the BS5 flip): jQuery 4's null-prototype bulk .data() breaks BS3
-// collapse (first click, app-wide) AND tooltip/popover init — see the shim header.
-//= require bs3_jquery4_data_shim
 //= require jquery.steps.min
 //= require jquery.validate
 //= require jquery.validate.additional-methods
 //= require jquery.nicescroll.min
 //= require dataTables/jquery.dataTables
+// POAM-017g flip: DataTables Bootstrap-5 styling integration (vendored; sites keep their
+// existing $(table).dataTable(...) calls — this only restyles the wrapper/controls).
+//= require dataTables/dataTables.bootstrap5.min
 // POAM-017c: Tom Select 2.x (vendored) replaced the hand-vendored select2 3.5.2.
 // All call sites go through the CIF.Select adapter (shared/select_widget, in the
 // LOAD MODULE block below — it needs the CIF namespace).
@@ -30,10 +33,12 @@
 //= require cocoon
 //= require image_upload_previewer/image_upload_previewer
 //= require image_upload
-//= require bootstrap-datepicker/core
-//= require bootstrap-datepicker/locales/bootstrap-datepicker.en-GB.js
+// POAM-017g flip: vanillajs-datepicker (jQuery-free) replaced bootstrap-datepicker. en-GB
+// only sets month/day names; the app pins ISO yyyy-mm-dd format at every site via the
+// shared/date_picker.js adapter (required in the LOAD MODULE block below).
+//= require vanillajs-datepicker/datepicker-full.min
+//= require vanillajs-datepicker/en-GB
 //= require cocoon
-//= require datepicker
 //= require metisMenu/jquery.metisMenu.js
 //= require chart.umd
 //= require dropzone
@@ -60,15 +65,17 @@
 // runtime <style> element, so the CSP enforce flip (POAM-017f) must keep
 // style-src 'unsafe-inline' unless a style-nonce pass is added.
 //= require fullcalendar
-//= require bootstrap_file_input/purify.min.js
-//= require bootstrap_file_input/fileinput.js
-//= require bootstrap_file_input/fa/theme.min.js
-//= require bootstrap_file_input/explorer/theme.min.js
+// POAM-017g flip: krajee bootstrap-fileinput 5.5.4 (BS5) replaced 4.4.1. purify (DOMPurify)
+// is the optional preview-HTML sanitizer fileinput uses; kept, moved to the vendor JS root.
+//= require purify.min
+//= require bootstrap_file_input5/fileinput.js
+//= require bootstrap_file_input5/themes/fa4-theme.js
+//= require bootstrap_file_input5/themes/explorer-fa4-theme.js
 
-// WRAPBOOTSTRAP
-//= require iCheck/icheck.min.js
-//= require wrapbootstrap/inspinia.js
-//= require slimscroll/jquery.slimscroll.min.js
+// SHELL + TOASTS
+// POAM-017g flip: caselight_shell.js replaced wrapbootstrap/inspinia.js (live shell behaviours
+// only). iCheck (native form-check now) and slimscroll (native overflow-y) are gone.
+//= require caselight_shell
 //= require toastr/toastr.min.js
 
 //LOAD MODULE
@@ -76,6 +83,9 @@
 //= require shared/select_widget
 //= require shared/rule_builder
 //= require shared/auto_submit
+// POAM-017g flip: vanillajs-datepicker adapter (global init + the rule-builder embed).
+// Replaces the old top-level `datepicker` require (bootstrap-datepicker global init).
+//= require shared/date_picker
 //= require util
 //= require initializer
 //= require common

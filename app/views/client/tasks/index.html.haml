@@ -1,25 +1,25 @@
 .row
-  .col-xs-12.col-md-10.col-md-offset-1
+  .col-12.col-md-10.offset-md-1
     .ibox
       .ibox-title
         %h5= @client.name
         .ibox-tools
           = link_to client_path(@client) do
-            .btn.btn-default.btn-width.btn-back-default
+            .btn.btn-outline-secondary.btn-width.btn-back-default
               = t('.back')
           - if can? :manage, Task
             = link_to new_client_task_path(@client) do
               .btn.btn-primary.btn-width
                 = t('.new_task')
       .ibox-content
-        .panel.panel-danger
-          .panel-heading
+        .card
+          .card-header
             .row
-              .col-xs-6
+              .col-6
                 = t('.overdue_tasks')
-          .panel-body
+          .card-body
             .row
-              .col-xs-12
+              .col-12
                 %table.table.table-bordered
                   - @tasks.incomplete.overdue.each do |task|
                     %tr
@@ -35,14 +35,14 @@
                             .btn.btn-outline.btn-danger.btn-xs
                               %i.fa.fa-trash
 
-        .panel.panel-info
-          .panel-heading
+        .card
+          .card-header
             .row
-              .col-xs-6
+              .col-6
                 = t('.today_tasks')
-          .panel-body
+          .card-body
             .row
-              .col-xs-12
+              .col-12
                 %table.table.table-bordered
                   - @tasks.incomplete.today.each do |task|
                     %tr
@@ -57,14 +57,14 @@
                           = link_to client_task_path(@client, task), method: :delete, data: { confirm: t('.are_you_sure_you_want_to_delete') } do
                             .btn.btn-outline.btn-danger.btn-xs
                               %i.fa.fa-trash
-        .panel.panel-primary
-          .panel-heading
+        .card
+          .card-header
             .row
-              .col-xs-6
+              .col-6
                 = t('.upcoming_tasks')
-          .panel-body
+          .card-body
             .row
-              .col-xs-12
+              .col-12
                 %table.table.table-bordered
                   - @tasks.incomplete.upcoming.each do |task|
                     %tr

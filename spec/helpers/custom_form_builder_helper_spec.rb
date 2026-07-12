@@ -5,10 +5,10 @@ RSpec.describe CustomFormBuilderHelper, type: :helper do
     it 'renders an Array (checkbox/multi-select) value as escaped <strong> chips without raising' do
       out = helper.display_custom_properties(['<i>x</i>', 'ok', ''])
       expect(out).to be_html_safe
-      expect(out).to include('<strong class="label label-margin">&lt;i&gt;x&lt;/i&gt;</strong>')
-      expect(out).to include('<strong class="label label-margin">ok</strong>')
+      expect(out).to include('<strong class="badge text-bg-light">&lt;i&gt;x&lt;/i&gt;</strong>')
+      expect(out).to include('<strong class="badge text-bg-light">ok</strong>')
       expect(out).not_to include('<i>x</i>')
-      expect(out.scan('label-margin').size).to eq(2) # blank dropped
+      expect(out.scan('text-bg-light').size).to eq(2) # blank dropped
     end
 
     it 'keeps a plain String HTML-escaped (no stored XSS)' do

@@ -1,5 +1,5 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @progress_note.date.strftime('%d %B, %Y')
@@ -14,7 +14,7 @@
               = fa_icon('trash')
       .ibox-content
         .row
-          .col-xs-12
+          .col-12
             %table.table.table-bordered
               %tr
                 %td.spacing-first-col
@@ -98,5 +98,5 @@
 
       .ibox-footer
         .row
-          .col-xs-12
-            = link_to t('.back'), client_progress_notes_path(@client), class: 'btn btn-default btn-back'
+          .col-12
+            = link_to t('.back'), client_progress_notes_path(@client), class: 'btn btn-outline-secondary btn-back'

@@ -1,12 +1,12 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.intervention')
+        %span.badge.text-bg-info= t('.intervention')
         .ibox-tools
           - if can? :manage, Intervention
-            = link_to '#', {"data-target" => "#interventionModal-", "data-toggle" => "modal", :type => "button"} do
+            = link_to '#', {"data-bs-target" => "#interventionModal-", "data-bs-toggle" => "modal", :type => "button"} do
               .btn.btn-primary.btn-add
                 = t('.add_new_intervention')
       .ibox-content
@@ -25,7 +25,7 @@
                   %td= intervention.action
                   - if can? :manage, Intervention
                     %td.text-center
-                      = link_to '#', {class: 'btn btn-outline btn-xs btn-success', "data-target" => "#interventionModal-#{intervention.id}", "data-toggle" => "modal", :type => "button"} do
+                      = link_to '#', {class: 'btn btn-outline btn-xs btn-success', "data-bs-target" => "#interventionModal-#{intervention.id}", "data-bs-toggle" => "modal", :type => "button"} do
                         = fa_icon('pencil')
                     %td.text-center
                       = remove_link(intervention, { intervention_progress_note: intervention.progress_notes.count})

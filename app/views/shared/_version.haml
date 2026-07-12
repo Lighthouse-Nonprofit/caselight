@@ -1,5 +1,5 @@
-.panel.panel-default
-  .panel-body
+.card
+  .card-body
     - if @versions.any?
       - @versions.decorate.each do |version|
         = render 'shared/version_type/common',             version: version

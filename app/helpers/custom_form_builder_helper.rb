@@ -41,7 +41,7 @@ module CustomFormBuilderHelper
     # keep the user-entered PII value HTML-ESCAPED (no stored XSS) inside one clean span.
     if value.is_a?(Array)
       labels = value.reject { |i| i.to_s.empty? }
-                    .map { |c| content_tag(:strong, c.to_s, class: 'label label-margin') }
+                    .map { |c| content_tag(:strong, c.to_s, class: 'badge text-bg-light') } # POAM-017g flip: was 'label label-margin' (label-margin had no CSS)
       content_tag(:span, safe_join(labels, ' '))
     elsif value.is_a?(String) && value.match?(CUSTOM_PROPERTY_DATE)
       formatted = begin

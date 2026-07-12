@@ -36,7 +36,8 @@ RSpec.describe 'select2 removal guard (POAM-017c)' do
 
     stylesheet = File.read(ROOT.join('app/assets/stylesheets/application.scss'))
     expect(stylesheet).to include("@import 'tom-select';")
-    expect(stylesheet).to include("@import 'tom_select_bs3';")
+    # POAM-017g flip: the tom_select_bs3 shim was replaced by the Tom Select Bootstrap-5 theme.
+    expect(stylesheet).to include("@import 'tom-select.bootstrap5';")
     expect(stylesheet).not_to match(/@import 'select2/)
   end
 end

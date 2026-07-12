@@ -1,13 +1,13 @@
 .row
   .container
-    .col-xs-12
+    .col-12
       = link_to 'Add New Quantitative Case', new_quantitative_case_path, class: 'btn btn-success btn-add'
     - @quantitative_types.each do |qt|
-      .col-xs-12
-        .panel.panel-default
-          .panel-heading
+      .col-12
+        .card
+          .card-header
             %h5= qt.name
-          .panel-body
+          .card-body
             %table.table.table-bordered
               %tbody
                 - qt.quantitative_cases.each do |qc|

@@ -3,49 +3,49 @@
   = hidden_field(:progress_note, :error_text, value: t('cannot_be_blank'))
   = error_notification(f)
   .row
-    .col-xs-12.col-md-4
-      .form-group.date.progress_note_date{ class: ('has-error' if f.error :date) }
-        %label.date.required.control-label{ for: 'progress_note_date' }
+    .col-12.col-md-4
+      .mb-3.date.progress_note_date{ class: ('has-error' if f.error :date) }
+        %label.date.required.form-label{ for: 'progress_note_date' }
           %abbr{ title: 'required' } *
           = t('.date')
         .input-group.date
           = f.text_field :date, required: true, class: 'date form-control date-picker datepicker-dropdown date', type: 'text', name: 'progress_note[date]', id: 'progress_note_date'
-          %span.input-group-addon
+          %span.input-group-text
             %i.fa.fa-calendar-check-o
         = f.error :date
 
-    .col-xs-12.col-md-4
+    .col-12.col-md-4
       = f.input :client, disabled: true, input_html: { class: 'form-control', value: @client.name }, label: t('.child')
-    .col-xs-12.col-md-4
+    .col-12.col-md-4
       = f.association :user, collection: @case_workers, input_html: { class: 'form-control' }, label: t('.staff'), include_blank: false
   .row
-    .col-xs-12.col-md-4
+    .col-12.col-md-4
       = f.association :progress_note_type, collection: @progress_note_types.map{ |t| [t.note_type, t.id] }, input_html: { class: 'form-control' }, label: t('.progress_note_type')
-    .col-xs-12.col-md-4
+    .col-12.col-md-4
       = f.association :location, collection: @locations.map{ |l| [l.name, l.id] }, input_html: { class: 'form-control' }, label: t('.location'), include_blank: false
-    .col-xs-12.col-md-4
+    .col-12.col-md-4
       = f.input :other_location, input_html: { class: 'form-control' }, label: t('.other_location')
   .row
-    .col-xs-12.col-md-4
+    .col-12.col-md-4
       = f.association :interventions, collection: @interventions, multiple: true, label_method: :action, value_method: :id, label: t('.interventions')
-    .col-xs-12.col-md-4
+    .col-12.col-md-4
       = f.association :material, collection: @materials.map{ |m| [m.status, m.id] }, input_html: { class: 'form-control' }, label: t('.material')
-    .col-xs-12.col-md-4
+    .col-12.col-md-4
       - ads = @assessment_domains.present? ? @assessment_domains.map{ |ad| [ad.goal, ad.id] } : []
       = f.association :assessment_domains, collection: ads, multiple: true, label: t('.goals_addressed')
   .row
     / POAM-017a: Trix (vendored) replaced the EOL TinyMCE 4 on both note fields. The hidden
     / inputs carry the HTML and stay synced on every change, so the Dropzone submit
     / interception below reads current values with no extra hook.
-    .col-xs-12.col-md-4
-      %label.control-label{ for: 'progress_note_response_editor' }= t('.response')
+    .col-12.col-md-4
+      %label.form-label{ for: 'progress_note_response_editor' }= t('.response')
       = f.hidden_field :response, id: 'progress_note_response_trix_input'
       %trix-editor#progress_note_response_editor.trix-content{ input: 'progress_note_response_trix_input', 'aria-label' => t('.response') }
-    .col-xs-12.col-md-4
-      %label.control-label{ for: 'progress_note_additional_note_editor' }= t('.additional_notes')
+    .col-12.col-md-4
+      %label.form-label{ for: 'progress_note_additional_note_editor' }= t('.additional_notes')
       = f.hidden_field :additional_note, id: 'progress_note_additional_note_trix_input'
       %trix-editor#progress_note_additional_note_editor.trix-content{ input: 'progress_note_additional_note_trix_input', 'aria-label' => t('.additional_notes') }
-  .hidden
+  .d-none
     .form-actions
       = f.submit t('save'), class: 'btn btn-primary form-btn'
 .warning
@@ -57,4 +57,4 @@
 .ibox-footer.dummy-footer
   %button.btn.btn-success.form-btn#only-submit
     = t('save')
-  = link_to t('cancel'), client_progress_notes_path(@client), class: 'btn btn-default form-btn'
+  = link_to t('cancel'), client_progress_notes_path(@client), class: 'btn btn-outline-secondary form-btn'

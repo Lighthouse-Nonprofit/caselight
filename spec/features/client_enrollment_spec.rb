@@ -122,7 +122,7 @@ describe 'Client Enrollment' do
 
         click_button 'Save'
       end
-      expect(page).to have_css('div.form-group.has-error')
+      expect(page).to have_css('div.has-error')
     end
   end
 
@@ -196,7 +196,7 @@ describe 'Client Enrollment' do
     scenario 'fail' do
       find('input[type="text"]:last-child').set('')
       find('input[type="submit"]').click
-      expect(page).to have_css('div.form-group.has-error')
+      expect(page).to have_css('div.has-error')
     end
   end
 

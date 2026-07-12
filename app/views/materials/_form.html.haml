@@ -3,7 +3,7 @@
     .modal-dialog{:role => "document"}
       .modal-content
         .modal-header
-          %button.close{"aria-label" => "Close", "data-dismiss" => "modal", :type => "button"}
+          %button.close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
             %span{"aria-hidden" => "true"} ×
           %h4.modal-title{ id: "materialModal-#{material.id}Label" }= t('.material')
         .modal-body
@@ -11,6 +11,6 @@
           .form-inputs
             = f.input :status, label: t('.status')
         .modal-footer
-          .pull-left
+          .float-start
             = f.submit t('.save') , class: 'btn btn-primary form-btn'
-            %button.btn.btn-default{"data-dismiss" => "modal", :type => "button"}= t('.cancel')
+            %button.btn.btn-outline-secondary{"data-bs-dismiss" => "modal", :type => "button"}= t('.cancel')

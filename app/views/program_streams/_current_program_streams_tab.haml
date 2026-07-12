@@ -4,7 +4,7 @@
       %thead
         %th.name
           = t('.name')
-          .pull-right
+          .float-end
             = render 'order', column: :name, ngo: 'current'
         %th.domain
           = t('.domain')
@@ -14,7 +14,7 @@
           = t('.enrolled')
         %th.quantity
           = t('.maximum')
-          .pull-right
+          .float-end
             = render 'order', column: :quantity, ngo: 'current'
         %th.actions
           = t('.actions')

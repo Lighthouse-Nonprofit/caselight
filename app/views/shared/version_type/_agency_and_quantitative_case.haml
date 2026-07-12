@@ -1,7 +1,7 @@
 - DataTrackerVersion.agency_and_quantitative_case(client_id, event).each do |version|
   - if version_created_at.strftime('%d%m%Y%H%M%S') == version.created_at.strftime('%d%m%Y%H%M%S')
-    %div{ class: "panel panel-#{version_color(version.event)}" }
-      .panel-body
+    %div{ class: "card panel-#{version_color(version.event)}" }
+      .card-body
         .table-responsive
           %table.table.table-hover
             %tbody

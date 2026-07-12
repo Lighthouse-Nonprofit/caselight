@@ -42,7 +42,11 @@ gem 'terser',                 '~> 1.2'
 # the manifest needed no changes). execjs stays for terser.
 gem 'jbuilder',               '~> 2.0'
 gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q-gxcg-73hx)
-gem 'bootstrap-sass',         '~> 3.4.1'
+# bootstrap-sass (~> 3.4.1) removed (POAM-017g — THE FLIP): the Bootstrap 3.4.1 SCSS is
+# retired. Bootstrap 5.3.8 SCSS is vendored under vendor/assets/stylesheets/bootstrap5/
+# (imported via the in-house theme app/assets/stylesheets/caselight_theme/); the INSPINIA
+# commercial theme tree (app/assets/stylesheets/wrapbootstrap/) is deleted. No gem is needed —
+# dart-sass compiles the vendored SCSS directly (see config/initializers/dartsass.rb).
 gem 'devise', '~> 5.0', '>= 5.0.4'  # 5.0.4 closes POAM-009 (CVE-2026-32700, CVE-2026-40295)
 gem 'devise-security', '~> 0.18'    # Phase 2: password complexity + history/no-reuse (IA-5)
 gem 'devise-two-factor', '~> 6.4'   # Phase 2: TOTP MFA (IA-2(1)); otp_secret via AR Encryption
@@ -90,7 +94,10 @@ gem 'pundit', '~> 2.0'
 # editor on the clinical-notes path. Replaced by Trix 2 (MIT, 37signals), vendored under
 # vendor/assets (trix.js / trix.scss) like select2 below; the render path (render_rich_text
 # sanitizer allowlist) is unchanged and already covers Trix's output tags.
-gem 'bootstrap-datepicker-rails', '~> 1.5'
+# bootstrap-datepicker-rails (~> 1.5) removed (POAM-017g — THE FLIP): the bootstrap-datepicker
+# JS/CSS is retired with BS3. Replaced by vanillajs-datepicker 1.3.4 (MIT, jQuery-free),
+# vendored under vendor/assets (javascripts/vanillajs-datepicker/ + the bs5 css); all call
+# sites go through the shared/date_picker.js adapter (ISO yyyy-mm-dd, en-GB month/day names).
 # select2-rails (~> 3.5.9.3) removed: it pins thor ~> 0.14, which conflicts with railties 6.1
 # (thor ~> 1.0), and its only 6.1-compatible line is select2-rails 4.x = select2 v4 JS — a breaking
 # API change the app's v3 usage (select2-selecting/removed events, .select2('val'), #select2-chosen)

@@ -1,5 +1,5 @@
 - if kc.present?
-  .col-xs-12.col-sm-12.col-md-6.case#case
+  .col-12.col-sm-12.col-md-6.case#case
     .ibox
       .ibox-title
         %h5 Resettlement Case
@@ -11,7 +11,7 @@
                   .btn.btn-outline.btn-success
                     = t('.edit_btn')
                 - unless @client.cases.exclude_referred.latest_kinship.exited
-                  %button.btn.btn-outline.btn-warning{"data-target" => '#exit-from-case', "data-toggle" => 'modal'}
+                  %button.btn.btn-outline.btn-warning{"data-bs-target" => '#exit-from-case', "data-bs-toggle" => 'modal'}
                     = t('.exit_btn')
       .ibox-content
         %section.overflow-case
@@ -42,7 +42,7 @@
               %tr
                 %td= ce.program_stream.try(:name)
                 %td.text-right
-                  %span.label.label-primary= ce.status
+                  %span.badge.text-bg-primary= ce.status
             - if @client.client_enrollments.empty?
               %tr
                 %td.text-muted Not yet enrolled in a program.

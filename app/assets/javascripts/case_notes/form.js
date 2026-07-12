@@ -16,7 +16,7 @@ CIF.Case_notesNew =
           showUpload: false,
           removeClass: 'btn btn-danger btn-outline',
           browseLabel: 'Browse',
-          theme: 'explorer',
+          theme: 'explorer-fa4',
           allowedFileExtensions: ['jpg', 'png', 'jpeg', 'doc', 'docx', 'xls', 'xlsx', 'pdf'],
         });
 
@@ -97,7 +97,8 @@ CIF.Case_notesNew =
             success(response) {
               _addElementToDom(response, actionUrl);
               $('.add-task-btn').removeAttr('disabled');
-              return $('#tasksFromModal').modal('hide');
+              var _tfm = document.getElementById('tasksFromModal');
+              return _tfm && bootstrap.Modal.getOrCreateInstance(_tfm).hide();
             },
             error(response) {
               _showError(response.responseJSON);
@@ -112,7 +113,7 @@ CIF.Case_notesNew =
         let element = undefined;
         deleteUrl = `${actionUrl}/${data.id}`;
 
-        element = `<li class='list-group-item' style='padding-bottom: 11px;'>${data.name}<a class='pull-right remove-task fa fa-trash btn btn-outline btn-danger btn-xs' style='margin: 0;' href='javascript:void(0)' data-url='${deleteUrl}'></a></li>`;
+        element = `<li class='list-group-item' style='padding-bottom: 11px;'>${data.name}<a class='float-end remove-task fa fa-trash btn btn-outline btn-danger btn-xs' style='margin: 0;' href='javascript:void(0)' data-url='${deleteUrl}'></a></li>`;
 
         if ($(`.task-domain-${data.domain_id}`).hasClass('hidden')) {
           $(`.task-domain-${data.domain_id}`).removeClass('hidden');
@@ -130,13 +131,11 @@ CIF.Case_notesNew =
         $('#task_name').val('');
         $('#task_completion_date').val('');
 
-        return $('.task_completion_date')
-          .datepicker({
-            autoclose: true,
-            format: 'yyyy-mm-dd',
-            todayHighlight: true,
-          })
-          .datepicker('setDate', null);
+        // POAM-017g flip: vanillajs-datepicker via the shared adapter (was bootstrap-datepicker).
+        return $('.task_completion_date').each(function () {
+          var dp = CIF.DatePicker.attach(this);
+          if (dp) dp.setDate({ clear: true });
+        });
       };
 
       var _removeError = function () {

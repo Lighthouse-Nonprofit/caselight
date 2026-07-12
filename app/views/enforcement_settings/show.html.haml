@@ -19,16 +19,16 @@
     .ibox
       .ibox-title
         %h4= t("enforcement_settings.flags.#{flag}.name")
-        .pull-right
+        .float-end
           - if effective
-            %span.label.label-danger= t('enforcement_settings.state.enforcing')
+            %span.badge.text-bg-danger= t('enforcement_settings.state.enforcing')
           - else
-            %span.label.label-default= t('enforcement_settings.state.shadow')
+            %span.badge.text-bg-light= t('enforcement_settings.state.shadow')
           %span.text-muted
             = override.nil? ? t('enforcement_settings.state.default') : t('enforcement_settings.state.overridden')
       .ibox-content
         %p.text-muted= t("enforcement_settings.flags.#{flag}.description")
-        .form-group
+        .mb-3
           = f.select flag,
                      [[t('enforcement_settings.option.enforcing'), 'true'],
                       [t('enforcement_settings.option.shadow'), 'false'],
@@ -90,11 +90,11 @@
   .ibox
     .ibox-title
       %h4= t('enforcement_settings.settings.require_mfa.name')
-      .pull-right
+      .float-end
         %span.text-muted= mfa_override.nil? ? t('enforcement_settings.state.default') : t('enforcement_settings.state.overridden')
     .ibox-content
       %p.text-muted= t('enforcement_settings.settings.require_mfa.description')
-      .form-group
+      .mb-3
         = f.select :require_mfa,
                    [[t('enforcement_settings.settings.option.on'), 'true'],
                     [t('enforcement_settings.settings.option.off'), 'false'],
@@ -108,12 +108,12 @@
       %h4= t('enforcement_settings.settings.idle_timeout.name')
     .ibox-content
       %p.text-muted= t('enforcement_settings.settings.idle_timeout.description')
-      .form-group
+      .mb-3
         = f.label :idle_timeout_minutes, t('enforcement_settings.settings.idle_timeout.label')
         = f.number_field :idle_timeout_minutes, value: @setting.idle_timeout_minutes,
                          min: 1, max: 1440, step: 1, class: 'form-control',
                          placeholder: t('enforcement_settings.settings.idle_timeout.placeholder')
-        %span.help-block= t('enforcement_settings.settings.blank_hint', value: EnforcementSetting.config_default_for_value(:idle_timeout_minutes))
+        %span.form-text= t('enforcement_settings.settings.blank_hint', value: EnforcementSetting.config_default_for_value(:idle_timeout_minutes))
 
   -# Toggle 3 — Account lockout threshold (attempts, floor 3) + auto-unlock window (minutes).
   .ibox
@@ -122,12 +122,12 @@
     .ibox-content
       %p.text-muted= t('enforcement_settings.settings.lockout.description')
       %p.text-muted= t('enforcement_settings.settings.lockout.floor_note')
-      .form-group
+      .mb-3
         = f.label :lockout_max_attempts, t('enforcement_settings.settings.lockout.attempts_label')
         = f.number_field :lockout_max_attempts, value: @setting.lockout_max_attempts,
                          min: EnforcementSetting::LOCKOUT_ATTEMPTS_FLOOR, max: 100, step: 1, class: 'form-control',
                          placeholder: EnforcementSetting.config_default_for_value(:lockout_max_attempts)
-      .form-group
+      .mb-3
         = f.label :lockout_unlock_in_minutes, t('enforcement_settings.settings.lockout.unlock_label')
         = f.number_field :lockout_unlock_in_minutes, value: @setting.lockout_unlock_in_minutes,
                          min: 5, max: 1440, step: 1, class: 'form-control',
@@ -139,12 +139,12 @@
       %h4= t('enforcement_settings.settings.password_expiry.name')
     .ibox-content
       %p.text-muted= t('enforcement_settings.settings.password_expiry.description')
-      .form-group
+      .mb-3
         = f.label :password_max_age_days, t('enforcement_settings.settings.password_expiry.label')
         = f.number_field :password_max_age_days, value: @setting.password_max_age_days,
                          min: 1, max: 3650, step: 1, class: 'form-control',
                          placeholder: t('enforcement_settings.settings.password_expiry.placeholder')
-        %span.help-block= t('enforcement_settings.settings.password_expiry.blank_hint')
+        %span.form-text= t('enforcement_settings.settings.password_expiry.blank_hint')
 
   -# Phase 6 — AC-2(3) inactive-account auto-disable threshold (days). Blank => OFF: the daily
   -# accounts:disable_inactive run stays report-only and disables nobody.
@@ -153,16 +153,16 @@
       %h4= t('enforcement_settings.settings.inactive_disable.name')
     .ibox-content
       %p.text-muted= t('enforcement_settings.settings.inactive_disable.description')
-      .form-group
+      .mb-3
         = f.label :inactive_disable_days, t('enforcement_settings.settings.inactive_disable.label')
         = f.number_field :inactive_disable_days, value: @setting.inactive_disable_days,
                          min: 30, max: 3650, step: 1, class: 'form-control',
                          placeholder: t('enforcement_settings.settings.inactive_disable.placeholder')
-        %span.help-block= t('enforcement_settings.settings.inactive_disable.blank_hint')
+        %span.form-text= t('enforcement_settings.settings.inactive_disable.blank_hint')
 
-  .form-group
+  .mb-3
     = f.submit t('enforcement_settings.save'), class: 'btn btn-primary'
-    = link_to t('enforcement_settings.shadow.review_link'), access_review_path, class: 'btn btn-default'
+    = link_to t('enforcement_settings.shadow.review_link'), access_review_path, class: 'btn btn-outline-secondary'
 
 - if @setting.persisted? && @setting.updated_at.present?
   %p.text-muted

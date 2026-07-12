@@ -1,12 +1,12 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.referral_sources')
+        %span.badge.text-bg-info= t('.referral_sources')
         .ibox-tools
           - if can? :manage, ReferralSource
-            = link_to '#', {"data-target" => "#referral_sourceModal-", "data-toggle" => "modal", :type => "button"} do
+            = link_to '#', {"data-bs-target" => "#referral_sourceModal-", "data-bs-toggle" => "modal", :type => "button"} do
               .btn.btn-primary.btn-add
                 = t('.add_new_referral_source')
       .ibox-content
@@ -28,7 +28,7 @@
                   %td= referral_source.description
                   - if can? :manage, ReferralSource
                     %td.text-center
-                      = link_to '#', {class: 'btn btn-outline btn-success btn-xs', "data-target" => "#referral_sourceModal-#{referral_source.id}", "data-toggle" => "modal", :type => "button"} do
+                      = link_to '#', {class: 'btn btn-outline btn-success btn-xs', "data-bs-target" => "#referral_sourceModal-#{referral_source.id}", "data-bs-toggle" => "modal", :type => "button"} do
                         = fa_icon('pencil')
                     %td.text-center
                       = remove_link(referral_source, { referral_source_client: referral_source.clients_count})

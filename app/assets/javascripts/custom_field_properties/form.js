@@ -18,7 +18,7 @@ CIF.Custom_field_propertiesNew =
           showUpload: false,
           removeClass: 'btn btn-danger btn-outline',
           browseLabel: 'Browse',
-          theme: 'explorer',
+          theme: 'explorer-fa4',
           allowedFileExtensions: ['jpg', 'png', 'jpeg', 'doc', 'docx', 'xls', 'xlsx', 'pdf'],
         });
 

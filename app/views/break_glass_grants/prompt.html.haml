@@ -5,7 +5,7 @@
 -# then redirect_back returns here and the values render.
 .wrapper.wrapper-content
   .row
-    .col-lg-8.col-lg-offset-2
+    .col-lg-8.offset-lg-2
       .ibox
         .ibox-title
           %h2
@@ -21,7 +21,7 @@
             = hidden_field_tag :custom_formable_type, @breakglass_formable.class.base_class.name
             = hidden_field_tag :custom_formable_id, @breakglass_formable.id
             = hidden_field_tag :custom_field_id, @breakglass_custom_field.id
-            .form-group
+            .mb-3
               %label{ for: 'reason' }= t('break_glass.prompt.reason_label', default: 'Reason for emergency access (required)')
               = text_area_tag :reason, nil, class: 'form-control', rows: 3, required: true, placeholder: t('break_glass.prompt.reason_placeholder', default: 'e.g. imminent safety concern during a home visit')
             .m-t

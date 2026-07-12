@@ -2,28 +2,10 @@ CIF.Common = {
   init() {
     this.hideDynamicOperator();
     this.validateFilterNumber();
-    this.customCheckBox();
+    // POAM-017g flip: iCheck removed — checkboxes/radios are native Bootstrap-5 .form-check
+    // controls now, so there is no init step (customCheckBox() deleted).
     this.initNotification();
     return this.autoCollapseManagMenu();
-  },
-
-  customCheckBox() {
-    $('.i-check-red').iCheck({
-      radioClass: 'iradio_square-red',
-    });
-
-    $('.i-check-brown').iCheck({
-      radioClass: 'iradio_square-brown',
-    });
-
-    $('.i-check-orange').iCheck({
-      radioClass: 'iradio_square-orange',
-    });
-
-    return $('.i-checks').iCheck({
-      checkboxClass: 'icheckbox_square-green',
-      radioClass: 'iradio_square-green',
-    });
   },
 
   autoCollapseManagMenu() {

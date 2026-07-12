@@ -91,18 +91,11 @@ GEM
       mime-types (>= 2.99)
       unf
     ast (2.4.3)
-    autoprefixer-rails (10.4.21.0)
-      execjs (~> 2)
     base64 (0.3.0)
     bcrypt (3.1.22)
     benchmark (0.5.0)
     bigdecimal (4.1.2)
     bindata (2.5.1)
-    bootstrap-datepicker-rails (1.10.0.1)
-      railties (>= 3.0)
-    bootstrap-sass (3.4.1)
-      autoprefixer-rails (>= 5.2.1)
-      sassc (>= 2.0.0)
     brakeman (8.0.5)
       racc
     browser (6.2.0)
@@ -590,8 +583,6 @@ GEM
       rake (>= 13)
     sass-embedded (1.101.0-x86_64-linux-gnu)
       google-protobuf (~> 4.31)
-    sassc (2.4.0)
-      ffi (~> 1.9)
     securerandom (0.4.1)
     shellany (0.0.1)
     shoulda-matchers (8.0.1)
@@ -677,8 +668,6 @@ PLATFORMS
 DEPENDENCIES
   active_model_serializers (~> 0.10.0)
   asset_sync
-  bootstrap-datepicker-rails (~> 1.5)
-  bootstrap-sass (~> 3.4.1)
   brakeman
   browser (~> 6.2)
   bullet (~> 8.0)

@@ -67,18 +67,18 @@ CIF.Progress_notesNew =
         $('.progress_note_location select').change(() => _toggleOtherLocation());
 
       const _clearProgressNoteDateError = function () {
-        $('.help-block').remove();
+        $('.form-text').remove();
         return $('.has-error').removeClass('has-error');
       };
 
       const _addProgressNoteDateError = function () {
         $('#progress_note_date').removeClass('has-error');
-        $('.help-block').remove();
+        $('.form-text').remove();
         const errorText = $('#progress_note_error_text').val();
         $('#progress_note_date').addClass('has-error');
         return $('#progress_note_date')
-          .closest('.form-group')
-          .append(`<span class='help-block' style='display:block;'> ${errorText} </span>`);
+          .closest('.mb-3')
+          .append(`<span class='form-text' style='display:block;'> ${errorText} </span>`);
       };
 
       var _handleEnableSubmitButtonWhenRemoveFile = () =>

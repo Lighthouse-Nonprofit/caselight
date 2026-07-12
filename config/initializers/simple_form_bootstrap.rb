@@ -1,7 +1,7 @@
 # Use this setup block to configure all options available in SimpleForm.
 SimpleForm.setup do |config|
   config.error_notification_class = 'alert alert-danger'
-  config.button_class = 'btn btn-default'
+  config.button_class = 'btn btn-primary' # POAM-017g flip: btn-default no longer exists in BS5
   config.boolean_label_class = nil
 
   config.wrappers :vertical_form, tag: 'div', class: 'form-group', error_class: 'has-error' do |b|
@@ -133,13 +133,13 @@ SimpleForm.setup do |config|
     end
   end
   # ---------------------------------------------------------------------------
-  # Bootstrap 5 wrapper set (POAM-017g P2) — PRE-STAGED AND INERT. Nothing maps
-  # to these until the BS5 flip PR points default_wrapper/wrapper_mappings at
-  # them; until then they are dead config exercised only by their spec
-  # (spec/helpers/simple_form_bs5_wrappers_spec.rb). Shapes follow the canonical
-  # simple_form Bootstrap-5 template: mb-3 wrapper, form-label, is-invalid /
-  # invalid-feedback (d-block where the input is not the feedback's sibling),
-  # form-text hints, form-check booleans/collections.
+  # Bootstrap 5 wrapper set (POAM-017g). Pre-staged inert in P2; MADE LIVE by THE
+  # FLIP (default_wrapper/wrapper_mappings at the bottom of this file now point
+  # here). Shapes follow the canonical simple_form Bootstrap-5 template: mb-3
+  # wrapper, form-label, is-invalid / invalid-feedback (d-block where the input is
+  # not the feedback's sibling), form-text hints, form-check booleans/collections.
+  # The BS3 wrapper set above is retained only as a fallback reference and is no
+  # longer mapped to anything.
   # ---------------------------------------------------------------------------
   config.wrappers :bs5_vertical_form, tag: 'div', class: 'mb-3' do |b|
     b.use :html5
@@ -269,14 +269,16 @@ SimpleForm.setup do |config|
   # Check the Bootstrap docs (http://getbootstrap.com)
   # to learn about the different styles for forms and inputs,
   # buttons and other elements.
-  config.default_wrapper = :vertical_form
+  # POAM-017g THE FLIP: default + mappings point at the BS5 wrapper set (was the
+  # :vertical_*/:multi_select BS3 set above).
+  config.default_wrapper = :bs5_vertical_form
   config.wrapper_mappings = {
-    check_boxes: :vertical_radio_and_checkboxes,
-    radio_buttons: :vertical_radio_and_checkboxes,
-    file: :vertical_file_input,
-    boolean: :vertical_boolean,
-    datetime: :multi_select,
-    date: :multi_select,
-    time: :multi_select
+    check_boxes: :bs5_vertical_radio_and_checkboxes,
+    radio_buttons: :bs5_vertical_radio_and_checkboxes,
+    file: :bs5_vertical_file_input,
+    boolean: :bs5_vertical_boolean,
+    datetime: :bs5_multi_select,
+    date: :bs5_multi_select,
+    time: :bs5_multi_select
   }
 end

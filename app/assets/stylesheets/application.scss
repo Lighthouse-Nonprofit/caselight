@@ -2,23 +2,25 @@
 @import 'font-awesome';
 @import 'step';
 @import 'tom-select';
-@import 'tom_select_bs3';
-@import 'bootstrap-datepicker';
+// POAM-017g flip: Tom Select Bootstrap-5 theme replaced the hand-written tom_select_bs3 shim.
+@import 'tom-select.bootstrap5';
+// POAM-017g flip: vanillajs-datepicker (BS5) css replaced bootstrap-datepicker.css.
+@import 'vanillajs-datepicker-bs5.min';
 @import 'dropzone/dropzone';
 @import 'rule_builder';
 @import 'trix';
 @import 'rich_text';
 
-@import 'animate/animate';
-@import 'iCheck/custom';
-@import 'iCheck/brown';
-@import 'iCheck/red';
-@import 'iCheck/orange';
 @import 'toastr/toastr.min';
-@import 'wrapbootstrap/style';
+// POAM-017g THE FLIP: the in-house CaseLight theme (Bootstrap 5.3 core + navy/amber restyle)
+// replaced the commercial INSPINIA theme (wrapbootstrap/). iCheck + animate.css are retired.
+// MUST precede the per-view partials below — they consume its palette/refresh variables.
+@import 'caselight_theme/theme';
 @import 'footable/footable.core';
-@import 'bootstrap_file_input/file_input.min';
-@import 'bootstrap_file_input/explorer/theme.min';
+// POAM-017g flip: krajee fileinput 5.5.4 (BS5) css + themes, and DataTables BS5 css.
+@import 'bootstrap_file_input5/fileinput.min';
+@import 'bootstrap_file_input5/explorer-fa4-theme.min';
+@import 'dataTables.bootstrap5.min';
 
 // Components
 // POAM-017e (R9a): the 45 sass-rails glob imports (@import 'dir/*') were expanded to

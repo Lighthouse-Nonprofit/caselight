@@ -3,37 +3,37 @@
     = error_notification(f)
     .form-inputs
       .row
-        .col-xs-4
+        .col-4
           = f.association :domain_group, collection: DomainGroup.all, label: t('.domain_group'), include_blank: false, input_html: { class: 'select2' }
-        .col-xs-4
+        .col-4
           = f.input :name, label: t('.name')
-        .col-xs-4
+        .col-4
           = f.input :identity, label: t('.identity')
       %hr
       .row
-        .col-xs-6
+        .col-6
           / Phase 5.2b (NIST AC-6) — per-Domain sensitivity. `collection:` => SimpleForm renders a
           / <select>, sidestepping the :string->textarea input_mappings trap. Option VALUES stay the
           / canonical Domain::SENSITIVITY_LEVELS strings the model validates; only labels are localized.
           = f.input :sensitivity, collection: Domain::SENSITIVITY_LEVELS.map { |lvl| [t(".sensitivity_levels.#{lvl}"), lvl] }, label: t('.sensitivity'), include_blank: false, input_html: { class: 'select2' }, hint: t('.sensitivity_hint')
       %hr
       .row
-        .col-xs-3
+        .col-3
           = f.input :score_1_color, collection: Domain.domain_score_colors.map{ |ds| [ds[1], ds[0]]}, label: t('.score_1'), include_blank: false, input_html: { class: 'select2' }
-        .col-xs-3
+        .col-3
           = f.input :score_2_color, collection: Domain.domain_score_colors.map{ |ds| [ds[1], ds[0]]}, label: t('.score_2'), include_blank: false, input_html: { class: 'select2' }
-        .col-xs-3
+        .col-3
           = f.input :score_3_color, collection: Domain.domain_score_colors.map{ |ds| [ds[1], ds[0]]}, label: t('.score_3'), include_blank: false, input_html: { class: 'select2' }
-        .col-xs-3
+        .col-3
           = f.input :score_4_color, collection: Domain.domain_score_colors.map{ |ds| [ds[1], ds[0]]}, label: t('.score_4'), include_blank: false, input_html: { class: 'select2' }
       %hr
       .row
-        .col-xs-12
+        .col-12
           / POAM-017a: Trix (vendored) replaced the EOL TinyMCE 4. The hidden input carries the
           / HTML; <trix-editor input=...> binds itself and keeps it synced on every change.
-          %label.control-label{ for: 'domain_description_editor' }= t('.description')
+          %label.form-label{ for: 'domain_description_editor' }= t('.description')
           = f.hidden_field :description, id: 'domain_description_trix_input'
           %trix-editor#domain_description_editor.trix-content.rich-text-editor--tall{ input: 'domain_description_trix_input', 'aria-label' => t('.description') }
   .ibox-footer
     = f.submit t('.save'), class: 'btn btn-primary form-btn'
-    = link_to t('.cancel'), domains_path, class: 'btn btn-default form-btn'
+    = link_to t('.cancel'), domains_path, class: 'btn btn-outline-secondary form-btn'

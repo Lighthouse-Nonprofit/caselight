@@ -7,7 +7,8 @@ CIF.Custom_fieldsIndex = (function () {
       return;
     }
     if (tab.substr(1) === 'all_ngo') {
-      return $('a[href="#all-custom-form"]').tab('show');
+      const trigger = document.querySelector('a[href="#all-custom-form"]');
+      return trigger && bootstrap.Tab.getOrCreateInstance(trigger).show();
     }
   };
 

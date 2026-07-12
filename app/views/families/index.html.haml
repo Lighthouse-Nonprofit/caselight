@@ -1,23 +1,23 @@
 .row
-  .col-xs-12
-    .pull-left
-      %button.btn.btn-primary.btn-filter{"aria-expanded" => 'false', "aria-label" => t('shared.actions.filter', default: 'Toggle search filters'), "data-target" => '#family-search-form', "data-toggle" => 'collapse', type: 'button'}
+  .col-12
+    .float-start
+      %button.btn.btn-primary.btn-filter{"aria-expanded" => 'false', "aria-label" => t('shared.actions.filter', default: 'Toggle search filters'), "data-bs-target" => '#family-search-form', "data-bs-toggle" => 'collapse', type: 'button'}
         = fa_icon('filter', 'aria-hidden': true)
-    .pull-right
+    .float-end
       - if can? :manage, Family
         = link_to "#{I18n.t('families.index.add_new_family')}", new_family_path, class: 'btn btn-primary'
       = link_to "#{I18n.t('families.index.export_xls')}", current_url(format: 'xls'), class: 'btn btn-info btn-export'
 
 .row.ibox-space
-  .col-xs-12
+  .col-12
     .ibox-content#family-search-form.collapse
       = datagrid_form_for @family_grid, url: families_url, html: { class: 'grid-form' }
 .row
-  .col-xs-12
+  .col-12
     .ibox.float-e-margins
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.results')
+        %span.badge.text-bg-info= t('.results')
         %form.record-cards__sort{ method: 'get', action: families_url, role: 'search', 'aria-label' => t('.sort_label', default: 'Sort households') }
           - (params[:family_grid] || {}).each do |k, v|
             - next if %w(order descending).include?(k.to_s)

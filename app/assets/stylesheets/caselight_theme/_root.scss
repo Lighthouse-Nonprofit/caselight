@@ -1,0 +1,73 @@
+// caselight_theme/_root.scss — base + typography layer.
+// Part of the in-house Bootstrap 5.3 "caselight_theme" replacing INSPINIA (POAM-017g THE FLIP).
+// Self-hosted Open Sans faces + body/heading/link base, on Bootstrap-5 DNA.
+
+// ---- Self-hosted Open Sans (copied verbatim from base/open-sans-faces.scss).
+//      Four weights (300/400/600/700, normal only; italics stay browser-synthesized).
+//      woff2-only; files live undigested in public/fonts/open-sans/. Plain-string
+//      urls on purpose — dart-sass has no asset helpers.
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/open-sans/open-sans-300.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/open-sans/open-sans-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/open-sans/open-sans-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/open-sans/open-sans-700.woff2') format('woff2');
+}
+
+// ---- CaseLight brand tokens as CSS custom props (convenience handles for markup / inline use).
+:root {
+  --cl-amber: #E8A33D;
+  --cl-navy: #1F3A5F;
+}
+
+// ---- Body base. Bootstrap already sets font-size (.8125rem / 13px) and line-height;
+//      here we only pin the Open Sans stack, smoothing, and text color.
+body {
+  font-family: $font-family-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color: $body-color;
+}
+
+// ---- Headings. Exact px sizes / weights / letter-spacing ported from _refresh.scss.
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: $font-family-base;
+  font-weight: 600;
+  line-height: 1.25;
+  color: $body-color;
+}
+h1, .h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+h2, .h2 { font-size: 23px; font-weight: 600; letter-spacing: -0.01em; }
+h3, .h3 { font-size: 18px; font-weight: 600; margin-top: 8px; }
+h4, .h4 { font-size: 15px; font-weight: 600; margin-top: 6px; }
+h5, .h5 { font-size: 13px; font-weight: 600; margin-top: 5px; }
+h6, .h6 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+// ---- Links (harbor, with a soft color transition).
+a { color: $lazur; transition: color 0.12s ease-in-out; }
+a:hover, a:active, a:focus { color: darken($lazur, 12%); }
+
+@media (prefers-reduced-motion: reduce) {
+  a { transition: none; }
+}
