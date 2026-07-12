@@ -136,8 +136,8 @@ $(document).ready(function () {
 
     fix_height();
 
-    // Fixed Sidebar
-    $(window).bind("load", function () {
+    // Fixed Sidebar (.bind removed in jQuery 4 -> .on)
+    $(window).on("load", function () {
         if ($("body").hasClass('fixed-sidebar')) {
             $('.sidebar-collapse').slimScroll({
                 height: '100%',
@@ -155,7 +155,7 @@ $(document).ready(function () {
         }
     });
 
-    $(window).bind("load resize scroll", function () {
+    $(window).on("load resize scroll", function () {
         if (!$("body").hasClass('body-small')) {
             fix_height();
         }
@@ -171,8 +171,8 @@ $(document).ready(function () {
 });
 
 
-// Minimalize menu when screen is less than 768px
-$(window).bind("resize", function () {
+// Minimalize menu when screen is less than 768px (.bind removed in jQuery 4 -> .on)
+$(window).on("resize", function () {
     if ($(this).width() < 769) {
         $('body').addClass('body-small')
     } else {
@@ -237,10 +237,11 @@ function localStorageSupport() {
 // For demo purpose - animation css script
 function animationHover(element, animation) {
     element = $(element);
-    element.hover(
+    // .hover removed in jQuery 4 -> explicit mouseenter/mouseleave
+    element.on('mouseenter',
         function () {
             element.addClass('animated ' + animation);
-        },
+        }).on('mouseleave',
         function () {
             //wait for animation to finish before removing classes
             window.setTimeout(function () {

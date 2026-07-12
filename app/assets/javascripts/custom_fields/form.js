@@ -31,7 +31,9 @@ CIF.Custom_fieldsNew =
       var _toggleTimeOfFrequency = function () {
         const frequency = _convertFrequency();
         if (frequency === '') {
-          $('#custom_field_time_of_frequency').attr('readonly', 'true').val(0);
+          // prop, not attr('readonly','true') — jQuery 4 warns on boolean attrs set to
+          // anything but their lowercased name (JQMIGRATE catch in the 12D smoke)
+          $('#custom_field_time_of_frequency').prop('readonly', true).val(0);
           return $('.frequency-note').addClass('hidden');
         } else {
           if (timeOfFrequency === 0) {

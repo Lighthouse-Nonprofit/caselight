@@ -12,7 +12,8 @@ gem 'erubis'
 # Rails 7's postgresql adapter requires pg >= 1.1; pg 1.5/1.6 run on Ruby 3.3 and still support
 # the pinned PostgreSQL 9.6 server (libpq 9.3+).
 gem 'pg', '~> 1.5'
-gem 'jquery-rails'
+# jquery-rails removed (R12D): jQuery 4.0.0 is vendored (the gem ships no jquery4 asset);
+# rails-ujs comes from actionview, jquery-ui from jquery-ui-rails below.
 gem 'jquery-ui-rails'
 # POAM-017e (R9c): dartsass-rails (the maintained dart-sass compiler) replaced
 # sass-rails 5.1 / ruby-sass 3.7.4 (EOL 2019). dart-sass compiles application.scss into
