@@ -57,7 +57,7 @@ gem 'webauthn', '~> 3.4'
 # audited before the bump: zero haml_tag/haml_concat/capture_haml/succeed/precede/object-ref
 # usage, filters limited to :javascript/:css (both in haml 6 core), no Haml::Options config.
 gem 'haml', '~> 6.3'
-gem 'haml-rails', '~> 2.0'
+gem 'haml-rails', '~> 3.1'
 gem 'dotenv-rails', '~> 2.2'
 gem 'roo',                    '~> 2.2'
 # Ruby 3.4+/4.0 dropped csv from the default gems; roo (and CSV report exports)
