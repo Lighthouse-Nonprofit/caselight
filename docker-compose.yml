@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongo:6.0        # Mongoid 8.1 supports MongoDB 4.4-7.0 (was 3.6 for the EOL Mongoid 5.2)
+    image: mongo:6.0        # Mongoid 9 supports MongoDB 3.6-8.2 (server 6.0 -> 8.0 is the next rung)
     volumes: [mongo:/data/db]
     restart: unless-stopped
 
