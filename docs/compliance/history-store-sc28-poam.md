@@ -15,7 +15,7 @@ that the primary Postgres columns now encrypt.
 | **ID** | POAM-SC28-HIST |
 | **Control** | SC-28 (Protection of Information at Rest), SC-28(1) (cryptographic protection) |
 | **Severity** | Medium (demo box, synthetic data) / **High** (must close before real data) |
-| **Status** | **REMEDIATED (Phase 6, 2026-07-07)** — code merged (#89 paper_trail redaction, #90 Mongo snapshot filter, #98 one-time scrub); dev scrub executed + verified (441 version rows, 43 ClientHistory docs, all verifies PASS). **Closes fully when the box scrub+verify runs at the Phase-6 deploy** (attach that run's PASS output here as the closure evidence). |
+| **Status** | **CLOSED (2026-07-12)** — code merged Phase 6 (#89 paper_trail redaction, #90 Mongo snapshot filter, #98 one-time scrub); dev scrub executed + verified 2026-07-07 (441 version rows, 43 ClientHistory docs); **box scrub executed + verified at the 2026-07-12 production deploy** — closure evidence below. |
 | **Discovered** | Phase 4 (encryption-at-rest) close-out review |
 
 ### The gap
@@ -89,3 +89,26 @@ Mongo `*_history` `object` snapshots (recommended), OR (b) encrypt both history 
 keys. Disk-at-rest encryption alone does NOT satisfy SC-28(1) for production PII of this sensitivity
 (immigration status, minors, health, government IDs — see `docs/compliance/README.md`). This gate is a
 precondition of the `SECURITY.md` production sign-off.
+
+### Closure evidence — box scrub + verify (production deploy, 2026-07-12)
+
+Executed on the pilot box (rev 12dbab7a) via a `bootstrap.sh` redeploy, then the Phase-6 runbook
+(dry-run, CONFIRM=1, both verifies). Verbatim output:
+
+~~~
+[history:scrub_versions] models: Client, ClientEnrollment, ClientEnrollmentTracking, CustomFieldProperty, Family, LeaveProgram, Partner, ProgressNote, User confirm=true
+  tenant=cases REDACTED=396
+  ClientHistory client_family_histories: matched=9 modified=9
+  ClientHistory client_custom_field_property_histories: matched=9 modified=9
+[history:scrub_client_histories] TaskHistory: top-level candidates=0 paths=14 confirm=true
+  TaskHistory case_worker_task_histories: matched=5 modified=5
+
+  tenant=cases PASS
+[history:verify_versions] PASS -- no skip-listed keys remain.
+  ClientHistory: PASS
+  TaskHistory: PASS
+[history:verify_client_histories] PASS -- no redacted paths remain.
+~~~
+
+Both stores verified plaintext-free on the production host; pre-scrub pg_dumpall + mongodump
+snapshots retained on-box at `~/backups/pre-frontend-deploy-20260712-0437/`.

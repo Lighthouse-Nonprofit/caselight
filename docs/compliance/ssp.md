@@ -162,8 +162,8 @@ behind `SECURITY.md`'s production gate.
 - **KMS-managed encryption keys** — replace the pilot's `secret_key_base`-derived AR-Encryption keys
   with independent ENV/KMS keys; do not flip `support_unencrypted_data=false` until every tenant is
   backfilled + verified across every tier (`encryption-at-rest.md`).
-- **History-store SC-28** — POAM-SC28-HIST is **REMEDIATED in code** (redaction + scrub); closes fully
-  once the box scrub+verify runs at deploy (`history-store-sc28-poam.md`).
+- **History-store SC-28** — POAM-SC28-HIST is **CLOSED (2026-07-12)**: box scrub + both verifies PASS
+  at the production deploy; closure evidence attached in `history-store-sc28-poam.md`.
 - **`cases.exit_note` plaintext** (POAM-012) — encrypt or read-through before real data (High).
 - **Live client-record retention window** — currently **TBD and blocking** (`policies/data-retention.md`
   §2); set with the org (immigration + minors' records especially).
