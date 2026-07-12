@@ -214,37 +214,12 @@ CIF.Program_streamsNew =
       var _initProgramBuilder = function (element, data) {
         const builderOption = new CIF.CustomFormBuilder();
         data = data.length !== 0 ? data.replace(/=>/g, ':') : '';
-        return this.formBuilder.push(
-          $(element)
-            .formBuilder({
-              dataType: 'json',
-              formData: data,
-              disableFields: [
-                'autocomplete',
-                'header',
-                'hidden',
-                'paragraph',
-                'button',
-                'checkbox',
-              ],
-              showActionButtons: false,
-              messages: {
-                cannotBeEmpty: 'name_separated_with_underscore',
-              },
-
-              typeUserEvents: {
-                'checkbox-group': builderOption.eventCheckboxOption(),
-                date: builderOption.eventDateOption(),
-                file: builderOption.eventFileOption(),
-                number: builderOption.eventNumberOption(),
-                'radio-group': builderOption.eventRadioOption(),
-                select: builderOption.eventSelectOption(),
-                text: builderOption.eventTextFieldOption(),
-                textarea: builderOption.eventTextAreaOption(),
-              },
-            })
-            .data('formBuilder'),
-        );
+        // formBuilder 3.x returns the instance (no .data('formBuilder')) and no longer
+        // exposes .element -- track the {instance, element} pair for _handleSetValueToField;
+        // shared options from CIF.CustomFormBuilder#builderOptions
+        const instance = $(element).formBuilder(builderOption.builderOptions({ formData: data }));
+        this.formBuilder.push({ instance, element });
+        return instance;
       };
 
       var _editTrackingFormName = function () {
@@ -375,22 +350,28 @@ CIF.Program_streamsNew =
       };
 
       var _handleInitProgramFields = function () {
+        // formBuilder 3.x init is ASYNC — _preventRemoveField walks the rendered stage,
+        // so each call rides its builder's instance promise
         for (var element of $('#enrollment, #exit-program')) {
           var dataElement = $(element).data('field');
-          _initProgramBuilder($(element), dataElement || []);
+          var instance = _initProgramBuilder($(element), dataElement || []);
           if (element.id === 'enrollment' && $('#program_stream_id').val() !== '') {
-            _preventRemoveField(ENROLLMENT_URL, '#enrollment');
+            instance.promise.then(() => _preventRemoveField(ENROLLMENT_URL, '#enrollment'));
           } else if (element.id === 'exit-program' && $('#program_stream_id').val() !== '') {
-            _preventRemoveField(EXIT_PROGRAM_URL, '#exit-program');
+            instance.promise.then(() => _preventRemoveField(EXIT_PROGRAM_URL, '#exit-program'));
           }
         }
 
         const trackings = $('.tracking-builder');
+        let lastTracking;
         for (var tracking of trackings) {
           var trackingValue = $(tracking).data('tracking');
-          _initProgramBuilder(tracking, trackingValue || []);
+          lastTracking = _initProgramBuilder(tracking, trackingValue || []);
         }
         if ($('#program_stream_id').val() !== '') {
+          if (lastTracking) {
+            return lastTracking.promise.then(() => _preventRemoveField(TRACKING_URL, ''));
+          }
           return _preventRemoveField(TRACKING_URL, '');
         }
       };
@@ -428,15 +409,16 @@ CIF.Program_streamsNew =
       var _handleSetValueToField = function () {
         return (() => {
           const result = [];
-          for (var formBuilder of this.formBuilder) {
-            var { element } = formBuilder;
+          // entries are {instance, element} pairs — 3.x instances no longer carry .element
+          for (var entry of this.formBuilder) {
+            var { element } = entry;
             if ($(element).is('#enrollment')) {
-              result.push($('#program_stream_enrollment').val(formBuilder.formData));
+              result.push($('#program_stream_enrollment').val(entry.instance.formData));
             } else if ($(element).is('.tracking-builder')) {
               var hiddenField = $(element).find('.tracking-field-hidden input[type="hidden"]');
-              result.push($(hiddenField).val(formBuilder.formData));
+              result.push($(hiddenField).val(entry.instance.formData));
             } else if ($(element).is('#exit-program')) {
-              result.push($('#program_stream_exit_program').val(formBuilder.formData));
+              result.push($('#program_stream_exit_program').val(entry.instance.formData));
             } else {
               result.push(undefined);
             }

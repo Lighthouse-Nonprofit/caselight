@@ -33,8 +33,16 @@
 //= require metisMenu/jquery.metisMenu.js
 //= require chart.umd
 //= require dropzone
+// formBuilder 3.23.1 (kevinchappell/formBuilder, MIT), vendored from the npm 3.23.1 dist
+// (R12B, POAM-017f). Upgraded from the 2016-vintage 1.24.2. NOTES: (1) 3.x ships NO dist
+// CSS -- styles + a base64-woff icon font are injected at runtime, which consumes the
+// style-src 'unsafe-inline' + font-src data: the policy already keeps for FullCalendar 6;
+// (2) en-US strings are compiled in -- no runtime .lang fetch (verified; do not pass
+// i18n.locale without vendoring lang files first); (3) eval gate: zero eval(/new Function;
+// the single Function( occurrence is lodash's unreachable global-this fallback, identical
+// to the one in our standalone vendored lodash below; (4) requires jQuery + jQuery UI
+// sortable, both loaded above.
 //= require form-builder.min.js
-//= require form-render.min.js
 //= require stickyfill.js
 //= require lodash/lodash.min.js
 

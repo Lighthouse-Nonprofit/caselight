@@ -1,6 +1,46 @@
 CIF.CustomFormBuilder = class CustomFormBuilder {
   constructor() {}
 
+  // Shared formBuilder 3.x options (R12B) — the four init sites (custom-field form/show,
+  // program-stream enrollment/tracking/exit) pass {formData, sticky} and get everything
+  // else from here. i18n: mi18n ALWAYS fetches <location><locale>.lang at init (its
+  // addLanguage never marks the locale loaded), so location points at the vendored copy
+  // in public/fb-lang/ — absolute path, else it resolves relative to the page URL and
+  // 404s on every builder page. en-US strings are also compiled into the dist, so a
+  // failed fetch degrades gracefully; hosting the file just keeps the console clean.
+  builderOptions({ formData = '', sticky = false } = {}) {
+    const options = {
+      dataType: 'json',
+      formData,
+      disableFields: ['autocomplete', 'header', 'hidden', 'paragraph', 'button', 'checkbox'],
+      showActionButtons: false,
+      i18n: {
+        locale: 'en-US',
+        location: '/fb-lang/',
+        override: {
+          'en-US': { cannotBeEmpty: 'name_separated_with_underscore' },
+        },
+      },
+      typeUserEvents: {
+        'checkbox-group': this.eventCheckboxOption(),
+        date: this.eventDateOption(),
+        file: this.eventFileOption(),
+        number: this.eventNumberOption(),
+        'radio-group': this.eventRadioOption(),
+        select: this.eventSelectOption(),
+        text: this.eventTextFieldOption(),
+        textarea: this.eventTextAreaOption(),
+      },
+    };
+    if (sticky) {
+      options.stickyControls = {
+        enable: true,
+        offset: { top: 20, right: 20, left: 'auto' },
+      };
+    }
+    return options;
+  }
+
   eventCheckboxOption() {
     const self = this;
     return {
@@ -127,6 +167,13 @@ CIF.CustomFormBuilder = class CustomFormBuilder {
     const self = this;
     return {
       onadd(fld) {
+        // SECURITY (R12B): formBuilder 3.x offers tinymce/quill textarea SUBTYPES whose
+        // builder preview loads the editor FROM A CDN at runtime when it isn't on the page
+        // (cdnjs script injection) — that would reintroduce the retired TinyMCE (POAM-017a)
+        // via an unpinned third-party script and violate the CSP once enforced. Strip them
+        // from the subtype dropdown, same pattern as the text field's color/tel/password.
+        $('.fld-subtype ').find('option:contains(tinymce)').remove();
+        $('.fld-subtype ').find('option:contains(quill)').remove();
         $(
           '.rows-wrap, .className-wrap, .value-wrap, .access-wrap, .maxlength-wrap, .description-wrap, .name-wrap',
         ).hide();
@@ -219,8 +266,12 @@ CIF.CustomFormBuilder = class CustomFormBuilder {
   actionEditField() {
     const self = this;
     const labels = $('.field-label:visible');
-    return $('.field-actions a.icon-pencil').click(() =>
-      $(".form-elements input[name='label']").on('change', () =>
+    // formBuilder 3.x: the edit toggle is a.toggle-form (1.x used a.icon-pencil, gone),
+    // and the label editor in the edit panel is the .fld-label control (1.x rendered
+    // input[name='label'] inside .form-elements). Bind both label forms defensively —
+    // 3.x renders label editing as a contenteditable in some builds ('input' covers it).
+    return $('.field-actions a.toggle-form').click(() =>
+      $('.form-elements .fld-label, .form-elements input[name="label"]').on('change input', () =>
         setTimeout(function () {
           self.removeFieldDuplicate();
           return self.handleDisplayDuplicateWarning(labels);

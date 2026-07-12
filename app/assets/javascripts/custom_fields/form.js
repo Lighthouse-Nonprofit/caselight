@@ -7,9 +7,11 @@ CIF.Custom_fieldsNew =
       const FIELDS_URL = `/api/custom_fields/${this.customFieldId}/fields`;
       const CUSTOM_FIELDS_URL = '/api/custom_fields/fetch_custom_fields';
       const _init = function () {
-        _initFormBuilder();
+        const formBuilder = _initFormBuilder();
         if ($('#custom_field_id').val() !== '') {
-          _retrieveData(FIELDS_URL);
+          // formBuilder 3.x initializes ASYNC — _preventRemoveFields walks the rendered
+          // stage (label.field-label), so it must wait for the instance promise
+          formBuilder.promise.then(() => _retrieveData(FIELDS_URL));
         }
         if ($('#custom_field_form_title').attr('disabled') !== 'disabled') {
           _retrieveData(CUSTOM_FIELDS_URL);
@@ -87,40 +89,14 @@ CIF.Custom_fieldsNew =
       var _initFormBuilder = function () {
         const builderOption = new CIF.CustomFormBuilder();
         const fields = `${$('.build-wrap').data('fields')}` || '';
-        const formBuilder = $('.build-wrap')
-          .formBuilder({
-            dataType: 'json',
-            formData: fields.replace(/=>/g, ':'),
-            disableFields: ['autocomplete', 'header', 'hidden', 'paragraph', 'button', 'checkbox'],
-            showActionButtons: false,
-            messages: {
-              cannotBeEmpty: 'name_separated_with_underscore',
-            },
-            stickyControls: {
-              enable: true,
-              offset: {
-                top: 20,
-                right: 20,
-                left: 'auto',
-              },
-            },
-
-            typeUserEvents: {
-              'checkbox-group': builderOption.eventCheckboxOption(),
-              date: builderOption.eventDateOption(),
-              file: builderOption.eventFileOption(),
-              number: builderOption.eventNumberOption(),
-              'radio-group': builderOption.eventRadioOption(),
-              select: builderOption.eventSelectOption(),
-              text: builderOption.eventTextFieldOption(),
-              textarea: builderOption.eventTextAreaOption(),
-            },
-          })
-          .data('formBuilder');
-
-        return $('#custom-field-submit').click((event) =>
-          $('#custom_field_fields').val(formBuilder.formData),
+        // formBuilder 3.x: $().formBuilder() RETURNS the instance (1.x needed
+        // .data('formBuilder')); shared options live in CIF.CustomFormBuilder#builderOptions
+        const formBuilder = $('.build-wrap').formBuilder(
+          builderOption.builderOptions({ formData: fields.replace(/=>/g, ':'), sticky: true }),
         );
+
+        $('#custom-field-submit').click(() => $('#custom_field_fields').val(formBuilder.formData));
+        return formBuilder;
       };
 
       var _select2 = function () {
