@@ -15,6 +15,9 @@
 //= require rails-ujs
 //= require jquery-ui
 //= require bootstrap-sprockets
+// TEMPORARY (P6, dies at the BS5 flip): jQuery 4's null-prototype bulk .data() breaks BS3
+// collapse (first click, app-wide) AND tooltip/popover init — see the shim header.
+//= require bs3_jquery4_data_shim
 //= require jquery.steps.min
 //= require jquery.validate
 //= require jquery.validate.additional-methods
