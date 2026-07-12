@@ -132,6 +132,139 @@ SimpleForm.setup do |config|
       ba.use :hint,  wrap_with: { tag: 'p', class: 'help-block' }
     end
   end
+  # ---------------------------------------------------------------------------
+  # Bootstrap 5 wrapper set (POAM-017g P2) — PRE-STAGED AND INERT. Nothing maps
+  # to these until the BS5 flip PR points default_wrapper/wrapper_mappings at
+  # them; until then they are dead config exercised only by their spec
+  # (spec/helpers/simple_form_bs5_wrappers_spec.rb). Shapes follow the canonical
+  # simple_form Bootstrap-5 template: mb-3 wrapper, form-label, is-invalid /
+  # invalid-feedback (d-block where the input is not the feedback's sibling),
+  # form-text hints, form-check booleans/collections.
+  # ---------------------------------------------------------------------------
+  config.wrappers :bs5_vertical_form, tag: 'div', class: 'mb-3' do |b|
+    b.use :html5
+    b.use :placeholder
+    b.optional :maxlength
+    b.optional :pattern
+    b.optional :min_max
+    b.optional :readonly
+    b.use :label, class: 'form-label'
+    b.use :input, class: 'form-control', error_class: 'is-invalid', valid_class: 'is-valid'
+    b.use :error, wrap_with: { tag: 'div', class: 'invalid-feedback' }
+    b.use :hint,  wrap_with: { tag: 'div', class: 'form-text' }
+  end
+
+  config.wrappers :bs5_vertical_file_input, tag: 'div', class: 'mb-3' do |b|
+    b.use :html5
+    b.use :placeholder
+    b.optional :maxlength
+    b.optional :readonly
+    b.use :label, class: 'form-label'
+    b.use :input, class: 'form-control', error_class: 'is-invalid', valid_class: 'is-valid'
+    b.use :error, wrap_with: { tag: 'div', class: 'invalid-feedback' }
+    b.use :hint,  wrap_with: { tag: 'div', class: 'form-text' }
+  end
+
+  config.wrappers :bs5_vertical_boolean, tag: 'div', class: 'mb-3' do |b|
+    b.use :html5
+    b.optional :readonly
+    b.wrapper tag: 'div', class: 'form-check' do |ba|
+      ba.use :input, class: 'form-check-input', error_class: 'is-invalid', valid_class: 'is-valid'
+      ba.use :label, class: 'form-check-label'
+      ba.use :error, wrap_with: { tag: 'div', class: 'invalid-feedback d-block' }
+      ba.use :hint,  wrap_with: { tag: 'div', class: 'form-text' }
+    end
+  end
+
+  config.wrappers :bs5_vertical_radio_and_checkboxes, tag: 'fieldset', class: 'mb-3',
+                  item_wrapper_class: 'form-check', item_label_class: 'form-check-label' do |b|
+    b.use :html5
+    b.optional :readonly
+    b.wrapper :legend_tag, tag: 'legend', class: 'col-form-label pt-0' do |ba|
+      ba.use :label_text
+    end
+    b.use :input, class: 'form-check-input', error_class: 'is-invalid', valid_class: 'is-valid'
+    b.use :full_error, wrap_with: { tag: 'div', class: 'invalid-feedback d-block' }
+    b.use :hint, wrap_with: { tag: 'div', class: 'form-text' }
+  end
+
+  config.wrappers :bs5_horizontal_form, tag: 'div', class: 'row mb-3' do |b|
+    b.use :html5
+    b.use :placeholder
+    b.optional :maxlength
+    b.optional :pattern
+    b.optional :min_max
+    b.optional :readonly
+    b.use :label, class: 'col-sm-3 col-form-label'
+    b.wrapper tag: 'div', class: 'col-sm-9' do |ba|
+      ba.use :input, class: 'form-control', error_class: 'is-invalid', valid_class: 'is-valid'
+      ba.use :error, wrap_with: { tag: 'div', class: 'invalid-feedback' }
+      ba.use :hint,  wrap_with: { tag: 'div', class: 'form-text' }
+    end
+  end
+
+  config.wrappers :bs5_horizontal_file_input, tag: 'div', class: 'row mb-3' do |b|
+    b.use :html5
+    b.use :placeholder
+    b.optional :maxlength
+    b.optional :readonly
+    b.use :label, class: 'col-sm-3 col-form-label'
+    b.wrapper tag: 'div', class: 'col-sm-9' do |ba|
+      ba.use :input, class: 'form-control', error_class: 'is-invalid', valid_class: 'is-valid'
+      ba.use :error, wrap_with: { tag: 'div', class: 'invalid-feedback' }
+      ba.use :hint,  wrap_with: { tag: 'div', class: 'form-text' }
+    end
+  end
+
+  config.wrappers :bs5_horizontal_boolean, tag: 'div', class: 'row mb-3' do |b|
+    b.use :html5
+    b.optional :readonly
+    b.wrapper tag: 'div', class: 'col-sm-9 offset-sm-3' do |wr|
+      wr.wrapper tag: 'div', class: 'form-check' do |ba|
+        ba.use :input, class: 'form-check-input', error_class: 'is-invalid', valid_class: 'is-valid'
+        ba.use :label, class: 'form-check-label'
+        ba.use :error, wrap_with: { tag: 'div', class: 'invalid-feedback d-block' }
+        ba.use :hint,  wrap_with: { tag: 'div', class: 'form-text' }
+      end
+    end
+  end
+
+  config.wrappers :bs5_horizontal_radio_and_checkboxes, tag: 'div', class: 'row mb-3',
+                  item_wrapper_class: 'form-check', item_label_class: 'form-check-label' do |b|
+    b.use :html5
+    b.optional :readonly
+    b.use :label, class: 'col-sm-3 col-form-label pt-0'
+    b.wrapper tag: 'div', class: 'col-sm-9' do |ba|
+      ba.use :input, class: 'form-check-input', error_class: 'is-invalid', valid_class: 'is-valid'
+      ba.use :full_error, wrap_with: { tag: 'div', class: 'invalid-feedback d-block' }
+      ba.use :hint, wrap_with: { tag: 'div', class: 'form-text' }
+    end
+  end
+
+  config.wrappers :bs5_inline_form, tag: 'div', class: 'col-12' do |b|
+    b.use :html5
+    b.use :placeholder
+    b.optional :maxlength
+    b.optional :pattern
+    b.optional :min_max
+    b.optional :readonly
+    b.use :label, class: 'visually-hidden'
+    b.use :input, class: 'form-control', error_class: 'is-invalid', valid_class: 'is-valid'
+    b.use :error, wrap_with: { tag: 'div', class: 'invalid-feedback' }
+    b.use :hint,  wrap_with: { tag: 'div', class: 'form-text' }
+  end
+
+  config.wrappers :bs5_multi_select, tag: 'div', class: 'mb-3' do |b|
+    b.use :html5
+    b.optional :readonly
+    b.use :label, class: 'form-label'
+    b.wrapper tag: 'div', class: 'd-flex flex-row gap-2 align-items-center' do |ba|
+      ba.use :input, class: 'form-select', error_class: 'is-invalid', valid_class: 'is-valid'
+      ba.use :error, wrap_with: { tag: 'div', class: 'invalid-feedback d-block' }
+      ba.use :hint,  wrap_with: { tag: 'div', class: 'form-text' }
+    end
+  end
+
   # Wrappers for forms and inputs using the Bootstrap toolkit.
   # Check the Bootstrap docs (http://getbootstrap.com)
   # to learn about the different styles for forms and inputs,
