@@ -31,6 +31,13 @@ RSpec.describe 'Rich-text / html-safety regression guard (Unit 7)' do
     # OTHER file can borrow the empty-literal idiom to smuggle .html_safe past the guard.
     ['app/helpers/rich_text_helper.rb', :html_safe,
      'render_rich_text returns "".html_safe for blank input — empty string LITERAL, no data.'],
+    # (a) .html_safe on the VENDORED print stylesheet the PDF layout inlines (POAM-017g P3).
+    # The read target is a repo-committed, sha384-verified static file under public/pdf/ —
+    # developer-controlled bytes, no model/user data on the line — and inlining is what makes
+    # the wkhtmltopdf render network-free. Pattern-anchored (VENDORED_PDF_CSS_HTML_SAFE): only
+    # a Rails.root.join('public/pdf/...').read chain qualifies, and only in this file.
+    ['app/views/layouts/pdf_design.html.haml', :html_safe,
+     'inlines the sha384-verified vendored BS 3.3.6 print stylesheet — static repo file, PDF render must be network-free.'],
     # (c) raw() in views — two legitimate, un-sanitizable classes:
     ['app/views/two_factor_settings/show.html.haml', :raw_in_view,
      'raw @qr_svg — server-generated 2FA QR SVG (RQRCode output); sanitize would strip the SVG.'],
@@ -109,6 +116,12 @@ RSpec.describe 'Rich-text / html-safety regression guard (Unit 7)' do
   # no other file can reuse the idiom to smuggle .html_safe past the guard.
   EMPTY_LITERAL_HTML_SAFE = /(?:""|'')\s*\.html_safe\b/
 
+  # The vendored-print-stylesheet inline (POAM-017g P3): .html_safe chained directly off a
+  # Rails.root.join('public/pdf/...').read of a repo-committed static file. Anchored to that
+  # exact chain — a variable, model attribute, or any other path does NOT match — and still
+  # requires the file to be allowlisted for :html_safe, so the idiom cannot spread.
+  VENDORED_PDF_CSS_HTML_SAFE = %r{Rails\.root\.join\(['"]public/pdf/[\w.-]+['"]\)\.read\.html_safe\b}
+
   it 'allows .html_safe ONLY on an I18n t()/I18n.t() translation call (PR #57 core fix)' do
     offenders = []
     source_files(VIEW_GLOB, HELPER_GLOB, DECORATOR_GLOB).each do |file|
@@ -118,6 +131,8 @@ RSpec.describe 'Rich-text / html-safety regression guard (Unit 7)' do
         next if line =~ HTML_SAFE_OK
         # Empty-string-literal .html_safe is allowed ONLY in a path allowlisted for :html_safe.
         next if line =~ EMPTY_LITERAL_HTML_SAFE && allowlisted?(rel, :html_safe)
+        # The vendored print-stylesheet inline is allowed ONLY in the allowlisted PDF layout.
+        next if line =~ VENDORED_PDF_CSS_HTML_SAFE && allowlisted?(rel, :html_safe)
         offenders << "#{rel}:#{i + 1}: #{line.strip}"
       end
     end
