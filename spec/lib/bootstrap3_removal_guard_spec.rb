@@ -7,8 +7,10 @@ require 'rails_helper'
 # view class vocabulary and JS API surface, and asserts the BS5 replacements are wired.
 #
 # NB deliberate survivors (NOT banned): the `.ibox` family classnames (restyled on card DNA),
-# footable's `data-toggle="true"`, `.label-margin`/`.label-lg` utilities, and the PDF templates
-# (`*.pdf.haml` + layouts/pdf_design.html.haml) which stay permanently on Bootstrap 3.3.6.
+# footable's `data-toggle="true"`, `.label-margin`/`.label-lg` utilities, the `.dropdown-menu
+# li > a` compat styling (Q2 decision: dropdown items are partly decorator/helper-emitted,
+# so the shim is the permanent supported styling), and the PDF templates (`*.pdf.haml` +
+# layouts/pdf_design.html.haml) which stay permanently on Bootstrap 3.3.6.
 RSpec.describe 'Bootstrap 3 / INSPINIA removal guard (POAM-017g THE FLIP)' do
   ROOT = Rails.root
 
@@ -95,6 +97,9 @@ RSpec.describe 'Bootstrap 3 / INSPINIA removal guard (POAM-017g THE FLIP)' do
     'i-checks'            => /\bi-checks\b/,
     'pull-left/right'     => /\bpull-(left|right)\b/,
     'label label-*'       => /\blabel label-/,
+    # Q2 retirements: BS5 renamed both; the _compat shims are gone
+    'sr-only'             => /\bsr-only\b/,
+    'button.close'        => /%button\.close\b/,
     # bootstrap-VALUED data-toggle (footable's data-toggle="true" survives)
     'bootstrap data-toggle' => /["']data-toggle["']\s*(?:=>|:)\s*["'](?:modal|dropdown|collapse|tab|pill|popover|tooltip|buttons?)["']/,
   }.each do |label, pattern|

@@ -1,7 +1,7 @@
 -# Limited grid for admin? / strategic_overviewer? on families#index.
 .record-grid
   %table.record-grid__table{ role: 'table' }
-    %caption.sr-only= t('.grid_caption', default: 'Households')
+    %caption.visually-hidden= t('.grid_caption', default: 'Households')
     %thead
       %tr
         %th{ scope: 'col' }= t('datagrid.columns.families.name', default: 'Name')
@@ -10,7 +10,7 @@
         %th{ scope: 'col' }= t('datagrid.columns.families.clients', default: 'Members')
         %th{ scope: 'col' }= t('datagrid.columns.families.province', default: 'State')
         %th.record-grid__actions-col{ scope: 'col' }
-          %span.sr-only= t('datagrid.columns.families.manage', default: 'Actions')
+          %span.visually-hidden= t('datagrid.columns.families.manage', default: 'Actions')
     %tbody
       - families.each do |object|
         - type_label = object.family_type.to_s.titleize.presence

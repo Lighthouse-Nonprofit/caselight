@@ -68,11 +68,11 @@ RSpec.describe 'datagrid accessibility (surface B)', type: :view do
       expect(rendered).to include('A11y probe grid')
     end
 
-    it 'hides the caption visually via the sr-only class (no layout change)' do
+    it 'hides the caption visually via the visually-hidden class (no layout change)' do
       render partial: 'datagrid/table',
              locals: { grid: grid, assets: grid.assets,
                        options: { columns: [], html: {}, order: false } }
-      expect(rendered).to match(/<caption[^>]*class=["'][^"']*sr-only/)
+      expect(rendered).to match(/<caption[^>]*class=["'][^"']*visually-hidden/)
     end
 
     it 'still emits scope="col" headers through the shared table path' do
