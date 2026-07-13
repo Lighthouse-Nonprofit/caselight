@@ -114,7 +114,7 @@ your fork's source accordingly.
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
 | App server | puma 8 | behind a TLS reverse proxy (force_ssl + HSTS); replaced thin 2026-07 |
 | Asset pipeline | Sprockets 4.2 + dart-sass + ES2015+ (build-time), haml 6.4 | modernized rung-by-rung 2026-07 (POAM-017e closed) |
-| Frontend JS | jQuery 4.0.0 (+ temporary migrate-4 bridge), Bootstrap 3.4.1 (accepted-tracked POAM-017g), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4 | EOL set retired (POAM-017a–d closed); eval-free rule builder replaced queryBuilder/doT; CSP enforce flip pending (POAM-017f) |
+| Frontend | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g closed; INSPINIA removed), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 4.7 | whole POAM-017 family closed (a–g); eval-free rule builder; **enforced nonce-based CSP** |
 
 ## Quickstart
 
@@ -221,10 +221,10 @@ Confidentiality · Privacy)** auditability at the application layer. What's in p
 - The app binds to localhost — expose it only via a **TLS-terminating reverse proxy**.
 - The stack carries no end-of-life **runtime** components, backend or frontend (the 2026-07
   modernization retired TinyMCE 4, the shipped jQuery 1.12, select2 3.5, FullCalendar 3 + moment,
-  ruby-sass/CoffeeScript, Sprockets 3, and haml 5); rebuild the image to pick up gem/security
-  updates, and keep the edges patched (host OS, proxy, TLS). Two consciously tracked exceptions
-  remain — the eval-based form/query-builder libraries (**POAM-017f**, Unit-18 replacement target
-  2027-01) and the Bootstrap-3.4.1/INSPINIA theme line (**POAM-017g**, accepted, CSS-only) — see
+  ruby-sass/CoffeeScript, Sprockets 3, haml 5, and — closing the set — Bootstrap 3.4.1 with the
+  INSPINIA theme, replaced by Bootstrap 5.3.8 and the in-house `caselight_theme`
+  (**POAM-017g closed**; see `docs/compliance/poam-017g-verification.md`); rebuild the image to
+  pick up gem/security updates, and keep the edges patched (host OS, proxy, TLS). See
   [`docs/compliance/vulnerability-poam.md`](docs/compliance/vulnerability-poam.md)
   for the itemized ledger, severities, and dated remediation targets.
 - **Pilot data is synthetic only.** Real client records are a deliberate, separate gate — see
