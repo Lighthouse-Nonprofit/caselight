@@ -51,7 +51,7 @@ describe 'Province' do
       visit provinces_path
     end
     scenario 'valid' do
-      find("a[data-target='#provinceModal-#{province.id}']").click
+      find("a[data-bs-target='#provinceModal-#{province.id}']").click
       within("#provinceModal-#{province.id}") do
         fill_in 'Name', with: 'TK'
         click_button 'Save'
@@ -60,7 +60,7 @@ describe 'Province' do
       expect(page).to have_content('TK')
     end
     scenario 'invalid' do
-      find("a[data-target='#provinceModal-#{province.id}']").click
+      find("a[data-bs-target='#provinceModal-#{province.id}']").click
       within("#provinceModal-#{province.id}") do
         fill_in 'Name', with: ''
         click_button 'Save'

@@ -11,7 +11,7 @@ CIF.PreventRequiredFileUploader = class PreventRequiredFileUploader {
           }
           if ($(requiredField).find('input').val() === '') {
             $(requiredField).parent().addClass('has-error');
-            $(requiredField).siblings('.form-text').removeClass('hidden');
+            $(requiredField).siblings('.form-text').removeClass('hidden d-none');
             result.push(e.preventDefault());
           } else {
             $(requiredField).parent().removeClass('has-error');

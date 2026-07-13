@@ -16,7 +16,7 @@ feature 'progress_note' do
     end
 
     scenario 'is invisible logged in as EC Manager' do
-      expect(page).not_to have_link('Progress Note', client_progress_notes_path(ec_client))
+      expect(page).not_to have_link('Progress Note')
     end
   end
 

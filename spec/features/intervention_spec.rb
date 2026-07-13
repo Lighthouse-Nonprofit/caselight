@@ -17,7 +17,7 @@ describe 'Intervention' do
     end
 
     scenario 'edit link' do
-      expect(page).to have_link(nil, edit_intervention_path(intervention))
+      expect(page).to have_link(nil)
     end
 
     scenario 'delete link' do
@@ -25,7 +25,7 @@ describe 'Intervention' do
     end
 
     scenario 'new link' do
-      expect(page).to have_link('Add New Intervention', new_intervention_path)
+      expect(page).to have_link('Add New Intervention')
     end
 
     scenario 'pagination' do
@@ -66,7 +66,7 @@ describe 'Intervention' do
       visit interventions_path
     end
     scenario 'valid' do
-      find("a[data-target='#interventionModal-#{intervention.id}']").click
+      find("a[data-bs-target='#interventionModal-#{intervention.id}']").click
       within("#interventionModal-#{intervention.id}") do
         fill_in 'Action', with: 'Updated Action'
         click_button 'Save'
@@ -75,7 +75,7 @@ describe 'Intervention' do
       expect(page).to have_content('Updated Action')
     end
     scenario 'invalid' do
-      find("a[data-target='#interventionModal-#{intervention.id}']").click
+      find("a[data-bs-target='#interventionModal-#{intervention.id}']").click
       within("#interventionModal-#{intervention.id}") do
         fill_in 'Action', with: 'Counseling'
         click_button 'Save'

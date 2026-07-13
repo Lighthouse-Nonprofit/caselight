@@ -33,8 +33,10 @@ feature 'ClientAdvancedSearch', js: true do
 
   scenario 'Advanced Search Datepicker Field' do
     click_link 'Advanced Search'
-    find(".rule-filter-container select option[value='placement_date']", visible: false).select_option
-    expect(page).to have_content 'Placement Start Date'
+    # BS5-Q3: placement_date (case-era field) is no longer in the SLO4HOME basic-rules
+    # field list; date_of_birth exercises the same datepicker rule flow.
+    find(".rule-filter-container select option[value='date_of_birth']", visible: false).select_option
+    expect(page).to have_content 'Date of Birth'
     expect(page).to have_content 'is'
   end
 end

@@ -10,7 +10,11 @@ class ProgramStream < ActiveRecord::Base
 
   has_paper_trail
 
-  accepts_nested_attributes_for :trackings, allow_destroy: true
+  # BS5-Q3: reject NEW blank-name tracking rows — the form's JS pre-adds an empty template
+  # row that always submits; two blank names hit the (name, program_stream_id) unique index
+  # -> RecordNotUnique -> every draft save re-rendered :new (live bug, reproduced on dev).
+  accepts_nested_attributes_for :trackings, allow_destroy: true,
+                                reject_if: proc { |attrs| attrs['name'].blank? && attrs['id'].blank? }
 
   validates :name, presence: true
   validates :name, uniqueness: true
@@ -44,6 +48,24 @@ class ProgramStream < ActiveRecord::Base
   def self.without_status_by(client)
     ids = includes(:client_enrollments).where(client_enrollments: { client_id: client.id }).order('client_enrollments.status ASC', :name).distinct.collect(&:id)
     where.not(id: ids).ordered
+  end
+
+  # BS5-Q3 (latent since the Rails 4.2->5 rung, same as Tracking#fields=): the form posts
+  # the three jsonb attributes as JSON-encoded strings; Rails 5+ stopped parsing String
+  # assignment, so the `.map` in form_builder_field_uniqueness 500'd and
+  # set_program_completed's `.empty?` checks ran against Strings. Parse at the boundary;
+  # invalid JSON keeps the raw value (matching the old cast's failure mode).
+  %w[enrollment exit_program rules].each do |attr|
+    define_method("#{attr}=") do |value|
+      if value.is_a?(String)
+        value = begin
+          ActiveSupport::JSON.decode(value)
+        rescue StandardError
+          value
+        end
+      end
+      super(value)
+    end
   end
 
   def form_builder_field_uniqueness

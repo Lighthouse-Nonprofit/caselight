@@ -25,7 +25,7 @@ CIF.AssessmentsNew =
           'label.collection_radio_buttons.text-bg-danger, label.collection_radio_buttons.text-bg-warning',
         );
         if ($(scores).length > 0) {
-          return $('.assessment-task-btn, .task_required').removeClass('hidden').show();
+          return $('.assessment-task-btn, .task_required').removeClass('hidden d-none').show();
         } else {
           return $('.assessment-task-btn, .task_required').hide();
         }
@@ -61,7 +61,7 @@ CIF.AssessmentsNew =
           $(this).children('label').addClass(`text-bg-${scoreColor}`);
           if (scoreColor === 'danger' || scoreColor === 'warning') {
             return $(`.domain-${domainId} .assessment-task-btn, .domain-${domainId} .task_required`)
-              .removeClass('hidden')
+              .removeClass('hidden d-none')
               .show();
           } else {
             return $(
@@ -110,7 +110,12 @@ CIF.AssessmentsNew =
           },
 
           onFinishing(event, currentIndex, newIndex) {
-            form.validate().settings.ignore = ':disabled';
+            // BS5-Q3 (latent since a Rails 5.1+ rung): collection_radio_buttons now emits a
+            // hidden BLANK input with the group's name (Rails 4.2 did not). Dropping ':hidden'
+            // here (deliberate — unvisited steps must validate) made jquery.validate check
+            // that blank hidden input FIRST, failing `required` for every CHECKED score group
+            // — Done could never submit. Keep validating hidden steps, skip type=hidden.
+            form.validate().settings.ignore = ':disabled, input[type="hidden"]';
             form.valid();
             return _filedsValidator(currentIndex, newIndex);
           },
@@ -221,7 +226,7 @@ CIF.AssessmentsNew =
         deleteUrl = `${actionUrl}/${data.id}`;
         element = `<li class='list-group-item' style='padding-bottom: 11px;'>${data.name}<a class='float-end remove-task fa fa-trash btn btn-outline btn-danger btn-xs' href='javascript:void(0)' data-url='${deleteUrl}' style='margin: 0;'></a></li>`;
 
-        $(`.domain-${data.domain_id} .task-arising`).removeClass('hidden');
+        $(`.domain-${data.domain_id} .task-arising`).removeClass('hidden d-none');
         $(`.domain-${data.domain_id} .task-arising ol`).append(element);
         _clearTaskForm();
 
@@ -231,7 +236,7 @@ CIF.AssessmentsNew =
       var _removeHiddenTaskArising = function () {
         const tasksList = $('li.list-group-item');
         if ($(tasksList).length > 0) {
-          return $(tasksList).parents('.task-arising').removeClass('hidden');
+          return $(tasksList).parents('.task-arising').removeClass('hidden d-none');
         }
       };
 

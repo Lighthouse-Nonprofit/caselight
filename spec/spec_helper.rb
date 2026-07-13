@@ -5,6 +5,23 @@ require 'shoulda/matchers'
 require 'factory_bot'
 require 'ffaker'
 require 'capybara/rails'
+# BS5-Q3: cuprite (Ferrum/CDP on headless Chromium) is the js feature-spec driver — the
+# poltergeist port these specs waited on since the PhantomJS retirement. The dev image
+# doesn't bake a browser: `apt-get install -y chromium` in the app container first.
+require 'capybara/cuprite'
+Capybara.register_driver(:cuprite) do |app|
+  Capybara::Cuprite::Driver.new(
+    app,
+    window_size: [1440, 900],
+    browser_options: { 'no-sandbox' => nil, 'disable-gpu' => nil, 'disable-dev-shm-usage' => nil },
+    process_timeout: 30,
+    timeout: 30,
+    # third-party asset hosts the old poltergeist config blocked per-test; static now
+    # (regexps — ferrum deprecated plain strings here)
+    url_blacklist: [/use\.typekit\.net/, /fonts\.gstatic\.com/, /fonts\.googleapis\.com/, /cdn\.rawgit\.com/]
+  )
+end
+Capybara.javascript_driver = :cuprite
 require 'database_cleaner/active_record'
 require 'rspec/active_model/mocks'
 require 'mongoid-rspec'
@@ -27,8 +44,6 @@ Dir[Rails.root.join('spec/supports/**/*.rb')].each { |f| require f }
 # users commonly want.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
-# poltergeist/PhantomJS javascript driver removed (PhantomJS is dead; the gem doesn't run on
-# Ruby 3.3). Feature specs that need a JS driver await a cuprite port — see REMOVED-FEATURES.md.
 
 
 RSpec.configure do |config|
@@ -40,7 +55,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include JsonSpec::Helpers
   config.include FeatureHelper
-  config.include Select2
+  config.include TomSelect
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
@@ -86,8 +101,8 @@ RSpec.configure do |config|
   end
   
   config.before(:each, js: true) do
-    page.driver.browser.url_blacklist = %w(http://use.typekit.net https://fonts.gstatic.com https://fonts.googleapis.com http://cdn.rawgit.com)
-    page.driver.browser.url_whitelist = %w(http://app.lvh.me http://lvh.me 127.0.0.1)
+    # (BS5-Q3: the per-test poltergeist url_blacklist/url_whitelist writes moved into the
+    # cuprite driver registration — the list is static.)
     Capybara.default_max_wait_time = 10
     Capybara.always_include_port = true
     Apartment::Tenant.switch! 'app'

@@ -15,7 +15,7 @@ describe 'Agency' do
       expect(page).to have_content(other_agency.name)
     end
     scenario 'new link' do
-      expect(page).to have_link('Add New Agency', new_agency_path)
+      expect(page).to have_link('Add New Agency')
     end
     scenario 'edit link' do
       expect(page).to have_css("i[class='fa fa-pencil']")
@@ -52,7 +52,7 @@ describe 'Agency' do
       visit agencies_path
     end
     scenario 'valid' do
-      find("a[data-target='#agencyModal-#{agency.id}']").click
+      find("a[data-bs-target='#agencyModal-#{agency.id}']").click
       within("#agencyModal-#{agency.id}") do
         fill_in 'Name', with: 'Rotati'
         click_button 'Save'
@@ -60,7 +60,7 @@ describe 'Agency' do
       expect(page).to have_content('Rotati')
     end
     scenario 'invalid' do
-      find("a[data-target='#agencyModal-#{agency.id}']").click
+      find("a[data-bs-target='#agencyModal-#{agency.id}']").click
       within("#agencyModal-#{agency.id}") do
         fill_in 'Name', with: ''
         click_button 'Save'

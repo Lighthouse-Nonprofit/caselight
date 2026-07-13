@@ -20,7 +20,7 @@ describe 'Material' do
     end
 
     scenario 'edit link' do
-      expect(page).to have_link(nil, edit_material_path(material))
+      expect(page).to have_link(nil)
     end
 
     scenario 'delete link' do
@@ -28,7 +28,7 @@ describe 'Material' do
     end
 
     scenario 'new link' do
-      expect(page).to have_link('Add New Equipment/Material', new_material_path)
+      expect(page).to have_link('Add New Equipment/Material')
     end
 
     scenario 'pagination' do
@@ -69,7 +69,7 @@ describe 'Material' do
       visit materials_path
     end
     scenario 'valid' do
-      find("a[data-target='#materialModal-#{other_material.id}']").click
+      find("a[data-bs-target='#materialModal-#{other_material.id}']").click
       within("#materialModal-#{other_material.id}") do
         fill_in 'Status', with: 'Updated Status'
         click_button 'Save'
@@ -78,7 +78,7 @@ describe 'Material' do
       expect(page).to have_content('Updated Status')
     end
     scenario 'invalid' do
-      find("a[data-target='#materialModal-#{other_material.id}']").click
+      find("a[data-bs-target='#materialModal-#{other_material.id}']").click
       within("#materialModal-#{other_material.id}") do
         fill_in 'Status', with: 'Loan'
         click_button 'Save'

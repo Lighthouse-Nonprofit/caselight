@@ -14,7 +14,7 @@ describe 'Domain Group' do
       expect(page).to have_content(domain_group.name)
     end
     scenario 'new link' do
-      expect(page).to have_link('Add New Domain Group', nil)
+      expect(page).to have_link('Add New Domain Group')
     end
     scenario 'edit link' do
       expect(page).to have_css("i[class='fa fa-pencil']")
@@ -54,7 +54,7 @@ describe 'Domain Group' do
       visit domain_groups_path
     end
     scenario 'valid' do
-      find("a[data-target='#domain_groupModal-#{domain_group.id}']").click
+      find("a[data-bs-target='#domain_groupModal-#{domain_group.id}']").click
       within("#domain_groupModal-#{domain_group.id}") do
         fill_in 'Name', with: 'Update Domain Name'
         click_button 'Save'
@@ -63,7 +63,7 @@ describe 'Domain Group' do
       expect(page).to have_content('Update Domain Name')
     end
     scenario 'invalid' do
-      find("a[data-target='#domain_groupModal-#{domain_group.id}']").click
+      find("a[data-bs-target='#domain_groupModal-#{domain_group.id}']").click
       within("#domain_groupModal-#{domain_group.id}") do
         fill_in 'Name', with: ''
         click_button 'Save'

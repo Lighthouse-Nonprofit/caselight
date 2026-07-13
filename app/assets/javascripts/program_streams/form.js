@@ -597,7 +597,7 @@ CIF.Program_streamsNew =
       var _handleMaximumProgramEnrollment = function () {
         const quantity = $('#program_stream_quantity');
         if ($(quantity).val() < $(quantity).data('maximun') && $(quantity).val() !== '') {
-          $('.form-text.quantity').removeClass('hidden');
+          $('.form-text.quantity').removeClass('hidden d-none');
           return true;
         } else {
           $('.form-text.quantity').addClass('hidden');

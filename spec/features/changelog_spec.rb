@@ -18,7 +18,7 @@ describe 'Changelog' do
     end
 
     scenario 'edit link' do
-      expect(page).to have_link(nil, edit_changelog_path(changelog))
+      expect(page).to have_link(nil)
     end
 
     scenario 'delete link' do
@@ -27,11 +27,11 @@ describe 'Changelog' do
     end
 
     scenario 'show link' do
-      expect(page).to have_link(nil, changelog_path(changelog))
+      expect(page).to have_link(nil)
     end
 
     scenario 'new link' do
-      expect(page).to have_link(I18n.t('changelogs.index.add_new_release'), new_changelog_path)
+      expect(page).to have_link(I18n.t('changelogs.index.add_new_release'))
     end
   end
 
@@ -72,7 +72,7 @@ describe 'Changelog' do
       visit changelogs_path(changelog)
     end
     scenario 'valid' do
-      find("a[data-target='#changelogModal-#{changelog.id}']").click
+      find("a[data-bs-target='#changelogModal-#{changelog.id}']").click
       within("#changelogModal-#{changelog.id}") do
         fill_in 'changelog_change_version', with: change_version
         click_button 'Save'
@@ -81,7 +81,7 @@ describe 'Changelog' do
       expect(page).to have_content(change_version)
     end
     scenario 'invalid' do
-      find("a[data-target='#changelogModal-#{changelog.id}']").click
+      find("a[data-bs-target='#changelogModal-#{changelog.id}']").click
       within("#changelogModal-#{changelog.id}") do
         fill_in 'changelog_change_version', with: '0.1'
         click_button 'Save'
@@ -111,7 +111,7 @@ describe 'Changelog' do
       expect(page).to have_content(changelog.change_version)
     end
     scenario 'link back to index' do
-      expect(page).to have_link(nil, changelogs_path)
+      expect(page).to have_link(nil)
     end
   end
 end

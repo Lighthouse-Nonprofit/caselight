@@ -7,7 +7,7 @@ CIF.SessionsNew = CIF.SessionsCreate = (function () {
       return;
     }
     const notifyByPanel = localStorage.getItem('notifyByPanel') || '';
-    $('.alert-warning').removeClass('hidden');
+    $('.alert-warning').removeClass('hidden d-none');
     if (notifyByPanel === 'yes') {
       return $('.alert-warning').addClass('hidden');
     } else {
