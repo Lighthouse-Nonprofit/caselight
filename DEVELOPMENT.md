@@ -1,6 +1,6 @@
 # DEVELOPMENT.md - running CaseLight locally
 
-CaseLight is a containerized fork of OSCaR (Rails 7.2 / Ruby 4.0). You never
+CaseLight is a containerized fork of OSCaR (Rails 8.0 / Ruby 4.0). You never
 install that toolchain on your machine; the same Docker stack you deploy is the one
 you develop against. Local dev is simpler than production: development mode reloads
 code on the fly, compiles assets dynamically, and skips the S3 asset-host config, so
@@ -98,8 +98,16 @@ strictly local.
 
 - **Synthetic data only.** Never pull the production database to your laptop. It holds
   sensitive PII, and dev should run on fake data regardless.
-- **Tests:** model and request specs run green — `RAILS_ENV=test bundle exec rspec spec/models
-  spec/requests …` (set `RAILS_ENV=test` explicitly; the dev container defaults to development,
-  and the test-only gems won't load otherwise). The Capybara JS feature specs are pending a driver
-  port: Poltergeist/PhantomJS was removed (dead on Ruby 3.3); a Cuprite port is the follow-up.
+- **Tests:** the whole suite runs green. The fast js-free set (what CI runs):
+  `RAILS_ENV=test bundle exec rspec spec --exclude-pattern "features/**/*"` (set
+  `RAILS_ENV=test` explicitly; the dev container defaults to development and the test-only
+  gems won't load otherwise). The **js feature specs run on Cuprite** (Ferrum/CDP over
+  headless Chromium). Two prerequisites inside the app container before a local js run —
+  the dev image bakes no browser, and the test env serves **digested** assets (a stale
+  manifest silently runs old JS under the specs):
+  ```bash
+  apt-get update && apt-get install -y chromium      # re-run after a container recreate
+  RAILS_ENV=test bundle exec rake assets:precompile  # re-run after ANY asset change
+  RAILS_ENV=test bundle exec rspec spec/features
+  ```
 - Keep `.env` out of git. It is gitignored; confirm before any `git add`.

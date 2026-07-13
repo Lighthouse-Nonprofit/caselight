@@ -3,6 +3,7 @@
   "private": true,
   "description": "Deps for the POAM-017g QA gates (playwright itself comes from the runner's install; see README).",
   "dependencies": {
+    "marked": "^18.0.6",
     "pixelmatch": "^5.3.0",
     "pngjs": "^7.0.0"
   }

@@ -15,8 +15,10 @@ protection concerns.
 
 ## Stack posture
 
-The application stack is current and supported (Ruby 4.0 / Rails 8.0 / PostgreSQL 17 / MongoDB 8.0 /
-Redis 7 / Sidekiq 7.3; see `docs/compliance/ssp.md` §1 for the authoritative pin). It receives upstream
+The application stack is current and supported, **backend and frontend** (Ruby 4.0 / Rails 8.0 /
+PostgreSQL 17 / MongoDB 8.0 / Redis 7 / Sidekiq 7.3; browser side Bootstrap 5.3 + jQuery 4 under an
+**enforced, nonce-based CSP** — the frontend-EOL POA&M family POAM-017 is closed a–g; see
+`docs/compliance/ssp.md` §1 for the authoritative pin). It receives upstream
 security patches, and the **application-layer hardening program (Phases 0–7) is complete**: secure-SDLC
 CI gates, transport/header hardening, MFA + lockout + throttling, comprehensive access + change
 auditing, field-level PII encryption at rest, role- and field-level authorization with break-glass, a

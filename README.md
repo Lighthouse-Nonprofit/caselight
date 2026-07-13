@@ -31,21 +31,23 @@ and case notes.
 CaseLight runs a **modernized, supported stack — backend and frontend**. The application was
 migrated off the end-of-life **Ruby 2.3.3 / Rails 4.2** it inherited from upstream OSCaR up to
 current, maintained versions, and the frontend/asset-pipeline EOL set was retired rung-by-rung
-in 2026-07 (**POAM-017a–e closed**; the remaining eval-based form/query-builder pair is tracked
-under **POAM-017f** in [`docs/compliance/`](docs/compliance)):
+in 2026-07 — the **whole POAM-017 family is closed (a–g)**, finishing with the Bootstrap 5.3
+migration and the in-house `caselight_theme`
+([`docs/compliance/poam-017g-verification.md`](docs/compliance/poam-017g-verification.md)):
 
 - **Ruby 4.0.5 / Rails 8.0.5** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
   6.1 → 7.0 → 7.1 → 7.2 → 8.0), each step verified green before the next. Zeitwerk autoloading and a
   modern gem set throughout (Devise 5, Mongoid 9, ros-apartment 3.4, active_model_serializers 0.10,
-  paper_trail 15, factory_bot 6, …).
+  paper_trail 17, factory_bot 6, …).
 - **PostgreSQL 17** as the primary store (was 9.6), **MongoDB 8.0** for change/audit history
   (was 3.6), **Redis + Sidekiq** for background jobs — all migrated to current versions.
 - **Containerized deployment** so the runtime lives only inside a pinned Docker image and
   the host OS never has to carry the toolchain.
-- An **application-layer security baseline** being hardened toward **FedRAMP Moderate** and
-  **SOC 2** auditability — multi-factor authentication (TOTP + WebAuthn passkeys), account
-  lockout and brute-force throttling, enforced HTTPS/HSTS and a strict security-header set,
-  field-level encryption, and a CI security pipeline (SAST + dependency-CVE + secret scanning).
+- A **complete application-layer hardening program (Phases 0–7)** targeting **FedRAMP Moderate**
+  and **SOC 2** auditability — multi-factor authentication (TOTP + WebAuthn passkeys), account
+  lockout and brute-force throttling, enforced HTTPS/HSTS + a nonce-based CSP and strict
+  security-header set, field-level encryption, role/field-level authorization with break-glass,
+  audit + privacy lifecycle, and a CI security pipeline (SAST + dependency-CVE + secret scanning).
   See **[Security & authentication](#security--authentication)** below and
   [`docs/compliance/`](docs/compliance).
 - **English-only** UI (upstream shipped English + Khmer) and **local asset-serving** so the
@@ -84,7 +86,9 @@ See the **[User Guide](docs/user-guide.md)** for a screen-by-screen walkthrough.
 ## Documentation
 
 - **[User Guide](docs/user-guide.md)** — a screen-by-screen walkthrough for staff.
-- **Printable PDFs** ([`docs/pdf/`](docs/pdf)) — a [User Guide](docs/pdf/CaseLight-User-Guide.pdf), an [Administrator Guide](docs/pdf/CaseLight-Administrator-Guide.pdf), and a [Brochure](docs/pdf/CaseLight-Brochure.pdf).
+- **[Administrator Guide](docs/admin-guide.md)** — configuring and securing CaseLight (users, form
+  builder, programs, enforcement, break-glass).
+- **Printable PDFs** ([`docs/pdf/`](docs/pdf)) — a [User Guide](docs/pdf/CaseLight-User-Guide.pdf), an [Administrator Guide](docs/pdf/CaseLight-Administrator-Guide.pdf), and a [Brochure](docs/pdf/CaseLight-Brochure.pdf); rebuild them from the markdown sources with [`docs/build-pdfs.js`](docs/build-pdfs.js).
 - **[Compliance program](docs/compliance/)** — System Security Plan, SOC 2 control matrix, policies,
   the POA&M, and a reproducible evidence bundle (`rake compliance:evidence`).
 - **[SECURITY.md](SECURITY.md)** — data-handling posture and the production gate for real client data.
@@ -108,12 +112,12 @@ your fork's source accordingly.
 |---|---|---|
 | Ruby | 4.0.5 | runs inside the Docker image (`ruby:4.0`, Debian Trixie) |
 | Rails | 8.0.5 | Rack 3 |
-| PostgreSQL | 17 | primary relational store (pg 1.5) |
+| PostgreSQL | 17 | primary relational store (pg 1.6) |
 | MongoDB | 8.0 | change / audit history (Mongoid 9.0) |
 | Redis + Sidekiq | redis 7 / sidekiq 7.3 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
 | App server | puma 8 | behind a TLS reverse proxy (force_ssl + HSTS); replaced thin 2026-07 |
-| Asset pipeline | Sprockets 4.2 + dart-sass + ES2015+ (build-time), haml 6.4 | modernized rung-by-rung 2026-07 (POAM-017e closed) |
+| Asset pipeline | Sprockets 4.2 + dart-sass + ES2015+ (build-time), haml 7.2 | modernized rung-by-rung 2026-07 (POAM-017e closed) |
 | Frontend | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g closed; INSPINIA removed), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 4.7 | whole POAM-017 family closed (a–g); eval-free rule builder; **enforced nonce-based CSP** |
 
 ## Quickstart
@@ -156,8 +160,9 @@ tenant → seed → up); tune the `TENANT_SHORT` / `TENANT_FULL` values at the t
 
 ## Security & authentication
 
-CaseLight is being hardened, phase by phase, toward **FedRAMP Moderate** and **SOC 2 (Security ·
-Confidentiality · Privacy)** auditability at the application layer. What's in place today:
+CaseLight has been hardened toward **FedRAMP Moderate** and **SOC 2 (Security ·
+Confidentiality · Privacy)** auditability at the application layer — the phased program
+(0–7) is **complete**. What's in place:
 
 **Authentication & sessions**
 - **Multi-factor authentication** — opt-in **TOTP** (authenticator app) with one-time recovery codes,
