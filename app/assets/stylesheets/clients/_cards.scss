@@ -33,7 +33,7 @@ body[id='families-index'] {
     &:hover,
     &:focus-within {
       box-shadow: $refresh-shadow-md;
-      border-color: darken($refresh-border, 8%);
+      border-color: shade-color($refresh-border, 8%);
       transform: translateY(-1px);
     }
   }
@@ -147,7 +147,7 @@ body[id='families-index'] {
     &.record-card__tag--type {
       color: #fff;
       background: $amber;
-      border-color: darken($amber, 6%);
+      border-color: shade-color($amber, 6%);
       font-weight: 600;
     }
   }

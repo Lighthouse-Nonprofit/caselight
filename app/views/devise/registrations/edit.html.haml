@@ -40,16 +40,16 @@
             .row
               - if policy(resource).task_notify?
                 .col-12.col-sm-6.col-md-4
-                  .form-check-input.overdue_task_summary_notify
+                  .cl-check-group.overdue_task_summary_notify
                     %label= t('.overdue_task_summary_notify')
                     = f.input :task_notify, as: :radio_buttons, collection: [['Yes', true],['No', false]], label: false
               - if policy(resource).staff_performance_notification?
                 .col-12.col-sm-6.col-md-4.performance_report
-                  .form-check-input
+                  .cl-check-group
                     %label= t('.staff_performance_notification')
                     = f.input :staff_performance_notification, as: :radio_buttons, collection: [['Yes', true],['No', false]], label: false
               .col-12.col-sm-6.col-md-4
-                .form-check-input.calendar-integration
+                .cl-check-group.calendar-integration
                   %label= t('.calendar_integration')
                   = f.input :calendar_integration, as: :radio_buttons, collection: [['Yes', true],['No', false]], label: false
         .ibox-footer

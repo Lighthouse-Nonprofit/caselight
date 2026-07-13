@@ -59,9 +59,31 @@ RSpec.describe 'simple_form BS5 wrappers', type: :helper do
     %i[bs5_vertical_form bs5_vertical_file_input bs5_vertical_boolean
        bs5_vertical_radio_and_checkboxes bs5_horizontal_form bs5_horizontal_file_input
        bs5_horizontal_boolean bs5_horizontal_radio_and_checkboxes bs5_inline_form
-       bs5_multi_select].each do |name|
+       bs5_vertical_select bs5_multi_select].each do |name|
       expect(SimpleForm.wrappers.keys).to include(name.to_s),
         "wrapper #{name} missing from SimpleForm.wrappers"
     end
+  end
+
+  it 'Q1: selects map to bs5_vertical_select and emit form-select (the caret lives there)' do
+    html = helper.simple_form_for(user, url: '/probe') do |f|
+      f.input :email, as: :select, collection: %w[a@x.test b@x.test]
+    end
+    expect(html).to include('form-select')
+    expect(html).not_to include('form-control')
+  end
+
+  it 'Q1: radio collections with label: false emit NO group label (the legend_tag ignored it)' do
+    html = helper.simple_form_for(user, url: '/probe') do |f|
+      f.input :task_notify, as: :radio_buttons, collection: [['Yes', true], ['No', false]], label: false
+    end
+    expect(html).not_to include('<legend')
+    expect(html).not_to include('Task notify')
+    expect(html).to include('form-check-inline')
+  end
+
+  it 'Q1: pristine inputs never render the is-valid success state (valid_class removed)' do
+    html = render_input
+    expect(html).not_to include('is-valid')
   end
 end

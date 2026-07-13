@@ -124,7 +124,7 @@ body[id='families-index'] {
     &.record-grid__tag--type {
       color: #fff;
       background: $amber;
-      border-color: darken($amber, 6%);
+      border-color: shade-color($amber, 6%);
       font-weight: 600;
     }
   }

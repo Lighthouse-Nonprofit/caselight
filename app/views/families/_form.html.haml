@@ -24,7 +24,7 @@
               %i.fa.fa-calendar-check-o
         .col-12.col-sm-6.col-md-4= f.input :household_income, label: "#{t('.household_income')}($)"
         .col-12.col-sm-6.col-md-4
-          .form-check-input.dependable-income
+          .cl-check-group.dependable-income
             %label= t('.dependable_income')
             = f.input :dependable_income, as: :radio_buttons, collection: [[t('.yes'), true],[t('.no'), false]], label: false
 

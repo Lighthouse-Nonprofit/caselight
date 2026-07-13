@@ -60,6 +60,9 @@ $input-focus-border-color: $navy;
 $input-btn-focus-color:    rgba(44, 110, 155, .35);
 $input-focus-box-shadow:   0 0 0 3px $input-btn-focus-color;
 $component-active-bg:       $navy;
+// Q1: BS5's default check/radio border (#dee2e6-ish) is near-invisible on light panels —
+// unchecked boxes vanished. A navy-tinted border keeps them legible without shouting.
+$form-check-input-border: 1px solid rgba($navy, .4);
 
 // ---- Tables -----------------------------------------------------------------------------
 $table-hover-bg: rgba(44, 110, 155, .05);

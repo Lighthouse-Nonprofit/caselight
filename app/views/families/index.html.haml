@@ -26,7 +26,7 @@
             - else
               = hidden_field_tag("family_grid[#{k}]", v)
           %label.sr-only{ for: 'family_grid_order' }= t('.sort_label', default: 'Sort households')
-          = select_tag 'family_grid[order]', options_for_select([[t('.sort_name', default: 'Name'), 'name'], [t('.sort_members', default: 'Members'), 'member_count'], [t('.sort_province', default: 'State'), 'province']], params.dig(:family_grid, :order)), include_blank: t('.sort_default', default: 'Sort by…'), id: 'family_grid_order', class: 'form-control input-sm record-cards__sort-select', data: { auto_submit: true }
+          = select_tag 'family_grid[order]', options_for_select([[t('.sort_name', default: 'Name'), 'name'], [t('.sort_members', default: 'Members'), 'member_count'], [t('.sort_province', default: 'State'), 'province']], params.dig(:family_grid, :order)), include_blank: t('.sort_default', default: 'Sort by…'), id: 'family_grid_order', class: 'form-select form-select-sm record-cards__sort-select', data: { auto_submit: true }
       .ibox-content
         %h2#families-list-heading.sr-only= t('.card_list_label', default: 'Households')
         - if current_user.admin? || current_user.strategic_overviewer?

@@ -11,12 +11,12 @@
             = f.input :password, required: false, label: t('.password')
             -# Accounts with MFA enabled are prompted for their code on the next screen (two-step login).
             = f.input :remember_me, as: :boolean, input_html: { class: 'form-check-input' }, label: t('.remember_me') if devise_mapping.rememberable?
-            = f.submit t('.login'), class: 'btn btn-block btn-outline btn-primary'
+            = f.submit t('.login'), class: 'btn btn-primary w-100'
             -# Passwordless passkey sign-in (WebAuthn) — ADDITIVE third option. Hidden if the browser
             -# lacks WebAuthn support / is not a secure context (the sessions/new_passkey asset reveals it).
             #passkey-login-area{ style: 'display:none', data: { options_url: passkey_login_options_path, callback_url: passkey_login_callback_path } }
               %hr
-              %button#passkey-login.btn.btn-block.btn-outline-secondary{ type: 'button' }
+              %button#passkey-login.btn.btn-outline-secondary.w-100{ type: 'button' }
                 %i.fa.fa-key
                 = ' Sign in with a passkey'
               %p#passkey-login-status.text-danger.text-center.m-t{ style: 'display:none' }

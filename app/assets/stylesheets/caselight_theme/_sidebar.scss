@@ -58,7 +58,7 @@
 
   li > a:hover,
   li > a:focus {
-    background-color: darken($cl-nav-bg, 3%);
+    background-color: shade-color($cl-nav-bg, 3%);
     color: #ffffff;
   }
 
@@ -66,7 +66,7 @@
   li.active > a {
     color: #ffffff;
     font-weight: 600;
-    background-color: darken($cl-nav-bg, 4%);
+    background-color: shade-color($cl-nav-bg, 4%);
   }
   // Only the top-level active item gets the amber beacon rail; nested actives
   // keep the transparent edge so the rail reads as a single accent.
@@ -87,7 +87,7 @@
 
   // -- second level ---------------------------------------------------------
   .nav-second-level {
-    background-color: darken($cl-nav-bg, 3%);
+    background-color: shade-color($cl-nav-bg, 3%);
 
     li > a {
       padding: 7px 10px 7px 40px;
@@ -97,7 +97,7 @@
     li > a:hover,
     li > a:focus {
       color: #ffffff;
-      background-color: darken($cl-nav-bg, 6%);
+      background-color: shade-color($cl-nav-bg, 6%);
     }
     li:last-child { margin-bottom: 8px; }
   }
@@ -161,8 +161,16 @@
     }
   }
 
-  // role / caption text under the name
-  .text-muted { color: #9aa9bd; }
+  // role / caption text under the name. BS5's .text-muted utility is !important
+  // (var(--bs-secondary-color) — near-black on the navy rail), so the override
+  // must be too (Q1: the role label was illegible).
+  .text-muted { color: #9aa9bd !important; }
+
+  // The caret is a hand-placed fa-angle-down INSIDE the role span (the toggle's
+  // auto ::after follows the block-level children, stranding it on its own row —
+  // hide it and let the inline icon read as "admin ˅" like the old theme).
+  .profile-element > a.dropdown-toggle::after { display: none; }
+  .profile-element .text-muted .fa-angle-down { margin-left: 5px; }
 }
 
 // Collapsed-rail logo (hidden until mini-navbar).

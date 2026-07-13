@@ -25,7 +25,7 @@
         .row
           .col-12
             .mb-3.program-stream{ data: { value: program_stream_values } }
-              = select_tag(:nil, options_for_select(@program_streams.pluck(:name, :id), program_stream_values), { multiple: true, id: 'program-stream-select', class: 'form-control' } )
+              = select_tag(:nil, options_for_select(@program_streams.pluck(:name, :id), program_stream_values), { multiple: true, id: 'program-stream-select', class: 'form-select' } )
         .row
           .col-12
             .program-association

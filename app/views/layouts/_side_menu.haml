@@ -13,6 +13,7 @@
                 %strong.font-bold= current_user.name
               %span.text-muted.text-xs.block
                 = current_user.roles
+                %i.fa.fa-angle-down{ 'aria-hidden' => 'true' }
           %ul.dropdown-menu.animated.fadeInRight.m-t-xs
             %li
               = link_to t('.edit_profile'), edit_user_registration_path

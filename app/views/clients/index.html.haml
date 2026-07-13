@@ -48,7 +48,7 @@
             - else
               = hidden_field_tag("client_grid[#{k}]", v)
           %label.sr-only{ for: 'client_grid_order' }= t('.sort_label', default: 'Sort individuals')
-          = select_tag 'client_grid[order]', options_for_select([[t('.sort_status', default: 'Status'), 'status'], [t('.sort_id', default: 'ID'), 'slug'], [t('.sort_age', default: 'Age'), 'age'], [t('.sort_province', default: 'State'), 'province']], params.dig(:client_grid, :order)), include_blank: t('.sort_default', default: 'Sort by…'), id: 'client_grid_order', class: 'form-control input-sm record-cards__sort-select', data: { auto_submit: true }
+          = select_tag 'client_grid[order]', options_for_select([[t('.sort_status', default: 'Status'), 'status'], [t('.sort_id', default: 'ID'), 'slug'], [t('.sort_age', default: 'Age'), 'age'], [t('.sort_province', default: 'State'), 'province']], params.dig(:client_grid, :order)), include_blank: t('.sort_default', default: 'Sort by…'), id: 'client_grid_order', class: 'form-select form-select-sm record-cards__sort-select', data: { auto_submit: true }
       .ibox-content
         %h2#clients-list-heading.sr-only= t('.grid_caption', default: 'Clients')
         - if current_user.admin? || current_user.strategic_overviewer?

@@ -15,11 +15,11 @@
       .ibox-content
         %div
           %ul.nav.nav-tabs{role: "tablist"}
-            %li.active{role: "presentation"}
-              %a{"aria-controls" => "custom-form", "data-bs-toggle" => "tab", href: "#custom-form", role: "tab"}= t('.my_ngo')
+            %li.nav-item{role: "presentation"}
+              %a.nav-link.active{"aria-controls" => "custom-form", "aria-selected" => "true", "data-bs-toggle" => "tab", href: "#custom-form", role: "tab"}= t('.my_ngo')
             - unless current_organization.try(:short_name) == 'mho'
-              %li{role: "presentation"}
-                %a{"aria-controls" => "all-custom-form", "data-bs-toggle" => "tab", href: "#all-custom-form", role: "tab"}= t('.all_ngo')
+              %li.nav-item{role: "presentation"}
+                %a.nav-link{"aria-controls" => "all-custom-form", "aria-selected" => "false", "data-bs-toggle" => "tab", href: "#all-custom-form", role: "tab"}= t('.all_ngo')
           .tab-content
             = render 'current_custom_form_tab'
             - unless current_organization.try(:short_name) == 'mho'

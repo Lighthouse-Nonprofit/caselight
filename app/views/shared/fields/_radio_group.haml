@@ -1,4 +1,4 @@
-%div{ class: "form-check-input mb-3 #{field_with(field_props['label'],errors)} #{required?(field_props['required'] || false)}" }
+%div{ class: "cl-check-group mb-3 #{field_with(field_props['label'],errors)} #{required?(field_props['required'] || false)}" }
   - _gid = field_id_for(f, field_props['label'])
   %label.form-label{ id: "#{_gid}_label", class: required?(field_props['required'] || false) }
     %abbr{ title: t('shared.fields.required', default: 'required'), 'aria-hidden': 'true' }= '*' if field_props['required'] || false
