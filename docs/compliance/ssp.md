@@ -40,7 +40,7 @@ cache, and job queue are not exposed to the network.
 | Redis + Sidekiq | 7 / 7.3 | Background jobs (mailers, reports) |
 | Node | 24 LTS (build-time) | Terser JS compression / asset precompilation |
 | Asset pipeline | Sprockets 4.2 + dart-sass (dartsass-rails 0.5) + ES2015+ JS, haml 6.4 (POAM-017e **closed**, R6/R9–R11) | SCSS/JS compilation |
-| Browser JS | jQuery 4.0.0 (+ temporary migrate-4 bridge), Bootstrap 3.4.1 (patched final; accepted-tracked POAM-017g), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4 | UI (EOL set retired R3–R8; eval libraries replaced R12A/B; **enforced nonce-based CSP — POAM-017f closed**) |
+| Browser UI | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g **closed** 2026-07-13; INSPINIA removed — see `poam-017g-verification.md`), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 4.7 | UI (whole POAM-017 family closed a–g; eval libraries replaced R12A/B; **enforced nonce-based CSP — POAM-017f closed**) |
 | PDF engine | wkhtmltopdf 0.12.6.1-3 (official bookworm build, sha256-pinned in the Dockerfile) | Government-report PDF download (upstream sunset tracked, POAM-019) |
 | App server | puma 8 (threaded; config/puma.rb), behind Dockerized Caddy (`proxy` profile) | HTTP (replaced the sparsely-maintained thin, 2026-07) |
 
