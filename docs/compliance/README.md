@@ -21,7 +21,7 @@ and documents, minors' records, health and mental-health needs, government IDs. 
 - **Phase 0 — Secure SDLC + CI pipeline** *(complete)*: SAST (Brakeman, gate fails on new findings),
   dependency CVE scanning (bundler-audit), secret scanning (gitleaks), Dependabot — all gating every PR.
 - **Phase 1 — transport/headers/secrets** *(complete)*: force_ssl/assume_ssl, explicit security headers,
-  CSP (report-only), secure cookies.
+  CSP (report-only at Phase 1; **enforced, nonce-based since POAM-017f**, 2026-07), secure cookies.
 - **Phase 2 — auth hardening** *(complete)*: MFA (TOTP) + passkeys, lockout, throttling, idle timeout,
   password policy.
 - **Phase 3 — audit & access logging** *(complete)*: AccessLog (read + security events), lograge,

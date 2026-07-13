@@ -15,7 +15,7 @@ bootstrap-datepicker, krajee fileinput 4.4.1, glyphicon fonts).
 | THE FLIP (F1–F10) | #147 | `ffbfba2` | gems dropped; `caselight_theme/` (BS 5.3.8 core + navy/amber restyle on the existing `.ibox`/shell markup); simple_form flip; codemods (`qa/codemods/bs5_flip.rb`); hand-work; JS conversions (`caselight_shell.js`, vanillajs-datepicker adapter); deletions (−13,436 net lines); `bootstrap3_removal_guard_spec` + `layout_shell_bs5_spec` |
 | Q1 visual QA | #148 | `4d6743c` | 30-surface screenshot review: 13 findings fixed (2 functional: jquery.steps clip, tab-pane deactivation); `bs5_pixeldiff.js` gate added; zero app-side sass deprecations; BS5 reference baseline captured |
 | Q2 compat retirement | #149 | `2a96382` | sr-only→visually-hidden (+ a11y specs); button.close→.btn-close ×29; guard bans extended; pixeldiff proved visual transparency (0.00–0.02 % on all 30 surfaces) |
-| Q3 feature suite | #150 | (merge SHA in git log) | cuprite js driver (first feature-suite run since PhantomJS); **5 real app bugs found + fixed**, incl. two live workflow blockers (assessment submission, program-stream draft saves); suite 470/0/8 |
+| Q3 feature suite | #150 | `ecee588` | cuprite js driver (first feature-suite run since PhantomJS); **5 real app bugs found + fixed**, incl. two live workflow blockers (assessment submission, program-stream draft saves); suite 470/0/8 |
 
 ## Gates (all blocking, all green at close)
 
