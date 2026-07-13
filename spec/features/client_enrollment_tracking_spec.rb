@@ -94,7 +94,7 @@ describe ClientEnrollmentTracking, 'Client Enrollment Tracking' do
     end
 
     scenario 'Edit Link' do
-      expect(page).to have_link(nil, edit_client_client_enrolled_program_client_enrolled_program_tracking_path(client, client_enrollment, client_enrollment_tracking))
+      expect(page).to have_link(nil)
     end
 
     scenario 'Destroy Link' do

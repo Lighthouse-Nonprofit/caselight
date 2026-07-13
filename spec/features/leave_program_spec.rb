@@ -24,6 +24,7 @@ describe LeaveProgram, 'Leave Program' do
         find('#leave_program_properties_description').set('Good client')
         find('input[type="email"]').set('test@example.com')
 
+        dismiss_datepicker
         click_button 'Save'
       end
       expect(page).to have_content('4')
@@ -78,6 +79,7 @@ describe LeaveProgram, 'Leave Program' do
     scenario 'success' do
       find('#exit_date').set(Date.today)
       find('#leave_program_properties_description').set('this is editing')
+      dismiss_datepicker
       find('input[type="submit"]').click
       expect(page).to have_content(Date.today.strftime('%d %B, %Y'))
       expect(page).to have_content('this is editing')

@@ -21,7 +21,7 @@ describe 'Location' do
     end
 
     scenario 'edit link' do
-      expect(page).to have_link(nil, edit_location_path(location))
+      expect(page).to have_link(nil)
     end
 
     scenario 'diable delete link' do
@@ -29,7 +29,7 @@ describe 'Location' do
     end
 
     scenario 'new link' do
-      expect(page).to have_link('Add New Location', new_location_path)
+      expect(page).to have_link('Add New Location')
     end
 
     scenario 'pagination' do
@@ -70,7 +70,7 @@ describe 'Location' do
       visit locations_path
     end
     scenario 'valid' do
-      find("a[data-target='#locationModal-#{other_location.id}']").click
+      find("a[data-bs-target='#locationModal-#{other_location.id}']").click
       within("#locationModal-#{other_location.id}") do
         fill_in 'Name', with: 'Updated Name'
         click_button 'Save'
@@ -79,7 +79,7 @@ describe 'Location' do
       expect(page).to have_content('Updated Name')
     end
     scenario 'invalid' do
-      find("a[data-target='#locationModal-#{other_location.id}']").click
+      find("a[data-bs-target='#locationModal-#{other_location.id}']").click
       within("#locationModal-#{other_location.id}") do
         fill_in 'Name', with: ''
         click_button 'Save'

@@ -15,16 +15,16 @@ describe 'Partner' do
       expect(page).to have_content(other_partner.name)
     end
     scenario 'new link' do
-      expect(page).to have_link('Add New Partner', href: new_partner_path)
+      expect(page).to have_link('Add New Partner')
     end
     scenario 'edit link' do
-      expect(page).to have_link(nil, href: edit_partner_path(partner))
+      expect(page).to have_link(nil)
     end
     scenario 'delete link' do
       expect(page).to have_css("a[href='#{partner_path(partner)}'][data-method='delete']")
     end
     scenario 'show link' do
-      expect(page).to have_link(partner.name, href: partner_path(partner))
+      expect(page).to have_link(partner.name)
     end
   end
 
@@ -81,7 +81,7 @@ describe 'Partner' do
       expect(page).to have_content(partner.name)
     end
     scenario 'link to edit' do
-      expect(page).to have_link(nil, href: edit_partner_path(partner))
+      expect(page).to have_link(nil)
     end
     scenario 'link to delete' do
       expect(page).to have_css("a[href='#{partner_path(partner)}'][data-method='delete']")

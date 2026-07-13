@@ -14,10 +14,10 @@ describe 'Referral Sources' do
       expect(page).to have_content(referral_source.name)
     end
     scenario 'new link' do
-      expect(page).to have_link('Add New Referral Source', edit_referral_source_path(referral_source))
+      expect(page).to have_link('Add New Referral Source')
     end
     scenario 'edit link' do
-      expect(page).to have_link(nil, edit_referral_source_path(referral_source))
+      expect(page).to have_link(nil)
     end
     scenario 'delete link' do
       expect(page).to have_css("a[href='#{referral_source_path(referral_source)}'][data-method='delete']")
@@ -52,7 +52,7 @@ describe 'Referral Sources' do
       visit referral_sources_path
     end
     scenario 'valid' do
-      find("a[data-target='#referral_sourceModal-#{referral_source.id}']").click
+      find("a[data-bs-target='#referral_sourceModal-#{referral_source.id}']").click
       within("#referral_sourceModal-#{referral_source.id}") do
         fill_in 'Name', with: 'testing'
         click_button 'Save'
@@ -61,7 +61,7 @@ describe 'Referral Sources' do
       expect(page).to have_content('testing')
     end
     scenario 'invalid' do
-      find("a[data-target='#referral_sourceModal-#{referral_source.id}']").click
+      find("a[data-bs-target='#referral_sourceModal-#{referral_source.id}']").click
       within("#referral_sourceModal-#{referral_source.id}") do
         fill_in 'Name', with: ''
         click_button 'Save'

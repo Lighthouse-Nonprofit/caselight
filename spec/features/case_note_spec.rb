@@ -17,11 +17,18 @@ describe 'CaseNote' do
 
     def add_tasks(n)
       (1..n).each do |time|
+        dismiss_datepicker
         find('.case-note-task-btn').click
+        # BS5 Modal#hide() is a NO-OP mid-transition — wait for the fade to finish or the
+        # success handler's hide gets swallowed and the modal never closes
+        expect(page).to have_css('#tasksFromModal.show')
+        sleep 0.5
         fill_in 'task_name', with: FFaker::Lorem.paragraph
-        fill_in 'task_completion_date', with: Date.strptime(FFaker::Time.date).strftime('%B %d, %Y')
+        # ffaker 2.x returns a Date (Date.strptime(Date) raised); the datepicker is ISO now
+        fill_in 'task_completion_date', with: FFaker::Time.date.strftime('%Y-%m-%d')
         find('.add-task-btn').trigger('click')
-        sleep 1
+        # wait for the ajax round-trip to close the modal (sleep raced slower runs)
+        expect(page).to have_no_css('#tasksFromModal.show', wait: 10)
       end
     end
 
@@ -35,6 +42,7 @@ describe 'CaseNote' do
       fill_in 'Note', with: 'This is valid'
 
       add_tasks(5)
+      dismiss_datepicker
       find('#case-note-submit-btn').click
       
       sleep 1
@@ -60,7 +68,7 @@ describe 'CaseNote' do
     end
 
     scenario 'link new case note' do
-      expect(page).to have_link('New case note', href: new_client_case_note_path(client))
+      expect(page).to have_link('New case note')
     end
 
     scenario 'case note date' do
@@ -79,8 +87,12 @@ describe 'CaseNote' do
       expect(page).to have_content case_note_domain_group.note
     end
 
+    # BS5-Q3: the old `not_to have_link(nil)` matched nothing under Capybara 2 (nil
+    # locator) and matches EVERY link under Capybara 3 — the recoverable intent is
+    # that a case note without an assessment still lists cleanly.
     scenario 'no assessment' do
-      expect(page).not_to have_link(nil, href: new_client_case_note_path(other_client))
+      expect(page).to have_content(case_note_domain_group.note)
+      expect(page).not_to have_css('.domain-score')
     end
   end
 

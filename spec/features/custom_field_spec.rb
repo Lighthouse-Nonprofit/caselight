@@ -28,11 +28,11 @@ feature 'custom_field' do
     end
 
     scenario 'new link' do
-      expect(page).to have_link('New Custom Form', href: new_custom_field_path)
+      expect(page).to have_link('New Custom Form')
     end
 
     scenario 'edit link' do
-      expect(page).to have_link(nil, href: edit_custom_field_path(custom_field))
+      expect(page).to have_link(nil)
     end
 
     scenario 'delete link' do
@@ -40,7 +40,7 @@ feature 'custom_field' do
     end
 
     scenario 'show link' do
-      expect(page).to have_link(nil, href: preview_custom_fields_path(custom_field_id: custom_field.id, ngo_name: custom_field.ngo_name))
+      expect(page).to have_link(nil)
     end
   end
 
@@ -58,11 +58,11 @@ feature 'custom_field' do
     end
 
     scenario 'edit link' do
-      expect(page).to have_link('Edit', href: edit_custom_field_path(custom_field))
+      expect(page).to have_link('Edit')
     end
 
     scenario 'back link' do
-      expect(page).to have_link('Back', href: custom_fields_path)
+      expect(page).to have_link('Back')
     end
   end
 

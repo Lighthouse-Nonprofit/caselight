@@ -218,7 +218,7 @@ CIF.CalendarsIndex = (function () {
   var _showTaskError = (msg) =>
     $('.task-modal-error')
       .text(msg || '')
-      .removeClass('hidden');
+      .removeClass('hidden d-none');
 
   var _hideTaskError = () => $('.task-modal-error').addClass('hidden').text('');
 

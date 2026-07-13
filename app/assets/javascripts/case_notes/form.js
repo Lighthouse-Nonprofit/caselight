@@ -116,10 +116,10 @@ CIF.Case_notesNew =
         element = `<li class='list-group-item' style='padding-bottom: 11px;'>${data.name}<a class='float-end remove-task fa fa-trash btn btn-outline btn-danger btn-xs' style='margin: 0;' href='javascript:void(0)' data-url='${deleteUrl}'></a></li>`;
 
         if ($(`.task-domain-${data.domain_id}`).hasClass('hidden')) {
-          $(`.task-domain-${data.domain_id}`).removeClass('hidden');
+          $(`.task-domain-${data.domain_id}`).removeClass('hidden d-none');
         }
 
-        $(`#tasks-domain-${data.domain_id} .task-arising`).removeClass('hidden');
+        $(`#tasks-domain-${data.domain_id} .task-arising`).removeClass('hidden d-none');
         $(`#tasks-domain-${data.domain_id} .task-arising ol`).append(element);
         _clearForm();
 

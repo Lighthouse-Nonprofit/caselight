@@ -157,8 +157,14 @@ group :development, :test do
   gem 'factory_bot_rails', '~> 6.0'  # was ~> 4.8
   gem 'launchy',              '~> 3.1'
   gem 'capybara',             '~> 3.0' # was ~> 2.5
-  # poltergeist (~> 1.9.0) removed: PhantomJS is dead and the gem doesn't run on Ruby 3.3. The
-  # feature specs that used it were already deferred to a cuprite port (see REMOVED-FEATURES.md).
+  # poltergeist (~> 1.9.0) removed: PhantomJS is dead and the gem doesn't run on Ruby 3.3.
+  # BS5-Q3: the deferred cuprite port landed — CDP driver on headless Chromium (no chromedriver).
+  # The dev image does NOT bake a browser; before a local js run:
+  #   docker compose ... exec app apt-get update && apt-get install -y chromium
+  #   docker compose ... exec app bundle exec rake assets:precompile RAILS_ENV=test
+  # (the second matters: test serves public/assets DIGESTED — a stale manifest silently runs
+  # months-old JS/CSS under the specs; it hid the whole BS5 bundle once)
+  gem 'cuprite',              '~> 0.17' # js feature-spec driver (Ferrum/CDP)
   gem 'shoulda-whenever',     '~> 0.0.2'
   gem 'bullet', '~> 8.0'             # 7.x hard-raises on Mongoid 9 at boot (runtime version
                                      # sniff, invisible to gemspec audits); 8.x supports it.

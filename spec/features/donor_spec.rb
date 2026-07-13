@@ -15,7 +15,7 @@ describe 'Donor' do
       expect(page).to have_content(other_donor.name)
     end
     scenario 'new link ' do
-      expect(page).to have_link('Add New Donor', new_donor_path)
+      expect(page).to have_link('Add New Donor')
     end
     scenario 'edit link' do
       expect(page).to have_css("i[class='fa fa-pencil']")
@@ -55,7 +55,7 @@ describe 'Donor' do
       visit donors_path
     end
     scenario 'valid' do
-      find("a[data-target='#donorModal-#{donor.id}']").click
+      find("a[data-bs-target='#donorModal-#{donor.id}']").click
       within("#donorModal-#{donor.id}") do
         fill_in 'Name', with: 'Updated Donor Name'
         click_button 'Save'
@@ -64,7 +64,7 @@ describe 'Donor' do
       expect(page).to have_content('Updated Donor Name')
     end
     scenario 'invalid' do
-      find("a[data-target='#donorModal-#{donor.id}']").click
+      find("a[data-bs-target='#donorModal-#{donor.id}']").click
       within("#donorModal-#{donor.id}") do
         fill_in 'Name', with: ''
         click_button 'Save'

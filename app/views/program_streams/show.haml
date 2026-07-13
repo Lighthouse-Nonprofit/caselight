@@ -16,7 +16,10 @@
             .btn.btn-outline-secondary.btn-back-default.button
               = t('.back')
       .ibox-content
-        
+        -# BS5-Q3: this container was `.panel-group` until the flip codemod blanked the line
+        -# (no BS5 rename target), orphaning the five .card sections two indent levels deep —
+        -# Haml::SyntaxError 500 on #show and #preview. Plain wrapper; the cards style themselves.
+        .program-stream-sections
           .card
             .card-header
               .row.height-row

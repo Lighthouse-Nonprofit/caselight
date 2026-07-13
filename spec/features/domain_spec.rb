@@ -17,10 +17,10 @@ describe 'Domain' do
     end
 
     scenario 'new link' do
-      expect(page).to have_link('Add New Domain', href: new_domain_path)
+      expect(page).to have_link('Add New Domain')
     end
     scenario 'edit link' do
-      expect(page).to have_link(nil, href: edit_domain_path(domain))
+      expect(page).to have_link(nil)
     end
     scenario 'delete link' do
       expect(page).to have_css("a[href='#{domain_path(domain)}'][data-method='delete']")

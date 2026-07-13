@@ -42,7 +42,7 @@ describe Task do
       scenario 'list manager task', js: true do
         click_link 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['mr admin', 'able manager', 'able caseworker', 'ec caseworker'], visible: false
-        select2_select('able manager', '.select2-container')
+        tom_select_pick('able manager')
         sleep 1
         panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Upcoming Tasks') }.first }.first
         expect(panel).to have_content(upcoming_task.name)
@@ -51,7 +51,7 @@ describe Task do
       scenario 'list caseworker task', js: true do
         click_link 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['mr admin', 'able manager', 'able caseworker', 'ec caseworker'], visible: false
-        select2_select('able caseworker', '.select2-container')
+        tom_select_pick('able caseworker')
         sleep 1
         panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
         expect(panel).to have_content(overdue_task.name)
@@ -79,7 +79,7 @@ describe Task do
       scenario 'list caseworker task', js: true do
         click_link 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['able manager', 'able caseworker'], visible: false
-        select2_select('able caseworker', '.select2-container')
+        tom_select_pick('able caseworker')
         sleep 1
         panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
         expect(panel).to have_content(overdue_task.name)
@@ -87,7 +87,7 @@ describe Task do
 
       scenario 'list able case worker task', js: true do
         click_link 'View All Active Tasks'
-        select2_select('able caseworker', '.select2-container')
+        tom_select_pick('able caseworker')
         sleep 1
         expect(page).to have_content(able_task.name)
       end
@@ -124,7 +124,7 @@ describe Task do
 
       scenario 'list ec case worker task', js: true do
         click_link 'View All Active Tasks'
-        select2_select('ec caseworker', '.select2-container')
+        tom_select_pick('ec caseworker')
         sleep 1
         expect(page).to have_content(ec_task.name)
       end
@@ -143,7 +143,7 @@ describe Task do
 
       scenario 'list fc case worker task', js: true do
         click_link 'View All Active Tasks'
-        select2_select('fc caseworker', '.select2-container')
+        tom_select_pick('fc caseworker')
         sleep 1
         expect(page).to have_content(fc_task.name)
       end
@@ -162,7 +162,7 @@ describe Task do
 
       scenario 'list kc case worker task', js: true do
         click_link 'View All Active Tasks'
-        select2_select('kc caseworker', '.select2-container')
+        tom_select_pick('kc caseworker')
         sleep 1
         expect(page).to have_content(kc_task.name)
       end
@@ -181,7 +181,7 @@ describe Task do
 
       scenario 'list subordinate task', js: true do
         click_link 'View All Active Tasks'
-        select2_select('subordinate', '.select2-container')
+        tom_select_pick('subordinate')
         sleep 1
         expect(page).to have_content(sub_task.name)
       end

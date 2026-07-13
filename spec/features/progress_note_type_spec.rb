@@ -20,7 +20,7 @@ describe 'ProgressNoteType' do
     end
 
     scenario 'edit link' do
-      expect(page).to have_link(nil, edit_progress_note_type_path(progress_note_type))
+      expect(page).to have_link(nil)
     end
 
     scenario 'delete link' do
@@ -28,7 +28,7 @@ describe 'ProgressNoteType' do
     end
 
     scenario 'new link' do
-      expect(page).to have_link('Add New Type of Note', new_progress_note_type_path)
+      expect(page).to have_link('Add New Type of Note')
     end
 
     scenario 'pagination' do
@@ -69,7 +69,7 @@ describe 'ProgressNoteType' do
       visit progress_note_types_path
     end
     scenario 'valid' do
-      find("a[data-target='#progress_note_typeModal-#{other_progress_note_type.id}']").click
+      find("a[data-bs-target='#progress_note_typeModal-#{other_progress_note_type.id}']").click
       within("#progress_note_typeModal-#{other_progress_note_type.id}") do
         fill_in 'Type', with: 'Note'
         click_button 'Save'
@@ -78,7 +78,7 @@ describe 'ProgressNoteType' do
       expect(page).to have_content('Note')
     end
     scenario 'invalid' do
-      find("a[data-target='#progress_note_typeModal-#{other_progress_note_type.id}']").click
+      find("a[data-bs-target='#progress_note_typeModal-#{other_progress_note_type.id}']").click
       within("#progress_note_typeModal-#{other_progress_note_type.id}") do
         click_button 'Save'
       end

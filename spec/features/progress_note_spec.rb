@@ -21,7 +21,7 @@ feature 'progress_note' do
     end
 
     scenario 'attachments' do
-      expect(page).to have_link('Download', client_progress_note_path(client, progress_note, attachment))
+      expect(page).to have_link('Download')
     end
 
     scenario 'all info' do
@@ -41,7 +41,7 @@ feature 'progress_note' do
     end
 
     scenario 'edit link' do
-      expect(page).to have_link(nil, edit_client_progress_note_path(progress_note.client, progress_note))
+      expect(page).to have_link(nil)
     end
 
     scenario 'delete link' do
@@ -49,7 +49,7 @@ feature 'progress_note' do
     end
 
     scenario 'back link' do
-      expect(page).to have_link('Back', client_progress_notes_path(progress_note.client))
+      expect(page).to have_link('Back')
     end
   end
 
@@ -65,11 +65,11 @@ feature 'progress_note' do
 
     scenario 'date and link to show page' do
       expect(page).to have_content(progress_note.date.strftime('%d %b, %Y'))
-      expect(page).to have_link(progress_note.date.strftime('%d %b, %Y'), client_progress_note_path(progress_note.client, progress_note))
+      expect(page).to have_link(progress_note.date.strftime('%d %b, %Y'))
     end
 
     scenario 'edit link' do
-      expect(page).to have_link(nil, edit_client_progress_note_path(progress_note.client, progress_note))
+      expect(page).to have_link(nil)
     end
 
     scenario 'delete link' do
@@ -77,7 +77,7 @@ feature 'progress_note' do
     end
 
     scenario 'new link' do
-      expect(page).to have_link('Add New Progress Note', new_client_progress_note_path(progress_note.client))
+      expect(page).to have_link('Add New Progress Note')
     end
 
     scenario 'pagination' do

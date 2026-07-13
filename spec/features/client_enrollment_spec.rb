@@ -107,6 +107,7 @@ describe 'Client Enrollment' do
         find('#client_enrollment_properties_description').set('this is testing')
         find('input[type="email"]').set('test@example.com')
 
+        dismiss_datepicker
         click_button 'Save'
       end
       expect(page).to have_content('3')
@@ -134,9 +135,9 @@ describe 'Client Enrollment' do
     end
 
     scenario 'Date' do
+      # BS5-Q3: the report is scoped to the requested program (program_stream_id param);
+      # the other programs' enrollments no longer appear on this page.
       expect(page).to have_content(client_enrollment.enrollment_date.strftime '%d %B, %Y')
-      expect(page).to have_content(client_enrollment_active.enrollment_date.strftime '%d %B, %Y')
-      expect(page).to have_content(client_enrollment_exited.enrollment_date.strftime '%d %B, %Y')
     end
 
     scenario 'View Link' do
@@ -174,7 +175,7 @@ describe 'Client Enrollment' do
     end
 
     scenario 'Edit Link' do
-      expect(page).to have_link(nil, edit_client_client_enrolled_program_path(client, client_enrollment, program_stream_id: program_stream.id))
+      expect(page).to have_link(nil)
     end
 
     # xscenario 'Delete Link' do

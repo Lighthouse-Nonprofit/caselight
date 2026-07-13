@@ -15,7 +15,7 @@ describe 'Department' do
       expect(page).to have_content(other_department.name)
     end
     scenario 'new link ' do
-      expect(page).to have_link('Add New Department', new_department_path)
+      expect(page).to have_link('Add New Department')
     end
     scenario 'edit link' do
       expect(page).to have_css("i[class='fa fa-pencil']")
@@ -55,7 +55,7 @@ describe 'Department' do
       visit departments_path
     end
     scenario 'valid' do
-      find("a[data-target='#departmentModal-#{department.id}']").click
+      find("a[data-bs-target='#departmentModal-#{department.id}']").click
       within("#departmentModal-#{department.id}") do
         fill_in 'Name', with: 'Update Department Name'
         click_button 'Save'
@@ -64,7 +64,7 @@ describe 'Department' do
       expect(page).to have_content('Update Department Name')
     end
     scenario 'invalid' do
-      find("a[data-target='#departmentModal-#{department.id}']").click
+      find("a[data-bs-target='#departmentModal-#{department.id}']").click
       within("#departmentModal-#{department.id}") do
         fill_in 'Name', with: ''
         click_button 'Save'

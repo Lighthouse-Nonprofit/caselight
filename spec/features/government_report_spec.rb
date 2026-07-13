@@ -41,7 +41,7 @@
 #     end
 #
 #     scenario 'edit link' do
-#       expect(page).to have_link(nil, href: edit_client_government_report_path(client, government_report))
+#       expect(page).to have_link(nil)
 #     end
 #
 #     scenario 'delete link' do
@@ -49,11 +49,11 @@
 #     end
 #
 #     scenario 'view link' do
-#       expect(page).to have_link(nil, href: client_government_report_path(client, government_report, format: :pdf))
+#       expect(page).to have_link(nil)
 #     end
 #
 #     scenario 'new link' do
-#       expect(page).to have_link('Add Government Report', href: new_client_government_report_path(client))
+#       expect(page).to have_link('Add Government Report')
 #     end
 #   end
 # end

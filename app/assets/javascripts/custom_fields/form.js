@@ -60,7 +60,7 @@ CIF.Custom_fieldsNew =
         if (timeOfFrequency <= 0) {
           return $('.frequency-note').addClass('hidden');
         } else {
-          $('.frequency-note').removeClass('hidden');
+          $('.frequency-note').removeClass('hidden d-none');
           if (timeOfFrequency === 1) {
             return $('.frequency-note span.frequency').text(` ${frequency}.`);
           } else {

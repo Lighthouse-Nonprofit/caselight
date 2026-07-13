@@ -51,7 +51,7 @@ describe 'Quantitative Type' do
       visit quantitative_types_path
     end
     scenario 'valid' do
-      find("a[data-target='#quantitative_typeModal-#{quantitative_type.id}']").click
+      find("a[data-bs-target='#quantitative_typeModal-#{quantitative_type.id}']").click
       within("#quantitative_typeModal-#{quantitative_type.id}") do
         fill_in 'Name', with: 'Edit Test'
         click_button 'Save'
@@ -60,7 +60,7 @@ describe 'Quantitative Type' do
       expect(page).to have_content('Quantitative Type has been successfully updated')
     end
     scenario 'invalid' do
-      find("a[data-target='#quantitative_typeModal-#{quantitative_type.id}']").click
+      find("a[data-bs-target='#quantitative_typeModal-#{quantitative_type.id}']").click
       within("#quantitative_typeModal-#{quantitative_type.id}") do
         fill_in 'Name', with: ''
         click_button 'Save'
