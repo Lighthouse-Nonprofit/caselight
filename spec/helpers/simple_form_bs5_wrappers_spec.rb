@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-# Locks the PRE-STAGED Bootstrap-5 simple_form wrapper set (POAM-017g P2). These wrappers
-# are inert until the BS5 flip PR maps them; this spec is the only thing exercising them
-# before then, so config drift or a simple_form upgrade breaking the shapes fails fast —
-# and the flip itself becomes a ~10-line default_wrapper/wrapper_mappings switch that is
-# already proven to emit correct BS5 markup.
-RSpec.describe 'simple_form BS5 pre-staged wrappers', type: :helper do
+# Locks the Bootstrap-5 simple_form wrapper set (POAM-017g). Pre-staged inert in P2; MADE
+# LIVE by THE FLIP — default_wrapper/wrapper_mappings now point at the :bs5_* set. This spec
+# guards against config drift or a simple_form upgrade breaking the canonical BS5 shapes.
+RSpec.describe 'simple_form BS5 wrappers', type: :helper do
   let(:user) { User.new }
 
   def render_input(**options)
     helper.simple_form_for(user, url: '/probe') { |f| f.input :email, **options }
   end
 
-  it 'stays INERT: the default wrapper still emits BS3 shapes' do
+  it 'THE FLIP: the default wrapper now emits BS5 shapes (mb-3 / form-label), not BS3' do
     html = render_input
-    expect(html).to include('form-group')
-    expect(html).to include('control-label')
-    expect(html).not_to include('mb-3')
+    expect(html).to include('mb-3')
+    expect(html).to include('form-label')
+    expect(html).to include('form-control')
+    expect(html).not_to include('form-group')
+    expect(html).not_to include('control-label')
   end
 
   it 'bs5_vertical_form emits the canonical BS5 vertical shape' do

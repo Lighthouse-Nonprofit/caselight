@@ -106,7 +106,7 @@ CIF.Client_advanced_searchesIndex = (function () {
         _handleRemoveFilterBuilder(name, TRACKING_TRANSTATE);
         return _handleRemoveFilterBuilder(name, EXIT_PROGRAM_TRANSTATE);
       });
-      $('.program-association input[type="checkbox"]').iCheck('uncheck');
+      $('.program-association input[type="checkbox"]').prop('checked', false).trigger('change');
       return CIF.Select.setValue('#program-stream-select', '');
     });
   };
@@ -204,7 +204,7 @@ CIF.Client_advanced_searchesIndex = (function () {
       });
       if ($.isEmptyObject($(selectEl).val())) {
         const programStreamAssociation = $('.program-association');
-        $(programStreamAssociation).find('.i-checks').iCheck('uncheck');
+        $(programStreamAssociation).find('.form-check-input').prop('checked', false).trigger('change');
         return $(programStreamAssociation).hide();
       }
     });
@@ -290,10 +290,8 @@ CIF.Client_advanced_searchesIndex = (function () {
         if (keyword !== 'enrollmentdate' && keyword !== 'programexitdate') {
           const checkField = _formatSpecialCharacter(fieldName);
           const { label } = value;
-          $(customFormColumnPicker).append(_checkboxElement(checkField, headerClass, label));
-          return $(`.${headerClass} input.i-checks`).iCheck({
-            checkboxClass: 'icheckbox_square-green',
-          });
+          // POAM-017g flip: native .form-check-input needs no init (was iCheck).
+          return $(customFormColumnPicker).append(_checkboxElement(checkField, headerClass, label));
         }
       });
     });
@@ -319,7 +317,7 @@ CIF.Client_advanced_searchesIndex = (function () {
     $(`${element} ul.append-child li.${name}`).remove();
 
   var _checkboxElement = (field, name, label) => `<li class='visibility checkbox-margin ${name}'> \
-<input type='checkbox' name='${field}_' id='${field}_' value='${field}' class='i-checks' style='position: absolute; opacity: 0;'> \
+<input type='checkbox' name='${field}_' id='${field}_' value='${field}' class='form-check-input' style='position: absolute; opacity: 0;'> \
 <label for='${field}_'>${label}</label> \
 </li>`;
 
@@ -404,10 +402,10 @@ CIF.Client_advanced_searchesIndex = (function () {
     const allCheckboxes = $('#client-column .all-visibility #all_');
 
     allCheckboxes.on('ifChecked', () =>
-      $('#client-column .visibility input[type=checkbox]').iCheck('check'),
+      $('#client-column .visibility input[type=checkbox]').prop('checked', true).trigger('change'),
     );
     return allCheckboxes.on('ifUnchecked', () =>
-      $('#client-column .visibility input[type=checkbox]').iCheck('uncheck'),
+      $('#client-column .visibility input[type=checkbox]').prop('checked', false).trigger('change'),
     );
   };
 
@@ -421,7 +419,7 @@ CIF.Client_advanced_searchesIndex = (function () {
         $(programCheckboxChecked).length === 0 &&
         $(customFormCheckboxChecked).length === 0
       ) {
-        return $('#client-column .all-visibility #all_').iCheck('check');
+        return $('#client-column .all-visibility #all_').prop('checked', true).trigger('change');
       }
     });
 

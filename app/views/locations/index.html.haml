@@ -1,12 +1,12 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.location')
+        %span.badge.text-bg-info= t('.location')
         .ibox-tools
           - if can? :manage, Location
-            = link_to '#', {"data-target" => "#locationModal-", "data-toggle" => "modal", :type => "button"} do
+            = link_to '#', {"data-bs-target" => "#locationModal-", "data-bs-toggle" => "modal", :type => "button"} do
               .btn.btn-primary.btn-add
                 = t('.add_new_location')
       .ibox-content
@@ -29,7 +29,7 @@
                         .btn.btn-outline.btn-success.btn-xs.disabled
                           = fa_icon('pencil')
                       - else
-                        = link_to '#', {class: 'btn btn-xs btn-success btn-outline', "data-target" => "#locationModal-#{location.id}", "data-toggle" => "modal", :type => "button"} do
+                        = link_to '#', {class: 'btn btn-xs btn-success btn-outline', "data-bs-target" => "#locationModal-#{location.id}", "data-bs-toggle" => "modal", :type => "button"} do
                           = fa_icon('pencil')
                     %td.text-center
                       = remove_link(location, { location_progress_note: location.progress_notes.count,

@@ -28,7 +28,7 @@ body[id='users-version'] {
 
   .page-select {
     margin-top: 8px;
-    .form-group
+    .mb-3
     {
       margin-bottom: 0px;
     }
@@ -38,10 +38,10 @@ body[id='users-version'] {
     min-width: 100px;
   }
 
-  .panel-heading {
+  .card-header {
     h5 {
       color: #fff;
-      .label {
+      .badge {
         border: 2px solid #fff;
         border-radius: 4px;
       }

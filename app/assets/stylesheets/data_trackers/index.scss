@@ -3,17 +3,17 @@ body[id='data_trackers-index'] {
     margin: 20px 0;
   }
 
-  .panel-heading {
+  .card-header {
     h5 {
       color: #fff;
-      .label {
+      .badge {
         border: 2px solid #fff;
         border-radius: 4px;
       }
     }
   }
 
-  .panel-body{
+  .card-body{
     margin-bottom: -16px !important;
   }
 
@@ -24,7 +24,7 @@ body[id='data_trackers-index'] {
 
   .page-select {
     margin-top: 8px;
-    .form-group
+    .mb-3
     {
       margin-bottom: 0px;
     }

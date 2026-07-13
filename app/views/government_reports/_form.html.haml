@@ -2,74 +2,74 @@
   .ibox-content
     = error_notification(f)
     .row
-      .col-xs-12.form-group= f.input :code, label: t('.code')
-      .col-xs-5.col-xs-offset-7
+      .col-12.mb-3= f.input :code, label: t('.code')
+      .col-5.offset-7
         %h4
           %p.text-center
             %strong= t('.kingdom_of_cambodia')
           %p.text-center
             %strong= t('.nation_religion_king')
-      .col-xs-12.form-group= f.input :initial_capital, label: t('.capital')
-      .col-xs-12.form-group= f.input :initial_city, label: t('.city')
-      .col-xs-12.form-group= f.input :initial_commune, label: t('.commune')
-      .col-xs-12.first-response-form.text-center
+      .col-12.mb-3= f.input :initial_capital, label: t('.capital')
+      .col-12.mb-3= f.input :initial_city, label: t('.city')
+      .col-12.mb-3= f.input :initial_commune, label: t('.commune')
+      .col-12.first-response-form.text-center
         %h4
           %strong= t('.first_response_form')
         %p= "(#{t('.for_children_who_are_in_danger')})"
 
-      .col-xs-12.col-md-4.form-group.date.optional.initial_date
-        %label.date.optional.control-label{ for: 'initial_date' }= t('.initial_date')
-        .input-group.date.form-group
+      .col-12.col-md-4.mb-3.date.optional.initial_date
+        %label.date.optional.form-label{ for: 'initial_date' }= t('.initial_date')
+        .input-group.date.mb-3
           = f.text_field :initial_date, class: 'date optional form-control date-picker', type: 'text'
-          %span.input-group-addon
+          %span.input-group-text
             %i.fa.fa-calendar-check-o
-      .col-xs-12.col-md-4.form-group
+      .col-12.col-md-4.mb-3
         = f.input :client_slug, disabled: true, label: t('.client_code')
 
-      .col-xs-12.col-md-4.form-group= f.input :commune, label: t('.commune')
-      .col-xs-12.col-md-4.form-group= f.input :city, label: t('.city')
-      .col-xs-12.col-md-4.form-group= f.input :capital, label: t('.capital')
-      .col-xs-12.col-md-4.form-group= f.input :organisation_name, label: t('.organisation_name')
-      .col-xs-12.col-md-4.form-group= f.input :organisation_phone_number, label: t('.phone_number')
-      .col-xs-12.col-md-4.form-group= f.input :client_name, disabled: true, label: t('.client_name')
-      .col-xs-12.col-md-4.form-group.date.optional.client_date_of_birth
-        %label.date.optional.control-label{ for: 'client_date_of_birth' }= t('.date_of_birth')
-        .input-group.date.form-group
+      .col-12.col-md-4.mb-3= f.input :commune, label: t('.commune')
+      .col-12.col-md-4.mb-3= f.input :city, label: t('.city')
+      .col-12.col-md-4.mb-3= f.input :capital, label: t('.capital')
+      .col-12.col-md-4.mb-3= f.input :organisation_name, label: t('.organisation_name')
+      .col-12.col-md-4.mb-3= f.input :organisation_phone_number, label: t('.phone_number')
+      .col-12.col-md-4.mb-3= f.input :client_name, disabled: true, label: t('.client_name')
+      .col-12.col-md-4.mb-3.date.optional.client_date_of_birth
+        %label.date.optional.form-label{ for: 'client_date_of_birth' }= t('.date_of_birth')
+        .input-group.date.mb-3
           = f.text_field :client_date_of_birth, disabled: true, class: 'date optional form-control date-picker', type: 'text'
-          %span.input-group-addon
+          %span.input-group-text
             %i.fa.fa-calendar-check-o
-      .col-xs-12.col-md-4.form-group.gender-lable
-        = f.input :client_gender, collection: [[t('.male'), 'male'],[t('.female'), 'female']], as: :radio_buttons, label: t('.gender'), disabled: true, input_html: {class: 'i-checks'}
-      .col-xs-12.col-md-4.form-group= f.input :found_client_at, label: t('.found_client_at')
-      .col-xs-12.col-md-4.form-group= f.input :found_client_village, label: t('.village')
-      .col-xs-12.col-md-4.form-group= f.input :education, label: t('.education')
-      .col-xs-12.col-md-4.form-group= f.input :carer_name, disabled: true, label: t('.carer_name')
-      .col-xs-12.col-md-4.form-group= f.input :client_contact, label: t('.client_contact')
-      .col-xs-12
+      .col-12.col-md-4.mb-3.gender-lable
+        = f.input :client_gender, collection: [[t('.male'), 'male'],[t('.female'), 'female']], as: :radio_buttons, label: t('.gender'), disabled: true, input_html: {class: 'form-check-input'}
+      .col-12.col-md-4.mb-3= f.input :found_client_at, label: t('.found_client_at')
+      .col-12.col-md-4.mb-3= f.input :found_client_village, label: t('.village')
+      .col-12.col-md-4.mb-3= f.input :education, label: t('.education')
+      .col-12.col-md-4.mb-3= f.input :carer_name, disabled: true, label: t('.carer_name')
+      .col-12.col-md-4.mb-3= f.input :client_contact, label: t('.client_contact')
+      .col-12
         %h5
           %strong= t('.carer_address')
-      .col-xs-12.col-md-4.form-group= f.input :carer_house_number, label: t('.house_number')
-      .col-xs-12.col-md-4.form-group= f.input :carer_street_number, label: t('.street_number')
-      .col-xs-12.col-md-4.form-group= f.input :carer_village, label: t('.village')
-      .col-xs-12.col-md-4.form-group= f.input :carer_commune, label: t('.commune')
-      .col-xs-12.col-md-4.form-group= f.input :carer_city, label: t('.city')
-      .col-xs-12.col-md-4.form-group= f.input :carer_capital, disabled: true, label: t('.capital')
-      .col-xs-12.col-md-4.form-group= f.input :carer_phone_number, disabled: true, label: t('.phone_number')
-      .col-xs-12.col-md-4.form-group.date.optional.case_information_date
-        %label.date.optional.control-label{ for: 'case_information_date' }= t('.case_information_date')
-        .input-group.date.form-group.case-info-date
+      .col-12.col-md-4.mb-3= f.input :carer_house_number, label: t('.house_number')
+      .col-12.col-md-4.mb-3= f.input :carer_street_number, label: t('.street_number')
+      .col-12.col-md-4.mb-3= f.input :carer_village, label: t('.village')
+      .col-12.col-md-4.mb-3= f.input :carer_commune, label: t('.commune')
+      .col-12.col-md-4.mb-3= f.input :carer_city, label: t('.city')
+      .col-12.col-md-4.mb-3= f.input :carer_capital, disabled: true, label: t('.capital')
+      .col-12.col-md-4.mb-3= f.input :carer_phone_number, disabled: true, label: t('.phone_number')
+      .col-12.col-md-4.mb-3.date.optional.case_information_date
+        %label.date.optional.form-label{ for: 'case_information_date' }= t('.case_information_date')
+        .input-group.date.mb-3.case-info-date
           = f.text_field :client_initial_referral_date, disabled: true, class: 'date optional form-control date-picker', type: 'text'
-          %span.input-group-addon
+          %span.input-group-text
             %i.fa.fa-calendar-check-o
     .row
-      .col-xs-12.col-md-4.form-group= f.input :referral_name, disabled: true, label: "#{t('.transfer_info')} #{t('.name')}"
-      .col-xs-12.col-md-4.form-group= f.input :referral_position, label: t('.position')
+      .col-12.col-md-4.mb-3= f.input :referral_name, disabled: true, label: "#{t('.transfer_info')} #{t('.name')}"
+      .col-12.col-md-4.mb-3= f.input :referral_position, label: t('.position')
     .row
-      .col-xs-12= f.input :anonymous, label: "#{t('.or')} #{t('.anonymous_form')}", input_html: { class: 'i-checks'}
+      .col-12= f.input :anonymous, label: "#{t('.or')} #{t('.anonymous_form')}", input_html: { class: 'form-check-input'}
     .row
-      .col-xs-12= f.input :anonymous_description, label: t('.anonymous_information'), input_html: { cols: '50', rows: '4' }
+      .col-12= f.input :anonymous_description, label: t('.anonymous_information'), input_html: { cols: '50', rows: '4' }
     .row
-      .col-xs-12
+      .col-12
         %h5
           %strong
             %span= "#{t('.danger_situation')} : #{t('.check')}"
@@ -78,153 +78,153 @@
             %span "
             %span= t('.every_point')
     .row
-      .col-xs-12
+      .col-12
         .row
-          .col-xs-12.col-md-6
+          .col-12.col-md-6
             %p= "1- #{t('.family_separation')}"
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.abandoned')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.abandoned')), disabled: true }
               %span= t('.abandoned')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_changed_home')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_changed_home')), disabled: true }
               %span= t('.child_changed_home')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.family_changed_home')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.family_changed_home')), disabled: true }
               %span= t('.family_changed_home')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_living_independently')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_living_independently')), disabled: true }
               %span= t('.child_living_independently')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.orphan_lost_both_parents')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.orphan_lost_both_parents')), disabled: true }
               %span= t('.orphan_lost_both_parents')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.orphan_lost_father')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.orphan_lost_father')), disabled: true }
               %span= t('.orphan_lost_father')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.orphan_lost_mother')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.orphan_lost_mother')), disabled: true }
               %span= t('.orphan_lost_mother')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_living_on_street')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_living_on_street')), disabled: true }
               %span= t('.child_living_on_street')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
               %span= t('.other')
-          .col-xs-12.col-md-6
+          .col-12.col-md-6
             %p= "2- #{t('.essential_needs')}"
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.food')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.food')), disabled: true }
               %span= t('.food')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.shelter')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.shelter')), disabled: true }
               %span= t('.shelter')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.case_education')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.case_education')), disabled: true }
               %span= t('.case_education')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.health_care_and_medical_treatment')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.health_care_and_medical_treatment')), disabled: true }
               %span= t('.health_care_and_medical_treatment')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.parent_carer_poor_certificate_origin')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.parent_carer_poor_certificate_origin')), disabled: true }
               %span= t('.parent_carer_poor_certificate_origin')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
               %span= t('.other')
         .row
-          .col-xs-12.col-md-6
+          .col-12.col-md-6
             %p= "3- #{t('.abuse_and_exploitation')}"
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.physical_abuse')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.physical_abuse')), disabled: true }
               %span= t('.physical_abuse')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.sexual_abuse')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.sexual_abuse')), disabled: true }
               %span= t('.sexual_abuse')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.emotional_abuse')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.emotional_abuse')), disabled: true }
               %span= t('.emotional_abuse')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_exploitation')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_exploitation')), disabled: true }
               %span= t('.child_exploitation')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.excessive_child_labour')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.excessive_child_labour')), disabled: true }
               %span= t('.excessive_child_labour')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.family_violence')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.family_violence')), disabled: true }
               %span= t('.family_violence')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.experience_with_trafficking')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.experience_with_trafficking')), disabled: true }
               %span= t('.experience_with_trafficking')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.danger_of_trafficking')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.danger_of_trafficking')), disabled: true }
               %span= t('.danger_of_trafficking')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.neglect')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.neglect')), disabled: true }
               %span= t('.neglect')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
               %span= t('.other')
-          .col-xs-12.col-md-6
+          .col-12.col-md-6
             %p= "4- #{t('.disability_and_or_illness')}"
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.parent_carer_ill_origin')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.parent_carer_ill_origin')), disabled: true }
               %span= t('.parent_carer_ill_origin')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_ill')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_ill')), disabled: true }
               %span= t('.child_ill')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.parent_carer_disabled')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.parent_carer_disabled')), disabled: true }
               %span= t('.parent_carer_disabled')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_disabled')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_disabled')), disabled: true }
               %span= t('.child_disabled')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_hiv_aids')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_hiv_aids')), disabled: true }
               %span= t('.child_hiv_aids')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.parent_carer_hiv_aids_origin')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.parent_carer_hiv_aids_origin')), disabled: true }
               %span= t('.parent_carer_hiv_aids_origin')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
               %span= t('.other')
         .row
-          .col-xs-12.col-md-6
+          .col-12.col-md-6
             %p= "5- #{t('.drug_abuse_alcohol_and_gambling')}"
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.parent_carer_has_a_history_of_alcohol_abuse')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.parent_carer_has_a_history_of_alcohol_abuse')), disabled: true }
               %span= t('.parent_carer_has_a_history_of_alcohol_abuse')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.parent_carer_has_a_history_of_drug_use')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.parent_carer_has_a_history_of_drug_use')), disabled: true }
               %span= t('.parent_carer_has_a_history_of_drug_use')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_has_a_history_of_alcohol_abuse')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_has_a_history_of_alcohol_abuse')), disabled: true }
               %span= t('.child_has_a_history_of_alcohol_abuse')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_has_a_history_of_drug_use')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_has_a_history_of_drug_use')), disabled: true }
               %span= t('.child_has_a_history_of_drug_use')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_has_a_history_of_gambling')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_has_a_history_of_gambling')), disabled: true }
               %span= t('.child_has_a_history_of_gambling')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.parent_carer_has_a_history_of_gambling')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.parent_carer_has_a_history_of_gambling')), disabled: true }
               %span= t('.parent_carer_has_a_history_of_gambling')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.child_has_a_criminal_history')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.child_has_a_criminal_history')), disabled: true }
               %span= t('.child_has_a_criminal_history')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.parent_carer_has_a_criminal_history')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.parent_carer_has_a_criminal_history')), disabled: true }
               %span= t('.parent_carer_has_a_criminal_history')
             %p
-              %input{ class: 'i-checks', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
+              %input{ class: 'form-check-input', type: 'checkbox', checked: checked?(t('.other')), disabled: true }
               %span= t('.other')
 
     .row
-      .col-xs-12.col-md-5
+      .col-12.col-md-5
         %h5
           %strong= "#{t('.client_living_with_guardians')}?"
-      .col-xs-12.col-md-7
+      .col-12.col-md-7
         %h5
-          = f.input :client_living_with_guardian, as: :radio_buttons, collection: [[t('.positive'), true],[t('.negative'), false]], label: false, input_html: {class: 'i-checks'}
+          = f.input :client_living_with_guardian, as: :radio_buttons, collection: [[t('.positive'), true],[t('.negative'), false]], label: false, input_html: {class: 'form-check-input'}
     .row
-      .col-xs-12
+      .col-12
         %h5
           %strong= t('.child_situation_and_need')
         .table-responsive
@@ -268,12 +268,12 @@
               %td= f.input :emotional_health_need, label: false, input_html: { cols: '30', rows: '3' }
               %td= f.input :emotional_health_plan, label: false, input_html: { cols: '30', rows: '3' }
     .row
-      .col-xs-12
+      .col-12
         %h5
           %strong= t('.mission_obtainable')
         %ul.missions
           %li
-            = f.input :mission_obtainable, collection: [[t('.none'), false],[t('.exist'), true]], as: :radio_buttons, label: false, input_html: {class: 'i-checks'}
+            = f.input :mission_obtainable, collection: [[t('.none'), false],[t('.exist'), true]], as: :radio_buttons, label: false, input_html: {class: 'form-check-input'}
           %li
             %span= "#{t('.if_exist')} (#{t('.check')}"
             %span "
@@ -282,14 +282,14 @@
             %span= "#{t('.missions_which_need_to_be_done')})"
             %ul.margin-mission-check#mission-checked
               %li
-                = f.input :first_mission, disabled: (@government_report.mission_obtainable ? false : true), label: t('.first_mission'), input_html: { class: 'i-checks'}
+                = f.input :first_mission, disabled: (@government_report.mission_obtainable ? false : true), label: t('.first_mission'), input_html: { class: 'form-check-input'}
               %li
-                = f.input :second_mission, disabled: (@government_report.mission_obtainable ? false : true), label: t('.second_mission'), input_html: { class: 'i-checks'}
+                = f.input :second_mission, disabled: (@government_report.mission_obtainable ? false : true), label: t('.second_mission'), input_html: { class: 'form-check-input'}
               %li
-                = f.input :third_mission, disabled: (@government_report.mission_obtainable ? false : true), label: t('.third_mission'), input_html: { class: 'i-checks'}
+                = f.input :third_mission, disabled: (@government_report.mission_obtainable ? false : true), label: t('.third_mission'), input_html: { class: 'form-check-input'}
               %li
-                = f.input :fourth_mission, disabled: (@government_report.mission_obtainable ? false : true), label: t('.fourth_mission'), input_html: { class: 'i-checks'}
-      .col-xs-12.col-sm-5.col-sm-offset-7.col-md-4.col-md-offset-8.col-lg-3.col-lg-offset-8
+                = f.input :fourth_mission, disabled: (@government_report.mission_obtainable ? false : true), label: t('.fourth_mission'), input_html: { class: 'form-check-input'}
+      .col-12.col-sm-5.offset-sm-7.col-md-4.offset-md-8.col-lg-3.offset-lg-8
         %p.text-center.done-date
           %span.cell= t('.day')
           %span.cell.bottom-border
@@ -300,7 +300,7 @@
         %p.text-center
           %span= t('.organisation')
     .row
-      .col-xs-12.col-sm-5.col-md-4.col-md-offset-1.col-lg-3.col-lg-offset-1
+      .col-12.col-sm-5.col-md-4.offset-md-1.col-lg-3.offset-lg-1
         %p.text-center.agreed-date
           %span.cell= t('.day')
           %span.cell.bottom-border
@@ -309,15 +309,15 @@
           %span.cell= t('.year')
           %span.cell.bottom-border
     .row
-      .col-xs-12.col-sm-5.col-md-4.col-md-offset-1.col-lg-3.col-lg-offset-1
+      .col-12.col-sm-5.col-md-4.offset-md-1.col-lg-3.offset-lg-1
         %p.text-center= t('.seen_and_agreed')
         %p.text-center= t('.signature')
 
     .row
-      .col-xs-12.copy
+      .col-12.copy
         %h5
           %strong= t('.copy')
         %p= "- #{t('.office')}"
   .ibox-footer
     = f.submit t('save'), class: 'btn btn-primary form-btn'
-    = link_to t('cancel'), client_government_reports_path, class: 'btn btn-default form-btn'
+    = link_to t('cancel'), client_government_reports_path, class: 'btn btn-outline-secondary form-btn'

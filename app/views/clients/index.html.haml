@@ -1,14 +1,14 @@
 .row
-  .col-xs-12.col-md-4.col-lg-3
-    .pull-left
-      %button.btn.btn-primary.btn-filter{"aria-expanded" => 'false', "aria-label" => t('shared.actions.filter', default: 'Toggle search filters'), "data-target" => '#client-search-form', "data-toggle" => 'collapse', type: 'button'}
+  .col-12.col-md-4.col-lg-3
+    .float-start
+      %button.btn.btn-primary.btn-filter{"aria-expanded" => 'false', "aria-label" => t('shared.actions.filter', default: 'Toggle search filters'), "data-bs-target" => '#client-search-form', "data-bs-toggle" => 'collapse', type: 'button'}
         %i.fa.fa-filter{"aria-hidden" => "true"}
       - if can? :manage, :all
         %button.btn.btn-primary#client-statistic
           %i.fa.fa-line-chart{"aria-hidden" => "true"}
           %span= t('.reports')
-  .col-xs-12.col-md-8.col-lg-9
-    .pull-right.client-option
+  .col-12.col-md-8.col-lg-9
+    .float-end.client-option
       - if can? :manage, Client
         = link_to t('.add_new_client'), new_client_path, class: 'btn btn-primary'
       = link_to t('.advanced_search'), client_advanced_searches_path, class: 'class btn btn-info'
@@ -16,30 +16,30 @@
       = link_to t('.export_program_data'), current_url({format: 'xls', type: 'basic_info'}), class: 'btn btn-info btn-export'
       = link_to t('.export_to_xls'), current_url(format: 'xls'), class: 'btn btn-info btn-export'
 .row
-  .col-xs-12
+  .col-12
     .ibox-content#client-advance-search-form.collapse
 
 .row
-  .col-xs-12
+  .col-12
     .ibox-content#client-search-form.collapse
       = datagrid_form_for @client_grid, url: clients_url, html: { class: 'grid-form' }
 .row#client-statistic-body
-  .col-xs-12.mini-margin
+  .col-12.mini-margin
     .ibox
       .row
-        .col-xs-12.col-md-6
+        .col-12.col-md-6
           .ibox-content
             #cis-domain-score{ "data-csi-domain" => @csi_statistics, "data-title" => t('.csi_domain_scores'), "data-yaxis-title" => t('.domain_score')}
 
-        .col-xs-12.col-md-6
+        .col-12.col-md-6
           .ibox-content
             #case-statistic{ "data-case-statistic" => @cases_statistics, "data-title" => t('.case_statistics'), "data-yaxis-title" => t('.client_amount') }
 .row.mini-margin
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.results')
+        %span.badge.text-bg-info= t('.results')
         %form.record-cards__sort{ method: 'get', action: clients_url, role: 'search', 'aria-label' => t('.sort_label', default: 'Sort individuals') }
           - (params[:client_grid] || {}).each do |k, v|
             - next if %w(order descending).include?(k.to_s)
@@ -56,6 +56,6 @@
         - else
           %ul.record-cards{ role: 'list', 'aria-labelledby' => 'clients-list-heading', data: { 'info-load' => t('.load'), 'info-end' => t('.end') } }
             = render partial: 'clients/client_card', collection: @client_grid.assets, as: :object
-        %span.hidden{ id: 'sinfo', 'data-infoshow' => t('.sInfoShow'), 'data-infoto' => t('.sInfoTo'), 'data-infototal' => t('.sInfoTotal') }
+        %span.d-none{ id: 'sinfo', 'data-infoshow' => t('.sInfoShow'), 'data-infoto' => t('.sInfoTo'), 'data-infototal' => t('.sInfoTotal') }
       .ibox-footer.text-center
         = paginate @client_grid.assets

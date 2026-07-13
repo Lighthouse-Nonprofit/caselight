@@ -22,7 +22,7 @@ CIF.AssessmentsNew =
 
       const _handleAppendAddTaskBtn = function () {
         const scores = $('.score_option:visible').find(
-          'label.collection_radio_buttons.label-danger, label.collection_radio_buttons.label-warning',
+          'label.collection_radio_buttons.text-bg-danger, label.collection_radio_buttons.text-bg-warning',
         );
         if ($(scores).length > 0) {
           return $('.assessment-task-btn, .task_required').removeClass('hidden').show();
@@ -46,19 +46,19 @@ CIF.AssessmentsNew =
 
       var _formValidate = function (form) {
         $('.score_option input').attr('required', 'required');
-        $('.col-xs-12').on('click', '.score_option label', function () {
+        $('.col-12').on('click', '.score_option label', function () {
           const currentTabLabels = $(this).parents('.score_option').find('label label');
           currentTabLabels.removeClass('active-label');
           $(this).children('label').addClass('active-label');
 
           $('.score_option').removeClass('is_error');
-          const labelColors = 'label-danger label-warning label-primary label-info';
+          const labelColors = 'text-bg-danger text-bg-warning text-bg-primary text-bg-info';
           currentTabLabels.removeClass(labelColors);
           const score = $(this).children('label').text();
           const scoreColor = $(this).parents('.score_option').data(`score-${score}`);
           const domainId = $(this).parents('.score_option').data('domain-id');
 
-          $(this).children('label').addClass(`label-${scoreColor}`);
+          $(this).children('label').addClass(`text-bg-${scoreColor}`);
           if (scoreColor === 'danger' || scoreColor === 'warning') {
             return $(`.domain-${domainId} .assessment-task-btn, .domain-${domainId} .task_required`)
               .removeClass('hidden')
@@ -148,7 +148,7 @@ CIF.AssessmentsNew =
         const scoreColor = scoreOption.data(`score-${chosenScore}`);
         return scoreOption
           .find(`label label:contains(${chosenScore})`)
-          .addClass(`label-${scoreColor}`);
+          .addClass(`text-bg-${scoreColor}`);
       };
 
       var _filedsValidator = function (currentIndex, newIndex) {
@@ -204,7 +204,8 @@ CIF.AssessmentsNew =
             success(response) {
               _addElementToDom(response, actionUrl);
               $('.add-task-btn').removeAttr('disabled');
-              return $('#tasksFromModal').modal('hide');
+              var _tfm = document.getElementById('tasksFromModal');
+              return _tfm && bootstrap.Modal.getOrCreateInstance(_tfm).hide();
             },
             error(response) {
               $('.add-task-btn').removeAttr('disabled');
@@ -218,7 +219,7 @@ CIF.AssessmentsNew =
         let deleteUrl = undefined;
         let element = undefined;
         deleteUrl = `${actionUrl}/${data.id}`;
-        element = `<li class='list-group-item' style='padding-bottom: 11px;'>${data.name}<a class='pull-right remove-task fa fa-trash btn btn-outline btn-danger btn-xs' href='javascript:void(0)' data-url='${deleteUrl}' style='margin: 0;'></a></li>`;
+        element = `<li class='list-group-item' style='padding-bottom: 11px;'>${data.name}<a class='float-end remove-task fa fa-trash btn btn-outline btn-danger btn-xs' href='javascript:void(0)' data-url='${deleteUrl}' style='margin: 0;'></a></li>`;
 
         $(`.domain-${data.domain_id} .task-arising`).removeClass('hidden');
         $(`.domain-${data.domain_id} .task-arising ol`).append(element);
@@ -285,7 +286,7 @@ CIF.AssessmentsNew =
           showUpload: false,
           removeClass: 'btn btn-danger btn-outline',
           browseLabel: 'Browse',
-          theme: 'explorer',
+          theme: 'explorer-fa4',
           allowedFileExtensions: ['jpg', 'png', 'jpeg', 'doc', 'docx', 'xls', 'xlsx', 'pdf'],
         });
 

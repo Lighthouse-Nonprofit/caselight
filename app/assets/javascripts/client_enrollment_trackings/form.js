@@ -20,7 +20,7 @@ CIF.Client_enrollment_trackingsNew =
           showUpload: false,
           removeClass: 'btn btn-danger btn-outline',
           browseLabel: 'Browse',
-          theme: 'explorer',
+          theme: 'explorer-fa4',
           allowedFileExtensions: ['jpg', 'png', 'jpeg', 'doc', 'docx', 'xls', 'xlsx', 'pdf'],
         });
 

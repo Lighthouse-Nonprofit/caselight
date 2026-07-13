@@ -1,0 +1,38 @@
+// Legacy INSPINIA / visual-refresh SCSS variable names (POAM-017g THE FLIP).
+//
+// The ~90 per-view partials under app/assets/stylesheets/**/*.scss reference these names
+// (they used to come from the deleted wrapbootstrap/base/variables.scss + _refresh.scss).
+// A 2026-07-12 census confirmed the FULL external surface is exactly the names below —
+// no mixins, no @extend. Re-providing them here (as aliases onto the caselight_theme
+// values) keeps every per-view partial compiling UNCHANGED at the flip.
+//
+// IMPORTED AFTER bootstrap5/variables (see theme.scss): several of these names ($blue,
+// $red, $yellow, $gray) collide with Bootstrap's own variables, so they must be assigned
+// only AFTER Bootstrap has finished consuming its own values — otherwise they would poison
+// BS internals. By this point Bootstrap's config/components are built; these reassignments
+// are seen only by the theme layer + per-view partials that follow.
+
+// Palette
+$lazur:           $harbor;      // #2C6E9B (harbor blue)
+$blue:            $harbor;
+$yellow:          $amber-soft;  // #f8ac59
+$red:             $rose;        // #D63653
+$dark-gray:       #c2c2c2;
+$gray:            #f3f3f4;
+$light-gray:      #D1DADE;
+$light-blue:      #f3f6fb;
+$text-color:      $body-color;  // #333333
+$nav-bg:          $cl-nav-bg;
+$nav-text-color:  $cl-nav-text;
+$sidebar-width:   $cl-sidebar-width;
+$label-badget-color: #454545;
+
+// Visual-refresh design tokens
+$refresh-border:      $cl-border;   // #e2e6ea
+$refresh-radius:      4px;
+$refresh-radius-sm:   3px;
+$refresh-radius-pill: 10rem;
+$refresh-shadow-sm:   $box-shadow-sm;
+$refresh-shadow:      $box-shadow;
+$refresh-shadow-md:   $box-shadow-lg;
+$refresh-focus-ring:  $input-focus-box-shadow; // 0 0 0 3px rgba(44,110,155,.35)

@@ -1,5 +1,5 @@
 .row
-  .col-xs-12.col-sm-8.col-sm-offset-2.col-md-6.col-md-offset-3
+  .col-12.col-sm-8.offset-sm-2.col-md-6.offset-md-3
     .ibox.normal-space
       .ibox-title
         %h3 Passkeys
@@ -29,7 +29,7 @@
 
         %hr
         #passkey-register-area{ data: { options_url: passkey_registration_options_path, passkeys_url: passkeys_path } }
-          .form-group
+          .mb-3
             = label_tag :passkey_nickname, 'Name this device'
             = text_field_tag :passkey_nickname, nil, class: 'form-control', placeholder: 'e.g. My laptop, YubiKey', maxlength: 60
           %button#passkey-register.btn.btn-primary{ type: 'button' } Register this device

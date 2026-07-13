@@ -1,0 +1,177 @@
+// caselight_theme/_compat.scss — INSPINIA-era compatibility utilities the
+// deleted commercial theme provided and that live markup still uses (census
+// 2026-07-12). Thin plain-CSS shims on Bootstrap 5.3 DNA. Part of caselight_theme (POAM-017g THE FLIP).
+
+// --- .sr-only: alias of Bootstrap's .visually-hidden (BS3/legacy markup) ---
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// --- .btn-xs: BS3 extra-small button size removed in BS5 ---
+.btn-xs {
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+// --- INSPINIA .btn-outline behaviour (65+128 uses) ---
+.btn-outline {
+  color: inherit;
+  background-color: transparent;
+  transition: all .3s;
+}
+.btn-primary.btn-outline { color: $navy; }
+.btn-success.btn-outline { color: $blue; }
+.btn-info.btn-outline    { color: $lazur; }
+.btn-warning.btn-outline { color: $yellow; }
+.btn-danger.btn-outline  { color: $red; }
+.btn-primary.btn-outline:hover,
+.btn-success.btn-outline:hover,
+.btn-info.btn-outline:hover,
+.btn-warning.btn-outline:hover,
+.btn-danger.btn-outline:hover {
+  color: #fff;
+}
+
+// --- .btn-white: INSPINIA neutral white button ---
+.btn-white {
+  color: inherit;
+  background: #fff;
+  border: 1px solid $border-color;
+}
+.btn-white:hover {
+  border: 1px solid #d2d2d2;
+}
+
+// --- INSPINIA spacing / display micro-utilities ---
+.m-t-none { margin-top: 0; }
+.m-t-xs   { margin-top: 5px; }
+.m-t-sm   { margin-top: 10px; }
+.m-t      { margin-top: 15px; }
+.m-b-none { margin-bottom: 0; }
+.m-b-xs   { margin-bottom: 5px; }
+.m-b      { margin-bottom: 15px; }
+.m-l      { margin-left: 15px; }
+.no-margin  { margin: 0; }
+.no-margins { margin: 0; }
+.no-padding { padding: 0; }
+.block { display: block; }
+.clear { display: block; overflow: hidden; }
+.font-bold { font-weight: 600; }
+.text-xs { font-size: 11px; }
+.b-r-md { border-radius: 6px; }
+.bg-color { background-color: #fff; }
+.wrapper-content { padding: 20px 10px 40px; }
+
+// --- BS3 text alignment renamed in BS5 (markup still uses these) ---
+.text-right { text-align: right; }
+.text-left  { text-align: left; }
+
+// --- .hidden: BS3 display utility still toggled by JS (.addClass('hidden')). BS5 dropped it;
+//     keep it (dot-notation view sites were codemodded to .d-none, but JS strings rely on this). ---
+.hidden { display: none !important; }
+
+// --- .label-lg: BS3 label size modifier still used by the assessment score chips ---
+.label-lg { font-size: 85%; padding: .35em .65em; }
+
+// --- .well / .thumbnail: BS3 components removed in BS5; kept as thin shims (a handful of uses) ---
+.well {
+  min-height: 20px; padding: 19px; margin-bottom: 20px;
+  background-color: #f5f5f5; border: 1px solid #e3e3e3; border-radius: $border-radius;
+}
+.thumbnail {
+  display: inline-block; padding: 4px; line-height: 1.5;
+  background-color: #fff; border: 1px solid #ddd; border-radius: $border-radius;
+}
+
+// --- .has-error: BS3 form error state still applied by JS (case-note/task validation).
+//     BS5 uses .is-invalid on the control; keep .has-error working as a red-highlight shim. ---
+.has-error {
+  .form-control, .form-select, .single-line { border-color: $danger; }
+  .form-label, .control-label, .form-text { color: $danger; }
+}
+
+// --- Residual BS3 component markup shims (POAM-017g). Functionally correct on BS5 already
+//     (modals use data-bs-dismiss, dropdowns/tabs use data-bs-toggle); these give the legacy
+//     markup its Bootstrap-5 LOOK without a 30-file markup churn. A later polish rung can
+//     convert the markup to native .btn-close / .dropdown-item / .nav-link. ---
+
+// Modal / alert close button (BS3 `button.close` with a × glyph; BS5 renamed it .btn-close).
+.close {
+  float: right;
+  padding: 0;
+  margin: 0 0 0 auto;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  background: transparent;
+  border: 0;
+  opacity: .5;
+  cursor: pointer;
+  &:hover, &:focus { opacity: .85; }
+}
+.modal-header .close { margin-top: -.25rem; }
+
+// Legacy dropdown items (`.dropdown-menu > li > a`; BS5 wants `.dropdown-item` on the <a>).
+.dropdown-menu {
+  li > a {
+    display: block;
+    width: 100%;
+    padding: .35rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    &:hover, &:focus { color: #1e2125; background-color: #e9ecef; }
+  }
+  li.active > a, li > a.active { color: #fff; background-color: $navy; }
+  .divider {
+    height: 0;
+    margin: .5rem 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(0, 0, 0, .12);
+  }
+}
+
+// Legacy tabs (`.nav-tabs > li > a`; BS5 wants `.nav-item`/`.nav-link`). The triggers already
+// carry data-bs-toggle="tab" (codemod), so switching works — this is styling only.
+.nav-tabs {
+  border-bottom: 1px solid $refresh-border;
+  > li {
+    margin-bottom: -1px;
+    > a {
+      display: block;
+      padding: .5rem 1rem;
+      color: $lazur;
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-top-left-radius: $border-radius;
+      border-top-right-radius: $border-radius;
+      &:hover { border-color: #e9ecef #e9ecef $refresh-border; }
+    }
+    &.active > a, > a.active {
+      color: $body-color;
+      background-color: #fff;
+      border-color: $refresh-border $refresh-border #fff;
+    }
+  }
+}
+
+// BS3 .navbar-right (removed in BS5; the topnav ul also carries .float-end from the codemod).
+.navbar-right { margin-left: auto; }
+
+// .pace-done (Pace loader body class) needs no style — intentionally omitted.

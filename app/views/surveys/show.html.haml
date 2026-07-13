@@ -1,9 +1,9 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= t('.survey_detail')
-        %h5.pull-right= @survey.created_at
+        %h5.float-end= @survey.created_at
       .ibox-content
         %table.table
           %thead
@@ -51,4 +51,4 @@
                 .badge.badge-info
                   = @survey.care_score
       .ibox-footer
-        = link_to t('.back'), client_surveys_path(@client), class: 'btn btn-default btn-back'
+        = link_to t('.back'), client_surveys_path(@client), class: 'btn btn-outline-secondary btn-back'

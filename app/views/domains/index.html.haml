@@ -1,9 +1,9 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.domains')
+        %span.badge.text-bg-info= t('.domains')
         .ibox-tools
           - if can? :manage, Domain
             = link_to new_domain_path do
@@ -11,10 +11,10 @@
                 = t('.add_new_domain')
       .ibox-content
         - @domains.each do |domain|
-          .panel.panel-default
-            .panel-heading
+          .card
+            .card-header
               .row
-                .col-xs-12.col-sm-8
+                .col-12.col-sm-8
                   %h3
                     = "#{t('.domains')} : #{domain.name} (#{domain.identity})"
                   %h5
@@ -22,7 +22,7 @@
                     = cl_badge(t('.score_2'), domain.score_2_color)
                     = cl_badge(t('.score_3'), domain.score_3_color)
                     = cl_badge(t('.score_4'), domain.score_4_color)
-                .col-xs-12.col-sm-4.text-right.actions
+                .col-12.col-sm-4.text-right.actions
                   - if can? :version, Domain
                     = link_to domain_version_path(domain), class: 'btn btn-outline btn-success margin-left' do
                       = t('.changelog')
@@ -30,7 +30,7 @@
                     = link_to edit_domain_path(domain), class: 'btn btn-outline btn-success margin-left' do
                       = fa_icon('pencil')
                     = remove_link(domain, {domain_task: domain.tasks_count, assessment_domains_size: domain.assessment_domains.size}, 'margin-left')
-            .panel-body
+            .card-body
               %p= render_rich_text(domain.description)
       .ibox-footer.text-center
         = paginate @domains

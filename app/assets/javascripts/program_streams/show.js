@@ -35,7 +35,7 @@ CIF.Program_streamsShow = CIF.Program_streamsPreview = (function () {
       showUpload: false,
       removeClass: 'btn btn-danger btn-outline',
       browseLabel: 'Browse',
-      theme: 'explorer',
+      theme: 'explorer-fa4',
     });
 
   var _initSelect2 = function () {

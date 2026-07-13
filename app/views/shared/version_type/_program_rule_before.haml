@@ -1,10 +1,10 @@
 .row
-  .col-xs-12
+  .col-12
     #before.modal.fade{:role => 'dialog', tabindex: '-1' }
       .modal-dialog.modal-program-rule-width{role: 'document'}
         .modal-content
           .modal-header
-            %button.close{ 'aria-label' => 'Close', 'data-dismiss' => 'modal', type: 'button' }
+            %button.close{ 'aria-label' => 'Close', 'data-bs-dismiss' => 'modal', type: 'button' }
               %span{ 'aria-hidden' => 'true' } ×
             %h3.modal-title.text-center= t('.before')
           .modal-body

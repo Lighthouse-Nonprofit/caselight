@@ -42,7 +42,7 @@ describe ClientEnrollmentTracking, 'Client Enrollment Tracking' do
 
         click_button 'Save'
       end
-      expect(page).to have_css('div.form-group.has-error')
+      expect(page).to have_css('div.has-error')
     end
   end
 

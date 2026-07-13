@@ -1,0 +1,134 @@
+// caselight_theme/_shell.scss — CaseLight in-house Bootstrap 5.3 theme (POAM-017g THE FLIP).
+// App layout shell replacing INSPINIA base.scss: #wrapper / fixed navy sidebar / #page-wrapper,
+// mini-navbar icon-rail + off-canvas responsive collapse, content padding, fullscreen-ibox.
+// Native CSS overflow only (slimscroll deleted); restyles INSPINIA class names on Bootstrap-5 DNA.
+
+// ---- ROOT WRAPPER ----------------------------------------------------------
+#wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+// ---- SIDEBAR: placement / size / native scroll -----------------------------
+// (Inner menu styling lives in _sidebar.scss — here we only fix, size and scroll it.)
+nav.navbar-static-side {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: $cl-sidebar-width;
+  background-color: $cl-nav-bg;
+  overflow-x: hidden;
+  overflow-y: auto;                 // native scroll, no slimscroll
+  -webkit-overflow-scrolling: touch;
+  z-index: 1010;                    // above content, below modals (2040/2050)
+  transition: width .2s ease, transform .2s ease;
+}
+
+// ---- CONTENT COLUMN --------------------------------------------------------
+#page-wrapper {
+  position: relative;               // anchors the absolute footer
+  margin-left: $cl-sidebar-width;
+  min-height: 100vh;
+  background-color: #ffffff;
+  transition: margin-left .2s ease;
+
+  &.gray-bg { background-color: $cl-content-bg; }
+  &.no-margin { margin: 0; }        // logged-out: no sidebar, full width
+}
+
+// ---- CONTENT PADDING WRAPPERS ---------------------------------------------
+.min-margin-layout { padding: 16px 20px; }
+.padding-bottom { padding-bottom: 40px; }
+// Legacy INSPINIA content wrappers still present in some views.
+.wrapper { padding: 0 20px; }
+.wrapper-content { padding: 20px 20px 40px; }
+
+// ---- MINI-NAVBAR: collapsed ~70px icon rail (desktop) ----------------------
+body.mini-navbar {
+  nav.navbar-static-side { width: 70px; }
+  #page-wrapper { margin-left: 70px; }
+  .footer.fixed { margin-left: 70px; }
+}
+
+// ---- FOOTER ----------------------------------------------------------------
+.footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px 20px;
+  background: #ffffff;
+  border-top: 1px solid $cl-border;
+  font-size: 90%;
+
+  &.fixed {
+    position: fixed;
+    z-index: 1000;
+    margin-left: $cl-sidebar-width;
+    transition: margin-left .2s ease;
+  }
+}
+
+// ---- RESPONSIVE OFF-CANVAS (viewport-driven) -------------------------------
+// At small widths the sidebar slides off-canvas; content spans full width.
+@media (max-width: 768px) {
+  nav.navbar-static-side {
+    width: $cl-sidebar-width;        // full width so labels show when it slides in
+    transform: translateX(-100%);
+  }
+  #page-wrapper { margin-left: 0; }
+  .footer.fixed { margin-left: 0; }
+
+  // On small screens the toggle SHOWS the full sidebar (overlay).
+  body.mini-navbar {
+    nav.navbar-static-side {
+      transform: translateX(0);
+      box-shadow: $box-shadow-lg;
+    }
+    #page-wrapper { margin-left: 0; }
+    .footer.fixed { margin-left: 0; }
+  }
+}
+
+// ---- RESPONSIVE OFF-CANVAS (JS class-driven: body.body-small) --------------
+// Mirrors the media query for when the app toggles the class explicitly.
+body.body-small {
+  nav.navbar-static-side {
+    width: $cl-sidebar-width;
+    transform: translateX(-100%);
+  }
+  #page-wrapper { margin-left: 0; }
+  .footer.fixed { margin-left: 0; }
+
+  &.mini-navbar {
+    nav.navbar-static-side {
+      transform: translateX(0);
+      box-shadow: $box-shadow-lg;
+    }
+    #page-wrapper { margin-left: 0; }
+    .footer.fixed { margin-left: 0; }
+  }
+}
+
+// ---- FULLSCREEN IBOX (ibox-tools expand) -----------------------------------
+body.fullscreen-ibox-mode {
+  overflow-y: hidden;
+
+  .ibox.fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 2050;
+    overflow: auto;
+    margin-bottom: 0;
+  }
+}
+
+// ---- MOTION SAFETY ---------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  nav.navbar-static-side,
+  #page-wrapper,
+  .footer.fixed { transition: none; }
+}

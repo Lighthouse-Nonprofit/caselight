@@ -27,7 +27,8 @@ CIF.Program_streamsIndex = (function () {
       return;
     }
     if (tab.substr(1) === 'all_ngo') {
-      return $('a[href="#ngos-program-streams"]').tab('show');
+      const trigger = document.querySelector('a[href="#ngos-program-streams"]');
+      return trigger && bootstrap.Tab.getOrCreateInstance(trigger).show();
     }
   };
 

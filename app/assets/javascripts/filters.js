@@ -12,7 +12,7 @@ $(function () {
   if (indexes.indexOf(body) > -1) {
     $('.integer_filter').attr('type', 'number');
     $('.grid-form .datagrid-filter, .grid-form .domain-filter').each(function () {
-      $(this).addClass('form-group col-xs-12 col-sm-6 col-lg-4');
+      $(this).addClass('mb-3 col-12 col-sm-6 col-lg-4');
       return $(this).children('input, select').addClass('form-control');
     });
 
@@ -20,9 +20,9 @@ $(function () {
       return $(this).children('input, select').addClass('form-control');
     });
 
-    $('.grid-form .datagrid-actions').addClass('col-xs-12');
+    $('.grid-form .datagrid-actions').addClass('col-12');
     $('.grid-form .datagrid-actions input').addClass('btn btn-primary');
-    $('.grid-form .datagrid-actions a').addClass('btn btn-default');
+    $('.grid-form .datagrid-actions a').addClass('btn btn-outline-secondary');
 
     const noResult = $('table').find('.noresults');
     const noResultClient = $('table').find('.dataTables_empty');

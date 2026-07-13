@@ -1,0 +1,226 @@
+// caselight_theme/_sidebar.scss — dark navy sidebar: nav.navbar-static-side / #side-menu.metismenu
+// (INSPINIA-era markup) restyled on Bootstrap 5.3 DNA. The sidebar BOX (width/bg/overflow) is owned
+// by _shell; this partial styles the menu. Part of caselight_theme (POAM-017g THE FLIP).
+
+// ---------------------------------------------------------------------------
+//  #side-menu — the metisMenu vertical rail
+// ---------------------------------------------------------------------------
+// BS5's `.nav` (imported above) is display:flex; force the menu + its nested uls
+// to stack vertically. Scoped by #id so it beats the single-class BS5 rule.
+#side-menu {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+
+  li { list-style: none; }
+
+  .nav-second-level,
+  .nav-third-level {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // -- metisMenu collapse contract -----------------------------------------
+  // metisMenu v2.0.2 toggles `.collapse` / `.collapse.in` / `.collapsing` on the
+  // nested <ul>s. Bootstrap 5's transitions (imported before us) hide any
+  // `.collapse` that lacks `.show` — which would keep every open submenu hidden.
+  // Re-establish the in/collapsing display the plugin actually drives. These sit
+  // AFTER the display:block above so, at equal specificity, collapse wins.
+  .collapse { display: none; }
+  .collapse.in { display: block; }
+  .collapsing {
+    position: relative;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.35s ease;
+  }
+
+  // -- link base (all levels) ----------------------------------------------
+  li > a {
+    display: block;
+    padding: 14px 20px;
+    color: $cl-nav-text;
+    font-weight: 400;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+
+    > i {
+      margin-right: 10px;
+      width: 14px;
+      text-align: center;
+    }
+  }
+
+  li > a:hover,
+  li > a:focus {
+    background-color: darken($cl-nav-bg, 3%);
+    color: #ffffff;
+  }
+
+  // -- active item: darker fill + amber beacon on the top rail --------------
+  li.active > a {
+    color: #ffffff;
+    font-weight: 600;
+    background-color: darken($cl-nav-bg, 4%);
+  }
+  // Only the top-level active item gets the amber beacon rail; nested actives
+  // keep the transparent edge so the rail reads as a single accent.
+  > li.active > a {
+    border-left: 4px solid $amber;
+  }
+
+  // -- expand/collapse chevron (span.fa.arrow, FA4) ------------------------
+  .nav-label {
+    display: inline;
+  }
+  .fa.arrow {
+    float: right;
+    line-height: 1.42857;
+  }
+  .fa.arrow:before { content: "\f104"; }          // fa-angle-left (collapsed)
+  li.active > a > .fa.arrow:before { content: "\f107"; } // fa-angle-down (open)
+
+  // -- second level ---------------------------------------------------------
+  .nav-second-level {
+    background-color: darken($cl-nav-bg, 3%);
+
+    li > a {
+      padding: 7px 10px 7px 40px;
+      font-size: 12px;
+      color: #9aa9bd;
+    }
+    li > a:hover,
+    li > a:focus {
+      color: #ffffff;
+      background-color: darken($cl-nav-bg, 6%);
+    }
+    li:last-child { margin-bottom: 8px; }
+  }
+
+  // -- third level ----------------------------------------------------------
+  .nav-third-level li > a {
+    padding-left: 55px;
+    font-size: 12px;
+    color: #8794a8;
+  }
+  .nav-third-level li > a:hover,
+  .nav-third-level li > a:focus {
+    color: #ffffff;
+  }
+
+  // -- sidebar count pill (span.label.label-primary, or span.badge after the
+  //    codemod). Amber pill w/ deep-navy text so it stands out on the navy rail
+  //    (a navy primary badge would vanish). Covers both class names. ---------
+  .label,
+  .label-primary,
+  .badge {
+    float: right;
+    margin-top: 1px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+    border-radius: 10rem;
+    background-color: $amber;
+    color: #16273D;
+  }
+
+  // -- hairline rule under the profile -------------------------------------
+  .line-border {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  .nav-header — profile block at the top of the rail
+// ---------------------------------------------------------------------------
+// li.nav-header holds the .profile-element (avatar/name/role dropdown) and the
+// collapsed .logo-element. The profile toggle is li > div.profile-element > a,
+// so it escapes the #side-menu li>a link rules above — style it explicitly here.
+.nav-header {
+  padding: 24px 20px;
+  text-align: center;
+  background-color: $cl-nav-bg;
+
+  .profile-element > a {
+    display: inline-block;
+    padding: 0;
+    border-left: 0;
+    color: #dfe4ed;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      color: #ffffff;
+      background-color: transparent;
+    }
+  }
+
+  // role / caption text under the name
+  .text-muted { color: #9aa9bd; }
+}
+
+// Collapsed-rail logo (hidden until mini-navbar).
+.logo-element {
+  display: none;
+  padding: 18px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+}
+
+// The profile dropdown MENU is a real Bootstrap-5 dropdown (light surface,
+// styled by _topnav/dropdown) that happens to live inside the dark #side-menu.
+// Neutralize the dark rail link treatment for its items so it renders normally.
+#side-menu .nav-header .dropdown-menu a {
+  border-left: 0;
+  color: inherit;
+
+  &:hover,
+  &:focus {
+    background-color: transparent;
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  body.mini-navbar — collapsed ~70px icon rail
+// ---------------------------------------------------------------------------
+// _shell owns the 70px width + #page-wrapper margin. Here: hide labels/arrows/
+// counts, center the icons, swap the profile block for the logo, and hide the
+// nested submenus (native-overflow sidebar would clip a fly-out — keep it
+// simple and non-broken; the user re-expands the rail to navigate submenus).
+body.mini-navbar {
+  .profile-element { display: none; }
+  .logo-element { display: block; }
+
+  .nav-header {
+    padding: 0;
+    background-color: $navy;
+  }
+
+  #side-menu > li > a {
+    padding: 14px 0;
+    font-size: 16px;
+    text-align: center;
+
+    > i { margin-right: 0; }
+  }
+
+  // hide every in-link text span (nav-label, the arrow span, the count pill).
+  #side-menu li > a span { display: none; }
+
+  // collapse the submenus out of the rail entirely.
+  #side-menu .nav-second-level,
+  #side-menu .nav-third-level { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #side-menu li > a,
+  #side-menu .collapsing { transition: none; }
+}

@@ -1,0 +1,62 @@
+// _tables.scss — CaseLight table restyle. Part of the in-house caselight_theme
+// (POAM-017g THE FLIP). Thin BS5.3 layer over .table; ports the table tokens
+// from wrapbootstrap/base/_refresh.scss (~L105-117) onto Bootstrap-5 DNA.
+
+.table {
+  // Route BS5's cell hairlines through the refresh hairline colour.
+  --bs-table-border-color: #{$refresh-border};
+
+  // BS5.3 paints a per-cell `border-bottom-width` hairline on every cell.
+  // Zero it here so the refresh header rule + body top-borders below draw a
+  // single clean hairline instead of doubling up. (.table-bordered draws its
+  // horizontal lines on the <tr>, so this does not disturb bordered tables.)
+  > :not(caption) > * > * {
+    border-bottom-width: 0;
+  }
+
+  // Header cells: muted, upper-cased column labels under a heavier rule.
+  > thead > tr > th,
+  > thead > tr > td {
+    border-bottom: 2px solid $refresh-border;
+    color: #5a6270;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+
+  // Body + footer cells: hairline top border between rows, comfy padding.
+  > tbody > tr > td,
+  > tbody > tr > th,
+  > tfoot > tr > td,
+  > tfoot > tr > th {
+    border-top: 1px solid $refresh-border;
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+}
+
+// Hover rows. BS5.3 renders the hover fill via an inset box-shadow keyed off
+// --bs-table-hover-bg, so set that (primary, reliable mechanism) and also carry
+// the plain background-color override to mirror _refresh's intent.
+.table-hover {
+  --bs-table-hover-bg: rgba(44, 110, 155, 0.05);
+
+  > tbody > tr:hover > td,
+  > tbody > tr:hover > th {
+    background-color: rgba(44, 110, 155, 0.05);
+  }
+}
+
+// Bordered variant: tinted header cells on the refresh hairline.
+.table-bordered {
+  --bs-table-border-color: #{$refresh-border};
+
+  > thead > tr > th,
+  > thead > tr > td {
+    background-color: #f6f8fa;
+    border-color: $refresh-border;
+  }
+}

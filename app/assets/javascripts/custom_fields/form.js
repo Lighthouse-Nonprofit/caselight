@@ -144,10 +144,10 @@ CIF.Custom_fieldsNew =
                   // sets a properly-quoted href (the old unquoted `href=#{preview_link}` allowed break-out).
                   // No interpolated HTML string reaches the DOM.
                   var $li = $('<li>');
-                  $('<span>', { class: 'col-xs-8' })
+                  $('<span>', { class: 'col-8' })
                     .text(`${field.form_title} (${field.ngo_name})`)
                     .appendTo($li);
-                  var $right = $('<span>', { class: 'col-xs-4 text-right' }).appendTo($li);
+                  var $right = $('<span>', { class: 'col-4 text-right' }).appendTo($li);
                   $('<a>').text(previewTranslation).attr('href', preview_link).appendTo($right);
                   result.push($('#livesearch').append($li));
                 } else {

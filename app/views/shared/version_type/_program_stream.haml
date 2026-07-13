@@ -1,9 +1,9 @@
 - if version.item_type == "ProgramStream"
-  %div{ class: "panel panel-#{version_color(version.event)}" }
-    .panel-heading
+  %div{ class: "card panel-#{version_color(version.event)}" }
+    .card-header
       %h5
         .row
-          .col-xs-12.col-md-9.col-lg-10
+          .col-12.col-md-9.col-lg-10
             - if controller_name == 'data_trackers'
               %p
                 = "#{version.whodunnit} #{t('.change')} #{t('.on')}"
@@ -11,10 +11,10 @@
                 = "##{version.item_id}."
             - else
               %p= "#{version.whodunnit} #{t('.change')}."
-          .col-xs-12.col-md-3.col-lg-2.text-right
-            %p{ class: "label label-#{version_color(version.event)}" }
+          .col-12.col-md-3.col-lg-2.text-right
+            %p{ class: "badge text-bg-#{version_color(version.event)}" }
               = version.event_formated
-    .panel-body
+    .card-body
       .table-responsive
         - if version.event == 'delete'
           %table.table.table-hover
@@ -62,7 +62,7 @@
                                   %li
                                     ="#{key}: #{value}"
                     - elsif k == 'rules'
-                      %a.btn.btn-info{ 'data-target' => '#before', 'data-toggle' => 'modal', type: 'button' }
+                      %a.btn.btn-info{ 'data-bs-target' => '#before', 'data-bs-toggle' => 'modal', type: 'button' }
                         = t('.more_detail')
                       #rule-before{'data-program-rules': v[0].to_json}
 
@@ -87,7 +87,7 @@
                                   %li
                                     ="#{key}: #{value}"
                     - elsif k == 'rules'
-                      %a.btn.btn-info{ 'data-target' => '#after', 'data-toggle' => 'modal', type: 'button' }
+                      %a.btn.btn-info{ 'data-bs-target' => '#after', 'data-bs-toggle' => 'modal', type: 'button' }
                         = t('.more_detail')
                       #rule-after{'data-program-rules': v[1].to_json}
                     - else

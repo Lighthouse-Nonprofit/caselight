@@ -1,7 +1,7 @@
 - DataTrackerVersion.assessment_domain(assessment_id, event).each do |version|
   - next if version.changeset[:attachments].present?
-  %div{ class: "panel panel-#{version_color(version.event)}" }
-    .panel-body
+  %div{ class: "card panel-#{version_color(version.event)}" }
+    .card-body
       .table-responsive
         %table.table.table-hover
           %tbody

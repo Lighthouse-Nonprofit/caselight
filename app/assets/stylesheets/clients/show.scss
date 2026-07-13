@@ -1,10 +1,10 @@
 body[id='clients-show'] {
-  .label-default.family {
+  .text-bg-light.family {
     border: 1px solid #cacaca;
     background-color: #fff;
   }
 
-  .panel-heading small a {
+  .card-header small a {
     text-decoration: none;
     margin: 0 5px;
   }
@@ -34,7 +34,7 @@ body[id='clients-show'] {
   }
 
   .client {
-    .panel-body {
+    .card-body {
       min-height: 498px;
       .first-table, .second-table {
         max-width: 420px;
@@ -44,7 +44,7 @@ body[id='clients-show'] {
   }
 
   .case {
-    .panel-body {
+    .card-body {
       height: 520px;
     }
   }
@@ -109,12 +109,12 @@ body[id='clients-show'] {
     height: 400px;
   }
 
-  .label.label-default {
+  .badge.text-bg-light {
     line-height: 2.2;
     margin-right: 3px;
   }
 
-  .label.agency {
+  .badge.agency {
     margin-right: 3px;
   }
 
@@ -151,7 +151,7 @@ body[id='clients-show'] {
   }
 
   @media screen and (max-width: 991px) {
-    .case .panel-body {
+    .case .card-body {
       height: auto;
     }
 

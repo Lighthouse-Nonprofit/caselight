@@ -34,10 +34,7 @@ CIF.Program_streamsNew =
       };
 
       var _initCheckbox = function () {
-        $('.i-checks').iCheck({
-          checkboxClass: 'icheckbox_square-green',
-        });
-        return $($('.icheckbox_square-green.checked')[0]).removeClass('checked');
+        // POAM-017g flip: iCheck removed — checkboxes are native .form-check-input (no init).
       };
 
       const _stickyFill = function () {
@@ -600,10 +597,10 @@ CIF.Program_streamsNew =
       var _handleMaximumProgramEnrollment = function () {
         const quantity = $('#program_stream_quantity');
         if ($(quantity).val() < $(quantity).data('maximun') && $(quantity).val() !== '') {
-          $('.help-block.quantity').removeClass('hidden');
+          $('.form-text.quantity').removeClass('hidden');
           return true;
         } else {
-          $('.help-block.quantity').addClass('hidden');
+          $('.form-text.quantity').addClass('hidden');
           return false;
         }
       };

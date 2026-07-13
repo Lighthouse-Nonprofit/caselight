@@ -14,19 +14,19 @@ describe 'Task' do
       visit client_tasks_path(client)
     end
     scenario 'overdue task' do
-      panel = page.all(:css, '.panel').select { |p| p.all(:css, '.panel-heading').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
+      panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
       expect(panel).to have_content(overdue_task.name)
       expect(panel).to have_content(overdue_task.domain.name)
       expect(panel).to have_content(overdue_task.completion_date.strftime("%B %d, %Y"))
     end
     scenario 'today task' do
-      panel = page.all(:css, '.panel').select { |p| p.all(:css, '.panel-heading').select { |pp| pp.text.include?('Today Tasks') }.first }.first
+      panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Today Tasks') }.first }.first
       expect(panel).to have_content(today_task.name)
       expect(panel).to have_content(today_task.domain.name)
       expect(panel).to have_content(today_task.completion_date.strftime("%B %d, %Y"))
     end
     scenario 'upcoming task' do
-      panel = page.all(:css, '.panel').select { |p| p.all(:css, '.panel-heading').select { |pp| pp.text.include?('Upcoming Tasks') }.first }.first
+      panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Upcoming Tasks') }.first }.first
       expect(panel).to have_content(upcoming_task.name)
       expect(panel).to have_content(upcoming_task.domain.name)
       expect(panel).to have_content(upcoming_task.completion_date.strftime("%B %d, %Y"))

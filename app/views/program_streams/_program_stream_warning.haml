@@ -2,14 +2,14 @@
   .modal-dialog{role: "document"}
     .modal-content
       .modal-header.bg-warning
-        %button.close{"aria-label" => "Close", "data-dismiss" => "modal", type: "button"}
+        %button.close{"aria-label" => "Close", "data-bs-dismiss" => "modal", type: "button"}
           %span{"aria-hidden" => "true"} ×
         %h4#gridSystemModalLabel.modal-title=t('warning')
       = simple_form_for(current_user, url: '/users', html: {class: 'program-warning-form'}) do |f|
         .modal-body
           %p Programs change how your organization supports individuals, tracks services, and reports outcomes. Please make sure you are an authorized staff member and have completed training before using this tool.
           .form-inputs
-            = f.input :program_warning, label: "Don't show this warning again", input_html: { class: 'i-checks' }
+            = f.input :program_warning, label: "Don't show this warning again", input_html: { class: 'form-check-input' }
         .modal-footer
           = f.button :submit, t('ok'), class: 'btn btn-danger'
-          %button.btn.btn-default{"data-dismiss" => 'modal'}= t('back')
+          %button.btn.btn-outline-secondary{"data-bs-dismiss" => 'modal'}= t('back')

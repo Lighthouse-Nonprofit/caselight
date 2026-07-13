@@ -9,15 +9,15 @@
         - if user_signed_in?
           = link_to root_path do
             = image_tag(ENV['NGO_LOGO'], class: 'navbar-minimalize minimalize-styl-2', alt: (Organization.current&.full_name.presence || 'Home'))
-    %ul.nav.navbar-top-links.navbar-right.pull-right
+    %ul.nav.navbar-top-links.navbar-right.float-end
       = render 'layouts/notification' if user_signed_in?
       - if user_signed_in?
         %li
           = link_to destroy_user_session_path, method: :delete do
             %i.fa.fa-sign-out{"aria-hidden" => "true"}
             = t('.log_out')
-        %li.account-setting.visible-xs-block
-          %a.dropdown-toggle{"aria-label" => t('shared.actions.account_menu', default: 'Account menu'), "data-toggle" => "dropdown", :href => "#"}
+        %li.account-setting.d-block.d-sm-none
+          %a.dropdown-toggle{"aria-label" => t('shared.actions.account_menu', default: 'Account menu'), "data-bs-toggle" => "dropdown", :href => "#"}
             %span.clear
               %span.block
                 %i.fa.fa-tasks{"aria-hidden" => "true"}

@@ -1,5 +1,5 @@
 .row
-  .col-xs-12
+  .col-12
     .row
       .col-md-3
         %span.show-name
@@ -30,23 +30,23 @@
       .col-md-3
         - if @client.state == ''
           .row
-            .col-xs-12
+            .col-12
               .row
-                .col-xs-12
+                .col-12
                   = simple_form_for @client, method: :put, url: client_path(@client) do |f|
                     .form-inputs
                       = f.hidden_field :state, value: 'accepted'
                       = f.hidden_field :accepted_date, value: Date.today
                     .form-actions
                       = f.submit t('.accept'), class: 'btn btn-success agree-btn'
-                .col-xs-12
-                  %button.btn.btn-danger.mini-margin{"data-target" => '#rejectionForm', "data-toggle" => 'modal', class: 'agree-btn'} #{t('.reject')}
-            .col-xs-12
+                .col-12
+                  %button.btn.btn-danger.mini-margin{"data-bs-target" => '#rejectionForm', "data-bs-toggle" => 'modal', class: 'agree-btn'} #{t('.reject')}
+            .col-12
               #rejectionForm.modal.fade{ role: 'dialog', tabindex: '-1'}
                 .modal-dialog{ role: 'document'}
                   .modal-content
                     .modal-header
-                      %button.close{"aria-label" => "#{t('close')}", "data-dismiss" => 'modal'}
+                      %button.close{"aria-label" => "#{t('close')}", "data-bs-dismiss" => 'modal'}
                         %span{"aria-hidden" => 'true'} &times;
                       %h4.modal-title
                         = t('.reject_client')
@@ -58,28 +58,27 @@
                         .form-inputs
                           = f.hidden_field :state, value: 'rejected'
                         .text-right
-                          %button.btn.btn-default{"data-dismiss" => 'modal'} #{t('cancel')}
+                          %button.btn.btn-outline-secondary{"data-bs-dismiss" => 'modal'} #{t('cancel')}
                           = f.button :submit, "#{t('.reject')}", class: 'btn btn-danger confirm-reject'
 
         - elsif @client.state == 'rejected'
           .row
-            .col-xs-12
+            .col-12
               = simple_form_for @client, method: :put, url: client_path(@client) do |f|
                 .form-inputs
                   = f.hidden_field :state, value: 'accepted'
                 .form-actions
                   = f.submit "#{t('.accept')}", class: 'btn btn-success agree-btn'
-            .col-xs-12
+            .col-12
               %button.btn.btn-danger.mini-margin{ disabled: 'disabled', class:'agree-btn' } #{t('.reject')}
 
     - if @client.state == 'accepted'
       .row
-        .col-xs-12
+        .col-12
           - if can? :manage, Case
             .btn-group.small-btn-margin
-              %button.btn-sm.btn.btn-primary.dropdown-toggle{"data-toggle" => "dropdown"}
+              %button.btn-sm.btn.btn-primary.dropdown-toggle{"data-bs-toggle" => "dropdown"}
                 = t('.add_client_to_case')
-                %span.caret
               %ul.dropdown-menu
                 - if @client.cases.exclude_referred.current.blank?
                   %li= @client.ec_button
@@ -88,14 +87,14 @@
                   %li.divider
                   %li
                     - if @client.client_enrollments.active.count > 0
-                      %a{"data-target" => '#remaining-programs-modal', "data-toggle" => 'modal'}
+                      %a{"data-bs-target" => '#remaining-programs-modal', "data-bs-toggle" => 'modal'}
                         .text-warning= t('.exit_ngo_btn')
                     - else
-                      %a{"data-target" => '#exitFromNgo', "data-toggle" => 'modal'}
+                      %a{"data-bs-target" => '#exitFromNgo', "data-bs-toggle" => 'modal'}
                         .text-warning= t('.exit_ngo_btn')
                 - if @client.cases.exclude_referred.current.present?
                   %li
-                    %a{"data-target" => '#exit-from-case', "data-toggle" => 'modal'}
+                    %a{"data-bs-target" => '#exit-from-case', "data-bs-toggle" => 'modal'}
                       .text-warning.exit-case-warning= t(".exit_from_#{@client.cases.exclude_referred.current.case_type.downcase}")
             - if @client.client_enrollments.active.count > 0
               = render 'remaining_programs', client: @client
@@ -132,9 +131,8 @@
                 %span.btn-sm.btn.color-brown.small-btn-margin= t('.view_legacy_quarterly_reports')
           - if @client.cases.exclude_referred.inactive.present?
             .btn-group.small-btn-margin
-              %button{ class: "btn btn-sm btn-warning dropdown-toggle #{disable_case_histories?}", "data-toggle" => "dropdown" }
+              %button{ class: "btn btn-sm btn-warning dropdown-toggle #{disable_case_histories?}", "data-bs-toggle" => "dropdown" }
                 = t('.case_history')
-                %span.caret
               %ul.dropdown-menu
                 %li
                   - if @client.cases.exclude_referred.emergencies.inactive.present? && (ec_manageable || strategic_overviewer?)
@@ -154,26 +152,23 @@
           = render('client_answers')
 
           .btn-group.small-btn-margin
-            %button.btn-sm.btn.btn-success.dropdown-toggle{ 'data-toggle' => 'dropdown', class: ('disabled' if @group_client_custom_fields.empty?) }
+            %button.btn-sm.btn.btn-success.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @group_client_custom_fields.empty?) }
               = t('.additional_forms')
-              %span.caret
             %ul.dropdown-menu.scrollable-dropdown-menu
               - @group_client_custom_fields.each do |_, client_custom_fields|
                 %li= link_to client_custom_fields.first.custom_field.form_title, client_custom_field_properties_path(@client, custom_field_id: client_custom_fields.first.custom_field_id)
           - if @breakglass_client_forms.present?
             .btn-group.small-btn-margin
-              %button.btn-sm.btn.btn-danger.dropdown-toggle{ 'data-toggle' => 'dropdown' }
+              %button.btn-sm.btn.btn-danger.dropdown-toggle{ 'data-bs-toggle' => 'dropdown' }
                 %i.fa.fa-lock
                 = t('.emergency_forms', default: 'Emergency forms')
-                %span.caret
               %ul.dropdown-menu.scrollable-dropdown-menu
                 - @breakglass_client_forms.each do |custom_field|
                   %li= link_to custom_field.form_title, client_custom_field_properties_path(@client, custom_field_id: custom_field.id)
           - if can? :manage, CustomFieldProperty
             .btn-group.small-btn-margin
-              %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-toggle' => 'dropdown', class: ('disabled' if @free_client_forms.empty?) }
+              %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @free_client_forms.empty?) }
                 = t('.add_form')
-                %span.caret
               %ul.dropdown-menu.scrollable-dropdown-menu
                 - @free_client_forms.each do |custom_field|
                   %li= link_to custom_field.form_title, new_client_custom_field_property_path(@client, custom_field_id: custom_field)
@@ -184,7 +179,7 @@
             .btn.btn-primary.small-btn-margin.btn-sm
               = t('.program_streams')
 .row.mini-margin
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5=t('.general_info')
@@ -210,7 +205,7 @@
                 %td
                   %strong
                     - @client.families.as_non_cases.uniq.each do |family|
-                      %strong.label.label-default.family
+                      %strong.badge.text-bg-light.family
                         - if can? :read, Family
                           = link_to family(family), family_path(family)
                         - else
@@ -262,14 +257,14 @@
                 %td
                   %strong
                     - order_case_worker(@client).each do |case_worker|
-                      %strong.label.label-default
+                      %strong.badge.text-bg-light
                         = user case_worker
               %tr
                 %td.spacing-first-col
                   = t('.agencies_involved')
                 %td
                   - @client.agencies.each do|agency|
-                    %strong.label.label-default.agency
+                    %strong.badge.text-bg-light.agency
                       = agency.name
 
               = render 'state'
@@ -294,7 +289,7 @@
                       = @client.exit_note
 
         .row
-          .col-xs-12
+          .col-12
             %table.table.table-bordered
               - @client.quantitative_cases.group_by(&:quantitative_type).each do |qtypes|
                 %tr
@@ -302,7 +297,7 @@
                     = qtypes.first.name
                   %td.align-justify
                     - qtypes.last.each do |qcase|
-                      %strong.label.label-default
+                      %strong.badge.text-bg-light
                         = qcase.value
 .row
   = render 'placement'

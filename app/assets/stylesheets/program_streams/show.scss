@@ -15,7 +15,7 @@ body[id='program_streams-show'], body[id='program_streams-preview'] {
     margin-bottom: 10px;
   }
 
-  .panel-heading {
+  .card-header {
     cursor: pointer;
     padding: 0;
   }
@@ -46,7 +46,7 @@ body[id='program_streams-show'], body[id='program_streams-preview'] {
   }
 
   #program-stream-info {
-    .label-primary, .label-danger {
+    .text-bg-primary, .text-bg-danger {
       float: none;
     }
   }

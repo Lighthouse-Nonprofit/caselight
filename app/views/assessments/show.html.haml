@@ -1,27 +1,27 @@
 .row
-  .col-xs-12
-    = link_to client_assessments_path(@assessment.client), class: 'btn btn-default' do
+  .col-12
+    = link_to client_assessments_path(@assessment.client), class: 'btn btn-outline-secondary' do
       = t('.back_to_assessment_history')
 .row.mini-margin
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         .row
-          .col-xs-12
+          .col-12
             - if @assessment.initial?
               = t('.initial_assessment_of')
             - else
               = t('.six_month_assessment_report')
             %strong
               %u= @assessment.client.name
-          .col-xs-12
+          .col-12
             %span= t('.assessment_completed_by')
             %strong
               %u= @assessment.client.users.map{|u| u.first_name }.join(' & ')
             %span= t('.on_date')
             %strong
               %u= @assessment.created_at.strftime("%B %d, %Y")
-            %span.pull-right.margin-asse
+            %span.float-end.margin-asse
               - if @assessment.latest_record?
                 - if can? :update, @assessment
                   = link_to edit_client_assessment_path(@assessment.client, @assessment) do
@@ -43,10 +43,10 @@
                       .domain-score
                         %span= t('.score')
                         - unless @assessment.initial?
-                          %span{ class: "label label-#{ad.previous_score_color_class} "}
+                          %span{ class: "badge text-bg-#{ad.previous_score_color_class} "}
                             = "#{ad.previous_score}"
                           %span &#8594;
-                        %span{ class: "label label-#{ad.score_color_class} "}
+                        %span{ class: "badge text-bg-#{ad.score_color_class} "}
                           = "#{ad.score}"
                   - if domain_visible?(ad.domain)
                     %td.reason
@@ -64,7 +64,7 @@
                             - incomplete_tasks.each do |task|
                               %li= task.name
                       - if ad.attachments.any?
-                        %button.btn.btn-info.btn-sm{"data-target" => "#attachments#{ad.id}", "data-toggle" => "modal", :type => "button"}= t('.show_attachment')
+                        %button.btn.btn-info.btn-sm{"data-bs-target" => "#attachments#{ad.id}", "data-bs-toggle" => "modal", :type => "button"}= t('.show_attachment')
                         = render 'attachment', { ad: ad }
                   - else
                     %td.reason.text-muted

@@ -40,7 +40,7 @@ describe LeaveProgram, 'Leave Program' do
 
         click_button 'Save'
       end
-      expect(page).to have_css('div.form-group.has-error')
+      expect(page).to have_css('div.has-error')
     end
   end
 
@@ -86,7 +86,7 @@ describe LeaveProgram, 'Leave Program' do
     scenario 'fail' do
       find('#leave_program_properties_description').set('')
       find('input[type="submit"]').click
-      expect(page).to have_css('div.form-group.has-error')
+      expect(page).to have_css('div.has-error')
     end
   end
 end

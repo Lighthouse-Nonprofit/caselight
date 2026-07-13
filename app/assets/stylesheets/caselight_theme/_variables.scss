@@ -1,0 +1,69 @@
+// CaseLight palette + Bootstrap 5 variable overrides (POAM-017g THE FLIP).
+// Ported from the INSPINIA wrapbootstrap/base/variables.scss palette + the CaseLight
+// visual-refresh tokens (wrapbootstrap/base/_refresh.scss). Plain assignments (no !default)
+// so they win Bootstrap's !default values; imported AFTER bootstrap5/functions and BEFORE
+// bootstrap5/variables (see theme.scss for the ordering contract).
+
+// ---- Brand palette (Lighthouse deep navy + amber beacon) --------------------------------
+$navy:       #1F3A5F;   // primary
+$amber:      #E8A33D;   // accent — sidebar active rail + count pills (NOT a BS theme slot)
+$harbor:     #2C6E9B;   // success + info (the app palette assigns one harbor blue to both)
+$amber-soft: #f8ac59;   // warning
+$rose:       #D63653;   // danger (#fff text passes AA at 4.65:1)
+
+// Sidebar / topnav chrome + surfaces
+$cl-nav-bg:        #16273D;
+$cl-nav-text:      #b9c3d1;
+$cl-sidebar-width: 220px;
+$cl-content-bg:    #f3f3f4;   // the .gray-bg page background
+$cl-border:        #e2e6ea;   // refresh-border
+
+// ---- Bootstrap 5 semantic colours -------------------------------------------------------
+$primary:   $navy;
+$secondary: #5a6270;
+$success:   $harbor;
+$info:      $harbor;
+$warning:   $amber-soft;
+$danger:    $rose;
+$light:     #f3f3f4;
+$dark:      $cl-nav-bg;
+
+// ---- Typography -------------------------------------------------------------------------
+// Open Sans is self-hosted (faces declared in _root.scss); broad system fallback for FOUT.
+$font-family-sans-serif: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  'Helvetica Neue', Helvetica, Arial, sans-serif;
+$font-family-base: $font-family-sans-serif;
+// THE whole-app density lever (plan F2): 13px base to match INSPINIA's information density.
+$font-size-base:      .8125rem;
+$body-color:          #333333;
+$headings-font-weight: 600;
+$headings-color:      #333333;
+
+// ---- Surfaces / borders / radius / shadow ----------------------------------------------
+$body-bg:          #ffffff;
+$border-color:     $cl-border;
+$border-radius:    .25rem;    // 4px
+$border-radius-sm: .1875rem;  // 3px
+$border-radius-lg: .3125rem;
+$box-shadow-sm: 0 1px 2px rgba(31, 58, 95, .06);
+$box-shadow:    0 1px 3px rgba(31, 58, 95, .08), 0 1px 2px rgba(31, 58, 95, .06);
+$box-shadow-lg: 0 4px 12px rgba(31, 58, 95, .10);
+
+// ---- Links ------------------------------------------------------------------------------
+$link-color:       $harbor;
+$link-decoration:  none;
+$link-hover-color: shade-color($harbor, 20%);
+
+// ---- Forms (branded harbor focus ring, matching _refresh.scss) --------------------------
+$input-border-color:       #d9dde2;
+$input-focus-border-color: $navy;
+$input-btn-focus-color:    rgba(44, 110, 155, .35);
+$input-focus-box-shadow:   0 0 0 3px $input-btn-focus-color;
+$component-active-bg:       $navy;
+
+// ---- Tables -----------------------------------------------------------------------------
+$table-hover-bg: rgba(44, 110, 155, .05);
+
+// ---- Dropdown ---------------------------------------------------------------------------
+$dropdown-border-color: $cl-border;
+$dropdown-box-shadow:   $box-shadow-lg;

@@ -1,5 +1,5 @@
 .row
-  .col-xs-12.col-sm-8.col-sm-offset-2.col-md-6.col-md-offset-3
+  .col-12.col-sm-8.offset-sm-2.col-md-6.offset-md-3
     .ibox.normal-space
       .ibox-title
         %h3 Two-factor authentication (2FA)
@@ -10,7 +10,7 @@
             Two-factor authentication is <strong>ON</strong> for your account.
           %p.text-muted You'll be asked for a code from your authenticator app each time you sign in.
           %hr
-          = button_to 'Regenerate recovery codes', regenerate_two_factor_backup_codes_path, method: :post, class: 'btn btn-default'
+          = button_to 'Regenerate recovery codes', regenerate_two_factor_backup_codes_path, method: :post, class: 'btn btn-outline-secondary'
           = button_to 'Turn off 2FA', two_factor_settings_path, method: :delete, class: 'btn btn-danger', data: { confirm: 'Turn off two-factor authentication for your account?' }
         - else
           %p Protect your account with a time-based one-time code (TOTP). You'll need an authenticator app such as Google Authenticator, Authy, or 1Password.
@@ -23,7 +23,7 @@
             %small.text-muted Manual entry key:
             %code= @user.otp_secret
           = form_tag two_factor_settings_path, method: :post do
-            .form-group
+            .mb-3
               = label_tag :otp_attempt, 'Code from your authenticator app'
               = text_field_tag :otp_attempt, nil, class: 'form-control', autocomplete: 'one-time-code', inputmode: 'numeric', autofocus: true, placeholder: '123456'
             = submit_tag 'Enable two-factor authentication', class: 'btn btn-primary'

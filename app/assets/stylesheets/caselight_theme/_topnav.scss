@@ -1,0 +1,256 @@
+// caselight_theme/_topnav.scss — the top navbar (navbar-static-top + navbar-top-links).
+// Part of the in-house Bootstrap 5.3 theme replacing INSPINIA (POAM-017g THE FLIP).
+// Thin restyle over BS5 DNA; keeps the INSPINIA-era class names used in the shell markup.
+
+// ---- Top-bar wrapper row -----------------------------------------------------
+// .row.border-bottom wraps a single full-width navbar; the BS5 .border-bottom
+// utility (with !important) already paints the hairline in $cl-border, but we
+// restate intent and — crucially — zero the grid gutters so the navbar can span
+// edge-to-edge without the row's negative margins causing horizontal overflow.
+.row.border-bottom {
+  --bs-gutter-x: 0;
+  margin-right: 0;
+  margin-left: 0;
+  border-bottom: 1px solid $cl-border;
+}
+
+// ---- The top navbar ----------------------------------------------------------
+// nav.navbar.navbar-static-top(.bg): white, 60px tall, hairline shadow, flex row.
+.navbar-static-top {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: 100%;
+  min-height: 60px;
+  margin-bottom: 0;
+  padding: 0;
+  background-color: #fff;
+  border: 0;
+  border-radius: 0;
+  box-shadow: $box-shadow-sm;
+}
+.white-bg .navbar-static-top,
+.white-bg .navbar-fixed-top {
+  background-color: #fff;
+}
+
+// ---- Logo / header slot + the sidebar-minimize hamburger ---------------------
+.navbar-header.logo,
+.navbar-static-top .navbar-header {
+  display: flex;
+  align-items: center;
+}
+
+// a.navbar-minimalize.minimalize-styl-2 already carries .btn.btn-primary (navy).
+// Just size + space it as a compact square button and center the bars glyph.
+.navbar-minimalize {
+  margin: 0 8px 0 14px;
+  padding: 6px 12px;
+  line-height: 1;
+
+  i {
+    display: block;
+    font-size: 14px;
+    line-height: 1;
+  }
+}
+// Legacy BS3 collapse toggle, in case any markup still emits it.
+.navbar-toggle {
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #fff;
+  background-color: $navy;
+  border: 0;
+  border-radius: $border-radius-sm;
+}
+
+// ---- Right-hand utility links (messages / alerts / account) ------------------
+// ul.nav.navbar-top-links — a flex row pinned to the right edge of the bar.
+.navbar-top-links {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  margin-left: auto;   // right-align even without the .ms-auto codemod class
+  padding: 0;
+
+  &.ms-auto,
+  &.navbar-right,
+  &.pull-right {
+    margin-left: auto;
+  }
+
+  > li {
+    display: inline-block;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    > a {
+      position: relative;
+      display: inline-block;
+      padding: 0 14px;
+      line-height: 60px;
+      color: $secondary;
+      white-space: nowrap;
+
+      &:hover,
+      &:focus {
+        color: $navy;
+      }
+    }
+  }
+
+  // Notification count bubble: a.count-info > i + span.label/.badge, top-right.
+  .count-info {
+    position: relative;
+
+    .label,
+    .badge {
+      position: absolute;
+      top: 11px;
+      right: 4px;
+      min-width: 16px;
+      padding: 2px 5px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.1;
+      text-align: center;
+      color: #fff;
+      background-color: $rose;
+      border-radius: 10rem;
+    }
+  }
+
+  // Menus drop from the right edge (BS5 dropped the BS3 pull-right default).
+  .dropdown-menu {
+    right: 0;
+    left: auto;
+    margin-top: 0;
+    border: 1px solid $cl-border;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow-lg;
+
+    > li > a {
+      padding: 8px 16px;
+    }
+  }
+
+  // The account / settings menu: a touch wider.
+  .dropdown-menu.account-setting {
+    min-width: 200px;
+  }
+}
+
+// ---- Optional borderless search living inside the 60px bar -------------------
+.navbar-form-custom {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  margin: 0;
+  padding: 0;
+
+  .form-control {
+    height: 60px;
+    padding: 4px 12px;
+    font-size: $font-size-base;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+}
+
+// =============================================================================
+//  .top-navigation layout variant (nav across the top instead of the sidebar).
+//  Ported from the retired top_navigation.scss and restyled onto the navy/amber
+//  palette, so the class names in that layout keep working.
+// =============================================================================
+.top-navigation {
+  #page-wrapper {
+    margin-left: 0;
+  }
+
+  .navbar {
+    margin-bottom: 0;
+  }
+
+  .nav > li > a {
+    padding: 15px 20px;
+    color: $secondary;
+
+    &:hover,
+    &:focus {
+      background: #fff;
+      color: $navy;
+    }
+  }
+  .nav > li.active {
+    background: #fff;
+    border: none;
+
+    > a {
+      color: $navy;
+    }
+  }
+
+  .navbar-nav .dropdown-menu {
+    border: 1px solid $cl-border;
+    box-shadow: $box-shadow;
+
+    > .active > a {
+      background: #fff;
+      color: $navy;
+      font-weight: 600;
+    }
+  }
+
+  .navbar-brand {
+    padding: 15px 25px;
+    color: #fff;
+    background: $navy;
+  }
+
+  .navbar-top-links li:last-child {
+    margin-right: 0;
+  }
+
+  .wrapper.wrapper-content {
+    padding: 40px;
+  }
+}
+
+// Collapse the content offset for the top-nav layout when there is no sidebar.
+.top-navigation.mini-navbar #page-wrapper,
+.mini-navbar .top-navigation #page-wrapper,
+.canvas-menu #page-wrapper {
+  margin: 0;
+}
+
+// ---- Responsive --------------------------------------------------------------
+@media (max-width: 768px) {
+  .top-navigation .navbar-header {
+    display: block;
+    float: none;
+  }
+  .navbar-top-links > li > a {
+    padding: 0 10px;
+  }
+}
+
+// Menu-visibility helpers carried over from the retired partial.
+.menu-visible-lg,
+.menu-visible-md {
+  display: none !important;
+}
+@media (min-width: 1200px) {
+  .menu-visible-lg { display: block !important; }
+}
+@media (min-width: 992px) {
+  .menu-visible-md { display: block !important; }
+}
+@media (max-width: 767px) {
+  .menu-visible-md,
+  .menu-visible-lg { display: block !important; }
+}

@@ -1,11 +1,11 @@
 .date
   .row
-    .col-xs-12.form-group{ class: html_column(full_width) }
+    .col-12.mb-3{ class: html_column(full_width) }
       %label= field_props['label']
   .row  
-    .col-xs-12.form-group{ class: html_column(full_width) }
+    .col-12.mb-3{ class: html_column(full_width) }
       .date.input-group
         = text_field_tag '', '', class: 'date optional form-control date-picker calendar'
-        %span.input-group-addon
+        %span.input-group-text
           %i.fa.fa-calendar-check-o
 

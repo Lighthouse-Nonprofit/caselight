@@ -1,7 +1,7 @@
 %form{ id: 'filtered_by_user', action: tasks_url, method: 'GET', class: 'form-inline'}
   .col-sm-6
     %input{type: 'hidden', value: params[:locale], name: 'locale'}
-    .form-group
+    .mb-3
       %label{ for: 'user_id' }= t('.filter_by_user')
       %select{ id: 'user_id', class: 'form-control', name: 'user_id' }
         - unless params[:user_id]

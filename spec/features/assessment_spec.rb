@@ -25,17 +25,17 @@ describe "Assessment" do
 
     def with_tasks(n)
       choose('1')
-      expect(page).to have_css('.label-danger')
+      expect(page).to have_css('.text-bg-danger')
       expect(page).to have_css('.assessment-task-btn')
       add_tasks(n)
     end
 
     def without_task
       choose('4')
-      expect(page).to have_css('.label-success')
-      expect(page).not_to have_css('.label-danger')
-      expect(page).not_to have_css('.label-warning')
-      expect(page).not_to have_css('.label-info')
+      expect(page).to have_css('.text-bg-success')
+      expect(page).not_to have_css('.text-bg-danger')
+      expect(page).not_to have_css('.text-bg-warning')
+      expect(page).not_to have_css('.text-bg-info')
       expect(page).not_to have_css('.assessment-task-btn')
     end
 

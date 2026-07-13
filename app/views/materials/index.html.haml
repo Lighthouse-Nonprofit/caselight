@@ -1,12 +1,12 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.material')
+        %span.badge.text-bg-info= t('.material')
         .ibox-tools
           - if can? :manage, Material
-            = link_to '#', {"data-target" => "#materialModal-", "data-toggle" => "modal", :type => "button"} do
+            = link_to '#', {"data-bs-target" => "#materialModal-", "data-bs-toggle" => "modal", :type => "button"} do
               .btn.btn-primary.btn-add
                 = t('.add_new_material')
       .ibox-content
@@ -26,7 +26,7 @@
                   %td= material.status
                   - if can? :manage, Material
                     %td.text-center
-                      = link_to '#', {class: 'btn btn-xs btn-outline btn-success', "data-target" => "#materialModal-#{material.id}", "data-toggle" => "modal", :type => "button"} do
+                      = link_to '#', {class: 'btn btn-xs btn-outline btn-success', "data-bs-target" => "#materialModal-#{material.id}", "data-bs-toggle" => "modal", :type => "button"} do
                         = fa_icon('pencil')
                     %td.text-center
                       = remove_link(material, { material_progress_note: material.progress_notes.count })

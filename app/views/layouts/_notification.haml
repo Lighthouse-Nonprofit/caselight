@@ -11,10 +11,10 @@
 = link_to calendars_path, title: t('shared.actions.calendar', default: 'Calendar'), 'aria-label': t('shared.actions.calendar', default: 'Calendar'), class: 'notification-text-color' do
   %i.fa.fa-calendar.fa-fw{"aria-hidden" => "true"}
 %li.dropdown
-  %a.dropdown-toggle.count-info{"aria-label" => t('shared.actions.notifications', default: 'Notifications'), "data-toggle" => "dropdown", :href => "#"}
+  %a.dropdown-toggle.count-info{"aria-label" => t('shared.actions.notifications', default: 'Notifications'), "data-bs-toggle" => "dropdown", :href => "#"}
     %i.fa.fa-bell{"aria-hidden" => "true"}
     - if @notification.all_count >= 1
-      %span.label.label-primary= @notification.all_count
+      %span.badge.text-bg-primary= @notification.all_count
   %ul.dropdown-menu.dropdown-alerts.animated.fadeInRight
     - if @notification.any_overdue_tasks?
       %li

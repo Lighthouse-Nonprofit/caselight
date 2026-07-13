@@ -248,7 +248,7 @@ CIF.RuleBuilder = (function () {
       const header = el('div', 'rules-group-header');
 
       if (!this.readOnly) {
-        const actions = el('div', 'btn-group pull-right group-actions');
+        const actions = el('div', 'btn-group float-end group-actions');
         actions.appendChild(
           button('btn btn-xs btn-success', 'data-add', 'rule', 'fa fa-plus', this.lang.add_rule),
         );
@@ -301,7 +301,7 @@ CIF.RuleBuilder = (function () {
 
       const header = el('div', 'rule-header');
       if (!this.readOnly) {
-        const actions = el('div', 'btn-group pull-right rule-actions');
+        const actions = el('div', 'btn-group float-end rule-actions');
         actions.appendChild(
           button('btn btn-xs btn-danger', 'data-delete', 'rule', 'fa fa-minus', this.lang.delete_rule),
         );
@@ -424,8 +424,9 @@ CIF.RuleBuilder = (function () {
       input.type = descriptor.type === 'integer' ? 'number' : 'text';
       if (this.readOnly) input.disabled = true;
       if (descriptor.plugin === 'datepicker') {
-        // bootstrap-datepicker, same wiring style as app/assets/javascripts/datepicker.js
-        $(input).datepicker(descriptor.plugin_config || {});
+        // POAM-017g flip: vanillajs-datepicker via the shared adapter (same ISO yyyy-mm-dd
+        // defaults as the global init); accepts the FilterTypes descriptor's plugin_config hash.
+        CIF.DatePicker.attach(input, descriptor.plugin_config || {});
       }
       return input;
     }

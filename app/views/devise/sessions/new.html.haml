@@ -1,5 +1,5 @@
 .row
-  .col-xs-12.col-sm-6.col-sm-offset-3.col-md-4.col-md-offset-4
+  .col-12.col-sm-6.offset-sm-3.col-md-4.offset-md-4
     .ibox.normal-space
       .ibox-title.text-center
         = image_tag('brand/caselight-logo.png', alt: 'CaseLight', style: 'max-width: 260px; width: 100%; height: auto;')
@@ -10,13 +10,13 @@
             = f.input :email, required: false, autofocus: true, label: t('.email')
             = f.input :password, required: false, label: t('.password')
             -# Accounts with MFA enabled are prompted for their code on the next screen (two-step login).
-            = f.input :remember_me, as: :boolean, input_html: { class: 'i-checks' }, label: t('.remember_me') if devise_mapping.rememberable?
+            = f.input :remember_me, as: :boolean, input_html: { class: 'form-check-input' }, label: t('.remember_me') if devise_mapping.rememberable?
             = f.submit t('.login'), class: 'btn btn-block btn-outline btn-primary'
             -# Passwordless passkey sign-in (WebAuthn) — ADDITIVE third option. Hidden if the browser
             -# lacks WebAuthn support / is not a secure context (the sessions/new_passkey asset reveals it).
             #passkey-login-area{ style: 'display:none', data: { options_url: passkey_login_options_path, callback_url: passkey_login_callback_path } }
               %hr
-              %button#passkey-login.btn.btn-block.btn-default{ type: 'button' }
+              %button#passkey-login.btn.btn-block.btn-outline-secondary{ type: 'button' }
                 %i.fa.fa-key
                 = ' Sign in with a passkey'
               %p#passkey-login-status.text-danger.text-center.m-t{ style: 'display:none' }

@@ -1,5 +1,5 @@
 body[id='clients-index'] {
-  @import 'iCheck/custom';
+  // POAM-017g flip: iCheck removed (native form-check); its vendored skin import is gone.
   @import 'clients/client_grid';
   #client-search-form {
     margin-top: 16px;

@@ -4,13 +4,13 @@
   = hidden_field(:hidden, :body_second, value: t('.body_second') )
   = hidden_field(:hidden, :body_third, value: t('.body_third') )
   .modal-dialog
-    .modal-content.panel-warning
-      .modal-header.panel-heading
-        %button.close{ 'aria-hidden' => 'true', 'data-dismiss' => 'modal', type: 'button' } ×
+    .modal-content
+      .modal-header.card-header
+        %button.close{ 'aria-hidden' => 'true', 'data-bs-dismiss' => 'modal', type: 'button' } ×
         %h4.modal-title
       .modal-body.text-center
       .modal-footer
         %button#confirm.btn.btn-warning{ type: 'button' }
           = t('.confirm')
-        %button.btn.btn-default{ 'data-dismiss' => 'modal', type: 'button' }
+        %button.btn.btn-outline-secondary{ 'data-bs-dismiss' => 'modal', type: 'button' }
           = t('.close')

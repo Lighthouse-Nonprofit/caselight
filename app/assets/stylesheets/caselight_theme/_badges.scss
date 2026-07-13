@@ -1,0 +1,28 @@
+// _badges.scss — badge/label restyle for caselight_theme (POAM-017g THE FLIP).
+// Thin layer over BS5 .badge + .text-bg-* (already defined): pill-shape,
+// Open Sans weight, and the navy-on-amber warning contrast fix.
+
+.badge {
+  font-family: $font-family-base;
+  border-radius: $refresh-radius-pill;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 3px 8px;
+}
+
+// White text on the amber `warning` bg fails AA — force navy instead.
+// BS5's own contrast algorithm picks white here; this reverses that one case.
+.text-bg-warning {
+  color: #16273D;
+}
+
+// Sidebar count pill (nav badges + the legacy label-primary status chip):
+// amber pill with navy text. Also set in _sidebar; safe to restate.
+#side-menu .badge,
+#side-menu .label-primary {
+  background: $amber;
+  color: #16273D;
+}
+
+// .text-bg-primary / -success / -info / -danger keep BS5's computed
+// (white) foreground — left untouched so they stay legible.

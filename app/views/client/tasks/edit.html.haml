@@ -1,13 +1,13 @@
 .row
-  .col-xs-12.col-md-8.col-md-offset-2
+  .col-12.col-md-8.offset-md-2
     .ibox
       .ibox-title
         %h5= t('.title')
       .ibox-content
         .row
-          .col-xs-12
+          .col-12
             %span= t('.edit_task_regarding')
             %strong= @client.name
         .row
-          .col-xs-12.mini-margin
+          .col-12.mini-margin
             = render 'form'

@@ -11,11 +11,11 @@ CIF.PreventRequiredFileUploader = class PreventRequiredFileUploader {
           }
           if ($(requiredField).find('input').val() === '') {
             $(requiredField).parent().addClass('has-error');
-            $(requiredField).siblings('.help-block').removeClass('hidden');
+            $(requiredField).siblings('.form-text').removeClass('hidden');
             result.push(e.preventDefault());
           } else {
             $(requiredField).parent().removeClass('has-error');
-            result.push($(requiredField).siblings('.help-block').addClass('hidden'));
+            result.push($(requiredField).siblings('.form-text').addClass('hidden'));
           }
         }
         return result;

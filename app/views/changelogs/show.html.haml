@@ -1,14 +1,14 @@
 .row
-  .col-xs-12
+  .col-12
     .container
       .row
-        .col-xs-12
-          .panel.panel-default
-            .panel-heading
+        .col-12
+          .card
+            .card-header
               %h4
                 = @changelog.change_version
                 %small= @changelog.created_at.strftime('%d %B, %Y')
-            .panel-body
+            .card-body
               %p= render_rich_text(@changelog.description)
-            .panel-footer
-              = link_to t('.back'), changelogs_path, class: 'btn btn-default btn-back'
+            .card-footer
+              = link_to t('.back'), changelogs_path, class: 'btn btn-outline-secondary btn-back'

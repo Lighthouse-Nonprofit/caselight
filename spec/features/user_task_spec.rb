@@ -44,7 +44,7 @@ describe Task do
         expect(page).to have_select 'user_id', with_options: ['mr admin', 'able manager', 'able caseworker', 'ec caseworker'], visible: false
         select2_select('able manager', '.select2-container')
         sleep 1
-        panel = page.all(:css, '.panel').select { |p| p.all(:css, '.panel-heading').select { |pp| pp.text.include?('Upcoming Tasks') }.first }.first
+        panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Upcoming Tasks') }.first }.first
         expect(panel).to have_content(upcoming_task.name)
       end
 
@@ -53,7 +53,7 @@ describe Task do
         expect(page).to have_select 'user_id', with_options: ['mr admin', 'able manager', 'able caseworker', 'ec caseworker'], visible: false
         select2_select('able caseworker', '.select2-container')
         sleep 1
-        panel = page.all(:css, '.panel').select { |p| p.all(:css, '.panel-heading').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
+        panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
         expect(panel).to have_content(overdue_task.name)
       end
     end
@@ -72,7 +72,7 @@ describe Task do
       scenario 'list manager task', js: true do
         click_link 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['able manager', 'able caseworker'], visible: false
-        panel = page.all(:css, '.panel').select { |p| p.all(:css, '.panel-heading').select { |pp| pp.text.include?('Upcoming Tasks') }.first }.first
+        panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Upcoming Tasks') }.first }.first
         expect(panel).to have_content(upcoming_task.name)
       end
 
@@ -81,7 +81,7 @@ describe Task do
         expect(page).to have_select 'user_id', with_options: ['able manager', 'able caseworker'], visible: false
         select2_select('able caseworker', '.select2-container')
         sleep 1
-        panel = page.all(:css, '.panel').select { |p| p.all(:css, '.panel-heading').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
+        panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
         expect(panel).to have_content(overdue_task.name)
       end
 
@@ -101,7 +101,7 @@ describe Task do
 
       scenario 'display only caseworker task' do
         click_link 'View All Active Tasks'
-        panel = page.all(:css, '.panel').select { |p| p.all(:css, '.panel-heading').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
+        panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
         expect(panel).to have_content(overdue_task.name)
       end
 

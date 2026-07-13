@@ -30,17 +30,20 @@ module ApplicationHelper
     cl_badge(status, variant)
   end
 
-  # BS5-prep chokepoint (POAM-017g P1): every colored status pill renders through here so
-  # the BS3 'label label-*' -> BS5 'badge text-bg-*' rename is a one-method flip at the
-  # cutover instead of a view sweep. The variant allowlist also keeps model data out of
-  # the class attribute entirely (this retired the Brakeman AttributeBuilder pins on the
-  # old inline `label label-#{...}` call sites).
+  # BS5 chokepoint (POAM-017g): every colored status pill renders through here. THE FLIP
+  # switched this one method from the BS3 'label label-*' shape to BS5 'badge text-bg-*'
+  # (instead of a view sweep). The variant allowlist also keeps model data out of the class
+  # attribute entirely (this retired the Brakeman AttributeBuilder pins on the old inline
+  # `label label-#{...}` call sites). BS5 has no `text-bg-default`, so the BS3 light-gray
+  # `label-default` maps to `text-bg-light`.
   CL_BADGE_VARIANTS = %w[default primary success info warning danger].freeze
+  CL_BADGE_BS5 = { 'default' => 'light' }.freeze
 
   def cl_badge(text, variant, tag: :span)
     variant = variant.to_s
     variant = 'default' unless CL_BADGE_VARIANTS.include?(variant)
-    content_tag(tag, text, class: "label label-#{variant}")
+    bs5 = CL_BADGE_BS5.fetch(variant, variant)
+    content_tag(tag, text, class: "badge text-bg-#{bs5}")
   end
 
   def human_boolean(boolean)
@@ -96,7 +99,7 @@ module ApplicationHelper
   end
 
   def hidden_class(bool)
-    'hidden' if bool
+    'd-none' if bool # POAM-017g flip: BS3 .hidden -> BS5 .d-none
   end
 
   def exit_modal_class(bool)

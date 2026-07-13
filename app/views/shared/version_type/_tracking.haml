@@ -1,6 +1,6 @@
 - DataTrackerVersion.tracking(program_stream_id, event).each do |version|
-  %div{ class: "panel panel-#{version_color(version.event)}" }
-    .panel-body
+  %div{ class: "card panel-#{version_color(version.event)}" }
+    .card-body
       %h4 Tracking
       .table-responsive
         %table.table.table-hover

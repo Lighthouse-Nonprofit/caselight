@@ -1,0 +1,25 @@
+// caselight_theme/_focus-ring.scss — one consistent keyboard-focus ring for the
+// in-house Bootstrap 5.3 theme (POAM-017g THE FLIP). Ported from the CaseLight
+// visual refresh (_refresh.scss ~151-171). prefers-reduced-motion lives in _root.scss.
+
+// ---- FOCUS STATES: one consistent visible ring; reverses the inherited
+//      `.btn:focus{outline:none !important}` (a11y regression). :focus-visible
+//      for keyboard, with a progressive-enhancement drop of the mouse ring.
+a:focus-visible, .btn:focus-visible, button:focus-visible, select:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible, .nav > li > a:focus-visible,
+.dropdown-menu > li > a:focus-visible {
+  outline: 2px solid $lazur; outline-offset: 2px; box-shadow: $refresh-focus-ring;
+}
+.btn:focus, .btn:focus-visible {
+  outline: 2px solid $lazur !important; outline-offset: 2px; box-shadow: $refresh-focus-ring;
+}
+// Where :focus-visible is supported, don't ring a mouse click on buttons. No
+// @supports wrapper — the bare `:not(:focus-visible)` selector compiles fine
+// and is inert on legacy engines.
+.btn:focus:not(:focus-visible) { outline: none !important; box-shadow: none; }
+// On the dark sidebar an amber ring reads better than a faint harbor one.
+.navbar-static-side .nav > li > a:focus-visible, .nav-header a:focus-visible {
+  outline: 2px solid $amber; outline-offset: -2px; box-shadow: none;
+}
+// Inputs already carry the branded box-shadow ring on :focus.
+.form-control:focus-visible, .single-line:focus-visible { outline: 2px solid transparent; }

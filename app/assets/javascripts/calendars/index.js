@@ -52,7 +52,7 @@ CIF.CalendarsIndex = (function () {
         return _openTaskModal(info);
       },
       eventDidMount(info) {
-        return $(info.el).popover({
+        return new bootstrap.Popover(info.el, {
           animation: true,
           delay: 200,
           placement: 'top',
@@ -118,7 +118,7 @@ CIF.CalendarsIndex = (function () {
     // first 10 chars = the YYYY-MM-DD the old moment .format() produced
     $('#task-completion-date').val(info && info.dateStr ? info.dateStr.slice(0, 10) : '');
     _hideTaskError();
-    return modal.modal('show');
+    return bootstrap.Modal.getOrCreateInstance(modal[0]).show();
   };
 
   const _loadProgramClients = function () {
@@ -189,7 +189,8 @@ CIF.CalendarsIndex = (function () {
       },
     })
       .done(function () {
-        $('#taskModal').modal('hide');
+        var taskModalEl = document.getElementById('taskModal');
+        if (taskModalEl) { bootstrap.Modal.getOrCreateInstance(taskModalEl).hide(); }
         return calendar && calendar.refetchEvents();
       })
       .fail(() => _showTaskError(form.data('error-save')))

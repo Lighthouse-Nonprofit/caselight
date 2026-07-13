@@ -1,12 +1,12 @@
 .row
-  .col-xs-12
+  .col-12
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.domain_groups')
+        %span.badge.text-bg-info= t('.domain_groups')
         .ibox-tools
           - if can? :manage, DomainGroup
-            = link_to '#', {"data-target" => "#domain_groupModal-", "data-toggle" => "modal", :type => "button"} do
+            = link_to '#', {"data-bs-target" => "#domain_groupModal-", "data-bs-toggle" => "modal", :type => "button"} do
               .btn.btn-primary.btn-add
                 = t('.add_new_domain_group')
       .ibox-content
@@ -27,7 +27,7 @@
                   %td= domain_group.description
                   - if can? :manage, DomainGroup
                     %td.text-center
-                      = link_to '#', {class: 'btn btn-outline btn-success btn-xs', "data-target" => "#domain_groupModal-#{domain_group.id}", "data-toggle" => "modal", :type => "button"} do
+                      = link_to '#', {class: 'btn btn-outline btn-success btn-xs', "data-bs-target" => "#domain_groupModal-#{domain_group.id}", "data-bs-toggle" => "modal", :type => "button"} do
                         = fa_icon('pencil')
                     %td.text-center
                       = remove_link(domain_group, {domain_group: domain_group.domains_count})

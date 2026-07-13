@@ -267,7 +267,7 @@ CIF.CustomFormBuilder = class CustomFormBuilder {
     const self = this;
     const labels = $('.field-label:visible');
     // formBuilder 3.x: the edit toggle is a.toggle-form (1.x used a.icon-pencil, gone),
-    // and the label editor in the edit panel is the .fld-label control (1.x rendered
+    // and the label editor in the edit card is the .fld-label control (1.x rendered
     // input[name='label'] inside .form-elements). Bind both label forms defensively —
     // 3.x renders label editing as a contenteditable in some builds ('input' covers it).
     return $('.field-actions a.toggle-form').click(() =>

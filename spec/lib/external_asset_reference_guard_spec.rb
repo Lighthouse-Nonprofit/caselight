@@ -50,9 +50,11 @@ RSpec.describe 'external asset reference guard (POAM-017f)' do
       expect(File.exist?(ROOT.join("public/fonts/open-sans/open-sans-#{weight}.woff2"))).to be(true),
         "missing public/fonts/open-sans/open-sans-#{weight}.woff2"
     end
-    faces = File.read(ROOT.join('app/assets/stylesheets/wrapbootstrap/base/open-sans-faces.scss'))
+    # POAM-017g flip: the @font-face blocks moved from the deleted wrapbootstrap tree into the
+    # in-house theme (caselight_theme/_root.scss, imported by caselight_theme/theme.scss).
+    faces = File.read(ROOT.join('app/assets/stylesheets/caselight_theme/_root.scss'))
     expect(faces.scan(/@font-face/).size).to eq(4)
-    expect(File.read(ROOT.join('app/assets/stylesheets/wrapbootstrap/style.scss')))
-      .to include('@import "base/open-sans-faces";')
+    expect(File.read(ROOT.join('app/assets/stylesheets/caselight_theme/theme.scss')))
+      .to include("@import 'root';")
   end
 end

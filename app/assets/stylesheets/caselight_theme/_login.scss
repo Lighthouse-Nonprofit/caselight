@@ -1,0 +1,60 @@
+// caselight_theme/_login.scss — Devise session card: sign-in + two-factor challenge.
+// Part of the CaseLight in-house Bootstrap 5.3 theme (POAM-017g THE FLIP); a thin restyle
+// ported from wrapbootstrap/base/_refresh.scss (the login block, lines ~176-185).
+
+// Body id is "#{controller_name}-#{action}" (see layouts/application.html.haml), so the
+// four logged-out auth screens are:
+//   sessions-new / sessions-create        -> the sign-in form
+//   sessions-two_factor_challenge          -> the OTP prompt (GET users/two_factor)
+//   sessions-verify_otp                    -> the OTP prompt re-rendered on a bad code (POST)
+// The logged-out shell is #page-wrapper.no-margin, so there is no sidebar offset (see _shell).
+body[id="sessions-new"],
+body[id="sessions-create"],
+body[id="sessions-two_factor_challenge"],
+body[id="sessions-verify_otp"] {
+
+  // One self-contained card, centered independently of the markup's (legacy) grid
+  // columns: max-width + auto margins carry the centering, so a leftover
+  // col-*-offset-* class can't throw the card off-axis.
+  .ibox {
+    max-width: 420px;
+    margin: 40px auto;
+    border-radius: $refresh-radius;
+    box-shadow: $refresh-shadow-md;
+    overflow: hidden; // clip the amber rule + card body to the rounded corners
+  }
+
+  // Amber beacon rule across the top; flatten the inherited card-title chrome so the
+  // logo and the form beneath it read as one seamless unit.
+  .ibox-title {
+    border-top: 2px solid $amber;
+    box-shadow: none;
+    border-radius: 0;
+    text-align: center;
+    padding: 24px 26px 18px; // breathing room around the CaseLight logo
+  }
+
+  .ibox-content {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 22px 26px 26px;
+  }
+
+  // Primary submit ("Sign in" / "Verify and sign in"): a touch taller + heavier than
+  // the app-wide button so the CTA carries the card. (.btn-block full-width and the
+  // .btn-outline neutralization are legacy micro-utilities restored globally in _compat.)
+  .btn-primary {
+    padding: 9px 14px;
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+
+  // Hairline dividers before the passkey option and the shared devise links
+  // (override BS5 reboot's faded hr so the true border color shows).
+  hr {
+    margin: 18px 0;
+    border: 0;
+    border-top: 1px solid $refresh-border;
+    opacity: 1;
+  }
+}

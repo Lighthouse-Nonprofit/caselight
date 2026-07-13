@@ -1,0 +1,27 @@
+// _print.scss — caselight_theme print rules (POAM-017g THE FLIP).
+// Thin @media print layer atop Bootstrap 5.3; restyles INSPINIA-era class names.
+// Hides chrome (side nav, top nav, ibox tools) and flattens card shadows for paper.
+
+@media print {
+  nav.navbar-static-side,
+  .navbar-static-top,
+  .ibox-tools {
+    display: none !important;
+  }
+
+  body {
+    overflow: visible !important;
+    background: #ffffff;
+  }
+
+  #page-wrapper {
+    margin: 0;
+  }
+
+  .ibox,
+  .ibox-title,
+  .ibox-content,
+  .ibox-footer {
+    box-shadow: none !important;
+  }
+}

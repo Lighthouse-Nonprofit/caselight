@@ -79,7 +79,9 @@ CIF.ClientsNew =
                 $('#confirm-client-modal .modal-header .modal-title').text(modalTitle);
                 $('#confirm-client-modal .modal-body').html(modalText);
 
-                $('#confirm-client-modal').modal('show');
+                bootstrap.Modal.getOrCreateInstance(
+                  document.getElementById('confirm-client-modal'),
+                ).show();
                 return $('#confirm-client-modal #confirm').on('click', () =>
                   $('form.client-form').submit(),
                 );

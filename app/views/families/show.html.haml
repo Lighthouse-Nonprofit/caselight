@@ -1,18 +1,16 @@
 .row
-  .col-xs-12.family
+  .col-12.family
     .btn-group.small-btn-margin
-      %button.btn-sm.btn.btn-success.dropdown-toggle{ 'data-toggle' => 'dropdown', class: ('disabled' if @group_family_custom_fields.empty?) }
+      %button.btn-sm.btn.btn-success.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @group_family_custom_fields.empty?) }
         = t('.additional_forms')
-        %span.caret
       %ul.dropdown-menu.scrollable-dropdown-menu
         - @group_family_custom_fields.each do |_, family_custom_fields|
           %li= link_to family_custom_fields.first.custom_field.form_title, family_custom_field_properties_path(@family, custom_field_id: family_custom_fields.first.custom_field_id)
 
     - if can? :manage, CustomFieldProperty
       .btn-group.small-btn-margin
-        %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-toggle' => 'dropdown', class: ('disabled' if @free_family_forms.empty?) }
+        %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @free_family_forms.empty?) }
           = t('.add_form')
-          %span.caret
         %ul.dropdown-menu.scrollable-dropdown-menu
           - @free_family_forms.each do |custom_field|
             %li= link_to custom_field.form_title, new_family_custom_field_property_path(@family, custom_field_id: custom_field)
@@ -137,11 +135,11 @@
                   %strong
                     = @family.family_type.titleize
 .row
-  .col-xs-12.clients
+  .col-12.clients
     .ibox
       .ibox-title
         %h5= @results
-        %span.label.label-info= t('.results')
+        %span.badge.text-bg-info= t('.results')
       .ibox-content
         %h6.household-members__heading= t('.household_members', default: 'Household members')
         - members = @family.clients.to_a.uniq
