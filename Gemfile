@@ -72,7 +72,7 @@ gem 'csv'
 gem 'fog-aws'
 gem 'ffaker',                 '~> 2.25.0'
 gem 'draper', '~> 4.0'
-gem 'datagrid',               '~> 1.4.2'
+gem 'datagrid',               '~> 2.0.9'
 gem 'active_model_serializers', '~> 0.10.0'
 # sinatra REMOVED (Phase 6 / POAM-003): it existed only as the sidekiq-4 web-UI dependency, was
 # require: false, and Sidekiq::Web was never mounted anywhere. sidekiq >= 6 ships its own rack app.
