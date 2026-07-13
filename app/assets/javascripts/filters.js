@@ -13,11 +13,13 @@ $(function () {
     $('.integer_filter').attr('type', 'number');
     $('.grid-form .datagrid-filter, .grid-form .domain-filter').each(function () {
       $(this).addClass('mb-3 col-12 col-sm-6 col-lg-4');
-      return $(this).children('input, select').addClass('form-control');
+      $(this).children('input').addClass('form-control');
+      return $(this).children('select').addClass('form-select');
     });
 
     $('.date-filter-group').each(function (index, element) {
-      return $(this).children('input, select').addClass('form-control');
+      $(this).children('input').addClass('form-control');
+      return $(this).children('select').addClass('form-select');
     });
 
     $('.grid-form .datagrid-actions').addClass('col-12');

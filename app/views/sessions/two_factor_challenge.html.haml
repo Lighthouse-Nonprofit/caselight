@@ -12,7 +12,7 @@
           .mb-3
             = label_tag :otp_attempt, 'Authentication code'
             = text_field_tag :otp_attempt, nil, class: 'form-control', autocomplete: 'one-time-code', inputmode: 'numeric', autofocus: true, placeholder: '123456'
-          = submit_tag 'Verify and sign in', class: 'btn btn-block btn-outline btn-primary'
+          = submit_tag 'Verify and sign in', class: 'btn btn-primary w-100'
         %p.text-center.m-t
           %small.text-muted Lost your device? Enter one of your recovery codes in the field above.
         .text-center

@@ -41,6 +41,13 @@
 .btn-danger.btn-outline:hover {
   color: #fff;
 }
+// Disabled .btn-outline: BS5 paints the variant's solid disabled bg, but the colour rules
+// above (same specificity, later in the cascade) kept the variant TEXT colour — red glyph
+// on the red disabled fill = invisible trash icons on every disabled row-action (Q1 fix).
+.btn.btn-outline.disabled,
+.btn.btn-outline:disabled {
+  color: #fff;
+}
 
 // --- .btn-white: INSPINIA neutral white button ---
 .btn-white {
@@ -147,31 +154,27 @@
   }
 }
 
-// Legacy tabs (`.nav-tabs > li > a`; BS5 wants `.nav-item`/`.nav-link`). The triggers already
-// carry data-bs-toggle="tab" (codemod), so switching works — this is styling only.
-.nav-tabs {
-  border-bottom: 1px solid $refresh-border;
-  > li {
-    margin-bottom: -1px;
-    > a {
-      display: block;
-      padding: .5rem 1rem;
-      color: $lazur;
-      text-decoration: none;
-      border: 1px solid transparent;
-      border-top-left-radius: $border-radius;
-      border-top-right-radius: $border-radius;
-      &:hover { border-color: #e9ecef #e9ecef $refresh-border; }
-    }
-    &.active > a, > a.active {
-      color: $body-color;
-      background-color: #fff;
-      border-color: $refresh-border $refresh-border #fff;
-    }
-  }
-}
+// Tabs: converted to native BS5 markup (.nav-item/.nav-link, active on the LINK) in Q1 —
+// the legacy li>a shim is gone with it. (The li.active shape also broke switching: BS5's
+// Tab JS finds the previous trigger via `.nav-link.active`, so the old pane never
+// deactivated and both panes stacked.)
 
 // BS3 .navbar-right (removed in BS5; the topnav ul also carries .float-end from the codemod).
 .navbar-right { margin-left: auto; }
+
+// --- .cl-check-group: the legacy "outer label + inline Yes/No radios" pattern (was
+//     .i-checks; the flip codemod's blanket i-checks→form-check-input rename put an INPUT
+//     class on these wrapper DIVs — BS5 sizes .form-check-input at 1em and the whole group
+//     collapsed to a sliver). Block label, then the simple_form .form-check items inline.
+.cl-check-group {
+  > label { display: block; margin-bottom: .25rem; }
+  .form-check.form-check-inline { margin-right: 1rem; }
+}
+
+// --- jquery.steps wizard step fix (was INSPINIA elements.scss). The stock step.css
+//     absolutely-positions the step body inside an overflow-hidden 35em container, which
+//     clips tall steps (assessment domain scoring) and floats the actions bar mid-card.
+//     position: relative returns the body to flow so .content grows with the step.
+.wizard > .content > .body { position: relative; }
 
 // .pace-done (Pace loader body class) needs no style — intentionally omitted.

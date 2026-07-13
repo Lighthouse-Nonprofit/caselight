@@ -71,6 +71,8 @@
 //= require bootstrap_file_input5/fileinput.js
 //= require bootstrap_file_input5/themes/fa4-theme.js
 //= require bootstrap_file_input5/themes/explorer-fa4-theme.js
+// Q1: compact defaults (fileinput 5 grew a dropzone/Remove/close vs the 4.4.1 baseline).
+//= require shared/file_input_defaults
 
 // SHELL + TOASTS
 // POAM-017g flip: caselight_shell.js replaced wrapbootstrap/inspinia.js (live shell behaviours

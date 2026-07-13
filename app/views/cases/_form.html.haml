@@ -22,7 +22,7 @@
         .col-12.col-sm-6.col-md-4= f.association :family, collection: @family.map{|family| [family.name.present? ? family.name : 'Unknown', family.id] }, include_blank: false, label: t('.family')
         .col-12.col-sm-6.col-md-4= f.input :support_amount, label: "#{t('.support_amount')}($)"
         .col-12.col-sm-6.col-md-4
-          .form-check-input.family-preservation
+          .cl-check-group.family-preservation
             %label= t('.family_preservation')
             = f.input :family_preservation, as: :radio_buttons, collection: [['Yes', true],['No', false]], label: false
         .col-12.col-sm-6.col-md-4= f.input :support_note, input_html: { rows: 5 }, label: t('.support_note')

@@ -324,7 +324,7 @@ CIF.RuleBuilder = (function () {
     }
 
     _buildFilterSelect(ruleId, selectedId) {
-      const select = el('select', 'form-control');
+      const select = el('select', 'form-select');
       select.name = `${ruleId}_filter`;
       const placeholder = el('option');
       placeholder.value = PLACEHOLDER_VALUE;
@@ -370,7 +370,7 @@ CIF.RuleBuilder = (function () {
       if (!descriptor) return; // '-1' placeholder or removed filter
 
       rule.dataset.filterId = String(descriptor.id);
-      const operatorSelect = el('select', 'form-control');
+      const operatorSelect = el('select', 'form-select');
       operatorSelect.name = `${rule.id}_operator`;
       for (const operator of descriptor.operators || []) {
         const option = el('option');
@@ -412,7 +412,7 @@ CIF.RuleBuilder = (function () {
       const name = `${rule.id}_value_${index}`;
 
       if (descriptor.input === 'select') {
-        const select = el('select', 'form-control');
+        const select = el('select', 'form-select');
         select.name = name;
         this._appendValueOptions(select, descriptor.values);
         if (this.readOnly) select.disabled = true;

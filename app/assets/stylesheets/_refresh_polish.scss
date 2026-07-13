@@ -103,7 +103,7 @@ ul.household-members {
   &:focus {
     background: rgba($lazur, .12);
     border-color: rgba($lazur, .35);
-    color: darken($lazur, 10%);
+    color: shade-color($lazur, 10%);
     text-decoration: none;
   }
 }

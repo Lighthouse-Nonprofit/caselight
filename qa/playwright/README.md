@@ -33,6 +33,22 @@ SEEDED DEV demo admin (synthetic data; override via QA_BASE/QA_EMAIL/QA_PASSWORD
 Both scripts exit non-zero on any failure. Run them green on the BS3 baseline BEFORE the
 flip branch cuts (P6), and as blocking gates on the flip PR and every polish rung.
 
+## bs5_pixeldiff.js — polish-rung drift gate (Q1+)
+
+Once both runs are on the SAME framework (post-flip), `bs5_pixeldiff.js` compares two sweep
+evidence dirs pixel-by-pixel (pixelmatch): a polish PR may move the surfaces it deliberately
+touches (`--allow a,b,c`); any OTHER surface drifting past `--threshold` (default 1%) or
+reflowing more than 2% in height fails the gate, and a diff PNG is written for review.
+
+```powershell
+cd qa/playwright; npm install   # pixelmatch + pngjs (package.json; node_modules git-ignored)
+node qa/playwright/bs5_pixeldiff.js --baseline <evidence>/baseline-<sha> `
+  --candidate <evidence>/candidate-<sha> --allow login,tasks
+```
+
+(A BS3-vs-BS5 compare flags all 30 surfaces by design — pixeldiff only means something
+against a BS5 baseline.)
+
 ## What the shakedown already caught (why this gate earns its keep)
 
 Running these against the BS3 baseline surfaced three REAL latent regressions from the

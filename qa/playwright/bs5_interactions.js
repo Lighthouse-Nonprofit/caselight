@@ -108,16 +108,23 @@ const block = async (name, fn) => {
     if (!opened) throw new Error(`collapse did not open (cls '${before.cls}' -> '${after.cls}', h ${before.h} -> ${after.h})`);
   });
 
-  // 5. Tabs (declarative + the converted JS .tab sites)
+  // 5. Tabs (declarative + the converted JS .tab sites). Q1 hardening: activating the new
+  // pane is NOT enough — the flip shipped li.active markup where BS5's Tab couldn't find
+  // the previous trigger, so the OLD pane stayed visible and both stacked. Assert the old
+  // pane deactivates and the highlight moves too.
   await block('tabs (program_streams + custom_fields)', async () => {
+    const switchAndAssert = async (clickSel, newPane, oldPane) => {
+      await page.click(clickSel);
+      await page.waitForTimeout(500);
+      if (!(await visible(newPane))) throw new Error(`${newPane} not shown`);
+      if (await visible(oldPane)) throw new Error(`${oldPane} still visible after switching away (both panes stacked)`);
+      const linkActive = await page.$eval(clickSel, (a) => a.classList.contains('active') || a.parentElement.classList.contains('active'));
+      if (!linkActive) throw new Error(`trigger ${clickSel} did not take the active highlight`);
+    };
     await goto('/program_streams');
-    await page.click('a[href="#ngos-program-streams"]');
-    await page.waitForTimeout(500);
-    if (!(await visible('#ngos-program-streams'))) throw new Error('program-streams tab pane not shown');
+    await switchAndAssert('a[href="#ngos-program-streams"]', '#ngos-program-streams', '#current-program-streams');
     await goto('/custom_fields');
-    await page.click('a[href="#all-custom-form"]');
-    await page.waitForTimeout(500);
-    if (!(await visible('#all-custom-form'))) throw new Error('custom-fields tab pane not shown');
+    await switchAndAssert('a[href="#all-custom-form"]', '#all-custom-form', '#custom-form');
   });
 
   // 6. Popover (family SHOW member count — not the index)

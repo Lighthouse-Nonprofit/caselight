@@ -67,8 +67,11 @@ body[id='assessments-update'] {
     }
   }
   .well {
-    max-height: 400px;
-    overflow: scroll;
+    // Q1: BS5 type metrics run a few px taller than BS3 — 400px left the last score-
+    // interpretation line's descenders under the fold, reading as a clip. Headroom +
+    // auto (scroll forced always-on scrollbar chrome even when nothing overflows).
+    max-height: 430px;
+    overflow-y: auto;
 
     ul {
       margin-left: 25px;
