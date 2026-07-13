@@ -2,8 +2,7 @@
   .modal-dialog{role: "document"}
     .modal-content
       .modal-header.bg-warning
-        %button.close{"aria-label" => "Close", "data-bs-dismiss" => "modal", type: "button"}
-          %span{"aria-hidden" => "true"} ×
+        %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", type: "button"}
         %h4#gridSystemModalLabel.modal-title=t('warning')
       = simple_form_for(current_user, url: '/users', html: {class: 'program-warning-form'}) do |f|
         .modal-body

@@ -46,8 +46,7 @@
                 .modal-dialog{ role: 'document'}
                   .modal-content
                     .modal-header
-                      %button.close{"aria-label" => "#{t('close')}", "data-bs-dismiss" => 'modal'}
-                        %span{"aria-hidden" => 'true'} &times;
+                      %button.btn-close{"aria-label" => "#{t('close')}", "data-bs-dismiss" => 'modal'}
                       %h4.modal-title
                         = t('.reject_client')
                     .modal-body

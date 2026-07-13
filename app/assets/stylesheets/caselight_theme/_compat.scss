@@ -2,20 +2,10 @@
 // deleted commercial theme provided and that live markup still uses (census
 // 2026-07-12). Thin plain-CSS shims on Bootstrap 5.3 DNA. Part of caselight_theme (POAM-017g THE FLIP).
 
-// --- .sr-only: alias of Bootstrap's .visually-hidden (BS3/legacy markup) ---
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
+// (.sr-only alias RETIRED in Q2 — all markup + the pinning a11y specs moved to
+//  Bootstrap 5's native .visually-hidden; the removal guard bans sr-only in views.)
 
-// --- .btn-xs: BS3 extra-small button size removed in BS5 ---
+// --- .btn-xs: BS3 extra-small button size removed in BS5 (PERMANENT CaseLight utility) ---
 .btn-xs {
   padding: 1px 5px;
   font-size: 12px;
@@ -107,29 +97,15 @@
   .form-label, .control-label, .form-text { color: $danger; }
 }
 
-// --- Residual BS3 component markup shims (POAM-017g). Functionally correct on BS5 already
-//     (modals use data-bs-dismiss, dropdowns/tabs use data-bs-toggle); these give the legacy
-//     markup its Bootstrap-5 LOOK without a 30-file markup churn. A later polish rung can
-//     convert the markup to native .btn-close / .dropdown-item / .nav-link. ---
-
-// Modal / alert close button (BS3 `button.close` with a × glyph; BS5 renamed it .btn-close).
-.close {
-  float: right;
-  padding: 0;
-  margin: 0 0 0 auto;
-  font-size: 1.4rem;
-  font-weight: 700;
-  line-height: 1;
-  color: #000;
-  background: transparent;
-  border: 0;
-  opacity: .5;
-  cursor: pointer;
-  &:hover, &:focus { opacity: .85; }
-}
-.modal-header .close { margin-top: -.25rem; }
+// --- Residual BS3 component markup shims (POAM-017g). ---
+// (button.close RETIRED in Q2 — the 29 modal/alert close buttons are native .btn-close now;
+//  the removal guard bans %button.close in views.)
 
 // Legacy dropdown items (`.dropdown-menu > li > a`; BS5 wants `.dropdown-item` on the <a>).
+// RETAINED DELIBERATELY (Q2 decision): several dropdown items are emitted by decorators/
+// helpers (e.g. the client case buttons), so a markup conversion reaches beyond the views
+// for zero visual gain — this shim IS the supported styling for li>a dropdown content,
+// verified by the sweep's menus-open capture. Treat like .btn-xs: permanent, documented.
 .dropdown-menu {
   li > a {
     display: block;

@@ -8,8 +8,7 @@
     .modal-content
       %form#new-task-form.task-modal-form{ 'data-error-required' => t('calendars.task_modal.error_required'), 'data-error-save' => t('calendars.task_modal.error_save') }
         .modal-header
-          %button.close{ type: 'button', 'data-bs-dismiss' => 'modal', 'aria-label' => t('calendars.task_modal.close') }
-            %span{ 'aria-hidden' => 'true' } &times;
+          %button.btn-close{ type: 'button', 'data-bs-dismiss' => 'modal', 'aria-label' => t('calendars.task_modal.close') }
           %h4#taskModalLabel.modal-title= t('calendars.task_modal.title')
           %p.text-muted.task-modal-subtitle= t('calendars.task_modal.subtitle')
         .modal-body

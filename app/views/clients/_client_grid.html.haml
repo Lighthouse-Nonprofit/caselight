@@ -2,7 +2,7 @@
 - can_read_program = can?(:read, ProgramStream)
 .record-grid
   %table.record-grid__table{ role: 'table' }
-    %caption.sr-only= t('.grid_caption', default: 'Individuals')
+    %caption.visually-hidden= t('.grid_caption', default: 'Individuals')
     %thead
       %tr
         %th{ scope: 'col' }= t('datagrid.columns.clients.name', default: 'Name')
@@ -11,7 +11,7 @@
         %th{ scope: 'col' }= t('datagrid.columns.clients.status', default: 'Status')
         %th{ scope: 'col' }= t('datagrid.columns.clients.program_streams', default: 'Programs')
         %th.record-grid__actions-col{ scope: 'col' }
-          %span.sr-only= t('datagrid.columns.clients.manage', default: 'Actions')
+          %span.visually-hidden= t('datagrid.columns.clients.manage', default: 'Actions')
     %tbody
       - clients.each do |object|
         - streams  = object.client_enrollments.map(&:program_stream).compact.uniq

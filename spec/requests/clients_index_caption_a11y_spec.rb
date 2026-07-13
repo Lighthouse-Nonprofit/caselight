@@ -6,7 +6,7 @@ require 'rails_helper'
 # spec/requests) asserts that landmark wiring. NOTE: Workstream A added a role branch -- admins /
 # strategic overviewers now get the LIMITED GRID (its own <caption> landmark), and the CARD list only
 # renders for managers / case workers. So this card-landmark contract is exercised under a case worker.
-# NON-VACUOUS: it checks the sr-only heading text, that the heading id is the list's aria-labelledby
+# NON-VACUOUS: it checks the visually-hidden heading text, that the heading id is the list's aria-labelledby
 # target, role='list', and that the heading precedes the list it labels. Attribute-order-independent.
 RSpec.describe 'clients/index accessible list landmark (surface B)', type: :request do
   after(:each) { ClientHistory.delete_all rescue nil }
@@ -16,7 +16,7 @@ RSpec.describe 'clients/index accessible list landmark (surface B)', type: :requ
 
   before { post user_session_path, params: { user: { email: worker.email, password: password } } }
 
-  it 'renders an sr-only Clients heading wired to the card list via aria-labelledby + role=list' do
+  it 'renders an visually-hidden Clients heading wired to the card list via aria-labelledby + role=list' do
     get clients_path
     expect(response).to have_http_status(:ok)
     body = response.body
@@ -26,7 +26,7 @@ RSpec.describe 'clients/index accessible list landmark (surface B)', type: :requ
     h2 = body[/<h2\b[^>]*>\s*Clients\s*<\/h2>/i]
     expect(h2).to be_present
     expect(h2).to match(/id=["']clients-list-heading["']/)
-    expect(h2).to match(/class=["'][^"']*\bsr-only\b/)
+    expect(h2).to match(/class=["'][^"']*\bvisually-hidden\b/)
 
     # The card list is a role='list' <ul.record-cards> referencing that heading id.
     list_tag = body[/<ul\b[^>]*class=["'][^"']*\brecord-cards\b[^"']*["'][^>]*>/i]

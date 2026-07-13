@@ -2,8 +2,7 @@
   .modal-dialog{ role: 'document'}
     .modal-content
       .modal-header
-        %button.close{"aria-label" => 'Close', "data-bs-dismiss" => 'modal'}
-          %span{"aria-hidden" => 'true'} &times;
+        %button.btn-close{"aria-label" => 'Close', "data-bs-dismiss" => 'modal'}
         %h4.modal-title
           = t('.title')
       .modal-body
