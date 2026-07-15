@@ -50,7 +50,7 @@ gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q
 gem 'devise', '~> 5.0', '>= 5.0.4'  # 5.0.4 closes POAM-009 (CVE-2026-32700, CVE-2026-40295)
 gem 'devise-security', '~> 0.18'    # Phase 2: password complexity + history/no-reuse (IA-5)
 gem 'devise-two-factor', '~> 6.4'   # Phase 2: TOTP MFA (IA-2(1)); otp_secret via AR Encryption
-gem 'rqrcode', '~> 2.0'             # QR codes for TOTP enrollment
+gem 'rqrcode', '~> 3.2'             # QR codes for TOTP enrollment
 # Phase 2: WebAuthn passkeys (IA-2 — phishing-resistant authenticator). Used DIRECTLY via
 # WebAuthn::RelyingParty (registration/authentication ceremonies + FakeClient for specs) rather
 # than via devise-passkeys' :passkey_authenticatable module — the app's custom two-step
