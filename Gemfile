@@ -1,13 +1,17 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 8.0.5'  # POAM-018: 7.2 EOL 2026-08-09. 8.0.5 = last 8.0.x bug-fix release; the 8.0
-# line is security-only until its own EOL 2026-11-07 -- the 8.1 rung is ledgered (target 2026-10-31,
-# before Brakeman's 60-day pending-EOL warning fires ~2026-09-08). Prior: 7.2 closed POAM-005b.
+gem 'rails', '~> 8.1.0'  # POAM-020: on 8.1.x. 8.0.x was security-only, EOL 2026-11-07; this rung
+# lands the 8.1 hop ahead of Brakeman's ~2026-09-08 pending-EOL warning (target was 2026-10-31).
+# 8.2 is a future rung, capped out for now by mongoid 9.0.11 / ros-apartment / devise-two-factor
+# (all activemodel/AR < 8.2). Prior: 7.2 closed POAM-005b; 8.0.5 closed POAM-018.
 gem 'nokogiri', '~> 1.16'
 gem 'loofah', '~> 2.3'
 gem 'rails-html-sanitizer', '~> 1.4'
 gem 'json', '>= 2.3'
 gem 'tilt', '~> 2.0'
+gem 'benchmark'  # POAM-020: Ruby 4.0 dropped benchmark from default gems and Rails 8.1 no longer
+# pulls it in transitively (8.0 did, via activesupport), so gems that `require 'benchmark'`
+# (mini_magick 4.x, etc.) raise LoadError on boot. Declared explicitly. (Same class as the logger pin.)
 # ffi + concurrent-ruby unpinned on Ruby 3.3 (the < 1.17 / 1.3.4 caps were for Ruby 2.7). The
 # require "logger" in application.rb still guards the concurrent-ruby/Logger boot NameError (Rails 7.0).
 gem 'erubis'

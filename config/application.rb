@@ -84,6 +84,13 @@ module CifWeb
       g.template_engine :haml
     end
 
+    # Rails 8.1 framework defaults (POAM-020): running the 8.1.x gem, but this app deliberately does
+    # NOT call config.load_defaults -- it sets framework behavior explicitly (see the blocks below),
+    # so the 8.1 new-framework-defaults are opt-in per setting. Reviewed on the 8.1 hop; none adopted
+    # (each would change behavior with no functional need here, so baseline behavior is unchanged).
+    # Flagged for a later security pass: action_controller.action_on_path_relative_redirect = :raise
+    # (open-redirect hardening -- needs a redirect_to audit first). See the Rails 8.1 upgrade guide.
+
     # CORS removed (FedRAMP AC-4 / SC-7). The wide-open `origins '*'` block existed only for the
     # mobile API + devise_token_auth, which were removed on the Rails 7.1 upgrade. The remaining
     # /api endpoints are same-origin AJAX helpers for the web UI — same-origin requests don't use
