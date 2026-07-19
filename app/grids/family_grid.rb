@@ -109,11 +109,11 @@ class FamilyGrid
     User.where(id: user_ids).map{|u| u.name }.join(', ')
   end
 
-  column(:manage, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.families.manage') }) do |object|
+  column(:manage, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.families.manage') }) do |object|
     render partial: 'families/actions', locals: { object: object }
   end
 
-  column(:changelog, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.families.changelogs') }) do |object|
+  column(:changelog, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.families.changelogs') }) do |object|
     link_to t('datagrid.columns.families.view'), family_version_path(object)
   end
 end

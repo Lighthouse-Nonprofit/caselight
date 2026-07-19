@@ -92,11 +92,11 @@ class UserGrid
   # Phase 6 (U1): html-only — a staff PIN is credential-adjacent and does not belong in the XLS export.
   column(:pin_number, html: true, header: -> { I18n.t('datagrid.columns.users.pin_number') })
 
-  column(:manage, header: -> { I18n.t('datagrid.columns.users.manage') }, html: true, class: 'text-center') do |object|
+  column(:manage, header: -> { I18n.t('datagrid.columns.users.manage') }, html: true, tag_options: { class: 'text-center' }) do |object|
     render partial: 'users/actions', locals: { object: object }
   end
 
-  column(:changelog, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.users.changelogs') }) do |object|
+  column(:changelog, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.users.changelogs') }) do |object|
     link_to t('datagrid.columns.users.view'), user_version_path(object)
   end
 end

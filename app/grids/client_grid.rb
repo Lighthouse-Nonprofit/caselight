@@ -501,7 +501,7 @@ class ClientGrid
     end
   end
 
-  column(:any_assessments, class: 'text-center', header: -> { I18n.t('datagrid.columns.clients.assessments') }, html: true) do |object|
+  column(:any_assessments, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.clients.assessments') }, html: true) do |object|
     render partial: 'clients/assessments', locals: { object: object }
   end
 
@@ -513,7 +513,7 @@ class ClientGrid
     dynamic_columns.each do |column_builder|
       fields = column_builder[:id].split('_')
       cf_id  = column_builder[:custom_field_id]
-      column(column_builder[:id].downcase.parameterize('_').to_sym, class: 'form-builder', header: -> { form_builder_format_header(fields) }, html: true) do |object|
+      column(column_builder[:id].downcase.parameterize('_').to_sym, tag_options: { class: 'form-builder' }, header: -> { form_builder_format_header(fields) }, html: true) do |object|
         if fields.first == 'formbuilder'
           properties =
             if cf_id.present? && vis_ids.include?(cf_id)
@@ -536,10 +536,10 @@ class ClientGrid
   end
 
   dynamic do
-    column(:manage, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.clients.manage') }) do |object|
+    column(:manage, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.clients.manage') }) do |object|
       render partial: 'clients/actions', locals: { object: object }
     end
-    column(:changelog, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.clients.changelogs') }) do |object|
+    column(:changelog, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.clients.changelogs') }) do |object|
       link_to t('datagrid.columns.clients.view'), client_version_path(object)
     end
   end

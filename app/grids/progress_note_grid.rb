@@ -104,11 +104,11 @@ class ProgressNoteGrid
     strip_tags(object.additional_note)
   end
 
-  column(:manage, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.progress_notes.manage') }) do |object|
+  column(:manage, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.progress_notes.manage') }) do |object|
     render partial: 'progress_notes/actions', locals: { object: object }
   end
 
-  column(:changelog, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.progress_notes.changelogs') }) do |object|
+  column(:changelog, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.progress_notes.changelogs') }) do |object|
     link_to t('datagrid.columns.progress_notes.view'), client_progress_note_version_path(object.client, object)
   end
 end
