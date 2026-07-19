@@ -81,11 +81,11 @@ class PartnerGrid
     object.province.try(:name)
   end
 
-  column(:manage, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.partners.manage') }) do |object|
+  column(:manage, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.partners.manage') }) do |object|
     render partial: 'partners/actions', locals: { object: object }
   end
 
-  column(:changelog, html: true, class: 'text-center', header: -> { I18n.t('datagrid.columns.partners.changelogs') }) do |object|
+  column(:changelog, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.partners.changelogs') }) do |object|
     link_to t('datagrid.columns.partners.view'), partner_version_path(object)
   end
 end
