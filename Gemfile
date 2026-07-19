@@ -141,7 +141,7 @@ gem 'dropzonejs-rails',       '~> 0.8.5'
 # sidekiq 4 -> 7 (Phase 6 / POAM-001: XSS + 2x DoS CVEs). 7.x uses redis-client internally (the
 # explicit redis gem above keeps rack-attack working); Sidekiq.default_worker_options renamed to
 # default_job_options (initializer updated); no Sidekiq::Extensions (.delay) usage existed to convert.
-gem 'sidekiq',                '~> 7.3'
+gem 'sidekiq',                '~> 8.0'
 # connection_pool 3.0 changed TimedStack#pop's signature and crashes sidekiq 7.3's scheduler thread
 # (ArgumentError at boot, caught by the U11 smoke). Pin to the 2.x line sidekiq 7 was built against.
 gem 'connection_pool',        '~> 2.5'
