@@ -148,7 +148,7 @@ gem 'dropzonejs-rails',       '~> 0.8.5'
 gem 'sidekiq',                '~> 7.3'
 # connection_pool 3.0 changed TimedStack#pop's signature and crashes sidekiq 7.3's scheduler thread
 # (ArgumentError at boot, caught by the U11 smoke). Pin to the 2.x line sidekiq 7 was built against.
-gem 'connection_pool',        '~> 2.5'
+gem 'connection_pool',        '~> 3.0'
 # Mongoid 9 (POAM-018 opening rung): Mongoid 8.1's OFFICIAL support tops out at Rails 7.2, so
 # Mongoid moves before the Rails-8 hop — 9.0.x officially supports Rails 6.0-8.0 AND MongoDB
 # server 3.6-8.2 (the upcoming server-8.0 rung), making every step an officially-supported
