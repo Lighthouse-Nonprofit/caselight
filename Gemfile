@@ -128,7 +128,7 @@ gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 17.0'
 gem 'carrierwave',            '~> 3.1'
-gem 'mini_magick',            '~> 4.5'
+gem 'mini_magick',            '~> 5.3'
 # font-awesome-rails removed (POAM-017e R9b): the gem shipped only a .css.erb (sprockets
 # font-path helpers dart-sass can't evaluate) + fonts. Now vendored as plain css
 # (vendor/assets/stylesheets/font-awesome.css) + undigested fonts (public/fonts/font-awesome/).
