@@ -145,10 +145,12 @@ gem 'dropzonejs-rails',       '~> 0.8.5'
 # sidekiq 4 -> 7 (Phase 6 / POAM-001: XSS + 2x DoS CVEs). 7.x uses redis-client internally (the
 # explicit redis gem above keeps rack-attack working); Sidekiq.default_worker_options renamed to
 # default_job_options (initializer updated); no Sidekiq::Extensions (.delay) usage existed to convert.
-gem 'sidekiq',                '~> 7.3'
-# connection_pool 3.0 changed TimedStack#pop's signature and crashes sidekiq 7.3's scheduler thread
-# (ArgumentError at boot, caught by the U11 smoke). Pin to the 2.x line sidekiq 7 was built against.
-gem 'connection_pool',        '~> 2.5'
+gem 'sidekiq',                '~> 8.0'
+# connection_pool 3.0 changed TimedStack#pop's signature and crashed sidekiq 7.3's scheduler thread
+# at boot -- which is why connection_pool was pinned to 2.x. sidekiq 8 is built against
+# connection_pool 3, so the pin lifts on this rung (Phase 3a). sidekiq 8 needs Redis server >= 7.2
+# (image is redis:7) and redis-client >= 0.23 (already satisfied).
+gem 'connection_pool',        '~> 3.0'
 # Mongoid 9 (POAM-018 opening rung): Mongoid 8.1's OFFICIAL support tops out at Rails 7.2, so
 # Mongoid moves before the Rails-8 hop — 9.0.x officially supports Rails 6.0-8.0 AND MongoDB
 # server 3.6-8.2 (the upcoming server-8.0 rung), making every step an officially-supported
