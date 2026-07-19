@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 8.0.5'  # POAM-018: 7.2 EOL 2026-08-09. 8.0.5 = last 8.0.x bug-fix release; the 8.0
+gem 'rails', '~> 8.1.3'  # POAM-018: 7.2 EOL 2026-08-09. 8.0.5 = last 8.0.x bug-fix release; the 8.0
 # line is security-only until its own EOL 2026-11-07 -- the 8.1 rung is ledgered (target 2026-10-31,
 # before Brakeman's 60-day pending-EOL warning fires ~2026-09-08). Prior: 7.2 closed POAM-005b.
 gem 'nokogiri', '~> 1.16'
@@ -151,7 +151,7 @@ gem 'connection_pool',        '~> 2.5'
 # combo. Driver stays mongo 2.x unpinned (9.0 requires >= 2.18; >= 2.21 covers server 8.0;
 # the lock already resolves the newest 2.x). No mongoid.yml changes: the app deliberately
 # carries zero Mongoid feature-flag config, so 9.0 defaults apply wholesale.
-gem 'mongoid', '~> 9.0.11'
+gem 'mongoid', '~> 9.1.0'
 
 group :development, :test do
   gem 'pry'
