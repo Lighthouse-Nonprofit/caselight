@@ -5,9 +5,11 @@ require 'rails_helper'
 # replaced by a frozen whitelisted operator map. Proves the same rows are kept as before (numeric
 # comparison parity across =, >, >=, <, <=, !=) and that an injected operator string fails closed
 # (row excluded, no execution).
-# FOLDS review fix: datagrid 1.4.4 :dynamic filter value MUST be the POSITIONAL TRIPLE
-# ['All CSI', operation, value] — a hash {operation:,value:} binds operation/value to nil and every
-# row fails closed, which would falsely redden the positive assertions.
+# datagrid 2.0 API: a :dynamic filter value is a HASH {field:, operation:, value:} (Datagrid's
+# FilterValue), NOT the 1.4.4 positional triple ['All CSI', operation, value] (2.0 raises
+# Datagrid::ArgumentError on an Array value). The all_domains block ignores field (it scores across
+# every AssessmentDomain), but 2.0 introspects the field's column type at parse time, so field must
+# be a real column — the filter's select maps the "All CSI" label to :id. (deps program Phase 1d/1f.)
 RSpec.describe ClientGrid, 'all_domains dynamic filter (POAM-004)', type: :model do
   after { ClientHistory.delete_all }
 
@@ -23,7 +25,7 @@ RSpec.describe ClientGrid, 'all_domains dynamic filter (POAM-004)', type: :model
   end
 
   def grid_ids(operation, value)
-    grid = ClientGrid.new(all_domains: ['All CSI', operation, value])
+    grid = ClientGrid.new(all_domains: { field: 'id', operation: operation, value: value })
     grid.assets.pluck(:id)
   end
 
