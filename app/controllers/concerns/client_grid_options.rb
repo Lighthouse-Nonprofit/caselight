@@ -30,7 +30,7 @@ module ClientGridOptions
     column_form_builder.each do |field|
       fields = field[:id].split('_')
       cf_id  = field[:custom_field_id]
-      @client_grid.column(field[:id].downcase.parameterize('_').to_sym, header: form_builder_format_header(fields)) do |client|
+      @client_grid.column(field[:id].downcase.parameterize(separator: '_').to_sym, header: form_builder_format_header(fields)) do |client|
         if fields.first == 'formbuilder'
           if cf_id.present? && vis_ids.include?(cf_id)
             client.custom_field_properties.joins(:custom_field).where(custom_fields: { id: cf_id, entity_type: 'Client' }).properties_by(fields.last).map { |p| format_properties_value(p) }.join("\n")
@@ -51,27 +51,29 @@ module ClientGridOptions
   end
 
   def admin_client_grid
+    # Phase 5.3 — inject the record-less visible custom_field_id set AT CONSTRUCTION. datagrid 2.0
+    # evaluates the `dynamic do` formbuilder-masking block during ClientGrid.new, and the cells render
+    # in the view context, so the gate must close over the set captured at build time — assigning it
+    # after `.new` (the old order) left the gate an empty Set and OVER-masked every viewer.
+    vis_ids = visible_custom_field_ids
     if params[:client_grid] && params[:client_grid][:quantitative_types]
       quantitative_types = params[:client_grid][:quantitative_types]
-      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(qType: quantitative_types, dynamic_columns: column_form_builder))
+      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(qType: quantitative_types, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
     else
-      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(dynamic_columns: column_form_builder))
+      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
     end
-    # Phase 5.3 — inject the record-less visible custom_field_id set so formbuilder columns mask.
-    @client_grid.visible_custom_field_ids = visible_custom_field_ids if @client_grid.respond_to?(:visible_custom_field_ids=)
     @client_grid
   end
 
   def non_admin_client_grid
+    # Phase 5.3 — inject the visible custom_field_id set AT CONSTRUCTION (see admin_client_grid).
+    vis_ids = visible_custom_field_ids
     if params[:client_grid] && params[:client_grid][:quantitative_types]
       quantitative_types = params[:client_grid][:quantitative_types]
-      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: current_user, qType: quantitative_types, dynamic_columns: column_form_builder))
+      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: current_user, qType: quantitative_types, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
     else
-
-      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: current_user, dynamic_columns: column_form_builder))
+      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: current_user, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
     end
-    # Phase 5.3 — inject the record-less visible custom_field_id set so formbuilder columns mask.
-    @client_grid.visible_custom_field_ids = visible_custom_field_ids if @client_grid.respond_to?(:visible_custom_field_ids=)
     @client_grid
   end
 

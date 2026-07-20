@@ -49,7 +49,7 @@ class ClientColumnsVisibility
     columns = columns_collection
     if @params[:column_form_builder].present?
       @params[:column_form_builder].each do |column|
-        field   = column['id'].downcase.parameterize('_')
+        field   = column['id'].downcase.parameterize(separator: '_')
         columns = columns.merge!("#{field}_": field.to_sym)
       end
     end
