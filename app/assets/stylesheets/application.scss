@@ -1,5 +1,9 @@
 // Framework
-@import 'font-awesome';
+// POAM-017g follow-up (Phase 5a): Font Awesome 4.7 -> 6.7.2 (vendored free set: all + v4 shims;
+// webfonts in public/fonts/font-awesome6). The v4 shims remap the existing `fa fa-<name>` markup
+// (fa_icon helper + direct classes) onto FA6 glyphs, so no call-site changes were needed.
+@import 'font-awesome6';
+@import 'font-awesome6-v4shims';
 @import 'step';
 @import 'tom-select';
 // POAM-017g flip: Tom Select Bootstrap-5 theme replaced the hand-written tom_select_bs3 shim.
