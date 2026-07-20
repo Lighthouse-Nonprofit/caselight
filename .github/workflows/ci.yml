@@ -75,7 +75,7 @@ jobs:
           bundler-cache: true
           # Different BUNDLE_WITHOUT than the test job -> segregate the bundle cache.
           cache-version: assets-v1
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # execjs/terser runtime; matches the image's pinned Node 24 LTS (Dockerfile).
           node-version: "24"
