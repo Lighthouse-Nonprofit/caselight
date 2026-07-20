@@ -1,5 +1,7 @@
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :first_name, :last_name, :email, :roles, :mobile, :date_of_birth, :archived, :admin, :manager_id, :pin_number, :clients
+  # POAM-016: pin_number is a staff credential-adjacent secret and must not be emitted on the API
+  # surface (no consumer reads it here — verified). Dropped from the attribute list.
+  attributes :id, :first_name, :last_name, :email, :roles, :mobile, :date_of_birth, :archived, :admin, :manager_id, :clients
 
   def clients
     object.clients.map do |client|

@@ -60,9 +60,8 @@ RSpec.describe UserSerializer, type: :serializer do
     expect(serializer).to have_json_type(NilClass).at_path('user/manager_id')
   end
 
-  it 'should be have attribute pin_number' do
-    expect(serializer).to have_json_path('user/pin_number')
-    expect(serializer).to have_json_type(NilClass).at_path('user/pin_number')
+  it 'does NOT expose pin_number (POAM-016 — credential-adjacent, pruned from the API surface)' do
+    expect(serializer).not_to have_json_path('user/pin_number')
   end
 
   it 'should be have attribute clients' do
