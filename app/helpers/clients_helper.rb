@@ -180,7 +180,7 @@ module ClientsHelper
   end
 
   def form_builder_format_key(value)
-    value.downcase.parameterize('_')
+    value.downcase.parameterize(separator: '_')
   end
 
   def form_builder_format(value)
@@ -205,7 +205,7 @@ module ClientsHelper
     name   = values.first.strip
     label  = values.last.strip
     keyword = "#{name} #{label}"
-    keyword.downcase.parameterize('_')
+    keyword.downcase.parameterize(separator: '_')
   end
 
   def field_not_render(field)

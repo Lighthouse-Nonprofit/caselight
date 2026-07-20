@@ -125,4 +125,71 @@ RSpec.describe 'paper_trail PII redaction', type: :model do
       expect(version.object.to_s).not_to include('encrypted_password')
     end
   end
+
+  # ---------------------------------------------------------------------------------------------
+  # POAM-012 — Case#exit_note history exposure + the drift-guard blind spot above cannot catch it.
+  #
+  # Case `has_paper_trail` with NO skip: list and does NOT include RedactedUpdateVersions. It carries
+  # PLAINTEXT PII columns: exit_note is copied from the ENCRYPTED Client#exit_note via update_all
+  # (case.rb ~L150), which bypasses AR Encryption; adjacent carer_names/carer_address/support_note are
+  # plaintext too. So the exit narrative that was redacted+encrypted on Client is written UNREDACTED
+  # into the versions table — the same SC28-HIST plaintext-shadow-copy exposure Phase 6 closed for
+  # Client, re-opened on Case.
+  #
+  # The drift guard at the top of this file CANNOT catch this: it inspects only models that already
+  # declare encrypted attributes (`next if encrypted.empty?`). Case has zero encrypted_attributes, so
+  # a versioned model carrying plaintext PII is a silent hole. These examples pin the live exposure
+  # (POAM-012 open) and the target state for when it closes.
+  describe 'Case#exit_note history exposure (POAM-012)' do
+    it 'records the exit narrative in plaintext in the update version object_changes' do
+      kase = create(:case, :inactive, exit_note: 'Original exit summary.')
+      kase.update!(exit_note: 'CONFIDENTIAL_EXIT_NARRATIVE_SENTINEL')
+
+      version = kase.versions.where(event: 'update').reorder(:created_at, :id).last
+      expect(version).to be_present
+      expect(version.changeset.keys).to include('exit_note')
+      # UNREDACTED: the same narrative that is encrypted on Client#exit_note sits in cleartext here.
+      expect(version.object_changes.to_s).to include('CONFIDENTIAL_EXIT_NARRATIVE_SENTINEL')
+    end
+
+    it 'falls into the drift-guard blind spot: versioned + plaintext PII but zero encrypted_attributes' do
+      Rails.application.eager_load!
+
+      versioned = ActiveRecord::Base.descendants.select do |klass|
+        klass.respond_to?(:paper_trail_options) && klass.paper_trail_options.present?
+      end
+      expect(versioned).to include(Case)
+
+      # Reproduce the drift guard's audit set (it does `next if encrypted.empty?`): Case is excluded,
+      # because it declares no encrypted attributes and is absent from the ENCRYPTION_TIERS registry.
+      expect(Array(Case.try(:encrypted_attributes))).to be_empty
+      audited = versioned.select { |k| Array(k.try(:encrypted_attributes)).map(&:to_s).any? }
+      expect(audited).not_to include(Case)
+
+      # Yet Case carries plaintext PII columns that are in NO skip: list -> unaudited history exposure.
+      skipped = Array(Case.paper_trail_options[:skip]).map(&:to_s)
+      %w[exit_note carer_names carer_address support_note].each do |pii_col|
+        expect(Case.column_names).to include(pii_col)
+        expect(skipped).not_to include(pii_col)
+      end
+    end
+
+    it 'target state (POAM-012 closed): omits exit_note and carer_* PII from version payloads' do
+      pending 'POAM-012 open: Case declares no has_paper_trail skip:, so exit_note/carer_* leak into versions'
+
+      kase = create(:case, :inactive, exit_note: 'Original exit summary.',
+                    carer_names: 'Jane Carer', carer_address: '12 Shelter Lane')
+      kase.update!(exit_note: 'TARGET_EXIT_SENTINEL', carer_names: 'John Carer')
+
+      skipped = Array(Case.paper_trail_options[:skip]).map(&:to_s)
+      expect(skipped).to include('exit_note', 'carer_names', 'carer_address', 'support_note')
+
+      version = kase.versions.where(event: 'update').reorder(:created_at, :id).last
+      expect(version.changeset.keys).not_to include('exit_note', 'carer_names')
+      expect(version.object_changes.to_s).not_to include('TARGET_EXIT_SENTINEL')
+      expect(version.object_changes.to_s).not_to include('John Carer')
+      expect(version.object.to_s).not_to include('Original exit summary.')
+      expect(version.object.to_s).not_to include('Jane Carer')
+    end
+  end
 end

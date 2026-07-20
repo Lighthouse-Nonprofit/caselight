@@ -47,15 +47,19 @@ class ClientGrid
   end
 
 
+  # NOTE (deps datagrid 1.4.4 -> 2.0.9): a `range: true` filter block now receives a Range
+  # (beginless/endless for one-sided input) where 1.4.4 handed a positional [from, to] Array.
+  # `Range#second`/`Range#[]` do not exist and `Range#first` raises on a beginless range, so every
+  # custom range block below reads bounds via `values.begin` / `values.end` instead.
   filter(:placement_date, :date, range: true, header: -> { I18n.t('datagrid.columns.clients.placement_start_date') }) do |values, scope|
-    if values.first.present? && values.second.present?
-      ids = Client.joins(:cases).where(cases: { start_date: values[0]..values[1] }).pluck(:id).uniq
+    if values.begin.present? && values.end.present?
+      ids = Client.joins(:cases).where(cases: { start_date: values }).pluck(:id).uniq
       scope.where(id: ids)
-    elsif values.first.present? && values.second.blank?
-      ids = Client.joins(:cases).where('DATE(cases.start_date) >= ?', values.first).pluck(:id).uniq
+    elsif values.begin.present? && values.end.blank?
+      ids = Client.joins(:cases).where('DATE(cases.start_date) >= ?', values.begin).pluck(:id).uniq
       scope.where(id: ids)
-    elsif values.second.present? && values.first.blank?
-      ids = Client.joins(:cases).where('cases.start_date <= ?', values.second).pluck(:id).uniq
+    elsif values.end.present? && values.begin.blank?
+      ids = Client.joins(:cases).where('cases.start_date <= ?', values.end).pluck(:id).uniq
       scope.where(id: ids)
     end
   end
@@ -69,7 +73,7 @@ class ClientGrid
   filter(:date_of_birth, :date, range: true, header: -> { I18n.t('datagrid.columns.clients.date_of_birth') })
 
   filter(:age, :float, range: true, header: -> { I18n.t('datagrid.columns.clients.age') }) do |value, scope|
-    scope.age_between(value[0], value[1]) if value[0].present? && value[1].present?
+    scope.age_between(value.begin, value.end) if value.begin.present? && value.end.present?
   end
 
   filter(:has_date_of_birth, :enum, select: :has_or_has_no_dob, header: -> { I18n.t('datagrid.columns.clients.has_date_of_birth') }) do |value, scope|
@@ -236,8 +240,17 @@ class ClientGrid
     scope.joins(:assessments).where(assessments: { id: assessment_id })
   end
 
+  # POAM-004 sibling: the 12 per-domain filters delegate here. `operation` is a user-selectable datagrid
+  # dynamic-filter operator; interpolating it verbatim into the WHERE is the same SQLi/injection surface
+  # all_domains was remediated for, and datagrid's `=~` DEFAULT_OPERATION reaches Postgres as `score=~ ?`
+  # (PG::UndefinedFunction -> 500). Map the operator through a frozen whitelist to a SAFE SQL comparator
+  # (parity with DOMAIN_SCORE_OPS); an unknown/injected/`=~` operator fails CLOSED (no rows, no execution).
+  DOMAIN_SCORE_SQL_OPS = { '=' => '=', '==' => '=', '!=' => '!=', '>' => '>', '<' => '<', '>=' => '>=', '<=' => '<=' }.freeze
+
   def self.client_by_domain(operation, value, domain_id, scope)
-    ids = Assessment.joins(:assessment_domains).where("score#{operation} ? AND domain_id= ?", value, domain_id).ids
+    sql_op = DOMAIN_SCORE_SQL_OPS[operation]
+    return scope.where(id: []) if sql_op.nil? # unknown/injected operator -> fail closed
+    ids = Assessment.joins(:assessment_domains).where("score #{sql_op} ? AND domain_id = ?", value, domain_id).ids
     scope.joins(:assessments).where(assessments: { id: ids})
   end
 
@@ -307,53 +320,55 @@ class ClientGrid
   end
 
   filter(:program_enrollment_date, :date, range: true, header: -> { I18n.t('datagrid.columns.clients.program_enrollment_date') }) do |values, scope|
-    if values.first.present? && values.second.present?
-      ids = Client.joins(:client_enrollments).where(client_enrollments: { status: 'Active', enrollment_date: values[0]..values[1]} ).pluck(:id).uniq
+    if values.begin.present? && values.end.present?
+      ids = Client.joins(:client_enrollments).where(client_enrollments: { status: 'Active', enrollment_date: values} ).pluck(:id).uniq
       scope.where(id: ids)
-    elsif values.first.present? && values.second.blank?
-      ids = Client.joins(:client_enrollments).where("DATE(client_enrollments.enrollment_date) >= ? AND client_enrollments.status = 'Active'", values.first).pluck(:id).uniq
+    elsif values.begin.present? && values.end.blank?
+      ids = Client.joins(:client_enrollments).where("DATE(client_enrollments.enrollment_date) >= ? AND client_enrollments.status = 'Active'", values.begin).pluck(:id).uniq
       scope.where(id: ids)
-    elsif values.second.present? && values.first.blank?
-      ids = Client.joins(:client_enrollments).where("DATE(client_enrollments.enrollment_date) <= ? AND client_enrollments.status = 'Active'", values.second).pluck(:id).uniq
+    elsif values.end.present? && values.begin.blank?
+      ids = Client.joins(:client_enrollments).where("DATE(client_enrollments.enrollment_date) <= ? AND client_enrollments.status = 'Active'", values.end).pluck(:id).uniq
       scope.where(id: ids)
     end
   end
 
   filter(:program_exit_date, :date, range: true, header: -> { I18n.t('datagrid.columns.clients.program_exit_date') }) do |values, scope|
-    if values.first.present? && values.second.present?
-      ids = ClientEnrollment.joins(:leave_program).where(leave_programs: {exit_date: values[0]..values[1]}).pluck(:client_id).uniq
+    if values.begin.present? && values.end.present?
+      ids = ClientEnrollment.joins(:leave_program).where(leave_programs: {exit_date: values}).pluck(:client_id).uniq
       scope.where(id: ids)
-    elsif values.first.present? && values.second.blank?
-      ids = ClientEnrollment.joins(:leave_program).where("DATE(leave_programs.exit_date) >= ?", values.first).pluck(:client_id).uniq
+    elsif values.begin.present? && values.end.blank?
+      ids = ClientEnrollment.joins(:leave_program).where("DATE(leave_programs.exit_date) >= ?", values.begin).pluck(:client_id).uniq
       scope.where(id: ids)
-    elsif values.second.present? && values.first.blank?
-      ids = ClientEnrollment.joins(:leave_program).where("DATE(leave_programs.exit_date) <= ?", values.second).pluck(:client_id).uniq
+    elsif values.end.present? && values.begin.blank?
+      ids = ClientEnrollment.joins(:leave_program).where("DATE(leave_programs.exit_date) <= ?", values.end).pluck(:client_id).uniq
       scope.where(id: ids)
     end
   end
 
   filter(:accepted_date, :date, range: true, header: -> { I18n.t('datagrid.columns.clients.ngo_accepted_date') }) do |values, scope|
-    if values.first.present? && values.second.present?
-      ids = Client.where(accepted_date: values[0]..values[1]).pluck(:id).uniq
+    if values.begin.present? && values.end.present?
+      ids = Client.where(accepted_date: values).pluck(:id).uniq
       scope.where(id: ids)
-    elsif values.first.present? && values.second.blank?
-      ids = Client.where('DATE(accepted_date) >= ?', values.first).pluck(:id).uniq
+    elsif values.begin.present? && values.end.blank?
+      ids = Client.where('DATE(accepted_date) >= ?', values.begin).pluck(:id).uniq
       scope.where(id: ids)
-    elsif values.second.present? && values.first.blank?
-      ids = Client.where('DATE(accepted_date) =< ?', values.first).pluck(:id).uniq
+    elsif values.end.present? && values.begin.blank?
+      # was `=<` (not a PG operator) reading values.first (the blank lower bound) -> now `<=` on the upper bound.
+      ids = Client.where('DATE(accepted_date) <= ?', values.end).pluck(:id).uniq
       scope.where(id: ids)
     end
   end
 
   filter(:exit_date, :date, range: true, header: -> { I18n.t('datagrid.columns.clients.ngo_exit_date') }) do |values, scope|
-    if values.first.present? && values.second.present?
-      ids = Client.where(exit_date: values[0]..values[1]).pluck(:id).uniq
+    if values.begin.present? && values.end.present?
+      ids = Client.where(exit_date: values).pluck(:id).uniq
       scope.where(id: ids)
-    elsif values.first.present? && values.second.blank?
-      ids = Client.where('DATE(exit_date) >= ?', values.first).pluck(:id).uniq
+    elsif values.begin.present? && values.end.blank?
+      ids = Client.where('DATE(exit_date) >= ?', values.begin).pluck(:id).uniq
       scope.where(id: ids)
-    elsif values.second.present? && values.first.blank?
-      ids = Client.where('DATE(exit_date) <= ?', values.first).pluck(:id).uniq
+    elsif values.end.present? && values.begin.blank?
+      # was reading values.first (the blank lower bound) -> now the supplied upper bound.
+      ids = Client.where('DATE(exit_date) <= ?', values.end).pluck(:id).uniq
       scope.where(id: ids)
     end
   end
@@ -513,7 +528,7 @@ class ClientGrid
     dynamic_columns.each do |column_builder|
       fields = column_builder[:id].split('_')
       cf_id  = column_builder[:custom_field_id]
-      column(column_builder[:id].downcase.parameterize('_').to_sym, tag_options: { class: 'form-builder' }, header: -> { form_builder_format_header(fields) }, html: true) do |object|
+      column(column_builder[:id].downcase.parameterize(separator: '_').to_sym, tag_options: { class: 'form-builder' }, header: -> { form_builder_format_header(fields) }, html: true) do |object|
         if fields.first == 'formbuilder'
           properties =
             if cf_id.present? && vis_ids.include?(cf_id)

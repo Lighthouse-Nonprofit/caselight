@@ -67,8 +67,8 @@ jobs:
       BUNDLE_WITHOUT: "development test"
     steps:
       - uses: actions/checkout@v7
-      - name: System deps (libpq for the pg gem)
-        run: sudo apt-get update && sudo apt-get install -y libpq-dev
+      - name: System deps (libpq for pg + imagemagick for the mini_magick image specs)
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev imagemagick
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "4.0"
@@ -144,8 +144,8 @@ jobs:
           --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v7
-      - name: System deps (libpq for the pg gem)
-        run: sudo apt-get update && sudo apt-get install -y libpq-dev
+      - name: System deps (libpq for pg + imagemagick for the mini_magick image specs)
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev imagemagick
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "4.0"

@@ -51,8 +51,12 @@ module TenantBoundary
     )
 
     return unless enforced
+    # In an after_action the action has already rendered, so `head :conflict` alone raises
+    # AbstractController::DoubleRenderError (silently swallowed by the rescue below), leaving the
+    # original 200 in place — the tripwire blanked the body but never actually refused. Reset the
+    # performed state (response_body = nil) THEN set the status directly so the refusal sticks (409).
     self.response_body = nil
-    head :conflict
+    self.status = :conflict
   rescue StandardError => e
     Rails.logger.error("[TenantBoundary] #{e.class}: #{e.message}")
     nil
