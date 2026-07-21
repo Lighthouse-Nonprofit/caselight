@@ -8,8 +8,11 @@
 -# current_user.calendar_integration?, the Google-SYNC opt-in that defaults OFF, which hid the only way
 -# to reach the calendar for anyone who hadn't enabled Google sync. The Google Sync button itself stays
 -# gated inside calendars/index.) Generic label + icon; the Google-specific affordance lives on the page.
-= link_to calendars_path, title: t('shared.actions.calendar', default: 'Calendar'), 'aria-label': t('shared.actions.calendar', default: 'Calendar'), class: 'notification-text-color' do
-  %i.fa.fa-calendar.fa-fw{"aria-hidden" => "true"}
+-# (UX rung 6: wrapped in %li — this partial renders inside ul.navbar-top-links, and the
+-# bare <a> was an invalid direct child that also broke the bar's flex row on small screens.)
+%li
+  = link_to calendars_path, title: t('shared.actions.calendar', default: 'Calendar'), 'aria-label': t('shared.actions.calendar', default: 'Calendar'), class: 'notification-text-color' do
+    %i.fa.fa-calendar.fa-fw{"aria-hidden" => "true"}
 %li.dropdown
   %a.dropdown-toggle.count-info{"aria-label" => t('shared.actions.notifications', default: 'Notifications'), "data-bs-toggle" => "dropdown", :href => "#"}
     %i.fa.fa-bell{"aria-hidden" => "true"}

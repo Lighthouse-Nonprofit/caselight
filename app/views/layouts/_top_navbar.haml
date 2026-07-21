@@ -2,7 +2,9 @@
   %nav.navbar.navbar-static-top.bg{:role => "navigation", :style => "margin-bottom: 0"}
     - if user_signed_in?
       .navbar-header.logo
-        %a.navbar-minimalize.minimalize-styl-2.btn.btn-primary{"aria-label" => t('shared.actions.toggle_menu', default: 'Toggle navigation menu'), :href => "#"}
+        -# UX rung 6: quiet toggle, not a solid primary "action" button (keep .navbar-minimalize
+        -# — caselight_shell.js binds it)
+        %a.navbar-minimalize.minimalize-styl-2.btn.btn-link.cl-topnav__toggle{"aria-label" => t('shared.actions.toggle_menu', default: 'Toggle navigation menu'), :href => "#"}
           %i.fa.fa-bars{"aria-hidden" => "true"}
     - else
       .navbar-header.logo
@@ -12,15 +14,14 @@
     %ul.nav.navbar-top-links.navbar-right.float-end
       = render 'layouts/notification' if user_signed_in?
       - if user_signed_in?
-        %li
-          = link_to destroy_user_session_path, method: :delete do
-            %i.fa.fa-sign-out{"aria-hidden" => "true"}
-            = t('.log_out')
+        -# UX rung 6: the duplicate top-bar "Log out" text link is gone (the sidebar profile
+        -# menu keeps it); the small-screen account menu — where the sidebar is collapsed —
+        -# gains Log out so sign-out stays one tap away on mobile.
         %li.account-setting.d-block.d-sm-none
           %a.dropdown-toggle{"aria-label" => t('shared.actions.account_menu', default: 'Account menu'), "data-bs-toggle" => "dropdown", :href => "#"}
             %span.clear
               %span.block
-                %i.fa.fa-tasks{"aria-hidden" => "true"}
+                %i.fa.fa-user{"aria-hidden" => "true"}
           %ul.dropdown-menu.animated.fadeInRight
             %li
               %p.logged-in-user
@@ -32,3 +33,6 @@
               = link_to t('.two_factor', default: 'Two-factor authentication'), two_factor_settings_path
             %li
               = link_to t('.passkeys', default: 'Passkeys'), passkeys_path
+            %li.divider
+            %li
+              = link_to t('.log_out'), destroy_user_session_path, method: :delete

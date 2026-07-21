@@ -3,70 +3,72 @@
     .col-lg-12
       %h2.m-t-none.m-b-xs Resettlement Dashboard
       %p.text-muted Households and individuals across active resettlement programs.
+  -# UX rung 6: stat tiles are links now (can?-gated — a case worker cannot :read Family).
   .row
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          %h1.font-bold.m-b-none= Family.count
-          %small.text-muted HOUSEHOLDS
+          = link_to_if (can? :read, Family), content_tag(:h1, Family.count, class: 'font-bold m-b-none') + content_tag(:small, 'HOUSEHOLDS', class: 'text-muted'), families_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          %h1.font-bold.m-b-none= Client.count
-          %small.text-muted INDIVIDUALS
+          = link_to_if (can? :read, Client), content_tag(:h1, Client.count, class: 'font-bold m-b-none') + content_tag(:small, 'INDIVIDUALS', class: 'text-muted'), clients_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          %h1.font-bold.m-b-none= ClientEnrollment.where(status: 'Active').count
-          %small.text-muted ACTIVE PROGRAM ENROLLMENTS
+          = link_to_if (can? :read, ProgramStream), content_tag(:h1, ClientEnrollment.where(status: 'Active').count, class: 'font-bold m-b-none') + content_tag(:small, 'ACTIVE PROGRAM ENROLLMENTS', class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          %h1.font-bold.m-b-none= ProgramStream.count
-          %small.text-muted PROGRAMS OFFERED
+          = link_to_if (can? :read, ProgramStream), content_tag(:h1, ProgramStream.count, class: 'font-bold m-b-none') + content_tag(:small, 'PROGRAMS OFFERED', class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
   .row
     .col-lg-6
       .ibox
         .ibox-title
           %h5 Active enrollments by program
         .ibox-content
-          %table.table.table-striped.m-b-none
-            %tbody
-              - ProgramStream.order(:name).each do |ps|
-                %tr
-                  %td= ps.name
-                  %td.text-right
-                    %span.badge.text-bg-primary= ps.client_enrollments.where(status: 'Active').count
+          .table-responsive
+            %table.table.table-striped.m-b-none
+              %tbody
+                - ProgramStream.order(:name).each do |ps|
+                  %tr
+                    %td= link_to_if (can? :read, ProgramStream), ps.name, program_stream_path(ps)
+                    %td.text-right
+                      %span.badge.text-bg-primary= ps.client_enrollments.where(status: 'Active').count
     .col-lg-6
       .ibox
         .ibox-title
           %h5 Households
         .ibox-content
-          %table.table.table-striped.m-b-none
-            %tbody
-              - Family.order(:name).each do |fam|
-                %tr
-                  %td= link_to fam.name, family_path(fam)
-                  %td.text-right= pluralize(fam.clients.count, 'member')
+          .table-responsive
+            %table.table.table-striped.m-b-none
+              %tbody
+                - Family.order(:name).each do |fam|
+                  %tr
+                    %td= link_to_if (can? :read, Family), fam.name, family_path(fam)
+                    %td.text-right= pluralize(fam.clients.count, 'member')
   .row
     .col-lg-12
       .ibox
         .ibox-title
           %h5 Recent program activity
         .ibox-content
-          %table.table.table-striped.m-b-none
-            %thead
-              %tr
-                %th Individual
-                %th Program
-                %th Update
-                %th.text-right Logged
-            %tbody
-              - ClientEnrollmentTracking.order(created_at: :desc).limit(8).each do |cet|
-                - ce = cet.client_enrollment
-                - next if ce.nil?
+          .table-responsive
+            %table.table.table-striped.m-b-none
+              %thead
                 %tr
-                  %td= [ce.client.try(:given_name), ce.client.try(:family_name)].compact.join(' ')
-                  %td= ce.program_stream.try(:name)
-                  %td= cet.tracking.try(:name)
-                  %td.text-right= cet.created_at.strftime('%b %d, %Y')
+                  %th Individual
+                  %th Program
+                  %th Update
+                  %th.text-right Logged
+              %tbody
+                - ClientEnrollmentTracking.order(created_at: :desc).limit(8).each do |cet|
+                  - ce = cet.client_enrollment
+                  - next if ce.nil?
+                  %tr
+                    %td
+                      - name = [ce.client.try(:given_name), ce.client.try(:family_name)].compact.join(' ')
+                      = link_to_if (ce.client && (can? :read, Client)), name, (ce.client ? client_path(ce.client) : '#')
+                    %td= ce.program_stream.try(:name)
+                    %td= cet.tracking.try(:name)
+                    %td.text-right= cet.created_at.strftime('%b %d, %Y')
