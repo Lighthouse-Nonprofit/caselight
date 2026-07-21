@@ -20,6 +20,13 @@ nav.navbar-static-side {
   bottom: 0;
   width: $cl-sidebar-width;
   background-color: $cl-nav-bg;
+  // UX review 1 — a quiet nod to the lighthouse: a soft beam glow behind the logo and two
+  // opposing sets of fine diagonal lines in a lighter blue, all at whisper opacity.
+  // Pure CSS gradients (no assets — CSP-safe).
+  background-image:
+    radial-gradient(ellipse 340px 240px at 50% -70px, rgba(143, 184, 220, 0.14), transparent 70%),
+    repeating-linear-gradient(115deg, transparent 0, transparent 30px, rgba(143, 184, 220, 0.05) 30px, rgba(143, 184, 220, 0.05) 31px),
+    repeating-linear-gradient(245deg, transparent 0, transparent 30px, rgba(143, 184, 220, 0.04) 30px, rgba(143, 184, 220, 0.04) 31px);
   overflow-x: hidden;
   overflow-y: auto;                 // native scroll, no slimscroll
   -webkit-overflow-scrolling: touch;

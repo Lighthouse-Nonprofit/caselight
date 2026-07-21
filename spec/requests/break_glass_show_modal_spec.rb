@@ -63,8 +63,10 @@ RSpec.describe 'Break-glass locked cards + modal on clients#show', type: :reques
       expect(response).to have_http_status(:ok)
       body = response.body
 
-      # unlocked: the form title now renders as a real Forms link (dropdown-item in the hub)
-      expect(body).to match(/class="dropdown-item"[^>]*href="[^"]*custom_field_id=#{emergency_cf.id}/)
+      # unlocked: the form title now renders as a real link in the Overview Forms card
+      # (UX review 1 replaced the hub Forms dropdown with an anchor tab to that card)
+      expect(body).to include('ModalSpec Emergency Contact')
+      expect(CGI.unescapeHTML(body)).to include(client_custom_field_properties_path(client, custom_field_id: emergency_cf.id))
       # expiry chip in the header
       expect(body).to include('client-hub__grant')
       # and the locked card for this form is gone

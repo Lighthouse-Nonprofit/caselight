@@ -45,7 +45,9 @@
 @import 'bootstrap5/progress';
 @import 'bootstrap5/list-group';
 @import 'bootstrap5/close';
-@import 'bootstrap5/toasts';
+// bootstrap5/toasts deliberately NOT imported: flash messages use toastr, whose markup also
+// carries the .toast class — BS5's rule repainted the container white under toastr's white
+// text (white-on-white, human review 2026-07-21). Nothing uses BS5-native toasts.
 @import 'bootstrap5/modal';
 @import 'bootstrap5/tooltip';
 @import 'bootstrap5/popover';

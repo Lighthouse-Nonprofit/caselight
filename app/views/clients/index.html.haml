@@ -6,8 +6,7 @@
   secondary: [((can? :manage, :all) ? { label: t('.reports'), button: true, id: 'client-statistic' } : nil),
               { label: t('.advanced_search'), url: client_advanced_searches_path },
               { label: t('.view_all_active_tasks'), url: tasks_path },
-              { label: t('.export_program_data'), url: current_url({format: 'xls', type: 'basic_info'}), class: 'btn-export' },
-              { label: t('.export_to_xls'), url: current_url(format: 'xls'), class: 'btn-export' }]
+              { label: t('.export', default: 'Export to Excel'), url: current_url({format: 'xls', type: 'basic_info'}), class: 'btn-export' }]
 .row
   .col-12
     = applied_filter_chips(:client_grid, scope: 'clients')

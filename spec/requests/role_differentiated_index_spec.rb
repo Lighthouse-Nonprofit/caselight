@@ -97,7 +97,7 @@ RSpec.describe 'Workstream A — role-differentiated index views', type: :reques
         expect(body).not_to match(/class=["'][^"']*\brecord-cards\b/)
 
         expect(body).to include('Harbor House')
-        expect(body).to include('HH-1')
+        expect(body).not_to include('HH-1')   # UX review 1: household IDs/codes hidden from display
         expect(body).not_to match(/record-grid__tag--type/)   # type column removed (UX rung 2: filterable, not displayed)
         expect(body).to include(family_path(family))
 

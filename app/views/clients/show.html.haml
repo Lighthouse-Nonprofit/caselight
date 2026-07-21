@@ -57,12 +57,6 @@
           = render 'exit_ngo_form', client: @client
         - if @client.cases.exclude_referred.current.present?
           = render 'exit_case_form', client_case: @client.cases.exclude_referred.current, exit_from_cif: true
-      .row
-        .col-12
-          -# Screening answers (the Add Form entry point lives in the Forms pane header; the
-          -# break-glass affordance is the locked cards in the Forms pane).
-          = render('client_answers')
-      = render 'clients/overview_panes'
 .row.mini-margin
   .col-12
     .ibox
@@ -177,5 +171,11 @@
                     - qtypes.last.each do |qcase|
                       %strong.badge.text-bg-light
                         = qcase.value
-.row
-  = render 'placement'
+-# UX review 1: About Individual leads; the Programs | Resettlement Case | Forms cards sit
+-# just under it (the placement partial renders inside the overview row); screening answers
+-# and recent activity follow.
+- if @client.state == 'accepted'
+  = render 'clients/overview_panes'
+  .row
+    .col-12
+      = render('client_answers')
