@@ -20,6 +20,7 @@ body[id='families-index'] {
   }
 
   .record-card {
+    position: relative; // containing block for the name link's .stretched-link overlay
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -36,6 +37,14 @@ body[id='families-index'] {
       border-color: shade-color($refresh-border, 8%);
       transform: translateY(-1px);
     }
+  }
+
+  // Exited/closed records: quiet the card without dropping text contrast.
+  .record-card--muted {
+    background: #f6f7f9;
+
+    .record-card__avatar { background: #8a94a3; }
+    .record-card__tag { background: #eef0f3; }
   }
 
   .record-card__body {
@@ -103,16 +112,6 @@ body[id='families-index'] {
   .record-card__code { font-weight: 600; color: #4b5563; }
   .record-card__sep  { margin: 0 4px; color: #b6bcc4; }
 
-  .record-card__status {
-    margin-top: 2px;
-
-    .badge {
-      border-radius: $refresh-radius-pill;
-      font-size: 11px;
-      padding: .3em .8em;
-    }
-  }
-
   .record-card__tags {
     grid-column: 1 / -1;
     list-style: none;
@@ -121,6 +120,8 @@ body[id='families-index'] {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    position: relative; // keep program-chip links clickable above the stretched-link overlay
+    z-index: 2;
   }
 
   .record-card__tag {
@@ -149,24 +150,6 @@ body[id='families-index'] {
       background: $amber;
       border-color: shade-color($amber, 6%);
       font-weight: 600;
-    }
-  }
-
-  .record-card__actions {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 14px;
-    border-top: 1px solid $refresh-border;
-    background: #fbfcfd;
-    border-radius: 0 0 $refresh-radius $refresh-radius;
-
-    .btn { margin: 0; }
-    .btn:focus-visible {
-      outline: 2px solid $lazur;
-      outline-offset: 2px;
-      box-shadow: $refresh-focus-ring;
     }
   }
 

@@ -6,25 +6,16 @@
       %tr
         %th{ scope: 'col' }= t('datagrid.columns.families.name', default: 'Name')
         %th{ scope: 'col' }= t('datagrid.columns.families.code', default: 'Code')
-        %th{ scope: 'col' }= t('datagrid.columns.families.family_type', default: 'Type')
         %th{ scope: 'col' }= t('datagrid.columns.families.clients', default: 'Members')
         %th{ scope: 'col' }= t('datagrid.columns.families.province', default: 'State')
-        %th.record-grid__actions-col{ scope: 'col' }
-          %span.visually-hidden= t('datagrid.columns.families.manage', default: 'Actions')
     %tbody
       - families.each do |object|
-        - type_label = family_type_label(object.family_type).presence
-        %tr.record-grid__row
+        %tr.record-grid__row{ class: ('record-grid__row--muted' if object.family_type == 'inactive') }
           %th.record-grid__name{ scope: 'row' }
             = link_to entity_name(object), family_path(object), class: 'record-grid__name-link'
           %td.record-grid__code
             - if object.code.present?
               %span.record-grid__slug= object.code
-          %td.record-grid__type
-            - if type_label.present?
-              %span.record-grid__tag.record-grid__tag--type= type_label
-            - else
-              %span.record-grid__empty{ 'aria-hidden' => 'true' } —
           %td.record-grid__members
             = family_member_chips(object)
           %td.record-grid__province
@@ -32,7 +23,3 @@
               = object.province.name
             - else
               %span.record-grid__empty{ 'aria-hidden' => 'true' } —
-          %td.record-grid__actions.text-center
-            = link_to family_path(object), class: 'btn btn-xs btn-info btn-outline', 'aria-label' => (t('shared.actions.view', default: 'View') + ' ' + entity_name(object).to_s) do
-              = fa_icon('eye', 'aria-hidden': true)
-            = render partial: 'families/actions', locals: { object: object }

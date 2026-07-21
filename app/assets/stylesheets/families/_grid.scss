@@ -7,6 +7,8 @@ body[id='families-index'] {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
+    position: relative; // keep member links clickable above the card's stretched-link overlay
+    z-index: 2;
   }
 
   .record-card__member {

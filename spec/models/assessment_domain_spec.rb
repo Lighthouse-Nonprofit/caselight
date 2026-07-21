@@ -109,8 +109,10 @@ describe AssessmentDomain, 'instance method' do
 end
 
 describe AssessmentDomain, 'scopes' do
-  let!(:assessment_domain){ create(:assessment_domain, goal: FFaker::Lorem.word) }
-  let!(:other_assessment_domain){ create(:assessment_domain, goal: FFaker::Lorem.word) }
+  # Distinct literal goals: FFaker::Lorem.word draws from a small pool, and a collision made
+  # the not_to-include assertion below flake on CI (both records got goal "illo").
+  let!(:assessment_domain){ create(:assessment_domain, goal: 'improve housing stability') }
+  let!(:other_assessment_domain){ create(:assessment_domain, goal: 'secure stable employment') }
   context 'goal like' do
     it 'should include assessment_domain with goal like' do
         expect(AssessmentDomain.goal_like([assessment_domain.goal])).to include(assessment_domain)

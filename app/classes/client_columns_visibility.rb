@@ -33,7 +33,6 @@ class ClientColumnsVisibility
       slug_: :slug,
       family_id_: :family_id,
       any_assessments_: :any_assessments,
-      manage_: :manage,
       changelog_: :changelog
     }
   end
