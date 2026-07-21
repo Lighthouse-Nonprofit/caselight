@@ -1,0 +1,14 @@
+-# Phase 5.4 break-glass elevation form, extracted (UX rung 5) so the full-page prompt AND the
+-# show-page locked-card modal share one source. Submitting POSTs a 1h self-elevation (audit
+-# written FIRST, fail-closed); redirect_back returns the viewer to where they asked.
+-# locals: formable:, custom_field:
+= form_tag break_glass_grants_path, method: :post do
+  = hidden_field_tag :custom_formable_type, formable.class.base_class.name
+  = hidden_field_tag :custom_formable_id, formable.id
+  = hidden_field_tag :custom_field_id, custom_field.id
+  .mb-3
+    %label{ for: 'reason' }= t('break_glass.prompt.reason_label', default: 'Reason for emergency access (required)')
+    = text_area_tag :reason, nil, class: 'form-control', rows: 3, required: true, placeholder: t('break_glass.prompt.reason_placeholder', default: 'e.g. imminent safety concern during a home visit')
+  .m-t
+    = submit_tag t('break_glass.prompt.submit', default: 'Request emergency access (1 hour)'), class: 'btn btn-danger'
+    = link_to t('break_glass.prompt.cancel', default: 'Cancel'), polymorphic_path(formable), class: 'btn btn-white'

@@ -20,6 +20,16 @@ module ClientHubHelper
     HUB_TABS[controller_name]
   end
 
+  # Active break-glass grants the current viewer holds on `client` — feeds the header's
+  # expiry chip on every hub page. Fail-closed to none (missing table / any error).
+  def client_hub_active_grants(client)
+    @client_hub_active_grants ||= begin
+      defined?(BreakGlassGrant) ? BreakGlassGrant.for_user_and_record(current_user, client).active.order(:expires_at).to_a : []
+    rescue StandardError
+      []
+    end
+  end
+
   # Filled custom forms the current viewer may see for `client`, grouped by form — feeds the
   # header's Forms dropdown on every hub page. Gated on the Phase-5.3 record-aware visible
   # set (visible_custom_field_ids_for is exposed as a helper_method by SensitiveFields);

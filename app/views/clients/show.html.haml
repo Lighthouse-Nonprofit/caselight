@@ -59,24 +59,10 @@
           = render 'exit_case_form', client_case: @client.cases.exclude_referred.current, exit_from_cif: true
       .row
         .col-12
-          -# Screening answers + form entry points (the Forms tab lists FILLED forms; adding
-          -# new ones and the break-glass affordance stay here until rung 5's Overview panes).
+          -# Screening answers (the Add Form entry point lives in the Forms pane header; the
+          -# break-glass affordance is the locked cards in the Forms pane).
           = render('client_answers')
-          - if @breakglass_client_forms.present?
-            .btn-group.small-btn-margin
-              %button.btn-sm.btn.btn-danger.dropdown-toggle{ 'data-bs-toggle' => 'dropdown' }
-                %i.fa.fa-lock
-                = t('.emergency_forms', default: 'Emergency forms')
-              %ul.dropdown-menu.scrollable-dropdown-menu
-                - @breakglass_client_forms.each do |custom_field|
-                  %li= link_to custom_field.form_title, client_custom_field_properties_path(@client, custom_field_id: custom_field.id)
-          - if can? :manage, CustomFieldProperty
-            .btn-group.small-btn-margin
-              %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @free_client_forms.empty?) }
-                = t('.add_form')
-              %ul.dropdown-menu.scrollable-dropdown-menu
-                - @free_client_forms.each do |custom_field|
-                  %li= link_to custom_field.form_title, new_client_custom_field_property_path(@client, custom_field_id: custom_field)
+      = render 'clients/overview_panes'
 .row.mini-margin
   .col-12
     .ibox

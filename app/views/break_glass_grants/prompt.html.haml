@@ -17,13 +17,4 @@
             %strong= @breakglass_custom_field.form_title
           %p
             = t('break_glass.prompt.explanation', default: 'This form is classified emergency-only. Access requires a logged reason and is granted for 1 hour on this record only. Your name, the reason, and the time are recorded in the audit log.')
-          = form_tag break_glass_grants_path, method: :post do
-            = hidden_field_tag :custom_formable_type, @breakglass_formable.class.base_class.name
-            = hidden_field_tag :custom_formable_id, @breakglass_formable.id
-            = hidden_field_tag :custom_field_id, @breakglass_custom_field.id
-            .mb-3
-              %label{ for: 'reason' }= t('break_glass.prompt.reason_label', default: 'Reason for emergency access (required)')
-              = text_area_tag :reason, nil, class: 'form-control', rows: 3, required: true, placeholder: t('break_glass.prompt.reason_placeholder', default: 'e.g. imminent safety concern during a home visit')
-            .m-t
-              = submit_tag t('break_glass.prompt.submit', default: 'Request emergency access (1 hour)'), class: 'btn btn-danger'
-              = link_to t('break_glass.prompt.cancel', default: 'Cancel'), polymorphic_path(@breakglass_formable), class: 'btn btn-white'
+          = render 'break_glass_grants/form', formable: @breakglass_formable, custom_field: @breakglass_custom_field
