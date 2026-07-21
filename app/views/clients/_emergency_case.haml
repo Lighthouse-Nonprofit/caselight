@@ -42,16 +42,5 @@
                 %td
                   %strong
                     = ec.exit_date.strftime('%B %d, %Y') if ec.exit_date
-          %h5.m-t-sm.m-b-xs Enrolled programs
-          %table.table.table-striped
-            - @client.client_enrollments.includes(:program_stream).order(:enrollment_date).each do |ce|
-              %tr
-                %td
-                  - if ce.program_stream
-                    = link_to ce.program_stream.name, client_client_enrollment_path(@client, ce, program_stream_id: ce.program_stream_id)
-                %td.text-right
-                  %span.badge.text-bg-primary= ce.status
-            - if @client.client_enrollments.empty?
-              %tr
-                %td.text-muted Not yet enrolled in a program.
+          -# (UX review 2: enrolled programs live in the adjacent Programs card — not repeated here.)
   = render 'exit_case_form', client_case: @client.cases.exclude_referred.latest_emergency, exit_from_cif: false if @client.has_no_latest_kc_and_fc?

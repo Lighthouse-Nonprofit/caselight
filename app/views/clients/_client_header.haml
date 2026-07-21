@@ -45,34 +45,37 @@
           - else
             %span= family(fam)
     .client-hub__actions
-      - if full_actions && client.state == 'accepted' && (can? :manage, Case)
-        .btn-group.client-hub__case
-          %button.btn.btn-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', type: 'button' }
-            = t('clients.show.add_client_to_case')
-          %ul.dropdown-menu
-            - if client.cases.exclude_referred.current.blank?
-              %li= client.ec_button
-              %li= client.fc_button
-              %li= client.kc_button
-              %li.divider
-              %li
-                - if client.client_enrollments.active.count > 0
-                  %a{ 'data-bs-target' => '#remaining-programs-modal', 'data-bs-toggle' => 'modal' }
-                    .text-warning= t('clients.show.exit_ngo_btn')
-                - else
-                  %a{ 'data-bs-target' => '#exitFromNgo', 'data-bs-toggle' => 'modal' }
-                    .text-warning= t('clients.show.exit_ngo_btn')
-            - if client.cases.exclude_referred.current.present?
-              %li
-                %a{ 'data-bs-target' => '#exit-from-case', 'data-bs-toggle' => 'modal' }
-                  .text-warning.exit-case-warning= t("clients.show.exit_from_#{client.cases.exclude_referred.current.case_type.downcase}")
+      -# UX review 1: ONE actions dropdown — edit, case open/close, notes, history, delete
+      -# (the separate "Open Resettlement Case" button folded in here).
       - if (can? :manage, Client) || (can? :rud, Client)
         .dropdown.client-hub__edit
           %button.btn.btn-outline-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', 'aria-expanded' => 'false', type: 'button' }
-            = t('shared.actions.edit', default: 'Edit')
+            = t('clients.client_header.actions', default: 'Actions')
           %ul.dropdown-menu.dropdown-menu-end
             %li= link_to t('shared.actions.edit', default: 'Edit'), edit_client_path(client), class: 'dropdown-item'
             - if full_actions && client.state == 'accepted'
+              - if can? :manage, Case
+                %li
+                  %hr.dropdown-divider
+                - if client.cases.exclude_referred.current.blank?
+                  %li= client.ec_button
+                  %li= client.fc_button
+                  %li= client.kc_button
+                  %li
+                    - if client.client_enrollments.active.count > 0
+                      %a{ 'data-bs-target' => '#remaining-programs-modal', 'data-bs-toggle' => 'modal' }
+                        .text-warning= t('clients.show.exit_ngo_btn')
+                    - else
+                      %a{ 'data-bs-target' => '#exitFromNgo', 'data-bs-toggle' => 'modal' }
+                        .text-warning= t('clients.show.exit_ngo_btn')
+                - if client.cases.exclude_referred.current.present?
+                  %li
+                    %a{ 'data-bs-target' => '#exit-from-case', 'data-bs-toggle' => 'modal' }
+                      .text-warning.exit-case-warning= t("clients.show.exit_from_#{client.cases.exclude_referred.current.case_type.downcase}")
+                %li
+                  %hr.dropdown-divider
+              - if can? :create, CaseNote
+                %li= link_to t('clients.client_header.new_case_note', default: 'New Case Note'), new_client_case_note_path(client), class: 'dropdown-item'
               - if can_read_client_progress_note?
                 %li= link_to t('clients.show.progress_note'), client_progress_notes_path(client), class: 'dropdown-item'
               - if client.has_any_quarterly_reports? && (can? :manage, QuarterlyReport)
@@ -96,13 +99,12 @@
           = t('clients.client_header.programs', default: 'Programs')
           %span.client-hub__tab-chip= client.client_enrollments.active.count
       - if client_hub_forms(client).any?
-        %li.nav-item.dropdown
-          %a.nav-link.dropdown-toggle{ class: ('active' if active_tab == :forms), 'data-bs-toggle' => 'dropdown', href: '#', role: 'button', 'aria-expanded' => 'false' }
+        -# UX review 1: the forms DROPDOWN was redundant with the Overview's Forms card —
+        -# the tab now jumps to that card (each form is one more click there).
+        %li.nav-item
+          = link_to client_path(client, anchor: 'client-forms'), class: "nav-link #{'active' if active_tab == :forms}" do
             = t('clients.client_header.forms', default: 'Forms')
             %span.client-hub__tab-chip= client_hub_forms(client).size
-          %ul.dropdown-menu
-            - client_hub_forms(client).each do |custom_field_id, props|
-              %li= link_to props.first.custom_field.form_title, client_custom_field_properties_path(client, custom_field_id: custom_field_id), class: 'dropdown-item'
       - if can? :manage, CaseNote
         %li.nav-item
           = link_to client_case_notes_path(client), class: "nav-link #{'active' if active_tab == :case_notes}" do

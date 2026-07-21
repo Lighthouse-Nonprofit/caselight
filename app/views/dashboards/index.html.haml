@@ -21,6 +21,27 @@
       .ibox
         .ibox-content.text-center
           = link_to_if (can? :read, ProgramStream), content_tag(:h1, ProgramStream.count, class: 'font-bold m-b-none') + content_tag(:small, 'PROGRAMS OFFERED', class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
+  -# UX review 1 — activity flash metrics. Research-backed: a small set of workload/activity
+  -# signals (overdue work, today's work, intake velocity, service-use frequency) beats a
+  -# long list; sources in the PR. All four are single COUNT queries.
+  .row
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center.dashboard-flash{ class: (Task.overdue_incomplete.count.positive? ? 'dashboard-flash--alert' : nil) }
+          = link_to_if (can? :read, Task), content_tag(:h2, Task.overdue_incomplete.count, class: 'font-bold m-b-none') + content_tag(:small, 'OVERDUE TASKS', class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center.dashboard-flash
+          = link_to_if (can? :read, Task), content_tag(:h2, Task.today_incomplete.count, class: 'font-bold m-b-none') + content_tag(:small, 'TASKS DUE TODAY', class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center.dashboard-flash
+          = link_to_if (can? :read, Client), content_tag(:h2, Client.where(created_at: Time.zone.now.beginning_of_month..).count, class: 'font-bold m-b-none') + content_tag(:small, 'NEW INDIVIDUALS THIS MONTH', class: 'text-muted'), clients_path, class: 'dashboard-tile-link'
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center.dashboard-flash
+          %h2.font-bold.m-b-none= ClientEnrollmentTracking.where(created_at: Time.zone.now.beginning_of_month..).count
+          %small.text-muted CHECK-INS THIS MONTH
   .row
     .col-lg-6
       .ibox

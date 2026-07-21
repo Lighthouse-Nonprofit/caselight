@@ -2,8 +2,10 @@
 -# break-glass cards for emergency-only forms an eligible viewer could unlock), and recent
 -# program activity. Everything here is reachable in one click from the profile; the masked
 -# form cards NEVER link to edit (edit/update/destroy have no field-level gate — view only).
+-# UX review 1: the most pertinent cards sit in one row right under About Individual —
+-# Programs | Resettlement Case (the placement partial self-wraps as .col-md-6) | Forms.
 .row.client-overview
-  .col-12.col-lg-6
+  .col-12.col-lg-3
     .ibox
       .ibox-title
         %h5= t('clients.client_header.programs', default: 'Programs')
@@ -29,7 +31,8 @@
           = link_to t('clients.overview.manage_programs', default: 'Manage programs'), client_client_enrollments_path(@client), class: 'btn btn-sm btn-outline-primary'
         - else
           %p.text-muted= t('clients.overview.no_program_access', default: 'You do not have access to program enrollments.')
-  .col-12.col-lg-6
+  = render 'placement'
+  .col-12.col-lg-3#client-forms
     .ibox
       .ibox-title
         %h5= t('clients.client_header.forms', default: 'Forms')

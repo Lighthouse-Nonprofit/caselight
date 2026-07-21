@@ -232,7 +232,8 @@ describe 'Client' do
       # support note and partner are no longer displayed). Assertions updated to
       # the visible surface; the per-case intake date keeps them case-specific.
       scenario 'All Panel' do
-        click_button (I18n.t('clients.show.add_client_to_case'))
+        # UX review 1: the standalone "Open Resettlement Case" button folded into the header's
+        # Actions dropdown — the Resettlement Case card renders without any click.
         expect(page).to have_content('Resettlement Case')
       end
 

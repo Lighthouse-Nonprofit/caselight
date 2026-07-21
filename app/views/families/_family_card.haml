@@ -12,12 +12,8 @@
           -# Whole-card click target; member chips stay clickable via the z-index guard.
           = link_to hh, family_path(object), class: 'record-card__name-link stretched-link'
         %p.record-card__meta
-          - if object.code.present?
-            %span.record-card__code= object.code
-          %span.record-card__sep{ 'aria-hidden' => 'true' } ·
-          %span.record-card__id= "##{object.id}"
+          -# (UX review 1: internal IDs/codes hidden from household display — still searchable.)
           - if object.province.try(:name).present?
-            %span.record-card__sep{ 'aria-hidden' => 'true' } ·
             %span.record-card__province= object.province.name
       %ul.record-card__tags{ 'aria-label' => t('.family_meta', default: 'Household details') }
         %li.record-card__tag.record-card__tag--count= t('.member_count', default: '%{count} members', count: object.member_count)

@@ -74,9 +74,10 @@ RSpec.describe 'Card-grid index security', type: :request do
       expect(response).to have_http_status(:ok)
       body = response.body
 
-      # (b) core household fields
+      # (b) core household fields (UX review 1: internal IDs/codes are hidden from display —
+      # the code stays searchable via the drawer filter)
       expect(body).to include('Harbor House')
-      expect(body).to include('HH-1')
+      expect(body).not_to include('HH-1')
       expect(body).not_to match(/record-card__tag--type/)   # family-type chip removed (UX rung 2: filterable, not displayed)
       expect(body).to match(/4 member/)                 # member_count = 1+1+2+0
       # (a) landmark
