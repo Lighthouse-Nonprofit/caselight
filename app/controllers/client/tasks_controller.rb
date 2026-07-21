@@ -1,4 +1,5 @@
 class Client::TasksController < AdminController
+  include SensitiveFields   # UX rung 4 — the client hub header's Forms dropdown reads the visible set
 
   load_and_authorize_resource
   before_action :find_client

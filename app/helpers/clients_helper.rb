@@ -126,7 +126,9 @@ module ClientsHelper
   def case_button(type)
     link_to new_client_case_path(@client, case_type: type) do
       content_tag(:span, '') do
-        content_tag(:span, t(".add_#{type.downcase}_btn"), class: 'text-success')
+        # absolute key: lazy t('.x') resolves against the RENDERING template's path, and this
+        # helper now renders from clients/_client_header (the hub) as well as clients/show
+        content_tag(:span, t("clients.show.add_#{type.downcase}_btn"), class: 'text-success')
       end
     end
   end

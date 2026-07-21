@@ -1,0 +1,114 @@
+-# UX rung 4 — persistent client hub header, rendered atop clients#show (full_actions: true)
+-# and every client partition page (full_actions: false), so the partitions keep the client's
+-# identity + one-click tab navigation. CSP-safe (BS5 data-bs-* only).
+-#
+-# The status badge here is the ONLY status display outside the search filters (owner call).
+-# The tab bar renders only for accepted clients (pre-existing gating on the old button strip).
+-# The "Open Resettlement Case" dropdown targets modals that clients/show.html.haml renders —
+-# it therefore only appears when full_actions (i.e. on show itself).
+-#
+-# locals: client:, active_tab: (symbol from client_hub_active_tab), full_actions: (default false)
+- full_actions = local_assigns.fetch(:full_actions, false)
+- active_tab   = local_assigns[:active_tab]
+-# ClientsController decorates @client (care_code / date_of_birth_format live on
+-# ClientDecorator); the partition controllers hand us the bare model — normalize here.
+- client = client.decorate unless client.is_a?(Draper::Decorator)
+.client-hub
+  .client-hub__identity
+    .client-hub__who
+      %h1.client-hub__name= client.name.presence || t('clients.index.unknown', default: 'Unknown')
+      - if client.status.present?
+        %span.client-hub__status= status_style(client.status.to_s.sub(/\AActive .*/, 'Active'))
+      %p.client-hub__meta
+        - if client.slug.present?
+          %span.client-hub__slug= "##{client.slug}"
+        - if client.gender.present?
+          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+          %span= client.gender.titleize
+        - if client.date_of_birth.present?
+          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+          %span= "#{t('clients.show.date_of_birth', default: 'DOB')} #{client.date_of_birth_format} (#{client.age})"
+        - if client.current_province.present?
+          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+          %span= client.current_province
+        - if client.care_code.present?
+          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+          %span= "#{t('clients.show.code', default: 'Code')} #{client.care_code}"
+        - client.families.as_non_cases.uniq.each do |fam|
+          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+          - if can? :read, Family
+            = link_to family(fam), family_path(fam), class: 'client-hub__family-link'
+          - else
+            %span= family(fam)
+    .client-hub__actions
+      - if full_actions && client.state == 'accepted' && (can? :manage, Case)
+        .btn-group.client-hub__case
+          %button.btn.btn-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', type: 'button' }
+            = t('clients.show.add_client_to_case')
+          %ul.dropdown-menu
+            - if client.cases.exclude_referred.current.blank?
+              %li= client.ec_button
+              %li= client.fc_button
+              %li= client.kc_button
+              %li.divider
+              %li
+                - if client.client_enrollments.active.count > 0
+                  %a{ 'data-bs-target' => '#remaining-programs-modal', 'data-bs-toggle' => 'modal' }
+                    .text-warning= t('clients.show.exit_ngo_btn')
+                - else
+                  %a{ 'data-bs-target' => '#exitFromNgo', 'data-bs-toggle' => 'modal' }
+                    .text-warning= t('clients.show.exit_ngo_btn')
+            - if client.cases.exclude_referred.current.present?
+              %li
+                %a{ 'data-bs-target' => '#exit-from-case', 'data-bs-toggle' => 'modal' }
+                  .text-warning.exit-case-warning= t("clients.show.exit_from_#{client.cases.exclude_referred.current.case_type.downcase}")
+      - if (can? :manage, Client) || (can? :rud, Client)
+        .dropdown.client-hub__edit
+          %button.btn.btn-outline-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', 'aria-expanded' => 'false', type: 'button' }
+            = t('shared.actions.edit', default: 'Edit')
+          %ul.dropdown-menu.dropdown-menu-end
+            %li= link_to t('shared.actions.edit', default: 'Edit'), edit_client_path(client), class: 'dropdown-item'
+            - if full_actions && client.state == 'accepted'
+              - if can_read_client_progress_note?
+                %li= link_to t('clients.show.progress_note'), client_progress_notes_path(client), class: 'dropdown-item'
+              - if client.has_any_quarterly_reports? && (can? :manage, QuarterlyReport)
+                %li= link_to t('clients.show.view_legacy_quarterly_reports'), client_case_quarterly_reports_path(client, client.latest_case), class: 'dropdown-item'
+              - if client.cases.exclude_referred.inactive.present?
+                - if client.cases.exclude_referred.emergencies.inactive.present? && (ec_manageable || strategic_overviewer?)
+                  %li= link_to t('clients.show.view_ec_history_btn_link'), client_cases_path(client, case_type: 'EC'), class: 'dropdown-item'
+                - if client.cases.exclude_referred.fosters.inactive.present? && (fc_manageable || strategic_overviewer?)
+                  %li= link_to t('clients.show.view_fc_history_btn_link'), client_cases_path(client, case_type: 'FC'), class: 'dropdown-item'
+                - if client.cases.exclude_referred.kinships.inactive.present? && (kc_manageable || strategic_overviewer?)
+                  %li= link_to t('clients.show.view_kc_history_btn_link'), client_cases_path(client, case_type: 'KC'), class: 'dropdown-item'
+            %li
+              %hr.dropdown-divider
+            %li= link_to t('shared.actions.delete', default: 'Delete'), client, method: 'delete', data: { confirm: t('clients.show.are_you_sure') }, class: 'dropdown-item text-danger'
+  - if client.state == 'accepted'
+    %ul.nav.nav-pills.client-hub__tabs
+      %li.nav-item
+        = link_to t('clients.client_header.overview', default: 'Overview'), client_path(client), class: "nav-link #{'active' if active_tab == :overview}"
+      %li.nav-item
+        = link_to client_client_enrollments_path(client), class: "nav-link #{'active' if active_tab == :programs}" do
+          = t('clients.client_header.programs', default: 'Programs')
+          %span.client-hub__tab-chip= client.client_enrollments.active.count
+      - if client_hub_forms(client).any?
+        %li.nav-item.dropdown
+          %a.nav-link.dropdown-toggle{ class: ('active' if active_tab == :forms), 'data-bs-toggle' => 'dropdown', href: '#', role: 'button', 'aria-expanded' => 'false' }
+            = t('clients.client_header.forms', default: 'Forms')
+            %span.client-hub__tab-chip= client_hub_forms(client).size
+          %ul.dropdown-menu
+            - client_hub_forms(client).each do |custom_field_id, props|
+              %li= link_to props.first.custom_field.form_title, client_custom_field_properties_path(client, custom_field_id: custom_field_id), class: 'dropdown-item'
+      - if can? :manage, CaseNote
+        %li.nav-item
+          = link_to client_case_notes_path(client), class: "nav-link #{'active' if active_tab == :case_notes}" do
+            = t('clients.client_header.case_notes', default: 'Case Notes')
+            %span.client-hub__tab-chip= client.case_notes.count
+      %li.nav-item
+        = link_to client_assessments_path(client), class: "nav-link #{'active' if active_tab == :assessments}" do
+          = t('clients.client_header.assessments', default: 'Assessments')
+          %span.client-hub__tab-chip= client.assessments.count
+      %li.nav-item
+        = link_to client_tasks_path(client), class: "nav-link #{'active' if active_tab == :tasks}" do
+          = t('clients.client_header.tasks', default: 'Tasks')
+          %span.client-hub__tab-chip= client.tasks.incomplete.count

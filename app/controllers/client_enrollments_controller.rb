@@ -2,9 +2,14 @@ class ClientEnrollmentsController < AdminController
   load_and_authorize_resource
 
   include ClientEnrollmentConcern
+  include SensitiveFields   # UX rung 4 — the client hub header's Forms dropdown reads the visible set
   include FormBuilderAttachments
 
   def index
+    # UX rung 4 — merged "Programs" entry point: this page now leads with the client's ACTIVE
+    # enrollments (the client_enrolled_programs scope; that controller keeps its report/exit/
+    # tracking routes) above the enrollable/exited list below.
+    @enrolled_program_streams = ProgramStreamDecorator.decorate_collection(ProgramStream.active_enrollments(@client).complete)
     program_streams = ProgramStreamDecorator.decorate_collection(ordered_program)
     @program_streams = Kaminari.paginate_array(program_streams).page(params[:page]).per(20)
   end

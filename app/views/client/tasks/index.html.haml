@@ -1,12 +1,10 @@
 .row
   .col-12.col-md-10.offset-md-1
+    = render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
     .ibox
       .ibox-title
-        %h5= @client.name
+        %h5= t('client.tasks.index.tasks', default: 'Tasks')
         .ibox-tools
-          = link_to client_path(@client) do
-            .btn.btn-outline-secondary.btn-width.btn-back-default
-              = t('.back')
           - if can? :manage, Task
             = link_to new_client_task_path(@client) do
               .btn.btn-primary.btn-width

@@ -1,9 +1,8 @@
 .row
   .col-sm-12.col-md-10.offset-md-1
+    = render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
     .ibox
       .ibox-title
-        %h5
-          %strong= "#{@client.name}"
         %h5.margin-title= t('.assessment_history')
       .ibox-content
         - @client.assessments.each_with_index do |assessment, index|

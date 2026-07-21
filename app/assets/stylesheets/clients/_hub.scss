@@ -1,0 +1,89 @@
+// UX rung 4 — the client hub header (clients/_client_header.haml): identity strip + pill
+// tabs, rendered on clients#show and every client partition page. Keyed off the .client-hub
+// wrapper class, NOT a body id (Client::TasksController shares body#tasks-index with the
+// global tasks page).
+
+.client-hub {
+  margin-bottom: 14px;
+
+  .client-hub__identity {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .client-hub__who {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .client-hub__name {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: $navy;
+  }
+
+  .client-hub__status .badge {
+    border-radius: $refresh-radius-pill;
+    font-size: 11px;
+    padding: .3em .8em;
+  }
+
+  .client-hub__meta {
+    flex-basis: 100%;
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .client-hub__sep { margin: 0 4px; color: #b6bcc4; }
+
+  .client-hub__family-link {
+    color: $navy;
+    &:hover, &:focus { color: $lazur; text-decoration: underline; }
+  }
+
+  .client-hub__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .client-hub__tabs {
+    margin-top: 12px;
+    gap: 4px;
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      color: $navy;
+
+      &:not(.active):hover,
+      &:not(.active):focus { background: $light-blue; }
+
+      // this file imports after the BS5 pills rule of equal specificity — restate the
+      // active colors so the label doesn't render navy-on-navy
+      &.active { color: #fff; }
+      &.active .client-hub__tab-chip { background: rgba(255, 255, 255, .25); color: #fff; }
+    }
+  }
+
+  .client-hub__tab-chip {
+    display: inline-block;
+    min-width: 20px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    color: $navy;
+    background: $light-blue;
+    border-radius: $refresh-radius-pill;
+  }
+}
