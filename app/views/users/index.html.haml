@@ -1,12 +1,11 @@
+= render 'shared/page_header',
+  title: t('.title', default: 'Users'),
+  filter_target: '#user-search-form',
+  primary: ((can? :manage, :all) ? { label: t('users.index.add_new_user'), url: new_user_path } : nil),
+  secondary: [{ label: t('users.index.export_xls'), url: current_url(format: 'xls'), class: 'btn-export' }]
 .row
   .col-12
-    .float-start
-      %button.btn.btn-primary.btn-filter{"aria-expanded" => 'false', "aria-label" => t('shared.actions.filter', default: 'Toggle search filters'), "data-bs-target" => '#user-search-form', "data-bs-toggle" => 'collapse', type: 'button'}
-        %i.fa.fa-filter{"aria-hidden" => "true"}
-    .float-end
-      - if can? :manage, :all
-        = link_to "#{I18n.t('users.index.add_new_user')}", new_user_path, class: 'btn btn-primary'
-      = link_to "#{I18n.t('users.index.export_xls')}", current_url(format: 'xls'), class: 'btn btn-info btn-export'
+    = applied_filter_chips(:user_grid, scope: 'users')
 .row.ibox-space
   .col-12
     .ibox.float-e-margins#user-search-form.collapse
