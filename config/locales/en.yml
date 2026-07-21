@@ -272,12 +272,12 @@ en:
       case_worker: Case Manager
       case_worker_or_staff: Case Manager
       code: Code
-      commune: Commune/Sangkat
+      commune: City
       completed: Completed
       current_address: Current Address
       current_province: State
       date_of_birth: Date of Birth
-      district: District/Khan
+      district: County
       donor: Donor
       donor_id: Donor
       exit_ec_date: Exit EC Date
@@ -306,10 +306,10 @@ en:
       local_family_name: Family Name (native)
       local_given_name: Given Name (native)
       name: Name
-      ngo_accepted_date: NGO Accept Date
-      ngo_exit_date: NGO Exit Date
+      ngo_accepted_date: Organization Accept Date
+      ngo_exit_date: Organization Exit Date
       placement_start_date: Placement Start Date
-      program_stream: Program Stream
+      program_stream: Program
       province: Country of Origin
       province_id: State
       received_by: Received By
@@ -331,7 +331,7 @@ en:
       time_of_frequency: Time of Frequency
       type: Type
       user_id: Case Manager
-      village: Village
+      village: Neighborhood
       enrollment: Enrollment
       tracking: Tracking
       exit_program: Exit Program
@@ -646,16 +646,16 @@ en:
       due_today_assessments_count:
         one: You have 1 assessment due today.
         other: You have %{count} assessments due today.
-      emergency_cares_html: Emergency <br/>Cares
-      female_emergency_cares: Females <br/>EC
-      female_foster_cares: Females <br/>FC
-      female_kinship_cares: Females <br/>KC
+      emergency_cares_html: Priority <br/>Intake
+      female_emergency_cares: Females <br/>Priority Intake
+      female_foster_cares: Females <br/>Sponsor Care
+      female_kinship_cares: Females <br/>Kinship Care
       females: Females
-      foster_cares_html: Foster <br/>Cares
-      kinship_cares_html: Kinship <br/>Cares
-      male_emergency_cares: Males <br/>EC
-      male_foster_cares: Males <br/>FC
-      male_kinship_cares: Males <br/>KC
+      foster_cares_html: Sponsor <br/>Care
+      kinship_cares_html: Kinship <br/>Care
+      male_emergency_cares: Males <br/>Priority Intake
+      male_foster_cares: Males <br/>Sponsor Care
+      male_kinship_cares: Males <br/>Kinship Care
       males: Males
       overdue_assessments_count:
         one: You have 1 assessment overdue.
@@ -703,14 +703,14 @@ en:
       enrollment: Enrollment
       exit_program: Exit Program
       filter_option: Please choose your query options below
-      program_stream: Program Stream
+      program_stream: Program
       tracking: Tracking
       quantitative: Quantitative Type
     index:
       grid_caption: Client search results
       client_column: Client basic columns
       custom_form_column: Custom form columns
-      program_stream_column: Program stream columns
+      program_stream_column: Program columns
       add_new_filter: Add New Filter
       add_new_group: Add Group
       advanced_search: Advanced Search
@@ -939,7 +939,7 @@ en:
     exit_ngo_form:
       exit_btn: Exit
       exit_date: Exit Date
-      exit_ngo: Exit NGO
+      exit_ngo: Exit Organization
       exit_note: Exit Note
       exit_status: Status
     exit_case_form:
@@ -948,7 +948,7 @@ en:
       exit_ec: Close Resettlement Case
       exit_fc: Close Resettlement Case
       exit_kc: Close Resettlement Case
-      exit_ngo: Exit NGO
+      exit_ngo: Exit Organization
       exit_note: Exit Note
       exit_status: Status
     form:
@@ -963,15 +963,15 @@ en:
       case_worker: Case Manager
       case_worker_or_staff: Case Manager
       code: Code
-      commune: Commune/Sangkat
+      commune: City
       completed: Completed
       current_address: Current Address
       current_province: State
       custom_forms: Custom Forms
       date_of_birth: Date of Birth
-      district: District/Khan
+      district: County
       donor: Donor
-      exit_date: NGO Exit Date
+      exit_date: Organization Exit Date
       exit_note: Exit Note
       exit_status: Exit Status
       family_name: Family Name
@@ -1006,7 +1006,7 @@ en:
       status: Status
       street_number: Street
       to: To
-      village: Village
+      village: Neighborhood
       year: Year
       yes_no: Yes/No
     foster_case:
@@ -1080,12 +1080,12 @@ en:
       able_screening_questions: Able Screening Questions
       able_state: Able State
       accept: Accept
-      accepted_date: NGO Accept Date
+      accepted_date: Organization Accept Date
       add_client_to_case: Open Resettlement Case
-      add_ec_btn: Add to EC
-      add_fc_btn: Add to FC
+      add_ec_btn: Priority Intake Case
+      add_fc_btn: Sponsor Care Case
       add_form: Add Form
-      add_kc_btn: Add to KC
+      add_kc_btn: Kinship Care Case
       additional_details: Additional Details
       additional_forms: Additional Forms
       additional_info: Additional Information
@@ -1101,19 +1101,19 @@ en:
       case_worker_or_staff: Case Manager
       client_able_answers: Client Able Answers
       code: Code
-      commune: Commune/Sangkat
+      commune: City
       completed: Completed
       current_address: Current Address
       current_province: State
       date_of_birth: Date of Birth
-      district: District/Khan
+      district: County
       donor: Donor
-      enrolled_program_streams: Enrolled Program Streams
-      exit_date: NGO Exit Date
+      enrolled_program_streams: Enrolled Programs
+      exit_date: Organization Exit Date
       exit_from_ec: Close Resettlement Case
       exit_from_fc: Close Resettlement Case
       exit_from_kc: Close Resettlement Case
-      exit_ngo_btn: Exit From NGO
+      exit_ngo_btn: Exit From Organization
       exit_note: Exit Note
       families: Households
       family_name: Family Name
@@ -1152,7 +1152,7 @@ en:
         start_date: Start Date
         support_amount: Support Amount
         support_note: Support Note
-      program_streams: Program Streams
+      program_streams: Programs
       progress_note: Progress Note
       province: Country of Origin
       received_by: Received By
@@ -1180,7 +1180,7 @@ en:
       view_kc_history_btn_link: Case History
       view_legacy_quarterly_reports: Legacy Quarterly Reports
       view_tasks: Tasks
-      village: Village
+      village: Neighborhood
     state:
       rejected_note: Rejected Note
       state: Accept/Reject
@@ -1223,10 +1223,10 @@ en:
     client:
       ables: Ables
       clients: Active Clients
-      emergency_cares_html: Emergency <br/>Cares
+      emergency_cares_html: Priority <br/>Intake
       females: Females
-      foster_cares_html: Foster <br/>Cares
-      kinship_cares_html: Kinship <br/>Cares
+      foster_cares_html: Sponsor <br/>Care
+      kinship_cares_html: Kinship <br/>Care
       males: Males
     family:
       families: Households
@@ -1332,7 +1332,7 @@ en:
       materials: Equipment/Materials
       partner_custom_fields: Partner Custom Forms
       partners: Community Partners
-      program_streams: Program Streams
+      program_streams: Programs
       progress_note_types: Types of Note
       progress_notes: Progress Notes
       provinces: States
@@ -1380,12 +1380,12 @@ en:
         case_worker_or_staff: Case Manager
         changelogs: Changelog
         code: Code
-        commune: Commune/Sangkat
+        commune: City
         completed: Completed
         current_address: Current Address
         current_province: State
         date_of_birth: Date of Birth
-        district: District/Khan
+        district: County
         domain: Domain
         domains: All CSI
         donor: Donor
@@ -1415,8 +1415,8 @@ en:
         local_given_name: Given Name (native)
         manage: Manage
         name: Name
-        ngo_accepted_date: NGO Accept Date
-        ngo_exit_date: NGO Exit Date
+        ngo_accepted_date: Organization Accept Date
+        ngo_exit_date: Organization Exit Date
         no_dob: 'No'
         placement_case_type: Placement Case Type
         placement_start_date: Placement Start Date
@@ -1438,7 +1438,7 @@ en:
           support_note: Support Note
         program_enrollment_date: Program Enrollment Date
         program_exit_date: Program Exit Date
-        program_streams: Program Streams
+        program_streams: Programs
         province: Country of Origin
         quantitative_case_values: Quantitative Case
         quantitative_types: Quantitative Types
@@ -1458,7 +1458,7 @@ en:
         total: Total
         type: Type
         view: View
-        village: Village
+        village: Neighborhood
       families:
         address: Address
         caregiver_information: Household Notes
@@ -1628,12 +1628,12 @@ en:
     case_worker: Case Manager
     case_worker_or_staff: Case Manager
     code: Code
-    commune: Commune/Sangkat
+    commune: City
     completed: Completed
     current_address: Current Address
     current_province: State
     date_of_birth: Date of Birth
-    district: District/Khan
+    district: County
     donor: Donor
     family_name: Family Name
     follow_up_by: Followed Up By
@@ -1663,7 +1663,7 @@ en:
     state: Accept/Reject
     status: Status
     street_number: Street
-    village: Village
+    village: Neighborhood
   default_custom_fields:
     form_title: Form Title
     frequency: Frequency
@@ -1733,14 +1733,14 @@ en:
     child_living_independently: child living independently
     child_living_on_street: child living on street
     child_situation_and_need: Situation and needs of the child
-    city: District
+    city: City
     client_code: Code
     client_contact: Relationship with child
     client_living_with_guardians: Is the child living with a parent or carer
     client_name: Child's Name
     clothes: clothes
     code: Form
-    commune: Commune
+    commune: City
     communication_in_family: Family relationships
     communication_in_society: Community Relationships
     copy: Copyright
@@ -1776,8 +1776,8 @@ en:
     house_number: House
     if_exist: 'If yes:'
     initial_capital: Capital
-    initial_city: District
-    initial_commune: Commune
+    initial_city: City
+    initial_commune: City
     initial_date: Date
     intervention_plan: Intervention Plan
     kingdom_of_cambodia: Kingdom of Cambodia
@@ -1791,7 +1791,7 @@ en:
     negative: 'No'
     neglect: neglect
     none: None (Case must be closed)
-    office: សអយOffice Town District Khan
+    office: Office
     or: or
     organisation: CCWC
     organisation_name: CCWC Name
@@ -1820,12 +1820,12 @@ en:
     seen_and_agreed: Seen and agreed
     sexual_abuse: sexual abuse
     shelter: Shelter
-    signature: Signature and Stamp/Seal of Chiefs of Commune/Sangkat
+    signature: Authorized signature
     street_number: Street
     supplies: Food, Shelter and Clothes
     third_mission: Follow family reunification procedures complete form 1309 and form 1303 (in the event of child/family separation).
     transfer_info: Referral Source
-    village: Village
+    village: Neighborhood
     year: Year
   default_intervention_fields:
     action: Action
@@ -1870,7 +1870,7 @@ en:
     support_amount: Support Amount
     support_note: Support Note
   default_program_stream_fields:
-    program_streams: Program Streams
+    program_streams: Programs
   default_progress_note_fields:
     additional_notes: Additional Notes
     child: Child
@@ -2292,10 +2292,10 @@ en:
         time_of_frequency: Time of Frequency
         type: Type
       index:
-        all_ngo: All NGOs' Custom Forms
+        all_ngo: Custom Form Library (other organizations)
         form_title: Form Title
         frequency: Frequency
-        my_ngo: My NGO's Custom Forms
+        my_ngo: Our Custom Forms
         new_custom_form: New Custom Form
         search: Search
         time_of_frequency: Time of Frequency
@@ -2357,14 +2357,14 @@ en:
       child_living_independently: child living independently
       child_living_on_street: child living on street
       child_situation_and_need: Situation and needs of the child
-      city: District
+      city: City
       client_code: Code
       client_contact: Relationship with child
       client_living_with_guardians: Is the child living with a parent or carer
       client_name: Child's Name
       clothes: clothes
       code: Form
-      commune: Commune
+      commune: City
       communication_in_family: Family relationships
       communication_in_society: Community Relationships
       copy: Copyright
@@ -2407,8 +2407,8 @@ en:
       house_number: House
       if_exist: 'If yes:'
       initial_capital: Capital
-      initial_city: District
-      initial_commune: Commune
+      initial_city: City
+      initial_commune: City
       initial_date: Date
       intervention_plan: Intervention Plan
       kingdom_of_cambodia: Kingdom of Cambodia
@@ -2422,7 +2422,7 @@ en:
       negative: 'No'
       neglect: neglect
       none: None (Case must be closed)
-      office: សអយOffice Town District Khan
+      office: Office
       or: or
       organisation: CCWC
       organisation_name: CCWC Name
@@ -2459,7 +2459,7 @@ en:
       seen_and_agreed: Seen and agreed
       sexual_abuse: sexual abuse
       shelter: Shelter
-      signature: Signature and Stamp/Seal of Chiefs of Commune/Sangkat
+      signature: Authorized signature
       society_communication_need: Community Relationships (Needs)
       society_communication_plan: Community Relationships (Intervention Plan)
       street_number: Street
@@ -2468,7 +2468,7 @@ en:
       supplies_plan: Food, Shelter and Clothes (Intervention Plan)
       third_mission: Follow family reunification procedures complete form 1309 and form 1303 (in the event of child/family separation).
       transfer_info: Referral Source
-      village: Village
+      village: Neighborhood
       year: Year
     index:
       action: Action
@@ -2507,14 +2507,14 @@ en:
           child_living_independently: child living independently
           child_living_on_street: child living on street
           child_situation_and_need: Situation and needs of the child
-          city: District
+          city: City
           client_code: Code
           client_contact: Relationship with child
           client_living_with_guardians: Is the child living with a parent or carer
           client_name: Child's Name
           clothes: clothes
           code: Form
-          commune: Commune
+          commune: City
           communication_in_family: Family relationships
           communication_in_society: Community Relationships
           copy: Copyright
@@ -2551,8 +2551,8 @@ en:
           if_exist: 'If yes:'
           information: Information
           initial_capital: Capital
-          initial_city: District
-          initial_commune: Commune
+          initial_city: City
+          initial_commune: City
           initial_date: Date
           intervention_plan: Intervention Plan
           kingdom_of_cambodia: Kingdom of Cambodia
@@ -2566,7 +2566,7 @@ en:
           negative: 'No'
           neglect: neglect
           none: None (Case must be closed)
-          office: សអយOffice Town District Khan
+          office: Office
           or: or
           organisation: CCWC
           organisation_name: CCWC Name
@@ -2595,12 +2595,12 @@ en:
           seen_and_agreed: Seen and agreed
           sexual_abuse: sexual abuse
           shelter: Shelter
-          signature: Signature and Stamp/Seal of Chiefs of Commune/Sangkat
+          signature: Authorized signature
           street_number: Street
           supplies: Food, Shelter and Clothes
           third_mission: Follow family reunification procedures complete form 1309 and form 1303 (in the event of child/family separation).
           transfer_info: Referral Source
-          village: Village
+          village: Neighborhood
           year: Year
     update:
       successfully_updated: Government Report has been successfully updated.
@@ -2715,13 +2715,13 @@ en:
       manage: Manage
       materials: Equipment/Materials
       partners: Partners
-      program_streams: Program Streams
+      program_streams: Programs
       progress_note: Progress Note
       progress_note_types: Types of Note
       provinces: States
       quantitative_types: Quantitative Types
       referral_sources: Referral Sources
-      release_logs: Release logs
+      release_logs: What's New
       users: Users
       view_calendar: View Calendar
     top_navbar:
@@ -2900,7 +2900,7 @@ en:
       status: Status
     create:
       alert: Name of Tracking has already been taken.
-      successfully_created: Program Stream has been successfully created.
+      successfully_created: Program has been successfully created.
     current_program_streams_tab:
       actions: Action
       domain: Domains
@@ -2915,11 +2915,11 @@ en:
       domain: Domain
       name: Name
     destroy:
-      alert: Program Stream cannot be deleted.
-      successfully_deleted: Program Stream has been successfully deleted.
+      alert: Program cannot be deleted.
+      successfully_deleted: Program has been successfully deleted.
     edit:
       back: Back
-      edit_program_stream: Edit Program Stream
+      edit_program_stream: Edit Program
     enrollment:
       enrollment_form: Enrollment
       note: 'Note: The Date of Enrollment field is added automatically to this enrollment form.'
@@ -2932,13 +2932,13 @@ en:
       previous: Previous
       save: Save
     index:
-      current_ngo: My NGO's Program Streams
+      current_ngo: Our Programs
       new_program: Add New Program
-      ngo_programs: All NGO's Program Streams
-      program_list: Program Streams Listing
+      ngo_programs: Program Library (other organizations)
+      program_list: Programs
     new:
       back: Back
-      new_program_stream: New Program Stream
+      new_program_stream: New Program
     others_ngo_program_streams_tab:
       actions: Action
       copy: Copy
@@ -2974,11 +2974,11 @@ en:
       quantity: Quantity
       rules: Rules
       tracking: Tracking
-      not_require_tracking: This Program Stream does not require any tracking form.
+      not_require_tracking: This program does not require any tracking form.
     tracking:
       add_tracking: Add Tracking
       tracking_form: Progress Tracking
-      not_require_tracking: This Program Stream does not require any tracking form.
+      not_require_tracking: This program does not require any tracking form.
     tracking_fields:
       frequency: Frequency
       name: Name
@@ -2986,7 +2986,7 @@ en:
       time_of_frequency: Time of Frequency
     update:
       alert: Tracking cannot be deleted.
-      successfully_updated: Program Stream has been successfully updated.
+      successfully_updated: Program has been successfully updated.
   progress_note_types:
     create:
       failed_create: Failed to create a type of note.
@@ -3257,7 +3257,7 @@ en:
         before: Before
         change: did the following change
         date_deleted: Date deleted
-        no_modification: There are no any changelog.
+        no_modification: There are no changelog entries yet.
         'on': 'on'
         value_of: Value of
       case_note:
@@ -3338,18 +3338,18 @@ en:
         more_detail: More Details
         no_modification: There are no any changelog.
         'on': 'on'
-        program_stream: Program Stream
+        program_stream: Program
         value_of: Value of
   signed_in_with_google: Signed in with google calendar successfully.
   simple_form:
-    cancel: បោះបង់
+    cancel: Cancel
     error_notification:
       default_message: 'Please review the problems below:'
     'no': 'No'
     required:
       mark: "*"
       text: required
-    save: រក្សាទុកy
+    save: Save
     'yes': 'Yes'
   stages:
     able_screening_question_fields:

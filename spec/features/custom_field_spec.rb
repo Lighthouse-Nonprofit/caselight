@@ -122,7 +122,7 @@ feature 'custom_field' do
     end
 
     scenario 'valid' do
-      click_link "All NGOs' Custom Forms"
+      click_link 'Custom Form Library (other organizations)'
       click_link(nil, href: new_custom_field_path(custom_field_id: custom_field.id, ngo_name: custom_field.ngo_name))
       fill_in 'Form Title', with: 'Copy'
       find("input[type=submit]").click
@@ -130,7 +130,7 @@ feature 'custom_field' do
     end
 
     scenario 'invalid' do
-      click_link "All NGOs' Custom Forms"
+      click_link 'Custom Form Library (other organizations)'
       click_link(nil, href: new_custom_field_path(custom_field_id: custom_field.id, ngo_name: custom_field.ngo_name))
       find("input[type=submit]").click
       expect(page).to have_content('has already been taken')

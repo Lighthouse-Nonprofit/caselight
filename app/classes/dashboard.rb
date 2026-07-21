@@ -68,9 +68,9 @@ class Dashboard
 
   def family_type_statistic
     [
-      { name: 'Foster', y: foster_count, url: families_path("family_grid[family_type]": 'foster') },
-      { name: 'Kinship', y: kinship_count, url: families_path("family_grid[family_type]": 'kinship') },
-      { name: 'Emergency', y: emergency_count, url: families_path("family_grid[family_type]": 'emergency') }
+      { name: Family.type_label('foster'), y: foster_count, url: families_path("family_grid[family_type]": 'foster') },
+      { name: Family.type_label('kinship'), y: kinship_count, url: families_path("family_grid[family_type]": 'kinship') },
+      { name: Family.type_label('emergency'), y: emergency_count, url: families_path("family_grid[family_type]": 'emergency') }
     ]
   end
 

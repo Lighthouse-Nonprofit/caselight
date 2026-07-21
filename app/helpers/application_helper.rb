@@ -50,6 +50,10 @@ module ApplicationHelper
     boolean ? 'Yes' : 'No'
   end
 
+  def family_type_label(value)
+    Family.type_label(value)
+  end
+
   def current_url(new_params)
     # Rails 5 cannot serialize raw ActionController::Parameters nested in url_for options
     # ("unable to convert unpermitted parameters to hash"); sanitize to a plain hash first.

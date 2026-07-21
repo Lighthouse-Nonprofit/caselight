@@ -198,15 +198,26 @@ const block = async (name, fn) => {
   // jquery.steps is KEPT at the flip (css restyle only) — so the gate asserts the steps
   // chrome rendered and #next responds without throwing.
   await block('wizard init (assessment steps)', async () => {
-    const clientPath = await clientPathOnce();
-    await goto(`${clientPath}/assessments/new`);
-    const r = await page.evaluate(() => ({
-      stepItems: document.querySelectorAll('.steps li').length,
-      next: !!document.querySelector('a[href="#next"]'),
-      current: !!document.querySelector('.steps li.current'),
-    }));
+    // A client whose next review is not yet due redirects /assessments/new to the history
+    // page ("Begin now" renders as a disabled div — data-dependent, not a wizard defect).
+    // Try several clients and assert the wizard on the first one that can start an assessment.
+    await goto('/clients');
+    const clientPaths = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('a[href*="/clients/"]'))
+        .map((a) => (a.getAttribute('href') || '').split('?')[0])
+        .filter((h, i, all) => /\/clients\/(?!new$)[a-z0-9-]+$/i.test(h) && all.indexOf(h) === i));
+    let r = { stepItems: 0, next: false, current: false };
+    for (const cp of clientPaths.slice(0, 8)) {
+      await goto(`${cp}/assessments/new`);
+      r = await page.evaluate(() => ({
+        stepItems: document.querySelectorAll('.steps li').length,
+        next: !!document.querySelector('a[href="#next"]'),
+        current: !!document.querySelector('.steps li.current'),
+      }));
+      if (r.stepItems >= 2 && r.next && r.current) break;
+    }
     if (r.stepItems < 2 || !r.next || !r.current) {
-      throw new Error(`wizard chrome incomplete (steps=${r.stepItems} next=${r.next} current=${r.current})`);
+      throw new Error(`wizard chrome incomplete on every probed client (steps=${r.stepItems} next=${r.next} current=${r.current})`);
     }
     await page.click('a[href="#next"]');
     await page.waitForTimeout(500);
