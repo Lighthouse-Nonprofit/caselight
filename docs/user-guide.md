@@ -102,34 +102,42 @@ gender/age, status, and program-stream tags — with export and advanced search:
 
 <p align="center"><img src="screenshots/clients-cards.jpg" alt="Individuals as cards" width="900"></p>
 
-From either view you can **add a new individual**, run an **advanced search**, view **all active
-tasks**, and **export** program data.
+From either view the header offers a **quick name search** (exact match), an **Add New
+Individual** button, and a **"⋯" menu** with Reports, Advanced Search, View All Active Tasks,
+and the exports. Active search filters show as dismissible **chips** under the header — click
+a chip's × to clear that filter. Click anywhere on a card (or a name in the list) to open the
+record; each card's program chips jump straight to that program.
 
 ## 5. The individual record
 
 <p align="center"><img src="screenshots/client-detail.jpg" alt="An individual's record" width="900"></p>
 
-An individual's page brings the whole picture together:
+An individual's page brings the whole picture together under a persistent header — the
+person's name, status, date of birth, code, and household — with an **Edit** menu (edit,
+progress notes, case history, delete) and tabs that follow you across every sub-page:
 
-- **About the individual** — code, date of birth, age, address, country of origin, school
-  information, referral source, **assigned case managers**, and accept/reject status.
-- **Household link** — one click to the household the person belongs to.
-- **Resettlement case** — intake date, household, case managers, and status.
-- **Action bar** — open the resettlement case, view **Tasks**, **Assessments**, **Case Notes**,
-  add **Additional Forms**, and manage **Program Streams**.
+- **Overview** — summary cards for **Programs** (active and exited enrollments), **Forms**
+  (filled forms with entry counts; **Add Form** lives on this card), and **recent program
+  activity**, plus the About table and the resettlement case.
+- **Programs** — enrolled programs (with exit/tracking actions) above the programs available
+  to enroll.
+- **Forms** — a dropdown tab listing each filled form. Forms marked **emergency-only** show as
+  locked cards on the Overview: staff who qualify can request 1-hour emergency access with a
+  logged reason (the header shows a countdown chip while access is active).
+- **Case Notes / Assessments / Tasks** — each one click away, with counts on the tabs.
 
 ## 6. Programs & enrollments
 
-Programs are modeled as **program streams** — enrollable programs, each with its own custom form
-and recurring, date-stamped check-ins ("trackings"). Administrators define the streams the
-organization actually runs.
+**Programs** are enrollable services — each with its own custom form and recurring,
+date-stamped check-ins ("trackings"). Administrators define the programs the organization
+actually runs.
 
-<p align="center"><img src="screenshots/programs.jpg" alt="Program streams" width="900"></p>
+<p align="center"><img src="screenshots/programs.jpg" alt="Programs" width="900"></p>
 
-Enroll an individual in one or more streams, then log dated trackings against each enrollment as the
-work progresses. The history of the case is captured as it happens.
+Enroll an individual in one or more programs, then log dated trackings against each enrollment
+as the work progresses. The history of the case is captured as it happens.
 
-<p align="center"><img src="screenshots/client-programs.jpg" alt="A person's enrolled program streams" width="900"></p>
+<p align="center"><img src="screenshots/client-programs.jpg" alt="A person's enrolled programs" width="900"></p>
 
 ## 7. Case notes
 
