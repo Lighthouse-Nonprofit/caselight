@@ -22,7 +22,7 @@
         .record-card__status
           = status_style(object.status.to_s.sub(/\AActive .*/, 'Active'))
       - if shown.any?
-        %ul.record-card__tags{ 'aria-label' => t('.program_streams', default: 'Program streams') }
+        %ul.record-card__tags{ 'aria-label' => t('.program_streams', default: 'Programs') }
           - shown.each do |program_stream|
             %li.record-card__tag
               - if can_read_program

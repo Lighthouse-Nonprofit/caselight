@@ -42,8 +42,17 @@ class ClientGrid
 
   # filter(:house_number, :string)
 
+  # Display-only US labels for the raw status enum. Filter VALUES stay the upstream strings
+  # ('Active EC' etc.) so existing URLs (dashboard drill-downs, bookmarks) keep working; only
+  # the dropdown labels change. XLS export still shows the raw status — accepted, ledgered.
+  STATUS_LABELS = {
+    'Active EC' => 'Active — Priority Intake',
+    'Active FC' => 'Active — Sponsor Care',
+    'Active KC' => 'Active — Kinship Care'
+  }.freeze
+
   def status_options
-    scope.status_like
+    scope.status_like.map { |status| [STATUS_LABELS.fetch(status, status), status] }
   end
 
 

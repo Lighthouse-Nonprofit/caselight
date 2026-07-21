@@ -175,9 +175,9 @@ describe 'Client' do
       click_button 'Accept'
     end
     scenario 'has new case note link' do
-      expect(page).to have_link('Add to EC')
-      expect(page).to have_link('Add to FC')
-      expect(page).to have_link('Add to KC')
+      expect(page).to have_link('Priority Intake Case')
+      expect(page).to have_link('Sponsor Care Case')
+      expect(page).to have_link('Kinship Care Case')
     end
   end
 
@@ -314,19 +314,19 @@ describe 'Client' do
       end
 
       scenario 'Emergency Case Button' do
-        expect(page).to have_link('Add to EC')
+        expect(page).to have_link('Priority Intake Case')
       end
 
       scenario 'Foster Case Button' do
-        expect(page).to have_link('Add to FC')
+        expect(page).to have_link('Sponsor Care Case')
       end
 
       scenario 'Kinship Case Button' do
-        expect(page).to have_link('Add to KC')
+        expect(page).to have_link('Kinship Care Case')
       end
 
-      scenario 'Exit NGO Button' do
-        expect(page).to have_content('Exit From NGO')
+      scenario 'Exit Organization Button' do
+        expect(page).to have_content('Exit From Organization')
       end
     end
 
@@ -340,15 +340,15 @@ describe 'Client' do
       end
 
       scenario 'Emergency Case Button' do
-        expect(page).not_to have_link('Add to EC')
+        expect(page).not_to have_link('Priority Intake Case')
       end
 
       scenario 'Foster Case Button' do
-        expect(page).not_to have_link('Add to FC')
+        expect(page).not_to have_link('Sponsor Care Case')
       end
 
       scenario 'Kinship Case Button' do
-        expect(page).not_to have_link('Add to KC')
+        expect(page).not_to have_link('Kinship Care Case')
       end
 
       scenario 'Exit From EC' do
@@ -395,15 +395,15 @@ describe 'Client' do
       end
 
       scenario 'Emergency Case Button' do
-        expect(page).not_to have_link('Add to EC')
+        expect(page).not_to have_link('Priority Intake Case')
       end
 
       scenario 'Foster Case Button' do
-        expect(page).not_to have_link('Add to FC')
+        expect(page).not_to have_link('Sponsor Care Case')
       end
 
       scenario 'Kinship Case Button' do
-        expect(page).not_to have_link('Add to KC')
+        expect(page).not_to have_link('Kinship Care Case')
       end
     end
     feature 'Inactive Client' do
@@ -416,14 +416,14 @@ describe 'Client' do
       end
 
       scenario 'Emergency Case Button' do
-        expect(page).to have_link('Add to EC')
+        expect(page).to have_link('Priority Intake Case')
       end
 
       scenario 'Foster Case Button' do
-        expect(page).to have_link('Add to FC')
+        expect(page).to have_link('Sponsor Care Case')
       end
       scenario 'Kinship Case Button' do
-        expect(page).to have_link('Add to KC')
+        expect(page).to have_link('Kinship Care Case')
       end
     end
   end

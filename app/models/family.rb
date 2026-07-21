@@ -2,6 +2,21 @@ class Family < ActiveRecord::Base
   include EntityTypeCustomField
   FAMILY_TYPE = %w(emergency kinship foster inactive birth_family).freeze
 
+  # Display-only US labels for the upstream family_type values (SLO4HOME vocabulary). The DB
+  # values, scopes, and filter params keep the raw strings — this map is the single source for
+  # every user-facing rendering (grids, cards, forms, dashboard, version history).
+  TYPE_LABELS = {
+    'birth_family' => 'Household',
+    'emergency'    => 'Priority Intake',
+    'foster'       => 'Sponsor Household',
+    'inactive'     => 'Closed',
+    'kinship'      => 'Active'
+  }.freeze
+
+  def self.type_label(value)
+    TYPE_LABELS[value.to_s] || value.to_s.titleize
+  end
+
   belongs_to :province, counter_cache: true
 
   has_many :cases, dependent: :restrict_with_error

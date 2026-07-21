@@ -26,7 +26,7 @@
                     %table.table
                       - tasks.each do |task|
                         %tr
-                          %td= "#{t('.domain')} #{task.domain.name}"
+                          %td= "#{t('.domain')} #{task.domain.name} #{task.domain.identity}"
                           %td.task-name.border-left-right= task.name
                           %td= task.completion_date.strftime("%B %d, %Y")
           .card
@@ -45,7 +45,7 @@
                     %table.table
                       - tasks.each do |task|
                         %tr
-                          %td= "#{t('.domain')} #{task.domain.name}"
+                          %td= "#{t('.domain')} #{task.domain.name} #{task.domain.identity}"
                           %td.task-name.border-left-right= task.name
                           %td= task.completion_date.strftime("%B %d, %Y")
           .card
@@ -64,6 +64,6 @@
                     %table.table
                       - tasks.each do |task|
                         %tr
-                          %td= "#{t('.domain')} #{task.domain.name}"
+                          %td= "#{t('.domain')} #{task.domain.name} #{task.domain.identity}"
                           %td.task-name.border-left-right= task.name
                           %td= task.completion_date.strftime("%B %d, %Y")
