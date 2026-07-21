@@ -46,7 +46,9 @@
           %table.table.table-striped
             - @client.client_enrollments.includes(:program_stream).order(:enrollment_date).each do |ce|
               %tr
-                %td= ce.program_stream.try(:name)
+                %td
+                  - if ce.program_stream
+                    = link_to ce.program_stream.name, client_client_enrollment_path(@client, ce, program_stream_id: ce.program_stream_id)
                 %td.text-right
                   %span.badge.text-bg-primary= ce.status
             - if @client.client_enrollments.empty?
