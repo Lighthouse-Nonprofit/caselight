@@ -3,6 +3,23 @@
     color: black;
   }
 
+  // UX rung 6 — stat tiles are links now; keep the tile look (no link-blue), signal on hover
+  .dashboard-tile-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+
+    h1 { color: inherit; }
+
+    &:hover,
+    &:focus {
+      color: inherit;
+      text-decoration: none;
+
+      h1 { color: $lazur; }
+    }
+  }
+
   .float-right {
     float: right;
   }

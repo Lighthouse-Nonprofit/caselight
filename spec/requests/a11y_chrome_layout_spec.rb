@@ -26,7 +26,10 @@ RSpec.describe 'A11y: persistent chrome accessible names', type: :request do
   it 'marks decorative chrome glyphs aria-hidden' do
     get users_path
     body = response.body
-    expect(body).to match(/fa-sign-out[^>]*aria-hidden=["']true["']|aria-hidden=["']true["'][^>]*fa-sign-out/)
+    # (UX rung 6: the top-bar fa-sign-out icon link is gone — sign-out is a text link in the
+    # sidebar profile menu + mobile account dropdown; the account-menu fa-user glyph is the
+    # decorative icon there now.)
+    expect(body).to match(/fa-user[^>]*aria-hidden=["']true["']|aria-hidden=["']true["'][^>]*fa-user/)
     expect(body).to match(/fa-bars[^>]*aria-hidden=["']true["']|aria-hidden=["']true["'][^>]*fa-bars/)
   end
 end
