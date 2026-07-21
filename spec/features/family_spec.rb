@@ -37,14 +37,8 @@ describe 'Family' do
       expect(page).to have_content(family.name)
     end
 
-    scenario 'edit link' do
-      expect(page).to have_link(nil)
-    end
-
-    scenario 'delete link' do
-      expect(page).to have_css("a[href='#{family_path(family)}'][data-method='delete']")
-    end
-
+    # (UX rung 2: the index edit/delete buttons are gone — the card/row is the click target
+    # and edit/delete live on the show page; the Show block below still pins them.)
     scenario 'show link' do
       expect(page).to have_link(nil)
     end
@@ -175,16 +169,15 @@ describe 'Family' do
   end
 
   feature 'Delete', js: true do
+    # UX rung 2: the index delete buttons are gone — delete lives on the show page now
+    # (the disabled-delete variant is already pinned by the Show block below).
     before do
-      visit families_path
+      visit family_path(family)
     end
     scenario 'success' do
       find("a[href='#{family_path(family)}'][data-method='delete']").click
       sleep 1
       expect(page).not_to have_content(family.name)
-    end
-    scenario 'unsuccess' do
-      expect(page).to have_css("a[href='#{family_path(other_family)}'][data-method='delete'][class='btn btn-outline btn-danger btn-xs disabled']")
     end
   end
 

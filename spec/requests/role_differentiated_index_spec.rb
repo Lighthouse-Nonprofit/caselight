@@ -36,7 +36,7 @@ RSpec.describe 'Workstream A — role-differentiated index views', type: :reques
 
         expect(body).to include('Cardy McCardface')
         expect(body).to match(/record-grid__name-link/)
-        expect(body).to match(/record-grid__status/)
+        expect(body).not_to match(/record-grid__status/)   # status column removed (UX rung 2: filterable, not displayed)
         expect(body).to include(client_path(client))
 
         expect(body).not_to include('GRID_SENTINEL_DO_NOT_LEAK')
@@ -98,7 +98,7 @@ RSpec.describe 'Workstream A — role-differentiated index views', type: :reques
 
         expect(body).to include('Harbor House')
         expect(body).to include('HH-1')
-        expect(body).to match(/record-grid__tag--type/)
+        expect(body).not_to match(/record-grid__tag--type/)   # type column removed (UX rung 2: filterable, not displayed)
         expect(body).to include(family_path(family))
 
         expect(body).to include('Mem Ber')

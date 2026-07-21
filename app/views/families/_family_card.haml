@@ -1,16 +1,16 @@
-- type_label  = family_type_label(object.family_type).presence
 - hh          = entity_name(object)
 - initials    = hh.to_s.split(/\s+/).first(2).map { |p| p.to_s.first }.join.upcase.presence || '?'
 - members     = object.clients.to_a.uniq
 - shown_m     = members.first(4)
 - extra_m     = members.size - shown_m.size
 %li.record-card-item
-  %article.record-card{ 'aria-labelledby' => "family-card-#{object.id}-name" }
+  %article.record-card{ class: ('record-card--muted' if object.family_type == 'inactive'), 'aria-labelledby' => "family-card-#{object.id}-name" }
     .record-card__body
       .record-card__avatar.record-card__avatar--family{ 'aria-hidden' => 'true' }= initials
       .record-card__ident
         %h3.record-card__name{ id: "family-card-#{object.id}-name" }
-          = link_to hh, family_path(object), class: 'record-card__name-link'
+          -# Whole-card click target; member chips stay clickable via the z-index guard.
+          = link_to hh, family_path(object), class: 'record-card__name-link stretched-link'
         %p.record-card__meta
           - if object.code.present?
             %span.record-card__code= object.code
@@ -20,8 +20,6 @@
             %span.record-card__sep{ 'aria-hidden' => 'true' } ·
             %span.record-card__province= object.province.name
       %ul.record-card__tags{ 'aria-label' => t('.family_meta', default: 'Household details') }
-        - if type_label.present?
-          %li.record-card__tag.record-card__tag--type= type_label
         %li.record-card__tag.record-card__tag--count= t('.member_count', default: '%{count} members', count: object.member_count)
       - if shown_m.any?
         %ul.record-card__members{ 'aria-label' => t('.household_members', default: 'Household members') }
@@ -29,7 +27,3 @@
             %li.record-card__member= link_to entity_name(client), client_path(client), class: 'record-card__member-link'
           - if extra_m > 0
             %li.record-card__member.record-card__member--more{ title: members.map { |c| entity_name(c) }.join(', ') }= "+#{extra_m}"
-    %footer.record-card__actions
-      = link_to family_path(object), class: 'btn btn-xs btn-info btn-outline', 'aria-label' => (t('shared.actions.view', default: 'View') + ' ' + hh.to_s) do
-        = fa_icon('eye', 'aria-hidden': true)
-      = render partial: 'families/actions', locals: { object: object }

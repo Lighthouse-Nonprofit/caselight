@@ -560,9 +560,6 @@ class ClientGrid
   end
 
   dynamic do
-    column(:manage, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.clients.manage') }) do |object|
-      render partial: 'clients/actions', locals: { object: object }
-    end
     column(:changelog, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.clients.changelogs') }) do |object|
       link_to t('datagrid.columns.clients.view'), client_version_path(object)
     end

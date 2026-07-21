@@ -20,14 +20,8 @@ describe 'Client' do
       expect(page).to have_content(client.name)
     end
 
-    scenario 'edit link' do
-      expect(page).to have_link(nil)
-    end
-
-    scenario 'delete link' do
-      expect(page).to have_css("a[href='#{client_path(client)}'][data-method='delete']")
-    end
-
+    # (UX rung 2: the index edit/delete buttons are gone — the card is the click target and
+    # edit/delete live on the show page; the show-page delete scenario below still covers it.)
     scenario 'no other name' do
       expect(page).not_to have_content(other_client.name)
     end
@@ -155,10 +149,11 @@ describe 'Client' do
   end
 
   feature 'Delete', js: true do
+    # UX rung 2: the index delete buttons are gone — delete lives on the show page now.
     let!(:client){ create(:client, users: [user]) }
     before do
       login_as(user)
-      visit clients_path
+      visit client_path(client)
     end
     scenario 'successfully' do
       first("a[data-method='delete'][href='#{client_path(client.reload)}']").click

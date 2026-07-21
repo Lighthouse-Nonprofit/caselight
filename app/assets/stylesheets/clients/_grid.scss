@@ -84,10 +84,9 @@ body[id='families-index'] {
   .record-grid__age  { color: #6b7280; }
   .record-grid__empty { color: #b6bcc4; }
 
-  .record-grid__status .badge {
-    border-radius: $refresh-radius-pill;
-    font-size: 11px;
-    padding: .3em .8em;
+  // Exited/closed records: quiet the row without dropping text contrast.
+  .record-grid__row--muted {
+    th, td { background: #f6f7f9; }
   }
 
   .record-grid__tags {
@@ -157,19 +156,6 @@ body[id='families-index'] {
   .record-grid__member-more {
     color: #6b7280;
     font-weight: 600;
-  }
-
-  .record-grid__actions-col { width: 1%; white-space: nowrap; }
-
-  .record-grid__actions {
-    white-space: nowrap;
-
-    .btn { margin: 0 2px; }
-    .btn:focus-visible {
-      outline: 2px solid $lazur;
-      outline-offset: 2px;
-      box-shadow: $refresh-focus-ring;
-    }
   }
 
   @media screen and (max-width: 700px) {

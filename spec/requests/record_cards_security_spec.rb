@@ -42,9 +42,10 @@ RSpec.describe 'Card-grid index security', type: :request do
       expect(response).to have_http_status(:ok)
       body = response.body
 
-      # (b) core fields present on the card
+      # (b) core fields present on the card (status chip removed by UX rung 2 — status is
+      # profile-only now; the muted-card treatment is the only index-level status signal)
       expect(body).to include('Cardy McCardface')
-      expect(body).to match(/record-card__status/)
+      expect(body).not_to match(/record-card__status/)
       expect(body).to match(/record-card__avatar/)
       # (a) card list landmark exists (iterates @client_grid.assets = accessible_by + paginated)
       expect(body).to match(/class=["'][^"']*\brecord-cards\b/)
@@ -76,7 +77,7 @@ RSpec.describe 'Card-grid index security', type: :request do
       # (b) core household fields
       expect(body).to include('Harbor House')
       expect(body).to include('HH-1')
-      expect(body).to match(/record-card__tag--type/)   # family-type chip
+      expect(body).not_to match(/record-card__tag--type/)   # family-type chip removed (UX rung 2: filterable, not displayed)
       expect(body).to match(/4 member/)                 # member_count = 1+1+2+0
       # (a) landmark
       expect(body).to match(/class=["'][^"']*\brecord-cards\b/)
