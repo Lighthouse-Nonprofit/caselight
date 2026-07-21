@@ -1,0 +1,42 @@
+-# UX rung 3 — shared index page header: funnel filter-toggle + page title on the left; an
+-# optional quick search, ONE primary action, and an overflow "more actions" dropdown on the
+-# right. CSP-safe: BS5 data-bs-* only, no inline JS. Secondary actions keep their pinned
+-# classes/ids (.btn-export for the XLS gate + filters.js disable-on-noresults,
+-# #client-statistic for its clients/index.js binding).
+-#
+-# locals: title:          heading text (rendered as the page h1)
+-#         filter_target:  collapse selector for the search drawer, or nil for no funnel
+-#         primary:        { label:, url:, class:, id: } or nil — the ONE btn-primary
+-#         secondary:      array of { label:, url:, class:, id:, button: } — overflow items;
+-#                         button: true renders a <button type=button> (JS-bound by id)
+-#         search:         { url:, param:, value:, label:, placeholder: } or nil
+- filter_target = local_assigns[:filter_target]
+- primary       = local_assigns[:primary]
+- secondary     = Array(local_assigns[:secondary]).compact
+- search        = local_assigns[:search]
+%header.page-header
+  .page-header__left
+    - if filter_target
+      %button.btn.btn-primary.btn-filter{ 'aria-expanded' => 'false', 'aria-label' => t('shared.actions.filter', default: 'Toggle search filters'), 'data-bs-target' => filter_target, 'data-bs-toggle' => 'collapse', type: 'button' }
+        %i.fa.fa-filter{ 'aria-hidden' => 'true' }
+    %h1.page-header__title= title
+  .page-header__right
+    - if search
+      %form.page-header__search{ method: 'get', action: search[:url], role: 'search' }
+        %label.visually-hidden{ for: 'page-header-search' }= search[:label]
+        = text_field_tag search[:param], search[:value].presence, id: 'page-header-search', class: 'form-control form-control-sm', placeholder: search[:placeholder]
+        %button.btn.btn-sm.btn-outline-secondary{ type: 'submit', 'aria-label' => search[:label] }
+          %i.fa.fa-search{ 'aria-hidden' => 'true' }
+    - if primary
+      = link_to primary[:label], primary[:url], class: "btn btn-primary #{primary[:class]}".strip, id: primary[:id]
+    - if secondary.any?
+      .dropdown.page-header__more-wrap
+        %button.btn.btn-outline-secondary.page-header__more{ 'aria-expanded' => 'false', 'aria-label' => t('shared.page_header.more_actions', default: 'More actions'), 'data-bs-toggle' => 'dropdown', type: 'button' }
+          %i.fa.fa-ellipsis-h{ 'aria-hidden' => 'true' }
+        %ul.dropdown-menu.dropdown-menu-end
+          - secondary.each do |action|
+            %li
+              - if action[:button]
+                %button.dropdown-item{ id: action[:id], type: 'button' }= action[:label]
+              - else
+                = link_to action[:label], action[:url], class: "dropdown-item #{action[:class]}".strip, id: action[:id]

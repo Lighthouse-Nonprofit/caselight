@@ -1,4 +1,18 @@
 module FeatureHelper
+  # UX rung 3: index toolbar secondary actions moved into the page-header overflow ("...")
+  # dropdown. JS drivers must open it before the item is clickable; rack_test clicks hidden
+  # links fine (and its click on the toggle <button type=button> is a harmless no-op).
+  def click_page_header_action(label)
+    if page.has_css?('.page-header__more', wait: 0)
+      begin
+        find('.page-header__more', match: :first).click
+      rescue StandardError
+        nil
+      end
+    end
+    click_link label
+  end
+
   # BS5-Q3: filling a date field focuses it and the vanillajs-datepicker panel stays open
   # over the submit button; cuprite (unlike PhantomJS) refuses to click through overlapping
   # elements. Blurring is not enough (the panel lingers) — hide any open panel outright;

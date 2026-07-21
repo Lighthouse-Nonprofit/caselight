@@ -7,24 +7,26 @@ feature 'ClientAdvancedSearch', js: true do
   end
 
   scenario 'Advanced search link' do
+    # UX rung 3: secondary actions live in the page-header overflow dropdown
+    find('.page-header__more').click
     expect(page).to have_content 'Advanced Search'
   end
 
   scenario 'Advanced Search Text Field' do
-    click_link 'Advanced Search'
+    click_page_header_action 'Advanced Search'
     find(".rule-filter-container select option[value='given_name']", visible: false).select_option
     expect(page).to have_content 'Given Name'
     expect(page).to have_content 'is'
   end
 
   scenario 'Advanced Search Number Field' do
-    click_link 'Advanced Search'
+    click_page_header_action 'Advanced Search'
     find(".rule-filter-container select option[value='code']", visible: false).select_option
     expect(page).to have_content 'Code'
     expect(page).to have_content 'is'
   end
   xscenario 'Advanced Search Drop list Field' do
-    click_link 'Advanced Search'
+    click_page_header_action 'Advanced Search'
     find(".rule-filter-container select option[value='able_state']", visible: false).select_option
     expect(page).to have_content 'Able State'
     expect(page).to have_content 'is'
@@ -32,7 +34,7 @@ feature 'ClientAdvancedSearch', js: true do
   end
 
   scenario 'Advanced Search Datepicker Field' do
-    click_link 'Advanced Search'
+    click_page_header_action 'Advanced Search'
     # BS5-Q3: placement_date (case-era field) is no longer in the SLO4HOME basic-rules
     # field list; date_of_birth exercises the same datepicker rule flow.
     find(".rule-filter-container select option[value='date_of_birth']", visible: false).select_option

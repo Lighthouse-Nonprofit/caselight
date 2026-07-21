@@ -40,6 +40,8 @@ describe 'Client' do
       visit clients_path
     end
     scenario 'Domain Score Statistic and Case Type Statistic', js: true do
+      # UX rung 3: the Reports toggle lives in the page-header overflow dropdown
+      find('.page-header__more').click
       page.find("#client-statistic").click
       wait_for_ajax
       expect(page).to have_css("#cis-domain-score[data-title='#{I18n.t('clients.index.csi_domain_scores')}']")

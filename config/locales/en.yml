@@ -3224,12 +3224,18 @@ en:
   shared:
     fields:
       required: required
+    page_header:
+      more_actions: More actions
+    filters:
+      active_filters: Active filters
+      remove_filter: 'Remove filter: %{name}'
     actions:
       edit: Edit
       delete: Delete
       delete_attachment: Delete attachment
       view: View
       preview: Preview
+      filter: Toggle search filters
       copy: Copy
       download: Download
       filter: Toggle search filters

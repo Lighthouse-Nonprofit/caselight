@@ -1,12 +1,11 @@
+= render 'shared/page_header',
+  title: t('.title', default: 'Progress Notes'),
+  filter_target: '#progress-note-search-form',
+  primary: ((can? :manage, ProgressNote) ? { label: t('.add_new_progress_note'), url: new_client_progress_note_path(@client), class: "btn-add #{ability_to_write(ProgressNote)}".strip } : nil),
+  secondary: [{ label: t('.export_to_xls'), url: current_url(format: 'xls'), class: 'btn-export' }]
 .row
   .col-12
-    .float-start
-      %button.btn.btn-primary.btn-filter{ 'aria-expanded' => 'false', 'aria-label' => t('shared.actions.filter', default: 'Toggle search filters'), "data-bs-target" => '#progress-note-search-form', 'data-bs-toggle' => 'collapse', type: 'button'}
-        %i.fa.fa-filter{"aria-hidden" => "true"}
-    .text-right.btn-links
-      - if can? :manage, ProgressNote
-        = link_to t('.add_new_progress_note'), new_client_progress_note_path(@client), class: "btn btn-primary btn-add #{ability_to_write(ProgressNote)}"
-      = link_to t('.export_to_xls'), current_url(format: 'xls'), class: 'btn btn-info btn-export'
+    = applied_filter_chips(:progress_note_grid, scope: 'progress_notes')
 
 .row
   .col-12

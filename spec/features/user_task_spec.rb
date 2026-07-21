@@ -35,12 +35,12 @@ describe Task do
       end
 
       scenario 'list all users' do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['mr admin', 'able manager', 'able caseworker', 'ec caseworker']
       end
 
       scenario 'list manager task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['mr admin', 'able manager', 'able caseworker', 'ec caseworker'], visible: false
         tom_select_pick('able manager')
         sleep 1
@@ -49,7 +49,7 @@ describe Task do
       end
 
       scenario 'list caseworker task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['mr admin', 'able manager', 'able caseworker', 'ec caseworker'], visible: false
         tom_select_pick('able caseworker')
         sleep 1
@@ -65,19 +65,19 @@ describe Task do
       end
 
       scenario 'list all able managers and case worker of able clients' do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['able manager', 'able caseworker']
       end
 
       scenario 'list manager task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['able manager', 'able caseworker'], visible: false
         panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Upcoming Tasks') }.first }.first
         expect(panel).to have_content(upcoming_task.name)
       end
 
       scenario 'list caseworker task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['able manager', 'able caseworker'], visible: false
         tom_select_pick('able caseworker')
         sleep 1
@@ -86,7 +86,7 @@ describe Task do
       end
 
       scenario 'list able case worker task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         tom_select_pick('able caseworker')
         sleep 1
         expect(page).to have_content(able_task.name)
@@ -100,13 +100,13 @@ describe Task do
       end
 
       scenario 'display only caseworker task' do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         panel = page.all(:css, '.card').select { |p| p.all(:css, '.card-header').select { |pp| pp.text.include?('Overdue Tasks') }.first }.first
         expect(panel).to have_content(overdue_task.name)
       end
 
       scenario 'unable to use filter by user' do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).not_to have_select 'user_id'
       end
     end
@@ -118,12 +118,12 @@ describe Task do
       end
 
       scenario 'list ec managers and case worker of Active EC clients' do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['ec manager', 'ec caseworker']
       end
 
       scenario 'list ec case worker task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         tom_select_pick('ec caseworker')
         sleep 1
         expect(page).to have_content(ec_task.name)
@@ -137,12 +137,12 @@ describe Task do
       end
 
       scenario 'list fc managers and case worker of Active FC clients' do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['fc manager', 'fc caseworker']
       end
 
       scenario 'list fc case worker task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         tom_select_pick('fc caseworker')
         sleep 1
         expect(page).to have_content(fc_task.name)
@@ -156,12 +156,12 @@ describe Task do
       end
 
       scenario 'list kc managers and case worker of Active KC clients' do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['kc manager', 'kc caseworker']
       end
 
       scenario 'list kc case worker task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         tom_select_pick('kc caseworker')
         sleep 1
         expect(page).to have_content(kc_task.name)
@@ -175,12 +175,12 @@ describe Task do
       end
 
       scenario 'list managers and their subordinates' do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         expect(page).to have_select 'user_id', with_options: ['manager', 'subordinate']
       end
 
       scenario 'list subordinate task', js: true do
-        click_link 'View All Active Tasks'
+        click_page_header_action 'View All Active Tasks'
         tom_select_pick('subordinate')
         sleep 1
         expect(page).to have_content(sub_task.name)

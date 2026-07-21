@@ -1,12 +1,11 @@
+= render 'shared/page_header',
+  title: t('.title', default: 'Households'),
+  filter_target: '#family-search-form',
+  primary: ((can? :manage, Family) ? { label: t('families.index.add_new_family'), url: new_family_path } : nil),
+  secondary: [{ label: t('families.index.export_xls'), url: current_url(format: 'xls'), class: 'btn-export' }]
 .row
   .col-12
-    .float-start
-      %button.btn.btn-primary.btn-filter{"aria-expanded" => 'false', "aria-label" => t('shared.actions.filter', default: 'Toggle search filters'), "data-bs-target" => '#family-search-form', "data-bs-toggle" => 'collapse', type: 'button'}
-        = fa_icon('filter', 'aria-hidden': true)
-    .float-end
-      - if can? :manage, Family
-        = link_to "#{I18n.t('families.index.add_new_family')}", new_family_path, class: 'btn btn-primary'
-      = link_to "#{I18n.t('families.index.export_xls')}", current_url(format: 'xls'), class: 'btn btn-info btn-export'
+    = applied_filter_chips(:family_grid, scope: 'families')
 
 .row.ibox-space
   .col-12

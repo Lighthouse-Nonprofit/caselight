@@ -1,0 +1,72 @@
+// UX rung 3 — shared index page header (shared/_page_header.haml) + applied-filter chips
+// (FilterChipsHelper). Consumes caselight_theme variables (imported earlier in the manifest).
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+
+  .page-header__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .page-header__title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: $navy;
+  }
+
+  .page-header__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .page-header__search {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+
+    .form-control { width: 200px; }
+  }
+
+  .page-header__more .fa { pointer-events: none; }
+}
+
+.filter-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 0;
+
+  .filter-chips__item { display: inline-block; }
+
+  .filter-chips__chip {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: $navy;
+    background: $light-blue;
+    border: 1px solid $refresh-border;
+    border-radius: $refresh-radius-pill;
+    text-decoration: none;
+
+    &:hover,
+    &:focus {
+      background: shade-color($light-blue, 6%);
+      text-decoration: none;
+    }
+  }
+
+  .filter-chips__x { font-weight: 700; margin-left: 2px; }
+}
