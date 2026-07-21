@@ -16,6 +16,14 @@
 module SensitiveFields
   extend ActiveSupport::Concern
 
+  included do
+    # UX rung 4 — the client hub header (a view) lists the viewer's visible filled forms and
+    # break-glass affordances, so the record-aware readers are exposed to views. Guarded:
+    # the concern is also included by ActionController::API controllers (api/clients), which
+    # have no helper_method.
+    helper_method :visible_custom_field_ids_for, :break_glass_eligible? if respond_to?(:helper_method)
+  end
+
   private
 
   # Set<Integer> visible to current_user with NO record context (bulk paths). emergency_only never

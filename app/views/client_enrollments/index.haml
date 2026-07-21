@@ -1,8 +1,40 @@
+= render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
+-# UX rung 4 — merged "Programs" entry point: enrolled programs first (the old
+-# client_enrolled_programs page's scope + partials), then the enrollable/exited list below.
+- if @enrolled_program_streams.present?
+  .ibox
+    .ibox-title
+      %h5= "#{@client.en_and_local_name} - #{t('clients.client_header.enrolled_programs', default: 'Enrolled Programs')}"
+    .ibox-content
+      .table-responsive
+        %table.table.table-bordered.table-striped.table-hover.client_enrollment
+          %thead
+            %tr
+              %th.status= t('.status')
+              %th.name= t('.name')
+              %th.domain= t('.domain')
+              %th.quantity= t('.quantity')
+              %th.report= t('.report')
+              %th.manage= t('.actions')
+          %tbody
+            - @enrolled_program_streams.each do |ps|
+              %tr
+                %td.status
+                  = render 'client_enrolled_programs/status', program_stream: ps
+                %td.name
+                  = link_to ps.name, program_stream_path(ps, client: true)
+                %td.domain
+                  - ps.domains_format.each do |domain|
+                    %strong.badge.text-bg-light= domain
+                %td.quantity
+                  = ps.place_available
+                %td.report
+                  = link_to t('client_enrolled_programs.index.view', default: 'View'), report_client_client_enrolled_programs_path(@client, program_stream_id: ps)
+                %td.manage
+                  = render 'client_enrolled_programs/manage', program_stream: ps
 .ibox
   .ibox-title
     %h5= "#{@client.en_and_local_name} - #{t('.program_lists')}"
-    .ibox-tools
-      = link_to t('.back'), client_path(@client), class: 'btn btn-outline-secondary btn-back-default btn-back'
   .ibox-content
     .table-responsive
       %table.table.table-bordered.table-striped.table-hover.client_enrollment

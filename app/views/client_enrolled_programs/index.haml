@@ -1,8 +1,7 @@
+= render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
 .ibox
   .ibox-title
     %h5= "#{@client.en_and_local_name} - #{t('.program_lists')}"
-    .ibox-tools
-      = link_to t('.back'), client_path(@client), class: 'btn btn-outline-secondary btn-back-default btn-back'
   .ibox-content
     .table-responsive
       %table.table.table-bordered.table-striped.table-hover.client_enrollment

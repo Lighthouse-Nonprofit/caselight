@@ -2,6 +2,7 @@ class ClientEnrolledProgramsController < AdminController
   load_and_authorize_resource :ClientEnrollment
 
   include ClientEnrollmentConcern
+  include SensitiveFields   # UX rung 4 — the client hub header's Forms dropdown reads the visible set
   include FormBuilderAttachments
 
   def index

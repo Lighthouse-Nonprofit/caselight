@@ -151,13 +151,14 @@ describe 'Client' do
   end
 
   feature 'Delete', js: true do
-    # UX rung 2: the index delete buttons are gone — delete lives on the show page now.
+    # UX rung 2/4: delete lives in the hub header's Edit dropdown on the show page.
     let!(:client){ create(:client, users: [user]) }
     before do
       login_as(user)
       visit client_path(client)
     end
     scenario 'successfully' do
+      find('.client-hub__edit .dropdown-toggle').click
       first("a[data-method='delete'][href='#{client_path(client.reload)}']").click
       sleep 1
       expect(page).to have_content('Client has been successfully deleted')
