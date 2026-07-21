@@ -49,7 +49,7 @@ Every form carries a **sensitivity**, set at design time:
 
 ## 3 · Program streams
 
-Define the programs your organization actually runs under **Manage → Program Streams**.
+Define the programs your organization actually runs under **Manage → Programs**.
 Each stream is enrollable, has its own custom form, and supports recurring, date-stamped
 trackings.
 

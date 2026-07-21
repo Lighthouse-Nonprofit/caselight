@@ -32,7 +32,7 @@ const SHOTS = [
   ['calendar.jpg', 'admin', '/calendars', 1560, 975, {}],
   ['form-builder.jpg', 'admin', '/custom_fields/new', 1400, 1032, {}],
   ['access-review.jpg', 'admin', '/admin/access_review', 1680, 1050, {}],
-  ['enforcement.jpg', 'admin', '/enforcement_settings', 1300, 900, { fullPage: true }],
+  ['enforcement.jpg', 'admin', '/admin/enforcement_settings', 1300, 900, { fullPage: true }],
   ['manage-users.jpg', 'admin', '/admin/users', 1360, 595, {}],
   ['manage-agencies.jpg', 'admin', '/agencies', 1360, 595, {}],
   ['manage-departments.jpg', 'admin', '/departments', 1360, 595, {}],
