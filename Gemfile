@@ -159,7 +159,7 @@ gem 'connection_pool',        '~> 3.0'
 # combo. Driver stays mongo 2.x unpinned (9.0 requires >= 2.18; >= 2.21 covers server 8.0;
 # the lock already resolves the newest 2.x). No mongoid.yml changes: the app deliberately
 # carries zero Mongoid feature-flag config, so 9.0 defaults apply wholesale.
-gem 'mongoid', '~> 9.0.11'
+gem 'mongoid', '~> 9.1.0'
 
 group :development, :test do
   gem 'pry'
