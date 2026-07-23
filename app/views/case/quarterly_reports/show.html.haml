@@ -7,98 +7,27 @@
         .ibox-tools
           = link_to t('.back'), :back, {class: 'button btn btn-outline-secondary btn-back-default'}
       .ibox-content
-        %table.table.table-bordered
-          %tr
-            %td.spacing-first-col= t('.date_of_visit')
-            %td
-              %strong
-                = date_format(@quarterly_report.visit_date)
-
-          - if @quarterly_report.kinship?
-            %tr
-              %td.spacing-first-col= t('.kc_name')
-              %td
-                %strong
-                  = link_to @quarterly_report.case.client.name, client_path(@quarterly_report.case.client)
-
-          - if @quarterly_report.foster?
-            %tr
-              %td.spacing-first-col FC Name
-              %td
-                %strong
-                  = link_to @quarterly_report.case.client.name, client_path(@quarterly_report.case.client)
-          %tr
-            %td.spacing-first-col= t('.id')
-            %td
-              %strong
-                = @quarterly_report.code
-          %tr
-            %td.spacing-first-col= t('.general_health_or_appearance')
-            %td
-              %strong
-                = @quarterly_report.general_health_or_appearance
-          %tr
-            %td.spacing-first-col= t('.child_school_attendance_or_progress')
-            %td
-              %strong
-                = @quarterly_report.child_school_attendance_or_progress
-          %tr
-            %td.spacing-first-col= t('.general_appearance_of_home')
-            %td
-              %strong
-                = @quarterly_report.general_appearance_of_home
-          %tr
-            %td.spacing-first-col= t('.observations_of_drug_alchohol_abuse')
-            %td
-              %strong
-                = @quarterly_report.observations_of_drug_alchohol_abuse
-          %tr
-            %td.spacing-first-col= t('.if_yes')
-            %td
-              %strong
-                = @quarterly_report.describe_if_yes
-          %tr
-            %td.spacing-first-col= t('.describe_the_family_current_situation')
-            %td
-              %strong
-                = @quarterly_report.describe_the_family_current_situation
-          %tr
-            %td.spacing-first-col= t('.has_the_situation_changed_from_the_previous_visit')
-            %td
-              %strong
-                = @quarterly_report.has_the_situation_changed_from_the_previous_visit
-          %tr
-            %td.spacing-first-col= t('.how_did_i_encourage_the_client')
-            %td
-              %strong
-                = @quarterly_report.how_did_i_encourage_the_client
-          %tr
-            %td.spacing-first-col= t('.what_future_teachings_or_trainings_could_help_the_client')
-            %td
-              %strong
-                = @quarterly_report.what_future_teachings_or_trainings_could_help_the_client
-          %tr
-            %td.spacing-first-col= t('.what_is_my_plan_for_the_next_visit_to_the_client')
-            %td
-              %strong
-                = @quarterly_report.what_is_my_plan_for_the_next_visit_to_the_client
-          %tr
-            %td.spacing-first-col= t('.money_and_supplies_being_used_appropriately')
-            %td
-              %strong
-                = human_boolean(@quarterly_report.money_and_supplies_being_used_appropriately)
-          %tr
-            %td.spacing-first-col= t('.how_are_they_being_misused')
-            %td
-              %strong
-                = @quarterly_report.how_are_they_being_misused
-          %tr
-            %td.spacing-first-col= t('.staff_information')
-            %td
-              %strong
-                = link_to entity_name(@quarterly_report.staff_information), user_path(@quarterly_report.staff_information) if @quarterly_report.staff_information
-          %tr
-            %td.spacing-first-col= t('.spiritual_developments_with_the_child_or_family')
-            %td
-              %strong
-                = @quarterly_report.spiritual_developments_with_the_child_or_family
+        -# UX round 4 (R4-4): the report table becomes the info grid. Sentence-length labels
+        -# must not shout — natural-case + wide columns.
+        - items = []
+        - items << info_item(t('.date_of_visit'), date_format(@quarterly_report.visit_date))
+        - if @quarterly_report.kinship?
+          - items << info_item(t('.kc_name'), link_to(@quarterly_report.case.client.name, client_path(@quarterly_report.case.client)))
+        - if @quarterly_report.foster?
+          - items << info_item('FC Name', link_to(@quarterly_report.case.client.name, client_path(@quarterly_report.case.client)))
+        - items << info_item(t('.id'), @quarterly_report.code)
+        - items << info_item(t('.general_health_or_appearance'), @quarterly_report.general_health_or_appearance)
+        - items << info_item(t('.child_school_attendance_or_progress'), @quarterly_report.child_school_attendance_or_progress)
+        - items << info_item(t('.general_appearance_of_home'), @quarterly_report.general_appearance_of_home)
+        - items << info_item(t('.observations_of_drug_alchohol_abuse'), @quarterly_report.observations_of_drug_alchohol_abuse)
+        - items << info_item(t('.if_yes'), @quarterly_report.describe_if_yes)
+        - items << info_item(t('.describe_the_family_current_situation'), @quarterly_report.describe_the_family_current_situation, full: true)
+        - items << info_item(t('.has_the_situation_changed_from_the_previous_visit'), @quarterly_report.has_the_situation_changed_from_the_previous_visit)
+        - items << info_item(t('.how_did_i_encourage_the_client'), @quarterly_report.how_did_i_encourage_the_client)
+        - items << info_item(t('.what_future_teachings_or_trainings_could_help_the_client'), @quarterly_report.what_future_teachings_or_trainings_could_help_the_client)
+        - items << info_item(t('.what_is_my_plan_for_the_next_visit_to_the_client'), @quarterly_report.what_is_my_plan_for_the_next_visit_to_the_client)
+        - items << info_item(t('.money_and_supplies_being_used_appropriately'), human_boolean(@quarterly_report.money_and_supplies_being_used_appropriately))
+        - items << info_item(t('.how_are_they_being_misused'), @quarterly_report.how_are_they_being_misused)
+        - items << info_item(t('.staff_information'), (link_to(entity_name(@quarterly_report.staff_information), user_path(@quarterly_report.staff_information)) if @quarterly_report.staff_information))
+        - items << info_item(t('.spiritual_developments_with_the_child_or_family'), @quarterly_report.spiritual_developments_with_the_child_or_family)
+        = render 'shared/info_grid', items: items, variant: 'info-grid--natural-case info-grid--wide'

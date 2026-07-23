@@ -13,88 +13,35 @@
             = link_to [@client, @progress_note], method: 'delete', data: { confirm: t('.are_you_sure') }, class: "btn btn-outline btn-danger #{ability_to_delete(ProgressNote)}" do
               = fa_icon('trash')
       .ibox-content
-        .row
-          .col-12
-            %table.table.table-bordered
-              %tr
-                %td.spacing-first-col
-                  = t('.child')
-                %td
-                  %strong
-                    = @progress_note.client
-              %tr
-                %td.spacing-first-col
-                  = t('.staff')
-                %td
-                  %strong
-                    = @progress_note.user
-              %tr
-                %td.spacing-first-col
-                  = t('.progress_note_type')
-                %td
-                  %strong
-                    = @progress_note.progress_note_type
-              %tr
-                %td.spacing-first-col
-                  = t('.location')
-                %td
-                  %strong
-                    = @progress_note.location
-              %tr
-                %td.spacing-first-col
-                  = t('.other_location')
-                %td
-                  %strong
-                    = @progress_note.other_location
-              %tr
-                %td.spacing-first-col
-                  = t('.interventions')
-                %td
-                  %strong
-                    - if @progress_note.interventions.any?
-                      = @progress_note.interventions.pluck(:action).join(', ')
-              %tr
-                %td.spacing-first-col
-                  = t('.material')
-                %td
-                  %strong
-                    = @progress_note.material
-              %tr
-                %td.spacing-first-col
-                  = t('.goals_addressed')
-                %td
-                  %strong
-                    - if @progress_note.assessment_domains.any?
-                      - visible_ads = @progress_note.assessment_domains.includes(:domain).select { |ad| domain_visible?(ad) }
-                      - hidden_ad_count = @progress_note.assessment_domains.size - visible_ads.size
-                      = visible_ads.map(&:goal).join(', ')
-                      = masked_hidden_notice(hidden_ad_count)
-              %tr
-                %td.spacing-first-col
-                  = t('.response')
-                %td
-                  %strong
-                    = render_rich_text(@progress_note.response)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.additional_notes')
-                %td
-                  %strong
-                    = render_rich_text(@progress_note.additional_note)
-            - if @progress_note.attachments.any?
-              %table.table.table-bordered.attachments
+        -# UX round 4 (R4-4): the bordered table becomes the info grid; narrative rich-text +
+        -# the attachments listing render as full-width items (the attachments LIST stays a
+        -# real table — per-row download buttons, idiom 3).
+        - items = []
+        - items << info_item(t('.child'), @progress_note.client)
+        - items << info_item(t('.staff'), @progress_note.user)
+        - items << info_item(t('.progress_note_type'), @progress_note.progress_note_type)
+        - items << info_item(t('.location'), @progress_note.location)
+        - items << info_item(t('.other_location'), @progress_note.other_location)
+        - items << info_item(t('.interventions'), (@progress_note.interventions.pluck(:action).join(', ') if @progress_note.interventions.any?))
+        - items << info_item(t('.material'), @progress_note.material)
+        - goals_html = capture do
+          - if @progress_note.assessment_domains.any?
+            - visible_ads = @progress_note.assessment_domains.includes(:domain).select { |ad| domain_visible?(ad) }
+            - hidden_ad_count = @progress_note.assessment_domains.size - visible_ads.size
+            = visible_ads.map(&:goal).join(', ')
+            = masked_hidden_notice(hidden_ad_count)
+        - items << info_item(t('.goals_addressed'), goals_html.presence)
+        - items << info_item(t('.response'), render_rich_text(@progress_note.response), full: true)
+        - items << info_item(t('.additional_notes'), render_rich_text(@progress_note.additional_note), full: true)
+        - if @progress_note.attachments.any?
+          - attachments_html = capture do
+            %table.table.attachments
+              - @progress_note.attachments.each do |attachment|
                 %tr
-                  %td.text-center{ colspan: 3 }
-                    %h4= t('.attachments')
-                %tr
-                  %td.text-center
-                    %strong= t('.title')
-                  %td
-                - @progress_note.attachments.each do |attachment|
-                  %tr
-                    %td= original_filename(attachment)
-                    %td.text-center= link_to preview_or_download(attachment), authorized_download_path('attachment', attachment.id, 'file'), class: 'btn btn-info btn-sm btn-download'
+                  %td= original_filename(attachment)
+                  %td.text-center= link_to preview_or_download(attachment), authorized_download_path('attachment', attachment.id, 'file'), class: 'btn btn-info btn-sm btn-download'
+          - items << info_item(t('.attachments'), attachments_html, full: true)
+        = render 'shared/info_grid', items: items
 
       .ibox-footer
         .row

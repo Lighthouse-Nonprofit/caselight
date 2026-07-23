@@ -39,17 +39,7 @@
                           .btn.btn-outline.btn-danger
                             = fa_icon('trash')
                 .ibox-content
-                  .table-responsive
-                    %table.table.table-bordered
-                      - custom_field_property.custom_field.fields.map{|a| [a['type'], a['label']]}.each do |type, key|
-
-                        %tr
-                          %td.align-justify
-                            = key
-                          %td.align-justify
-                            - if type == 'file'
-                              = render 'shared/form_builder/list_attachment', label: key, resource: custom_field_property
-                            - else
-                              = display_custom_properties(custom_field_property.properties[key])
+                  -# UX round 4 (R4-4): field table -> the info grid (natural-case labels).
+                  = render 'shared/info_grid', items: custom_field_info_items(custom_field_property.custom_field.fields, custom_field_property), variant: 'info-grid--natural-case'
       .ibox-footer.text-center
         = paginate @custom_field_properties

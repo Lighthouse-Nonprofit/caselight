@@ -13,14 +13,5 @@
                 %i.fa.fa-trash
             = link_to t('.back'), report_client_client_enrollments_path(@client, program_stream_id: @program_stream), class: 'btn btn-back-default btn-outline-secondary form-btn margin-btn'
       .ibox-content
-        .table-responsive
-          %table.table.table-bordered
-            - @program_stream.enrollment.map{|properties| [properties['type'], properties['label']]}.each do |type, key|
-              %tr
-                %td.align-justify
-                  = key
-                %td.align-justify
-                  - if type == 'file'
-                    = render 'shared/form_builder/list_attachment', label: key, resource: @client_enrollment
-                  - else
-                    = display_custom_properties(@client_enrollment.properties[key])
+        -# UX round 4 (R4-4): field table -> the info grid (user-authored labels = natural case).
+        = render 'shared/info_grid', items: custom_field_info_items(@program_stream.enrollment, @client_enrollment), variant: 'info-grid--natural-case'
