@@ -40,7 +40,7 @@ in `ssp.md` §4 and are the operating entity's to attest, not the application's.
 | CC6.2 / CC6.3 registration / recertification | One user per staff; **AccessReview recertification report + CSV** (roles, MFA gap, disabled, caseload) | `app/controllers/access_reviews_controller.rb` |
 | CC6.1 strong auth | MFA (TOTP) + passkeys (WebAuthn) | `config/initializers/two_factor.rb`, `webauthn.rb` |
 | CC6.6 boundary protection | Security headers + CSP; force_ssl behind proxy; zero-inbound SG (inherited) | `config/application.rb`, `content_security_policy.rb`; `ssp.md` §4 |
-| CC6.7 data-in-transit / restricted movement | TLS (Caddy — planned/inherited); authorized-only file downloads; masked exports | `downloads_controller.rb`, `assets_uploads_guard.rb`; `ssp.md` SC-8 |
+| CC6.7 data-in-transit / restricted movement | TLS (Caddy — live on the pilot box / inherited); authorized-only file downloads; masked exports | `downloads_controller.rb`, `assets_uploads_guard.rb`; `ssp.md` SC-8 |
 | CC6.7 credential/secret handling | Filtered params/logs; secrets in gitignored `.env`; gitleaks CI | `filter_parameter_logging.rb`; `.gitleaks.toml` |
 | CC6.8 unauthorized software / integrity | Brakeman SAST gate; safe deserialization (no `eval`); CSP | `.github/workflows/ci.yml`; `app/classes/safe_version_value.rb` |
 
@@ -76,7 +76,8 @@ in `ssp.md` §4 and are the operating entity's to attest, not the application's.
 | P6 disclosure / P7 quality / P8 monitoring | Change audit (paper_trail) for record quality; access audit for disclosure tracking; POA&M for monitoring | `audit-logging.md`; `vulnerability-poam.md` |
 
 ## Not-yet-satisfied (gates production with real data)
-Tracked in `ssp.md` §5 + `vulnerability-poam.md`: KMS-managed encryption keys (SC-12), TLS in
-operation (CC6.7), the live client-record retention window (P4 — TBD-blocking), a named-owner incident
+Tracked in `ssp.md` §5 + `vulnerability-poam.md`: KMS-managed encryption keys (SC-12), a production
+TLS hostname (CC6.7 — TLS itself is live on the pilot box via Caddy/Let's Encrypt), the live
+client-record retention window (P4 — TBD-blocking), a named-owner incident
 plan (CC7.4), and confirmed inherited backups/WAF/network isolation. The AC-3/AC-6 enforcement flags
 ship shadow-first and are flipped per environment after an AccessReview shadow-window review.

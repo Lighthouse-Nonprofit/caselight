@@ -33,7 +33,11 @@ changes.
 5. **Migrations.** Schema changes are per-tenant: `db:migrate` + `apartment:migrate`; numbered to
    avoid collisions; verified on dev before the box.
 6. **Deploy.** The box is redeployed by rerunning the idempotent `bootstrap.sh` (build, migrate,
-   encryption backfill+verify, up). Deploys carry only reviewed, merged `main`.
+   encryption backfill+verify, client-name reencrypt, up — see `OPERATIONS.md`). Deploys carry only
+   reviewed, merged `main`. If the sync changes `bootstrap.sh` itself, the script re-execs its
+   fresh copy exactly once (`BOOTSTRAP_REEXEC`) so new deploy stages run in the deploy that
+   introduces them — this guard is load-bearing (its absence caused the 2026-07-22 incident,
+   `../incidents/2026-07-22-tier4-backfill-data-loss.md`).
 7. **Evidence integrity (drift guards).** Specs fail CI if code and the compliance docs diverge:
    `paper_trail_redaction_spec` (skip lists ⊇ encrypted attributes), `version_reify_yaml_spec`
    (YAML permitted classes), the `ENCRYPTION_TIERS` registry, `HistoryPiiFilter.scrub_keys_for`.

@@ -29,7 +29,7 @@ Two distinct audit trails exist; do not conflate them:
 
 | Trail | Store | What it records | Control role |
 |---|---|---|---|
-| **Change audit** | `paper_trail` ~> 15, Postgres `versions` table (per-tenant via Apartment) | who **changed** what (create/update/destroy of records) | pre-existing; not Phase 3 |
+| **Change audit** | `paper_trail` (17.x), Postgres `versions` table (per-tenant via Apartment) | who **changed** what (create/update/destroy of records) | pre-existing; not Phase 3 |
 | **Access / security audit** | `AccessLog` (Mongoid, shared Mongo, tenant-scoped) | who **read** sensitive records + authentication/authorization security events | **Phase 3 (this document)** |
 | **Request log** | `lograge` ~> 0.14, JSON to Rails log / stdout | one structured line per HTTP request | AU-3 content (pre-existing increment) |
 
@@ -44,9 +44,10 @@ audit.
 
 - **Record reads** of sensitive resources — `event_type: "read"`. Captured by
   the `AccessAudit` concern (`app/controllers/concerns/access_audit.rb`) on
-  successful `show` and `index` of the four sensitive controllers
+  successful `show` and `index` of the six sensitive controllers
   (`ClientsController`, `ProgressNotesController`, `AssessmentsController`,
-  `CaseNotesController`). Reads matter here because the change audit
+  `CaseNotesController`, and — since UX round 3 — `FamilyNotesController`,
+  `FamilyAlertsController`). Reads matter here because the change audit
   (`paper_trail`) only sees writes; a read of a refugee client's file is itself
   the sensitive event.
 - **Failed logins** — `event_type: "login_failure"`. Captured by the Warden
@@ -217,11 +218,11 @@ correct points.
 is caught where it actually occurs:
 
 - **`AccessAudit` concern** (`app/controllers/concerns/access_audit.rb`) —
-  `after_action` on the four sensitive controllers. Records a `read` only when
+  `after_action` on the six sensitive controllers. Records a `read` only when
   `current_user` is present **and** the response is successful (2xx), deriving
   `resource_type` from `controller_name.classify` and `resource_id` from
   `params[:id]` (it does **not** depend on a per-controller ivar name). It is
-  wired by `include AccessAudit` in those four controllers and is deliberately
+  wired by `include AccessAudit` in those six controllers and is deliberately
   **not** included in `AdminController` — that would log every admin page rather
   than scoping to sensitive-resource reads.
 - **Warden `before_failure` hook**

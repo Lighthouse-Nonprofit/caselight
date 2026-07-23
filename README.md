@@ -35,8 +35,8 @@ in 2026-07 — the **whole POAM-017 family is closed (a–g)**, finishing with t
 migration and the in-house `caselight_theme`
 ([`docs/compliance/poam-017g-verification.md`](docs/compliance/poam-017g-verification.md)):
 
-- **Ruby 4.0.5 / Rails 8.0.5** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
-  6.1 → 7.0 → 7.1 → 7.2 → 8.0), each step verified green before the next. Zeitwerk autoloading and a
+- **Ruby 4.0.5 / Rails 8.1.3** — migrated rung by rung (4.2 → 5.0 → 5.1 → 5.2 → 6.0 →
+  6.1 → 7.0 → 7.1 → 7.2 → 8.0 → 8.1), each step verified green before the next. Zeitwerk autoloading and a
   modern gem set throughout (Devise 5, Mongoid 9, ros-apartment 3.4, active_model_serializers 0.10,
   paper_trail 17, factory_bot 6, …).
 - **PostgreSQL 17** as the primary store (was 9.6), **MongoDB 8.0** for change/audit history
@@ -111,14 +111,14 @@ your fork's source accordingly.
 | Component | Version | Notes |
 |---|---|---|
 | Ruby | 4.0.5 | runs inside the Docker image (`ruby:4.0`, Debian Trixie) |
-| Rails | 8.0.5 | Rack 3 |
+| Rails | 8.1.3 | Rack 3 |
 | PostgreSQL | 17 | primary relational store (pg 1.6) |
 | MongoDB | 8.0 | change / audit history (Mongoid 9.0) |
-| Redis + Sidekiq | redis 7 / sidekiq 7.3 | background jobs |
+| Redis + Sidekiq | redis 7 / sidekiq 8.1 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
 | App server | puma 8 | behind a TLS reverse proxy (force_ssl + HSTS); replaced thin 2026-07 |
 | Asset pipeline | Sprockets 4.2 + dart-sass + ES2015+ (build-time), haml 7.2 | modernized rung-by-rung 2026-07 (POAM-017e closed) |
-| Frontend | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g closed; INSPINIA removed), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 4.7 | whole POAM-017 family closed (a–g); eval-free rule builder; **enforced nonce-based CSP** |
+| Frontend | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g closed; INSPINIA removed), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 6.7 (v4 shims) | whole POAM-017 family closed (a–g); eval-free rule builder; **enforced nonce-based CSP** |
 
 ## Quickstart
 
@@ -156,7 +156,9 @@ The app listens on `127.0.0.1:3000`. Put a TLS-terminating reverse proxy in fron
 for any non-local use. See [`Dockerfile`](Dockerfile) and
 [`docker-compose.yml`](docker-compose.yml) for the full build and service definitions, and
 [`bootstrap.sh`](bootstrap.sh) for an end-to-end deploy script (clone → build → migrate →
-tenant → seed → up); tune the `TENANT_SHORT` / `TENANT_FULL` values at the top first.
+tenant → seed → up); tune the `TENANT_SHORT` / `TENANT_FULL` values at the top first. The
+operator runbook — deploying, verifying, TLS, backups, containment — is
+[`OPERATIONS.md`](OPERATIONS.md).
 
 ## Security & authentication
 
@@ -186,7 +188,7 @@ Confidentiality · Privacy)** auditability at the application layer — the phas
   `user_id`, `tenant`, and `remote_ip`. Disabled in `test`.
 - **Access log of record reads** — an append-only, tenant-isolated `AccessLog` (MongoDB via Mongoid)
   records successful reads (`show` / `index`) of sensitive resources (Clients, Progress Notes,
-  Assessments, Case Notes) via the `AccessAudit` concern. Only identifiers (resource type/id) and a
+  Assessments, Case Notes, Household Notes, Household Alerts) via the `AccessAudit` concern. Only identifiers (resource type/id) and a
   denormalized `user_email` are stored — never record contents. Toggled by
   `config.x.access_logging_enabled` (defaults on; fails safe to on).
 - **Security events** — failed logins and account lockouts (a Warden `before_failure` hook) and

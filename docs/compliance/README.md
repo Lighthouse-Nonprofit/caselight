@@ -38,7 +38,8 @@ and documents, minors' records, health and mental-health needs, government IDs. 
   actually fails on new findings.
 
 Remaining work is the **production gate** (real client data), not application-layer controls: KMS-managed
-keys, TLS in operation, the live-record retention decision, confirmed inherited backups/WAF/network
+keys, a production TLS hostname (pilot TLS is live — Caddy/Let's Encrypt), the live-record retention
+decision, confirmed inherited backups/WAF/network
 isolation, and a named-owner incident plan. See `ssp.md` §5 + `SECURITY.md`.
 
 ## Artifacts

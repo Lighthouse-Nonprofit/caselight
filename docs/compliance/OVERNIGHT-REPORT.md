@@ -1,5 +1,9 @@
 # Overnight autonomous run — report
 
+> **ARCHIVED (2026-07-23):** point-in-time working log from the 2026-06-24 hardening loop.
+> Version/stack claims below reflect that date and are superseded by `ssp.md` §1 (the
+> authoritative stack table). Kept for provenance; not a live document.
+
 Autonomous hardening loop (cron `b58860fe`, every 2h) progress. Each session appends below.
 Morning checklist for the user is at the bottom.
 
