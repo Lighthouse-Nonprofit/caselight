@@ -7,7 +7,8 @@
           = t(".exit_#{client_case.case_type.downcase}")
 
       .modal-body
-        = simple_form_for([@client, client_case]) do |f|
+        -# locals: client:, client_case: (UX round 3 A3 — rendered from the hub header on every partition page)
+        = simple_form_for([client, client_case]) do |f|
           = f.error_notification
           .form-inputs
             .mb-3.date.case_exit_date

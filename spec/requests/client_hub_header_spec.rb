@@ -134,6 +134,30 @@ RSpec.describe 'Client hub header', type: :request do
       expect(response.body).to include('client-hub__name')
     end
 
+    # UX round 3 (A3): ONE Actions dropdown, identical on every hub page — each tab's create
+    # action is a menu item and the exit modals render with the header.
+    it 'carries every create action + the exit-case modal on a partition page' do
+      create(:case, case_type: 'FC', client: client, family: create(:family))
+      get client_case_notes_path(client)
+      expect(response).to have_http_status(:ok)
+      body = response.body
+
+      expect(body).to include('New Case Note')
+      expect(body).to include('Add Form')
+      expect(body).to include('New Assessment')
+      expect(body).to include('New Task')
+      expect(body).to include('Edit Resettlement Case')
+      expect(body.scan(/id="exit-from-case"/).size).to eq(1)
+    end
+
+    it 'renders the exit-NGO modal from the header on the cfp page (no @client ivar — the local-conversion canary)' do
+      get client_custom_field_properties_path(client, custom_field_id: standard_cf.id)
+      expect(response).to have_http_status(:ok)
+      # Hubert has no open case and no enrollments -> the Exit-From-Organization modal renders
+      expect(response.body).to include('exitFromNgo')
+      expect(response.body).to include('New Task')
+    end
+
     it 'custom_field_properties does NOT render the client header for a Family record' do
       # (no property rows needed — the page renders an empty index; the cfp factory is
       # client-shaped and its create_client_history callback breaks for Family formables)

@@ -1,6 +1,6 @@
 .row
   .col-12
-    = render 'clients/client_header', client: @client, active_tab: :overview, full_actions: true
+    = render 'clients/client_header', client: @client, active_tab: :overview
     .row
       .col-md-9
       .col-md-3
@@ -47,16 +47,7 @@
             .col-12
               %button.btn.btn-danger.mini-margin{ disabled: 'disabled', class:'agree-btn' } #{t('.reject')}
 
-    - if @client.state == 'accepted'
-      -# Modals targeted by the hub header's "Open Resettlement Case" dropdown (rendered
-      -# there with full_actions: true — the header lives above, the modals live here).
-      - if can? :manage, Case
-        - if @client.client_enrollments.active.count > 0
-          = render 'remaining_programs', client: @client
-        - else
-          = render 'exit_ngo_form', client: @client
-        - if @client.cases.exclude_referred.current.present?
-          = render 'exit_case_form', client_case: @client.cases.exclude_referred.current, exit_from_cif: true
+    -# (UX round 3 A3: the exit modals moved into _client_header — one render, every hub page.)
 .row.mini-margin
   .col-12
     .ibox
