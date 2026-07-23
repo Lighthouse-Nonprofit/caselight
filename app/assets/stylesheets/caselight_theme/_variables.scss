@@ -76,6 +76,11 @@ $progress-box-shadow:    0 0 0 rgba(0, 0, 0, 0);
 $card-border-radius: $border-radius-lg;
 $card-box-shadow:    $box-shadow-sm;
 
+// UX round 4 (R4-3): the label/value text vocabulary — info-grid labels, micro-labels,
+// value text. (Formerly refresh_polish's local $rp-label/$rp-value; promoted to the theme.)
+$cl-text-label: #6b7688;
+$cl-text-value: #2b3648;
+
 // ---- Links ------------------------------------------------------------------------------
 $link-color:       $harbor;
 $link-decoration:  none;

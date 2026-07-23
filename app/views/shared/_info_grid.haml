@@ -1,0 +1,15 @@
+-# UX round 4 (R4-3) — the app-wide label-over-value information grid (semantic dl), replacing
+-# the bordered label/value tables. locals:
+-#   items:   array of { label:, value:, full: } — build with InfoGridHelper#info_item; rich
+-#            HTML values come from `capture do ... end` in the caller
+-#   variant: optional modifier class(es) — 'info-grid--natural-case' (user-authored labels),
+-#            'info-grid--wide' (long labels/values)
+%dl.info-grid{ class: local_assigns[:variant] }
+  - Array(items).each do |item|
+    %div{ class: ['info-grid__item', ('info-grid__item--full' if item[:full])].compact }
+      %dt.info-grid__label= item[:label]
+      %dd.info-grid__value
+        - if item[:value].present?
+          = item[:value]
+        - else
+          %span.info-grid__empty{ 'aria-hidden' => 'true' } &mdash;

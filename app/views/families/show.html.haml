@@ -13,110 +13,27 @@
             .btn.btn-outline.btn-primary
               %i.fa.fa-chevron-up
       .ibox-content
-        .row.family-summary
-          .col-sm-12
-            %table.table.table-bordered
-              %tr
-                %td.spacing-first-col
-                  = t('.code')
-                %td
-                  %strong
-                    = @family.code
-              %tr
-                %td.spacing-first-col
-                  = t('.case_history')
-                %td
-                  %strong
-                    = family_case_history(@family)
-              %tr
-                %td.spacing-first-col
-                  = t('.address')
-                %td
-                  %strong
-                    = @family.address
-
-              %tr
-                %td.spacing-first-col
-                  = t('.member_count')
-                %td
-                  %strong
-                    = pluralize(@family.member_count, 'Person')
-
-              %tr
-                %td.spacing-first-col
-                  = t('.caregiver_information')
-                %td
-                  %strong
-                    = @family.caregiver_information
-
-              %tr
-                %td.spacing-first-col
-                  = t('.significant_family_member_count')
-                %td
-                  %strong
-                    = @family.significant_family_member_count
-
-              %tr
-                %td.spacing-first-col
-                  = t('.household_income')
-                %td
-                  %strong
-                    = number_to_currency @family.household_income
-
-              %tr
-                %td.spacing-first-col
-                  = "#{t('.dependable_income')}?"
-                %td
-                  %strong
-                    = human_boolean(@family.dependable_income)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.female_children_count')
-                %td
-                  %strong
-                    = @family.female_children_count.to_i
-
-              %tr
-                %td.spacing-first-col
-                  = t('.male_children_count')
-                %td
-                  %strong
-                    = @family.male_children_count.to_i
-
-              %tr
-                %td.spacing-first-col
-                  = t('.female_adult_count')
-                %td
-                  %strong
-                    = @family.female_adult_count.to_i
-
-              %tr
-                %td.spacing-first-col
-                  = t('.male_adult_count')
-                %td
-                  %strong
-                    = @family.male_adult_count.to_i
-              %tr
-                %td.spacing-first-col
-                  = t('.contract_date')
-                %td
-                  %strong
-                    = date_format(@family.contract_date)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.province')
-                %td
-                  %strong
-                    = @family.province.try(:name)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.family_type')
-                %td
-                  %strong
-                    = family_type_label(@family.family_type)
+        -# UX round 4 (R4-3): the 16-row bordered table becomes the label-over-value info
+        -# grid (label/value text unchanged — spec contract). .family-summary kept as a
+        -# greppable wrapper class.
+        .family-summary
+          - items = []
+          - items << info_item(t('.code'), @family.code)
+          - items << info_item(t('.case_history'), family_case_history(@family))
+          - items << info_item(t('.address'), @family.address)
+          - items << info_item(t('.member_count'), pluralize(@family.member_count, 'Person'))
+          - items << info_item(t('.caregiver_information'), @family.caregiver_information)
+          - items << info_item(t('.significant_family_member_count'), @family.significant_family_member_count)
+          - items << info_item(t('.household_income'), number_to_currency(@family.household_income))
+          - items << info_item("#{t('.dependable_income')}?", human_boolean(@family.dependable_income))
+          - items << info_item(t('.female_children_count'), @family.female_children_count.to_i)
+          - items << info_item(t('.male_children_count'), @family.male_children_count.to_i)
+          - items << info_item(t('.female_adult_count'), @family.female_adult_count.to_i)
+          - items << info_item(t('.male_adult_count'), @family.male_adult_count.to_i)
+          - items << info_item(t('.contract_date'), date_format(@family.contract_date))
+          - items << info_item(t('.province'), @family.province.try(:name))
+          - items << info_item(t('.family_type'), family_type_label(@family.family_type))
+          = render 'shared/info_grid', items: items
 .row
   .col-12.clients
     .ibox
