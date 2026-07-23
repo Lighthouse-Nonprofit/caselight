@@ -25,10 +25,18 @@ RSpec.describe 'encryption backfill + verify logic', type: :model do
 
   # ---- the rake's primitives, inlined so the spec proves the real logic ----
 
-  # Same write the rake's encrypt_record! performs per row.
+  # Same write the rake's encrypt_record! performs per row. read_attribute, NOT public_send:
+  # a reader override (Client's Tier-4 ignore_case names prefer the nil-until-reencrypt
+  # original_* sidecar) must never leak into what gets written back. And a column that reads
+  # nil while the stored value is non-NULL is a failed read, not a nil value — skip it rather
+  # than overwrite ciphertext with NULL (2026-07-22 pilot-box incident).
   def backfill_row(record, columns)
-    attrs = columns.each_with_object({}) { |c, h| h[c] = record.public_send(c) }
-    record.update_columns(attrs)
+    attrs = columns.each_with_object({}) do |c, h|
+      value = record.read_attribute(c)
+      next if value.nil? && !record.read_attribute_before_type_cast(c).nil?
+      h[c] = value
+    end
+    record.update_columns(attrs) if attrs.any?
   end
 
   def raw_value(model, id, column)
@@ -125,6 +133,71 @@ RSpec.describe 'encryption backfill + verify logic', type: :model do
       expect(ciphertext?(Client, :background, second_raw)).to be(true)
       # Non-deterministic => ciphertext differs each write, but the value round-trips.
       expect(Client.find(client.id).background).to eq('Arrived 2023 via refugee resettlement.')
+    end
+  end
+
+  # 2026-07-22 pilot-box incident: the Tier-4 backfill ran on rows whose ignore_case original_*
+  # sidecars were still NULL (reencrypt_client_names hadn't run). Reading via public_send went
+  # through the ignore_case reader override -> nil sidecar -> update_columns wrote NULL over
+  # every name ciphertext. These examples pin the two defenses: read the COLUMN, and never
+  # replace a non-NULL stored value with NULL.
+  describe 'Tier-4 regression: backfill on a pre-reencrypt row must not destroy names' do
+    # Mirrors ENCRYPTION_TIERS['4'] (registry contents are guarded by encryption_registry_spec).
+    TIER4 = %i[given_name family_name local_given_name local_family_name
+               original_given_name original_family_name
+               original_local_given_name original_local_family_name].freeze
+
+    def nil_sidecars!(client)
+      # Simulate a legacy row the reencrypt task hasn't reached: main columns encrypted,
+      # original_* sidecars NULL. (update_columns(nil) => NULL; no type round-trip needed.)
+      client.update_columns(
+        original_given_name: nil, original_family_name: nil,
+        original_local_given_name: nil, original_local_family_name: nil
+      )
+    end
+
+    it 'preserves the name columns even though the model reader blanks (the incident repro)' do
+      client = create(:client, given_name: 'Yusuf', family_name: 'Hassan')
+      nil_sidecars!(client)
+
+      record = Client.find(client.id)
+      expect(record.given_name).to be_nil                                # the reader override trap
+      expect(record.read_attribute(:given_name)).to be_present           # the data is still there
+
+      backfill_row(record, TIER4)
+
+      survivor = Client.find(client.id)
+      expect(survivor.read_attribute(:given_name)).to be_present
+      expect(survivor.read_attribute(:given_name)).to eq('yusuf')        # ignore_case stores downcased
+      expect(survivor.read_attribute(:family_name)).to eq('hassan')
+      expect(raw_value(Client, client.id, :given_name)).not_to be_nil
+    end
+
+    it 'refuses to overwrite a non-NULL stored value when the column reads nil' do
+      client = create(:client, given_name: 'Amina', family_name: 'Hassan')
+      raw_before = raw_value(Client, client.id, :given_name)
+      expect(raw_before).not_to be_nil
+
+      record = Client.find(client.id)
+      allow(record).to receive(:read_attribute).and_wrap_original do |m, *args|
+        args.first.to_s == 'given_name' ? nil : m.call(*args)
+      end
+
+      backfill_row(record, TIER4)
+
+      expect(raw_value(Client, client.id, :given_name)).not_to be_nil
+      expect(Client.find(client.id).read_attribute(:given_name)).to eq('amina')
+    end
+
+    it 'the rake itself reads via read_attribute with the nil-guard (drift guard vs this spec)' do
+      src = File.read(Rails.root.join('lib/tasks/encryption.rake'))
+      helper = src[/def encrypt_record!.*?^  end/m]
+      expect(helper).to include('read_attribute'), 'encrypt_record! must read the column, not the reader'
+      expect(helper).not_to include('public_send')
+      expect(helper).to include('read_attribute_before_type_cast'), 'encrypt_record! lost its nil-guard'
+
+      reencrypt = src[/task reencrypt_client_names:.*?^  end/m]
+      expect(reencrypt).to include('read_attribute_before_type_cast'), 'reencrypt_client_names lost its nil-guard'
     end
   end
 
