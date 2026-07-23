@@ -29,10 +29,16 @@ $light:     #f3f3f4;
 $dark:      $cl-nav-bg;
 
 // ---- Typography -------------------------------------------------------------------------
-// Open Sans is self-hosted (faces declared in _root.scss); broad system fallback for FOUT.
+// Open Sans (body/tables/forms) + Manrope (display: h1–h5, titles, counts) — both
+// self-hosted (faces declared in _root.scss); broad system fallback for FOUT.
 $font-family-sans-serif: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
   'Helvetica Neue', Helvetica, Arial, sans-serif;
 $font-family-base: $font-family-sans-serif;
+// UX round 4: the geometric display family. BS5's %heading emits $headings-font-family, so
+// modal titles / card headings inherit it without per-component rules.
+$font-family-display: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  'Helvetica Neue', Helvetica, Arial, sans-serif;
+$headings-font-family: $font-family-display;
 // THE whole-app density lever (plan F2): 13px base to match INSPINIA's information density.
 $font-size-base:      .8125rem;
 $body-color:          #333333;

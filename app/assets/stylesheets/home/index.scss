@@ -45,7 +45,11 @@
   }
 
   p.heading {
-    font-size: 30px;
+    // UX round 4: the dashboard greeting joins the display family.
+    font-family: $font-family-display;
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
     display: inline;
   }
 

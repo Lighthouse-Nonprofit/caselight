@@ -94,7 +94,7 @@ ul.household-members {
   border: 1px solid $rp-hairline;
   border-radius: 999px;
   color: $lazur;
-  font-weight: 500;
+  font-weight: 600; // UX round 4: 500 had no woff2 on disk (faux weight); 600 is real
   line-height: 1.4;
   text-decoration: none;
   transition: background-color .12s ease, border-color .12s ease;

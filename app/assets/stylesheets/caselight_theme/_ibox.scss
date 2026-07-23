@@ -47,7 +47,7 @@
     display: inline-block;
     float: left;
     max-width: 100%;
-    font-size: 14px;
+    font-size: .875rem; // UX round 4: rem hygiene (same optical size; family = Manrope now)
     font-weight: 600;
     letter-spacing: 0.01em;
     overflow: hidden;
@@ -74,8 +74,10 @@
   border-bottom: none;
 
   h3 {
-    font-weight: 300;
-    font-size: 24px;
+    // UX round 4: was the app's only 300-weight text (a faux-light INSPINIA holdover);
+    // now speaks the display scale like every other heading.
+    font-weight: 600;
+    font-size: 1.25rem;
   }
 }
 
