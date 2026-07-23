@@ -38,6 +38,13 @@
 :root {
   --cl-amber: #E8A33D;
   --cl-navy: #1F3A5F;
+
+  // UX round 3 (D5/R14) — the motion vocabulary. One ease, three durations; everything in
+  // _motion.scss (and future motion) speaks these so the app moves as one system.
+  --cl-ease: cubic-bezier(0.2, 0, 0, 1);
+  --cl-dur-fast: 120ms;  // color / border / focus
+  --cl-dur-base: 200ms;  // elevation, collapse, dropdowns
+  --cl-dur-slow: 320ms;  // page-enter
 }
 
 // ---- Body base. Bootstrap already sets font-size (.8125rem / 13px) and line-height;
