@@ -499,7 +499,11 @@ describe 'Client' do
           login_as(admin)
           visit client_path(accepted_client)
         end
-        it { expect(page).to have_link(nil, href: edit_client_case_path(ec_case.client, ec_case)) }
+        # UX round 3 (A2): "Edit Resettlement Case" lives in the header Actions dropdown and
+        # targets the CURRENT (most recent active) case — the KC here, not the older EC (the
+        # per-case-type card stack with an edit button per case is gone).
+        it { expect(page).to have_link(nil, href: edit_client_case_path(accepted_client, kc_case)) }
+        it { expect(page).not_to have_link(nil, href: edit_client_case_path(accepted_client, ec_case)) }
       end
     end
   end
