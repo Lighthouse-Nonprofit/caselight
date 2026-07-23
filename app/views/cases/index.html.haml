@@ -24,76 +24,18 @@
                             .btn.btn-outline.btn-success
                               = fa_icon('pencil')
                 .ibox-content
-                  %table.table.table-bordered
-                    / %tr
-                    /   %td.spacing-first-col.border-right
-                    /     = t('.exit_status')
-                    /   %td
-                    /     %strong
-                    /       = case_history.status
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.exit_note')
-                      %td
-                        %strong
-                          = case_history.exit_note
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.start_date')
-                      %td
-                        %strong
-                          = case_history.start_date.strftime('%B %d, %Y') if case_history.start_date
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.carer_names')
-                      %td
-                        %strong
-                          = case_history.carer_names
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.carer_address')
-                      %td
-                        %strong
-                          = case_history.carer_address
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.province')
-                      %td
-                        %strong
-                          = case_history.province.name if case_history.province
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.carer_phone_number')
-                      %td
-                        %strong
-                          = case_history.carer_phone_number.phony_formatted(normalize: :KH, format: :international) if case_history.carer_phone_number
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = "#{t('.support_amount')}"
-                      %td
-                        %strong
-                          = number_to_currency(case_history.support_amount)
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.support_note')
-                      %td
-                        %strong
-                          = case_history.support_note
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.ongoing_partner')
-                      %td
-                        %strong
-                          = partner case_history.partner if case_history.partner
-                    %tr
-                      %td.spacing-first-col.border-right
-                        = t('.family')
-                      %td
-                        %strong
-                          = family case_history.family if case_history.family
-                    %tr.border-bottom
-                      %td.spacing-first-col.border-right 
-                        = t('.family_preservation')
-                      %td
-                        %strong
-                          = human_boolean(case_history.family_preservation)
+                  -# UX round 4 (R4-4): per-history bordered table -> the info grid
+                  -# (the .border-right label-cell variant dies with it).
+                  - items = []
+                  - items << info_item(t('.exit_note'), case_history.exit_note)
+                  - items << info_item(t('.start_date'), (case_history.start_date.strftime('%B %d, %Y') if case_history.start_date))
+                  - items << info_item(t('.carer_names'), case_history.carer_names)
+                  - items << info_item(t('.carer_address'), case_history.carer_address)
+                  - items << info_item(t('.province'), (case_history.province.name if case_history.province))
+                  - items << info_item(t('.carer_phone_number'), (case_history.carer_phone_number.phony_formatted(normalize: :KH, format: :international) if case_history.carer_phone_number))
+                  - items << info_item(t('.support_amount'), number_to_currency(case_history.support_amount))
+                  - items << info_item(t('.support_note'), case_history.support_note)
+                  - items << info_item(t('.ongoing_partner'), (partner(case_history.partner) if case_history.partner))
+                  - items << info_item(t('.family'), (family(case_history.family) if case_history.family))
+                  - items << info_item(t('.family_preservation'), human_boolean(case_history.family_preservation))
+                  = render 'shared/info_grid', items: items

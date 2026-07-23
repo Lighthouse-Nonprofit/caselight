@@ -29,14 +29,5 @@
                           .btn.btn-danger.btn-outline
                             = fa_icon('trash')
                   .ibox-content
-                    .table-responsive
-                      %table.table.table-bordered
-                        - tracking_report(enrollment_tracking).map{|field| [field['type'], field['label']]}.each do |type, key|
-                          %tr
-                            %td.align-justify
-                              = key
-                            %td.align-justify
-                              - if type == 'file'
-                                = render 'shared/form_builder/list_attachment', label: key, resource: enrollment_tracking
-                              - else
-                                = display_custom_properties(enrollment_tracking.properties[key])
+                    -# UX round 4 (R4-4): field table -> the info grid (natural-case labels).
+                    = render 'shared/info_grid', items: custom_field_info_items(tracking_report(enrollment_tracking), enrollment_tracking), variant: 'info-grid--natural-case'

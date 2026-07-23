@@ -29,66 +29,20 @@
               = remove_link(@user, {user_case: @user.cases_count}, 'btn-md')
 
       .ibox-content
-        .row.user-summary
-          .col-sm-12
-            %table.table.table-bordered
-              %tr
-                %td.spacing-first-col
-                  = t('.job_title')
-                %td
-                  %strong
-                    = @user.job_title
-              %tr
-                %td.spacing-first-col
-                  = t('.department')
-                %td
-                  %strong
-                    = @user.department.try(:name)
-              %tr
-                %td.spacing-first-col
-                  = t('.manager')
-                %td
-                  %strong
-                    = @user.manager.try(:name)
-              %tr
-                %td.spacing-first-col
-                  = t('.mobile')
-                %td
-                  %strong
-                    = "#{@user.mobile.phony_formatted(normalize: :KH, format: :international)}" if @user.mobile
-              %tr
-                %td.spacing-first-col
-                  = t('.email')
-                %td
-                  %strong
-                    - object_emails = @user.email.split(%r{;\s*}) if @user.email
-                    - if object_emails
-                      - object_emails.each do |object_email|
-                        = mail_to object_email
-
-              %tr
-                %td.spacing-first-col
-                  = t('.date_of_birth')
-                %td
-                  %strong
-                    = date_format(@user.date_of_birth)
-              %tr
-                %td.spacing-first-col
-                  = t('.start_date')
-                %td
-                  %strong
-                    = date_format(@user.start_date)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.province')
-                %td
-                  %strong
-                    = @user.province.try(:name)
-              %tr
-                %td.spacing-first-col
-                  = t('.pin_number')
-                %td
-                  %strong
-                    = @user.pin_number
+        -# UX round 4 (R4-4): the bordered table becomes the info grid (label text unchanged).
+        .user-summary
+          - items = []
+          - items << info_item(t('.job_title'), @user.job_title)
+          - items << info_item(t('.department'), @user.department.try(:name))
+          - items << info_item(t('.manager'), @user.manager.try(:name))
+          - items << info_item(t('.mobile'), (@user.mobile.phony_formatted(normalize: :KH, format: :international) if @user.mobile))
+          - emails_html = capture do
+            - (@user.email ? @user.email.split(%r{;\s*}) : []).each do |object_email|
+              = mail_to object_email
+          - items << info_item(t('.email'), emails_html.presence)
+          - items << info_item(t('.date_of_birth'), date_format(@user.date_of_birth))
+          - items << info_item(t('.start_date'), date_format(@user.start_date))
+          - items << info_item(t('.province'), @user.province.try(:name))
+          - items << info_item(t('.pin_number'), @user.pin_number)
+          = render 'shared/info_grid', items: items
 = render 'clients'

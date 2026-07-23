@@ -17,14 +17,5 @@
             .btn.btn-outline-secondary.btn-back-default
               = t('.back')
       .ibox-content
-        .table-responsive
-          %table.table.table-bordered
-            - @client_enrollment_tracking.tracking.fields.map{|field| [field['type'], field['label']]}.each do |type, key|
-              %tr
-                %td.align-justify
-                  = key
-                %td.align-justify
-                  - if type == 'file'
-                    = render 'shared/form_builder/list_attachment', label: key, resource: @client_enrollment_tracking
-                  - else
-                    = display_custom_properties(@client_enrollment_tracking.properties[key])
+        -# UX round 4 (R4-4): field table -> the info grid (user-authored labels = natural case).
+        = render 'shared/info_grid', items: custom_field_info_items(@client_enrollment_tracking.tracking.fields, @client_enrollment_tracking), variant: 'info-grid--natural-case'
