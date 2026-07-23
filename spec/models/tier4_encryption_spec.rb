@@ -6,10 +6,11 @@ require 'rails_helper'
 # mirroring the Tier 3 staff-name approach: EXACT equality lookup (where(given_name: 'Maria')) still
 # works; iLIKE substring + ORDER BY over ciphertext do NOT.
 #
-# NO downcase => the match is exact and CASE-SENSITIVE ('MARIA' does not match 'Maria'), but the stored
-# (and therefore displayed) value keeps its original casing. Substring name search (the old iLIKE
-# '%value%') downgrades to whole-name exact match — the documented trade-off the locked decision accepted
-# when prefix lookup proved impossible over an HMAC and blind_index was declined.
+# UX round 3 (C1) — REQUIREMENT CHANGE: + ignore_case. The ciphertext is computed over the DOWNCASED
+# value, so equality match is now case-INSENSITIVE ('MARIA' finds 'Maria') while the display casing is
+# preserved in the original_* sidecar columns. Substring search remains impossible (whole-token equality
+# only — blind_index stays declined). Rows written under the old case-sensitive scheme keep matching via
+# `previous: [{deterministic: true}]` until `rake encryption:reencrypt_client_names` rewrites them.
 #
 # Runs in tenant 'app' (spec_helper switches there). Client saves write a ClientHistory doc to Mongo via
 # after_save :create_client_history; DatabaseCleaner is active_record-only, so we clean ClientHistory
@@ -75,10 +76,10 @@ RSpec.describe 'Tier 4 client-name deterministic encryption at rest (SC-28)', ty
     end
   end
 
-  describe 'equality lookup (exact, case-sensitive)' do
+  describe 'equality lookup (whole-token, case-insensitive since C1 ignore_case)' do
     after { ClientHistory.delete_all }
 
-    it 'finds a client by exact name and NOT by a case-variant (deterministic, no downcase) or a substring' do
+    it 'finds a client by name in ANY casing but never by substring — and display casing survives' do
       match = create(:client, given_name: 'Maria', family_name: 'Gonzalez',
                               local_given_name: 'Mariam', local_family_name: 'Gonzales')
       other = create(:client, given_name: 'Bao',   family_name: 'Tran')
@@ -89,10 +90,12 @@ RSpec.describe 'Tier 4 client-name deterministic encryption at rest (SC-28)', ty
       expect(Client.where(local_given_name: 'Mariam')).to include(match)
       expect(Client.where(local_family_name: 'Gonzales')).to include(match)
 
-      # CASE-SENSITIVE: a differently-cased query does not match (no downcase normalization).
-      expect(Client.where(given_name: 'MARIA')).not_to include(match)
-      expect(Client.where(family_name: 'gonzalez')).not_to include(match)
-      # No substring: a prefix of the name does not match (exact equality only).
+      # C1 REQUIREMENT CHANGE: case-INSENSITIVE equality (ignore_case downcases the ciphertext input).
+      expect(Client.where(given_name: 'MARIA')).to include(match)
+      expect(Client.where(family_name: 'gonzalez')).to include(match)
+      # display casing preserved (the original_* sidecar, not the downcased match value)
+      expect(Client.find(match.id).given_name).to eq('Maria')
+      # No substring: a prefix of the name does not match (whole-token equality only).
       expect(Client.where(given_name: 'Mar')).to be_empty
     end
   end
@@ -100,7 +103,7 @@ RSpec.describe 'Tier 4 client-name deterministic encryption at rest (SC-28)', ty
   describe 'rewritten *_like scopes (deterministic equality replaces iLIKE substring)' do
     after { ClientHistory.delete_all }
 
-    it 'given/family/local_given/local_family _like match by exact (case-sensitive) equality, not substring' do
+    it 'given/family/local_given/local_family _like match by whole-token, case-insensitive equality' do
       match = create(:client, given_name: 'Maria', family_name: 'Gonzalez',
                               local_given_name: 'Mariam', local_family_name: 'Gonzales')
       create(:client, given_name: 'Bao', family_name: 'Tran')
@@ -109,8 +112,71 @@ RSpec.describe 'Tier 4 client-name deterministic encryption at rest (SC-28)', ty
       expect(Client.family_name_like('Gonzalez')).to include(match)
       expect(Client.local_given_name_like('Mariam')).to include(match)
       expect(Client.local_family_name_like('Gonzales')).to include(match)
-      expect(Client.given_name_like('MARIA')).to be_empty   # case-sensitive
-      expect(Client.given_name_like('Mar')).to be_empty      # no substring
+      expect(Client.given_name_like('MARIA')).to include(match) # C1: case-insensitive now
+      expect(Client.given_name_like('Mar')).to be_empty          # still no substring
+    end
+  end
+
+  describe 'Client.quick_name_search (C1/R13 — the header quick search)' do
+    after { ClientHistory.delete_all }
+
+    let!(:maria) do
+      create(:client, given_name: 'Maria', family_name: 'Gonzalez',
+                      local_given_name: 'Mariam', local_family_name: 'Gonzales')
+    end
+    let!(:bao) { create(:client, given_name: 'Bao', family_name: 'Tran') }
+
+    it 'matches a single token against ANY name column, case-insensitively' do
+      expect(Client.quick_name_search('Maria')).to include(maria)
+      expect(Client.quick_name_search('gonzalez')).to include(maria)  # last name alone
+      expect(Client.quick_name_search('maria')).to include(maria)     # case-insensitive
+      expect(Client.quick_name_search('Mariam')).to include(maria)    # local given
+      expect(Client.quick_name_search('Maria')).not_to include(bao)
+    end
+
+    it 'matches "First Last", the swap, and normalizes whitespace' do
+      expect(Client.quick_name_search('Maria Gonzalez')).to include(maria)
+      expect(Client.quick_name_search('Gonzalez Maria')).to include(maria)
+      expect(Client.quick_name_search('  maria   gonzalez ')).to include(maria)
+      expect(Client.quick_name_search('Maria Tran')).not_to include(maria)
+    end
+
+    it 'returns none for blank input' do
+      expect(Client.quick_name_search('')).to be_empty
+      expect(Client.quick_name_search('   ')).to be_empty
+    end
+  end
+
+  describe 'previous-scheme compatibility (the pre-reencrypt window)' do
+    after { ClientHistory.delete_all }
+
+    it 'legacy rows: queries match via previous:, the reader BLANKS until the reencrypt rake rewrites them' do
+      client = create(:client, given_name: 'Placeholder')
+      # Serialize 'Solara' under the PREVIOUS (deterministic, no ignore_case) scheme and raw-write it
+      # with a NULL original_* sidecar — exactly a row the reencrypt rake has not reached yet.
+      old_type = Client.type_for_attribute(:given_name).previous_types.first
+      expect(old_type).to be_present, 'expected a previous: scheme on given_name'
+      old_ciphertext = old_type.serialize('Solara')
+      Client.connection.update(
+        "UPDATE clients SET given_name = #{Client.connection.quote(old_ciphertext)}, " \
+        "original_given_name = NULL WHERE id = #{client.id}"
+      )
+
+      # extend_queries probes the previous scheme: exact-case equality still finds the row
+      expect(Client.where(given_name: 'Solara')).to include(client)
+      # ...but the ignore_case READER prefers the (empty) sidecar for encrypted rows — the
+      # documented pre-reencrypt window behavior, which is WHY the rake runs inside the deploy
+      expect(Client.find(client.id).given_name).to be_nil
+
+      # the rake's rewrite: read_attribute (bypasses the reader override; decrypts via
+      # previous scheme) -> update_columns of the column + sidecar under the CURRENT scheme
+      legacy = Client.find(client.id)
+      value  = legacy.read_attribute(:given_name)
+      expect(value).to eq('Solara')
+      legacy.update_columns(given_name: value, original_given_name: value)
+
+      expect(Client.find(client.id).given_name).to eq('Solara')       # display restored
+      expect(Client.where(given_name: 'SOLARA')).to include(client)   # now case-insensitive too
     end
   end
 
@@ -217,12 +283,12 @@ RSpec.describe 'Tier 4 client-name deterministic encryption at rest (SC-28)', ty
       expect(result.count).to eq(1)
     end
 
-    it 'equality on a name is case-sensitive (deterministic, no downcase) — a mis-cased value matches nothing' do
-      create(:client, given_name: 'Solara', family_name: 'Quint')
+    it 'equality on a name is case-INSENSITIVE since C1 ignore_case — a mis-cased value still matches' do
+      match = create(:client, given_name: 'Solara', family_name: 'Quint')
       rules = { 'condition' => 'AND',
                 'rules' => [{ 'field' => 'given_name', 'operator' => 'equal', 'value' => 'SOLARA' }] }
       result = AdvancedSearches::ClientAdvancedSearch.new(rules, Client.all).filter
-      expect(result).to be_empty
+      expect(result).to include(match)
     end
   end
 
@@ -234,12 +300,12 @@ RSpec.describe 'Tier 4 client-name deterministic encryption at rest (SC-28)', ty
       expect(filter_names).to include(:given_name, :family_name)
     end
 
-    it 'the given_name filter matches by exact (case-sensitive) equality, not substring' do
+    it 'the given_name filter matches by whole-token, case-insensitive equality (C1), not substring' do
       target = create(:client, given_name: 'Solara', family_name: 'Quint')
       create(:client, given_name: 'Other', family_name: 'Name')
       expect(ClientGrid.new(given_name: 'Solara').assets).to include(target)
-      expect(ClientGrid.new(given_name: 'solara').assets).not_to include(target) # case-sensitive
-      expect(ClientGrid.new(given_name: 'Sol').assets).not_to include(target)    # no substring
+      expect(ClientGrid.new(given_name: 'solara').assets).to include(target)  # C1: case-insensitive
+      expect(ClientGrid.new(given_name: 'Sol').assets).not_to include(target) # still no substring
     end
 
     it 'no longer ORDER BYs the encrypted name columns but keeps them as display columns' do

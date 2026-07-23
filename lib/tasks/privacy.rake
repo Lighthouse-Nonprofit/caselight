@@ -26,10 +26,19 @@ namespace :privacy do
     Apartment::Tenant.switch(tenant) do
       client = Client.friendly.find(ident)
 
+      # UX round 3 (C1): the four ignore_case name columns store the DOWNCASED match value —
+      # attributes[] would export "maria". Overlay the readers (they return the original_*
+      # display casing) and drop the internal sidecar columns from the artifact.
+      client_attrs = client.attributes
+      %w[given_name family_name local_given_name local_family_name].each do |col|
+        client_attrs[col] = client.public_send(col)
+        client_attrs.delete("original_#{col}")
+      end
+
       export = {
         "exported_at"  => Time.current.iso8601,
         "tenant"       => tenant,
-        "client"       => client.attributes,
+        "client"       => client_attrs,
         "cases"        => client.cases.map(&:attributes),
         "families"     => client.families.map(&:attributes),
         "enrollments"  => client.client_enrollments.map do |ce|
