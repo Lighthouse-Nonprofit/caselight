@@ -93,7 +93,10 @@
 
 // ---- Empty-state utility (pairs with the D2 collapsed-empty sections) -------------------
 .empty-state {
-  padding: 2rem 1rem;
+  // UX round 4 (R4-5): calmer — more air, constrained line length, centered.
+  max-width: 36rem;
+  margin-inline: auto;
+  padding: 2.5rem 1rem;
   text-align: center;
   color: $text-muted;
 }

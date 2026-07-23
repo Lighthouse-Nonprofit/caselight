@@ -53,6 +53,24 @@
     display: inline;
   }
 
+  // UX round 4 (R4-5): stat-tile counts read as display numbers — stable digit widths,
+  // tight tracking; tile captions get the micro-label treatment.
+  .ibox-content h1,
+  .ibox-content h2 {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .ibox-content small.text-muted {
+    display: inline-block;
+    margin-top: 2px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: $cl-text-label;
+  }
+
   @media screen and (min-width: 992px) and (max-width: 1013px) {
     .box-escaper {
       font-size: 2vw;

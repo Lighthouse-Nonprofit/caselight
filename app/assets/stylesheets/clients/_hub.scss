@@ -35,10 +35,13 @@
   }
 
   .client-hub__meta {
+    // UX round 4 (R4-5): the meta strip speaks the label vocabulary — a quiet line under
+    // the display-size record name.
     flex-basis: 100%;
-    margin: 2px 0 0;
-    font-size: 13px;
-    color: #6b7280;
+    margin: 3px 0 0;
+    font-size: .75rem;
+    color: $cl-text-label;
+    letter-spacing: .01em;
   }
 
   .client-hub__sep { margin: 0 4px; color: #b6bcc4; }
