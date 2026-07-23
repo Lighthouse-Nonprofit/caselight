@@ -10,6 +10,7 @@ module ClientHubHelper
     'leave_enrolled_programs'          => :programs,
     'client_enrollment_trackings'      => :programs,
     'client_enrolled_program_trackings' => :programs,
+    'forms'                            => :forms,
     'custom_field_properties'          => :forms,
     'case_notes'                       => :case_notes,
     'assessments'                      => :assessments,

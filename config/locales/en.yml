@@ -2323,6 +2323,22 @@ en:
         edit: Edit
       update:
         successfully_updated: Custom Form has been successfully updated.
+  forms:
+    index:
+      filled_forms: Forms
+      form: Form
+      entries: Entries
+      latest_entry: Latest entry
+      actions: Actions
+      view_entries: View entries
+      add_entry: Add entry
+      available_forms: Available forms
+      add_form: Add form
+      no_forms: No forms filled yet.
+      no_available_forms: Every available form has been started.
+      locked: "—"
+      locked_hint: "— access requires a logged reason, 1 hour"
+      unlock: Request access
   government_reports:
     create:
       successfully_created: Government Report has been successfully created.

@@ -180,6 +180,8 @@ Rails.application.routes.draw do
     end
 
     resources :custom_field_properties
+    # UX round 3 (A1) — the merged Forms partition page (filled + available custom forms).
+    resources :forms, only: [:index]
     # resources :government_reports
     resources :assessments do
       # Phase 5.3 — authenticated, sensitivity-gated attachment download (replaces the guessable

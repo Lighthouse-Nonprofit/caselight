@@ -6,8 +6,10 @@ require 'rails_helper'
 # clients#show AND every client partition page, replacing the old show-page button strip and
 # the partitions' bare Back links. Contracts:
 #   * header + tabs on show and each partition, for admin and worker alike
-#   * the Forms dropdown lists ONLY the viewer's visible filled forms (Phase-5.3 record-aware
-#     set — emergency-only titles never appear for a non-elevated viewer)
+#   * UX round 3 (A1): the Forms tab links to the forms#index partition page (the Overview
+#     Forms card and its anchor are gone) and renders even at zero filled forms; form TITLES
+#     no longer appear on show at all (they live on the Forms page — see
+#     client_forms_page_spec.rb for the visibility contracts there)
 #   * tabs render only for accepted clients (pre-existing gating)
 #   * the polymorphic custom_field_properties page renders the header ONLY for Client records
 RSpec.describe 'Client hub header', type: :request do
@@ -55,29 +57,37 @@ RSpec.describe 'Client hub header', type: :request do
       expect(body).to include(client_case_notes_path(client))
       expect(body).to include(client_assessments_path(client))
       expect(body).to include(client_tasks_path(client))
+      # UX round 3 (A1): the Forms tab is a real partition link, not an anchor
+      expect(body).to include(client_forms_path(client))
+      expect(body).not_to include("#{client_path(client)}#client-forms")
       # Edit dropdown carries edit + delete (one canonical spot)
       expect(body).to include(edit_client_path(client))
       expect(body).to match(/data-method=["']delete["']/)
-      # admin sees every filled form title in the Forms dropdown
-      expect(body).to include('HubSpec Intake')
-      expect(body).to include('HubSpec Emergency Whereabouts')
+      # A1: form titles moved off the show page with the Forms card
+      expect(body).not_to include('HubSpec Intake')
+      expect(body).not_to include('HubSpec Emergency Whereabouts')
     end
 
-    it 'omits emergency-only form titles from the Forms dropdown for a non-elevated worker' do
+    it 'shows no form titles or values on show for a non-elevated worker (card gone)' do
       sign_in_as(worker)
       get client_path(client)
       expect(response).to have_http_status(:ok)
       body = response.body
 
       expect(body).to include('client-hub__tabs')
-      expect(body).to include('HubSpec Intake')
-      # the emergency title may legitimately appear via the break-glass affordance (plain
-      # links in the show-body Emergency-forms dropdown) — but never as a hub Forms
-      # dropdown-item (link_to renders class before href)
-      emergency_cfp_path = client_custom_field_properties_path(client, custom_field_id: emergency_cf.id)
-      expect(body).not_to match(/class="dropdown-item"[^>]*href="[^"]*#{Regexp.escape(emergency_cfp_path)}/)
+      expect(body).to include(client_forms_path(client))
+      expect(body).not_to include('HubSpec Intake')
+      expect(body).not_to include('HubSpec Emergency Whereabouts')
       # and the sentinel VALUE never reaches this viewer's page
       expect(body).not_to include('EMERGENCY_HUB_SENTINEL')
+    end
+
+    it 'renders the Forms tab even for a client with zero filled forms' do
+      bare_client = create(:client, given_name: 'Formless', family_name: 'Fresh', state: 'accepted')
+      sign_in_as(admin)
+      get client_path(bare_client)
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(client_forms_path(bare_client))
     end
 
     it 'renders the header without tabs for a not-yet-accepted client' do

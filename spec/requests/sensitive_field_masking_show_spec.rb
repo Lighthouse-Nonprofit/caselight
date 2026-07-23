@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-# Phase 5.3 masking guard (frontend Unit 6) — clients#show custom-form dropdowns. The form TITLE is
-# itself need-to-know metadata (a "Trafficking Safety" / "Immigration" form name reveals a sensitive
-# fact before you open it). NON-VACUOUS: in the SAME overviewer response the standard title is PRESENT
-# and the restricted title is ABSENT — so it fails on both over-mask (standard gone) and un-mask
-# (restricted appears).
-RSpec.describe 'Sensitive-field masking: clients#show custom-form dropdowns', type: :request do
+# Phase 5.3 masking guard (frontend Unit 6) — the client Forms page (forms#index; UX round 3 A1
+# moved the filled-forms listing off clients#show). The form TITLE is itself need-to-know metadata
+# (a "Trafficking Safety" / "Immigration" form name reveals a sensitive fact before you open it).
+# NON-VACUOUS: in the SAME overviewer response the standard title is PRESENT and the restricted
+# title is ABSENT — so it fails on both over-mask (standard gone) and un-mask (restricted appears).
+RSpec.describe 'Sensitive-field masking: the client Forms page', type: :request do
   after(:each) { ClientHistory.delete_all rescue nil }
 
   let(:password) { 'SecurePass123!' }
@@ -29,7 +29,7 @@ RSpec.describe 'Sensitive-field masking: clients#show custom-form dropdowns', ty
     before { sign_in_as(overviewer) }
 
     it 'lists the standard form title but NOT the restricted one' do
-      get client_path(client)
+      get client_forms_path(client)
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('Unit6 Standard Housing')       # non-vacuity: titles do render
       expect(response.body).not_to include('Unit6 Restricted Immigration')
@@ -41,7 +41,7 @@ RSpec.describe 'Sensitive-field masking: clients#show custom-form dropdowns', ty
     before { client.users << worker; sign_in_as(worker) }
 
     it 'lists both the standard and the restricted form titles' do
-      get client_path(client)
+      get client_forms_path(client)
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('Unit6 Standard Housing')
       expect(response.body).to include('Unit6 Restricted Immigration')
