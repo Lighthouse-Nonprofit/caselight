@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -413,6 +413,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_000001) do
     t.integer "province_id"
     t.integer "significant_family_member_count", default: 1
     t.datetime "updated_at", precision: nil
+  end
+
+  create_table "family_alerts", force: :cascade do |t|
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.bigint "family_id", null: false
+    t.datetime "resolved_at"
+    t.bigint "resolved_by_id"
+    t.string "severity", default: "caution", null: false
+    t.text "title"
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_family_alerts_on_created_by_id"
+    t.index ["family_id", "resolved_at"], name: "index_family_alerts_on_family_id_and_resolved_at"
+    t.index ["family_id"], name: "index_family_alerts_on_family_id"
+    t.index ["resolved_by_id"], name: "index_family_alerts_on_resolved_by_id"
   end
 
   create_table "family_notes", force: :cascade do |t|
@@ -1065,6 +1081,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_000001) do
   add_foreign_key "clients", "donors"
   add_foreign_key "custom_field_properties", "custom_fields"
   add_foreign_key "domains", "domain_groups"
+  add_foreign_key "family_alerts", "families"
+  add_foreign_key "family_alerts", "users", column: "created_by_id"
+  add_foreign_key "family_alerts", "users", column: "resolved_by_id"
   add_foreign_key "family_notes", "families"
   add_foreign_key "family_notes", "users"
   add_foreign_key "interventions_progress_notes", "interventions"

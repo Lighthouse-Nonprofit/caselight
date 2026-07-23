@@ -2192,9 +2192,11 @@ en:
     family_header:
       actions: Actions
       add_form: Add Form
+      alerts: Alerts
       delete_blocked: Households with resettlement-case history cannot be deleted
       forms: Forms
       members: "%{count} member(s)"
+      new_alert: New Alert
       new_family_note: New Household Note
       notes: Notes
       overview: Overview
@@ -2340,6 +2342,34 @@ en:
         edit: Edit
       update:
         successfully_updated: Custom Form has been successfully updated.
+  family_alerts:
+    severities:
+      notice: Notice
+      caution: Caution
+      critical: Critical
+    index:
+      active_alerts: Active alerts
+      new_alert: New Alert
+      no_active_alerts: No active alerts.
+      resolved_alerts: Resolved
+      no_resolved_alerts: Nothing resolved yet.
+      raised_by: Raised by
+      resolved_by: resolved by
+      resolve: Resolve
+      resolve_confirm: Mark this alert resolved? It stays in the log below.
+      unknown: unknown
+    form:
+      new_alert: New Household Alert
+      edit_alert: Edit Household Alert
+      severity: Severity
+      title: Alert (one line, shown everywhere)
+      body: Details
+    create:
+      successfully_created: Household alert has been raised.
+    update:
+      successfully_updated: Household alert has been updated.
+    resolve:
+      resolved: Alert marked resolved.
   family_notes:
     index:
       family_notes: Household Notes

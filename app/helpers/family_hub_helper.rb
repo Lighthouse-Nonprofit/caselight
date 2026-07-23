@@ -18,6 +18,17 @@ module FamilyHubHelper
     FAMILY_HUB_TABS[controller_name]
   end
 
+  # UX round 3 (B3) — Bootstrap alert variant for a FamilyAlert severity.
+  FAMILY_ALERT_VARIANTS = {
+    'notice'   => 'alert-info',
+    'caution'  => 'alert-warning',
+    'critical' => 'alert-danger'
+  }.freeze
+
+  def family_alert_css_class(alert)
+    FAMILY_ALERT_VARIANTS.fetch(alert.severity, 'alert-warning')
+  end
+
   # Filled family forms the current viewer may see, grouped by form — drives the Forms tab
   # chip. Same Phase-5.3 record-aware visibility as the client hub. Memoized per request.
   def family_hub_forms(family)

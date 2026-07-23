@@ -1,6 +1,8 @@
 -# UX round 3 (B1) — family hub: persistent header + tabs replace the top form dropdowns
 -# (forms live on the Forms tab) and the ibox pencil/trash (Edit/Delete live in Actions).
 = render 'families/family_header', family: @family, active_tab: :overview
+-# UX round 3 (B3) — "read first" active alerts, before anything else.
+= render 'families/active_alerts_banner', family: @family
 .row
   .col-12.family
     .ibox.mini-margin

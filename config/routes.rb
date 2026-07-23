@@ -219,6 +219,10 @@ Rails.application.routes.draw do
     resources :forms, only: [:index]
     # UX round 3 (B2) — household-level notes (the hub's Notes tab).
     resources :family_notes
+    # UX round 3 (B3) — household alerts. Resolve-not-delete: no show/destroy routes.
+    resources :family_alerts, except: %i[show destroy] do
+      patch :resolve, on: :member
+    end
     get 'version' => 'families#version'
   end
 

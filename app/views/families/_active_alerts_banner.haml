@@ -1,0 +1,12 @@
+-# UX round 3 (B3) — "read first": active household alerts render as a non-dismissible banner
+-# strip directly under the family header, before anything else on the Overview.
+-# locals: family:
+- if (can? :read, FamilyAlert) && (active_alerts = family.family_alerts.active.most_recents).any?
+  .family-alerts-banner
+    - active_alerts.each do |alert|
+      %div{ class: "alert #{family_alert_css_class(alert)} family-alert family-alert--banner", role: 'alert' }
+        %i.fa.fa-exclamation-triangle{ 'aria-hidden' => 'true' }
+        %strong= alert.title
+        - if alert.body.present?
+          %span.family-alert__body-inline= "— #{alert.body}"
+        = link_to t('families.show.view_alerts', default: 'View alerts'), family_family_alerts_path(family), class: 'alert-link family-alert__link'

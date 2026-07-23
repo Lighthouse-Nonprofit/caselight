@@ -1,0 +1,12 @@
+= simple_form_for [@family, @family_alert] do |f|
+  .ibox
+    .ibox-title
+      %h5= @family_alert.new_record? ? t('.new_alert', default: 'New Household Alert') : t('.edit_alert', default: 'Edit Household Alert')
+    .ibox-content
+      = f.error_notification
+      = f.input :severity, collection: FamilyAlert::SEVERITIES.map { |s| [t("family_alerts.severities.#{s}", default: s.titleize), s] }, include_blank: false, label: t('.severity', default: 'Severity')
+      = f.input :title, label: t('.title', default: 'Alert (one line, shown everywhere)')
+      = f.input :body, as: :text, label: t('.body', default: 'Details'), input_html: { rows: 5 }
+      .text-end
+        = link_to t('cancel', default: 'Cancel'), family_family_alerts_path(@family), class: 'btn btn-outline-secondary'
+        = f.submit t('save', default: 'Save'), class: 'btn btn-primary'
