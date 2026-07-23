@@ -22,6 +22,9 @@ class CaseNotesController < AdminController
       @case_note.complete_tasks(params[:case_note][:case_note_domain_groups_attributes])
       redirect_to client_case_notes_path(@client), notice: t('.successfully_created')
     else
+      # D1: the reject_if drops blank sections from the failed object — rebuild them so the
+      # form re-renders with the full pickable set (idempotent).
+      @case_note.populate_notes
       render :new
     end
   end
@@ -31,17 +34,25 @@ class CaseNotesController < AdminController
   end
 
   def edit
+    # D1: legacy notes already have every group; new-era notes only have their filled ones —
+    # build the missing sections so they are pickable on edit (idempotent; blank ones are
+    # re-rejected on save).
+    @case_note.populate_notes
   end
 
   def update
     authorize @case_note
     if @case_note.update(case_note_params) && @case_note.save
-      params[:case_note][:case_note_domain_groups_attributes].each do |d|
+      (params[:case_note][:case_note_domain_groups_attributes] || {}).each do |d|
+        # D1: a section added on edit posts without an id (and attachments are create-only —
+        # the pre-existing quirk in case_note_params) — nothing to attach to.
+        next if d.second[:id].blank?
         add_more_attachments(d.second[:attachments], d.second[:id])
       end
       @case_note.complete_tasks(params[:case_note][:case_note_domain_groups_attributes])
       redirect_to client_case_notes_path(@client), notice: t('.successfully_updated')
     else
+      @case_note.populate_notes
       render :edit
     end
   end

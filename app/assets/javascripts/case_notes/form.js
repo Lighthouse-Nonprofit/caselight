@@ -4,11 +4,35 @@ CIF.Case_notesNew =
   CIF.Case_notesUpdate =
     (function () {
       const _init = function () {
+        // UX round 3 (D1/R7): the domain picker runs FIRST so fileinput never initializes
+        // inside a section that is about to be hidden+disabled.
+        _initDomainPicker();
         _initUploader();
         _handleDeleteAttachment();
         _handleNewTask();
         _hideCompletedTasks();
         return _handlePreventBlankInput();
+      };
+
+      // UX round 3 (D1/R7) — "Domains discussed": only picked domain sections render; hidden
+      // sections are DISABLED so nothing from them submits (the model reject_if is the no-JS
+      // fallback). Deselecting a filled section on edit only hides it — disabled inputs
+      // don't submit, so the saved row is left untouched.
+      var _initDomainPicker = function () {
+        const el = document.getElementById('case-note-domain-select');
+        if (!el) {
+          return;
+        }
+        const sync = function () {
+          const chosen = Array.prototype.map.call(el.selectedOptions, (o) => String(o.value));
+          $('.case-note-domain-section').each(function () {
+            const show = chosen.indexOf(String($(this).data('domainGroupId'))) !== -1;
+            $(this).toggleClass('d-none', !show);
+            $(this).find(':input').prop('disabled', !show);
+          });
+        };
+        CIF.Select.init(el, { onChange: sync, placeholder: el.getAttribute('data-placeholder') || undefined });
+        return sync();
       };
 
       var _initUploader = () =>
