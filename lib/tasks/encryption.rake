@@ -21,10 +21,17 @@
 # lib/tasks/slo4home_taxonomy.rake and audit.rake). Models are NOT in the public schema, so only
 # tenant schemas are processed.
 #
-# HOW WE FORCE ENCRYPTION (the load-bearing decision): we read each target attribute (AR decrypts it,
-# or passes plaintext through under support_unencrypted_data=true) and write the SAME logical value
-# back via `record.update_columns(col => value)`. In Rails 7.2 update_columns routes the write through
-# the encrypted attribute TYPE's #serialize (=> ciphertext in Postgres) but structurally SKIPS:
+# HOW WE FORCE ENCRYPTION (the load-bearing decision): we read each target attribute via
+# `read_attribute` (AR decrypts it, or passes plaintext through under
+# support_unencrypted_data=true) and write the SAME logical value back via
+# `record.update_columns(col => value)`. read_attribute, NOT public_send: a model may override
+# the reader (Client's Tier-4 ignore_case names prefer the original_* sidecar, which is NIL on
+# any row the reencrypt task hasn't reached) — reading through an override and writing the
+# result back DESTROYED every client name on the pilot box (2026-07-22 incident; regression
+# spec in spec/lib/tasks/encryption_backfill_spec.rb). Belt-and-braces, encrypt_record! also
+# refuses to overwrite a non-NULL stored value with NULL. In Rails 7.2 update_columns routes
+# the write through the encrypted attribute TYPE's #serialize (=> ciphertext in Postgres) but
+# structurally SKIPS:
 #   * validations (historical rows that fail today's guards — e.g. a referred Client with a blank
 #     rejected_note, or `validates :user_ids, presence: true` — must still get encrypted);
 #   * ALL callbacks, critically Client `after_save :create_client_history` (which writes a
@@ -70,10 +77,13 @@ namespace :encryption do
     '3' => {
       'User' => %i[email first_name last_name mobile uid]
     },
-    # Tier 4 — DETERMINISTIC client-name PII. The generic update_columns backfill applies UNCHANGED (no
-    # blind-index sidecar to populate): writing the decrypted value back routes through the deterministic
-    # encrypted type => stable ciphertext, same as Tier 3. NOT a login-blocker (unlike Tier 3 email), but
-    # a name-SEARCH-blocker — un-backfilled rows won't match the ciphertext equality until this runs.
+    # Tier 4 — DETERMINISTIC client-name PII. NOT a login-blocker (unlike Tier 3 email), but a
+    # name-SEARCH-blocker — un-backfilled rows won't match the ciphertext equality until this runs.
+    # DANGER (2026-07-22 incident): these are the ONLY columns whose model READER does not reflect
+    # the column — the ignore_case overlay prefers the original_* sidecar, which is NIL until
+    # reencrypt_client_names populates it. encrypt_record! MUST read via read_attribute (it does,
+    # now) or this backfill nils every name on a pre-reencrypt row, exactly what happened on the
+    # pilot box. Run order on deploy stays: backfill (7b) THEN reencrypt_client_names (7c).
     '4' => {
       # UX round 3 (C1): + the ignore_case original_* display sidecars (auto-encrypted,
       # non-deterministic; populated by encryption:reencrypt_client_names, nil until then).
@@ -176,9 +186,22 @@ namespace :encryption do
   # Read the decrypted/plaintext-passthrough attrs, then write them straight back through the
   # encrypted type via update_columns => ciphertext, no validations, no callbacks, no paper_trail,
   # no touch. Returns true if a write was issued.
+  #
+  # read_attribute (never public_send): reader overrides don't reflect the column. NIL-GUARD:
+  # a column that decrypts/reads as nil while the STORED value is non-NULL means we failed to
+  # read the data, not that the data is nil — writing that back would replace ciphertext with
+  # NULL. Skip the column and warn instead (2026-07-22 pilot-box incident).
   def encrypt_record!(record, columns, confirm)
-    attrs = columns.each_with_object({}) { |c, h| h[c] = record.public_send(c) }
-    record.update_columns(attrs) if confirm
+    attrs = columns.each_with_object({}) do |c, h|
+      value = record.read_attribute(c)
+      if value.nil? && !record.read_attribute_before_type_cast(c).nil?
+        puts "  !! #{record.class.name}##{record.id}.#{c}: reads nil but stored value is non-NULL — " \
+             'SKIPPING column (refusing to overwrite data with NULL)'
+        next
+      end
+      h[c] = value
+    end
+    record.update_columns(attrs) if confirm && attrs.any?
     true
   end
 
@@ -343,10 +366,17 @@ namespace :encryption do
         updates = {}
         CLIENT_NAME_COLUMNS.each do |col|
           value = client.read_attribute(col)
+          # NIL-GUARD (2026-07-22 incident): nil read + non-NULL stored value = the read failed,
+          # not "the name is nil". Never replace stored ciphertext with NULL.
+          if value.nil? && !client.read_attribute_before_type_cast(col).nil?
+            puts "  !! [#{tenant}] Client##{client.id}.#{col}: reads nil but stored value is " \
+                 'non-NULL — SKIPPING column'
+            next
+          end
           updates[col] = value
           updates[:"original_#{col}"] = value
         end
-        client.update_columns(updates)
+        client.update_columns(updates) if updates.any?
         count += 1
       rescue => e
         puts "  [#{tenant}] Client##{client.id} FAILED: #{e.class}: #{e.message}"

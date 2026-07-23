@@ -24,9 +24,19 @@ if [ ! -d "$APP_DIR/.git" ]; then
 fi
 cd "$APP_DIR"
 echo "==> syncing to origin/$BRANCH"
+PRE_SYNC_SHA="$(git rev-parse HEAD)"
 git fetch origin --tags
 git reset --hard "origin/$BRANCH"
 echo "    now at: $(git log --oneline -1)"
+
+# Self-update guard: bash keeps executing the OLD text of a script whose file changed mid-run,
+# so a deploy that itself updates bootstrap.sh would run WITHOUT the new stages (on 2026-07-22
+# this skipped the reencrypt stage and the stale backfill destroyed the client names). If the
+# sync touched this script, re-exec the fresh copy exactly once.
+if [ "${BOOTSTRAP_REEXEC:-0}" != "1" ] && ! git diff --quiet "$PRE_SYNC_SHA" HEAD -- bootstrap.sh; then
+  echo "==> bootstrap.sh changed in this sync — re-exec'ing the updated script"
+  BOOTSTRAP_REEXEC=1 exec bash "$APP_DIR/bootstrap.sh"
+fi
 
 # 2. .env — generated once with fresh secrets; never committed. Edit afterwards as needed.
 if [ ! -f .env ]; then
