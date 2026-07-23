@@ -7,6 +7,7 @@
         .ibox-tools
           - if can? :create, CaseNote
             = link_to t('.new_case_note'), new_client_case_note_path(@client), { class: 'btn btn-primary button' }
+          = render 'shared/ibox_collapse_link'
       .ibox-content
         - @case_notes.each do |case_note|
           .card

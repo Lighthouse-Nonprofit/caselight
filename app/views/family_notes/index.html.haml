@@ -8,6 +8,7 @@
         .ibox-tools
           - if can? :create, @family.family_notes.new
             = link_to t('.new_family_note', default: 'New Note'), new_family_family_note_path(@family), class: 'btn btn-primary button'
+          = render 'shared/ibox_collapse_link'
       .ibox-content
         - if @family_notes.any?
           - @family_notes.each do |family_note|

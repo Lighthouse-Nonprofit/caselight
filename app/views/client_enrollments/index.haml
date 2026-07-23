@@ -5,6 +5,8 @@
   .ibox
     .ibox-title
       %h5= "#{@client.en_and_local_name} - #{t('clients.client_header.enrolled_programs', default: 'Enrolled Programs')}"
+      .ibox-tools
+        = render 'shared/ibox_collapse_link'
     .ibox-content
       .table-responsive
         %table.table.table-bordered.table-striped.table-hover.client_enrollment
@@ -35,6 +37,8 @@
 .ibox
   .ibox-title
     %h5= "#{@client.en_and_local_name} - #{t('.program_lists')}"
+    .ibox-tools
+      = render 'shared/ibox_collapse_link'
   .ibox-content
     .table-responsive
       %table.table.table-bordered.table-striped.table-hover.client_enrollment

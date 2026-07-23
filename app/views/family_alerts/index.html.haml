@@ -27,9 +27,11 @@
                   = button_to t('.resolve', default: 'Resolve'), resolve_family_family_alert_path(@family, alert), method: :patch, form_class: 'd-inline family-alert__resolve', data: { confirm: t('.resolve_confirm', default: 'Mark this alert resolved? It stays in the log below.') }, class: 'btn btn-sm btn-outline-secondary'
         - else
           %p.text-muted= t('.no_active_alerts', default: 'No active alerts.')
-    .ibox
+    %div{ class: ibox_classes(collapsed: @resolved_alerts.none?) }
       .ibox-title
         %h5= t('.resolved_alerts', default: 'Resolved')
+        .ibox-tools
+          = render 'shared/ibox_collapse_link', collapsed: @resolved_alerts.none?
       .ibox-content
         - if @resolved_alerts.any?
           %ul.client-overview__list

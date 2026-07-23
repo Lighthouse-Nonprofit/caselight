@@ -8,9 +8,12 @@
       = render 'clients/client_header', client: @custom_formable, active_tab: client_hub_active_tab
     - elsif @custom_formable.is_a?(Family)
       = render 'families/family_header', family: @custom_formable, active_tab: family_hub_active_tab
-    .ibox
+    - filled_empty = @grouped_forms.empty? && @breakglass_forms.empty?
+    %div{ class: ibox_classes(collapsed: filled_empty) }
       .ibox-title
         %h5= t('.filled_forms', default: 'Forms')
+        .ibox-tools
+          = render 'shared/ibox_collapse_link', collapsed: filled_empty
       .ibox-content
         - if @grouped_forms.any? || @breakglass_forms.any?
           .table-responsive
@@ -47,9 +50,11 @@
         - else
           %p.text-muted= t('.no_forms', default: 'No forms filled yet.')
     - if can? :manage, CustomFieldProperty
-      .ibox
+      %div{ class: ibox_classes(collapsed: @available_forms.empty?) }
         .ibox-title
           %h5= t('.available_forms', default: 'Available forms')
+          .ibox-tools
+            = render 'shared/ibox_collapse_link', collapsed: @available_forms.empty?
         .ibox-content
           - if @available_forms.any?
             .table-responsive
