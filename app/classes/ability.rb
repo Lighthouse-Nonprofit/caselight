@@ -81,6 +81,14 @@ class Ability
       can :manage, CaseNote
       can :create, Client
       can :manage, Client, case_worker_clients: { user_id: user.id }
+      # UX round 3 (B4/R10): household-level context is case-relevant — case workers read the
+      # HOUSEHOLDS of their own caseload (never the org-wide list), plus caseload-scoped
+      # household notes (read/write) and alerts (read-only; raising stays with managers).
+      caseload_family = { cases: { client: { case_worker_clients: { user_id: user.id } } } }
+      can :read, Family, caseload_family
+      can :read,   FamilyNote,  family: caseload_family
+      can :create, FamilyNote,  family: caseload_family
+      can :read,   FamilyAlert, family: caseload_family
       can :manage, ProgressNote
       can :manage, Task
       can :manage, CustomFieldProperty, custom_formable_type: 'Client'
@@ -101,6 +109,15 @@ class Ability
       can :create, Client
       can :manage, Client, able_state: Client::ABLE_STATES
       can :manage, Client, case_worker_clients: { user_id: user.id }
+      # UX round 3 (B4/R10): mirror the role's Client union (able_state OR own caseload) with
+      # two ORed rules per resource — the same pattern as the Phase-5.5 ProgressNote scoping.
+      can :read, Family, cases: { client: { able_state: Client::ABLE_STATES } }
+      can :read, Family, cases: { client: { case_worker_clients: { user_id: user.id } } }
+      can :read, FamilyNote,  family: { cases: { client: { able_state: Client::ABLE_STATES } } }
+      can :read, FamilyNote,  family: { cases: { client: { case_worker_clients: { user_id: user.id } } } }
+      can :create, FamilyNote, family: { cases: { client: { case_worker_clients: { user_id: user.id } } } }
+      can :read, FamilyAlert, family: { cases: { client: { able_state: Client::ABLE_STATES } } }
+      can :read, FamilyAlert, family: { cases: { client: { case_worker_clients: { user_id: user.id } } } }
       can :manage, ProgressNote
       can :manage, Task
       can :manage, CustomFieldProperty, custom_formable_type: "Client"
