@@ -123,6 +123,8 @@
       .ibox-title
         %h5= @results
         %span.badge.text-bg-info= t('.results')
+        .ibox-tools
+          = render 'shared/ibox_collapse_link'
       .ibox-content
         %h6.household-members__heading= t('.household_members', default: 'Household members')
         - members = @family.clients.to_a.uniq

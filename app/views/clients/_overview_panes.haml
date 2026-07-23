@@ -3,9 +3,12 @@
 -# row is now Programs | Recent program activity, side by side.
 .row.client-overview
   .col-12.col-lg-6
-    .ibox
+    - programs_empty = @active_client_enrollments.blank? && @inactive_client_enrollments.blank?
+    %div{ class: ibox_classes(collapsed: programs_empty) }
       .ibox-title
         %h5= t('clients.client_header.programs', default: 'Programs')
+        .ibox-tools
+          = render 'shared/ibox_collapse_link', collapsed: programs_empty
       .ibox-content
         - if can? :read, ClientEnrollment
           - if @active_client_enrollments.present?
@@ -33,6 +36,8 @@
       .ibox
         .ibox-title
           %h5= t('clients.overview.recent_activity', default: 'Recent program activity')
+          .ibox-tools
+            = render 'shared/ibox_collapse_link'
         .ibox-content
           %ul.client-overview__list
             - @recent_trackings.each do |tracking|

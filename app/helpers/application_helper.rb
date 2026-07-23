@@ -60,6 +60,12 @@ module ApplicationHelper
     url_for params: params.to_unsafe_h.merge(new_params)
   end
 
+  # UX round 3 (D2/R8) — .ibox classes with the server-side "start collapsed" state for empty
+  # sections. Pair with shared/_ibox_collapse_link (pass the same collapsed: flag).
+  def ibox_classes(collapsed: false, extra: nil)
+    ['ibox', ('collapsed' if collapsed), extra].compact.join(' ')
+  end
+
   def remove_link(object, associated_objects = {}, btn_size = 'btn-xs')
     btn_status = associated_objects.values.sum.zero? ? nil : 'disabled'
     link_to(object, method: 'delete',  data: { confirm: t('.are_you_sure') }, class: "btn btn-outline btn-danger #{btn_size} #{btn_status}", 'aria-label': t('shared.actions.delete', default: 'Delete')) do

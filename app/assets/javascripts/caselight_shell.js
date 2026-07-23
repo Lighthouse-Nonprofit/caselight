@@ -28,14 +28,17 @@ $(function () {
     smoothlyMenu();
   });
 
-  // .ibox tools.
+  // .ibox tools. UX round 3 (D2/R8): `.collapsed` on the .ibox is the single source of truth —
+  // the CSS glyph swap in _ibox.scss keys off it (markup always ships fa-chevron-up), and the
+  // server pre-collapses empty sections by rendering the class (shared/_ibox_collapse_link +
+  // ibox_classes helper). slideToggle's inline display wins over the .collapsed CSS rule, so a
+  // server-collapsed box expands correctly on the first click.
   $('.collapse-link').on('click', function (e) {
     e.preventDefault();
     var ibox = $(this).closest('div.ibox');
-    var icon = $(this).find('i');
-    ibox.find('div.ibox-content').slideToggle(200);
-    icon.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
-    ibox.toggleClass('border-bottom');
+    ibox.find('div.ibox-content').stop(true, true).slideToggle(200);
+    ibox.toggleClass('collapsed').toggleClass('border-bottom');
+    $(this).attr('aria-expanded', String(!ibox.hasClass('collapsed')));
   });
   $('.close-link').on('click', function (e) {
     e.preventDefault();

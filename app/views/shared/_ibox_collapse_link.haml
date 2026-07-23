@@ -1,0 +1,9 @@
+-# UX round 3 (D2/R8) — the section-collapse chevron for .ibox-tools. Pair with
+-# ibox_classes(collapsed:) (or a manual `.collapsed` class) on the .ibox so empty sections
+-# start collapsed; the glyph direction is CSS-owned (_ibox.scss keys off .ibox.collapsed —
+-# always ship fa-chevron-up here).
+-# locals: collapsed: (default false)
+- collapsed = local_assigns.fetch(:collapsed, false)
+%a.collapse-link{ role: 'button', tabindex: 0, 'aria-expanded' => (!collapsed).to_s, 'aria-label' => t('shared.ibox_collapse_link.toggle', default: 'Toggle section') }
+  .btn.btn-outline.btn-primary
+    %i.fa.fa-chevron-up{ 'aria-hidden' => 'true' }

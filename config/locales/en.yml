@@ -3305,6 +3305,8 @@ en:
   shared:
     fields:
       required: required
+    ibox_collapse_link:
+      toggle: Toggle section
     page_header:
       more_actions: More actions
     filters:
