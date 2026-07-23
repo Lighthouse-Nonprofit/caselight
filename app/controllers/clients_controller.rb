@@ -22,7 +22,18 @@ class ClientsController < AdminController
         @csi_statistics   = CsiStatistic.new(@client_grid.assets, visible_levels: visible_domain_levels).assessment_domain_score.to_json
         @cases_statistics = CaseStatistic.new(@client_grid.assets).statistic_data.to_json
         @results          = @client_grid.scope { |scope| scope.accessible_by(current_ability) }.assets.size
-        @client_grid.scope { |scope| scope.accessible_by(current_ability).page(params[:page]).per(20) }
+        # UX round 3 (C2/R12): name sorts are Ruby-side (encrypted columns) — sort the full
+        # accessible set in memory, then paginate the array. @name_sort is stashed by
+        # ClientGridOptions#client_grid_params; every other order stays pure datagrid SQL.
+        @clients =
+          if @name_sort
+            @client_grid.scope { |scope| scope.accessible_by(current_ability) }
+            sorted = @client_grid.name_sorted_assets(by: @name_sort[:by], descending: @name_sort[:descending])
+            Kaminari.paginate_array(sorted).page(params[:page]).per(20)
+          else
+            @client_grid.scope { |scope| scope.accessible_by(current_ability).page(params[:page]).per(20) }
+            @client_grid.assets
+          end
       end
       f.xls do
         @client_grid.scope { |scope| scope.accessible_by(current_ability) }
