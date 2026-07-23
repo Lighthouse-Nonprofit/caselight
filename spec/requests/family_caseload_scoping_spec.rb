@@ -47,6 +47,19 @@ RSpec.describe 'Family caseload scoping', type: :request do
       expect(body.scan('Caseload Household').size).to eq(1)
     end
 
+    it 'sorts by name and by state without a DISTINCT/ORDER-BY collision (user-reported 500)' do
+      # Regression: ability scoping via .distinct broke the grid's expression ORDER BYs under
+      # Postgres (LOWER(name) / provinces.name are not in the DISTINCT select list). The
+      # id-subquery form must keep both sorts working — and still deduped and scoped.
+      get families_path, params: { family_grid: { order: 'name' } }
+      expect(response).to have_http_status(:ok)
+      expect(response.body.scan('Caseload Household').size).to eq(1)
+      expect(response.body).not_to include('Foreign Household')
+
+      get families_path, params: { family_grid: { order: 'province' } }
+      expect(response).to have_http_status(:ok)
+    end
+
     it 'opens the caseload family hub but is denied a foreign household' do
       get family_path(my_family)
       expect(response).to have_http_status(:ok)
@@ -93,6 +106,15 @@ RSpec.describe 'Family caseload scoping', type: :request do
     let!(:able_client) { create(:client, state: 'accepted', able_state: 'Accepted') }
     let!(:able_family) { create(:family, name: 'Able Household') }
     let!(:able_case)   { create(:case, case_type: 'FC', client: able_client, family: able_family) }
+
+    it 'admin sorts by name without a 500 (unscoped-role regression)' do
+      admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
+      sign_in_as(admin)
+      get families_path, params: { family_grid: { order: 'name' } }
+      expect(response).to have_http_status(:ok)
+      get families_path(format: :xls), params: { family_grid: { order: 'name' } }
+      expect(response).to have_http_status(:ok)
+    end
 
     it 'reaches the able-state household without a caseload link, but not a foreign one' do
       sign_in_as(able_manager)

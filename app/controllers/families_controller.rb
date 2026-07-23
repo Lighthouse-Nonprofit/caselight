@@ -12,13 +12,17 @@ class FamiliesController < AdminController
         # UX round 3 (B4/R10 — closes POAM-022): the HTML branch is ability-scoped like the
         # XLS one. A no-op for the pre-existing roles (their Family rules are unconditional);
         # load-bearing for the newly admitted caseload-scoped roles (case worker/able manager).
-        # .distinct: the caseload rule joins through cases -> possible duplicate rows.
-        @results = @family_grid.scope { |scope| scope.accessible_by(current_ability).distinct }.assets.size
-        @family_grid.scope { |scope| scope.accessible_by(current_ability).distinct.page(params[:page]).per(20) }
+        # SUBQUERY, not .distinct: the caseload rule joins through cases (duplicate rows), but
+        # SELECT DISTINCT breaks the grid's expression ORDER BYs under Postgres (LOWER(name),
+        # provinces.name — "ORDER BY expressions must appear in select list"). The id-subquery
+        # dedupes without touching the outer select.
+        @results = @family_grid.scope { |scope| scope.where(id: Family.accessible_by(current_ability).select(:id)) }.assets.size
+        @family_grid.scope { |scope| scope.where(id: Family.accessible_by(current_ability).select(:id)).page(params[:page]).per(20) }
       end
       f.xls do
         # Phase 6 (U1): scope the export by ability (bulk-exfil hygiene; mirrors clients#index).
-        @family_grid.scope { |scope| scope.accessible_by(current_ability).distinct }
+        # Same subquery form — the export applies grid ordering too.
+        @family_grid.scope { |scope| scope.where(id: Family.accessible_by(current_ability).select(:id)) }
         send_data @family_grid.to_xls, filename: "family_report-#{Time.now}.xls"
       end
     end
