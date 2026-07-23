@@ -1113,6 +1113,12 @@ en:
       exit_from_ec: Close Resettlement Case
       exit_from_fc: Close Resettlement Case
       exit_from_kc: Close Resettlement Case
+      resettlement_case: Resettlement case
+      intake_date: Intake date
+      case_household: Case household
+      case_active: Active
+      case_exited: Closed
+      case_exit_date: Case closed on
       exit_ngo_btn: Exit From Organization
       exit_note: Exit Note
       families: Households

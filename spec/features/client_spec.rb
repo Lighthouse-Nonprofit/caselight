@@ -226,29 +226,18 @@ describe 'Client' do
         visit client_path(accepted_client)
       end
 
-      # BS5-Q3: the SLO4HOME revision renders every case type under the shared
-      # "Resettlement Case" label and the streamlined panel shows Intake Date /
-      # Household / Case Manager / Status (carer fields, province, support amount,
-      # support note and partner are no longer displayed). Assertions updated to
-      # the visible surface; the per-case intake date keeps them case-specific.
+      # UX round 3 (A2): the Resettlement Case card folded into the About table as rows
+      # (Resettlement case / Intake date / Case household). Only the CURRENT case (the most
+      # recent active one) is summarized — the per-type card stack is gone.
       scenario 'All Panel' do
-        # UX review 1: the standalone "Open Resettlement Case" button folded into the header's
-        # Actions dropdown — the Resettlement Case card renders without any click.
-        expect(page).to have_content('Resettlement Case')
+        expect(page).to have_content('Resettlement case')
       end
 
-      scenario 'Emergency Info' do
-        expect(page).to have_content(emergency_case.start_date.strftime('%B %d, %Y'))
+      scenario 'Current case info' do
+        current_case = accepted_client.cases.exclude_referred.current
+        expect(page).to have_content('Intake date')
+        expect(page).to have_content(current_case.start_date.strftime('%d %B, %Y'))
       end
-
-      scenario 'Foster Info' do
-        expect(page).to have_content(foster_case.start_date.strftime('%B %d, %Y'))
-      end
-
-      scenario 'Kinship Info' do
-        expect(page).to have_content(kinship_case.start_date.strftime('%B %d, %Y'))
-      end
-
     end
 
     feature 'Emergency Case' do
@@ -260,13 +249,13 @@ describe 'Client' do
       end
 
       scenario 'Emergency Case panel' do
-        expect(page).to have_content('Resettlement Case')
+        expect(page).to have_content('Resettlement case')
       end
 
       # (the case-type labels are unified now — "exactly one case panel" replaces the
       # old absent-type-label assertions)
       scenario 'No Foster and Kinship case panel' do
-        expect(page).to have_content('Intake Date', count: 1)
+        expect(page).to have_content('Intake date', count: 1)
       end
     end
     feature 'Foster Case' do
@@ -278,11 +267,11 @@ describe 'Client' do
       end
 
       scenario 'Foster Case panel' do
-        expect(page).to have_content('Resettlement Case')
+        expect(page).to have_content('Resettlement case')
       end
 
       scenario 'No Kinship and Emergency case panel' do
-        expect(page).to have_content('Intake Date', count: 1)
+        expect(page).to have_content('Intake date', count: 1)
       end
     end
     feature 'Kinship Case' do
@@ -294,11 +283,11 @@ describe 'Client' do
       end
 
       scenario 'Kinship Case panel' do
-        expect(page).to have_content('Resettlement Case')
+        expect(page).to have_content('Resettlement case')
       end
 
       scenario 'No Foster and Emergency case panel' do
-        expect(page).to have_content('Intake Date', count: 1)
+        expect(page).to have_content('Intake date', count: 1)
       end
     end
   end
@@ -448,12 +437,15 @@ describe 'Client' do
       login_as(user)
       visit client_path(accepted_client)
     end
-    scenario 'Exit Button' do
-      button = find("button[data-bs-target='#exit-from-case']")
-      expect(button).to have_content('Remove Client from Program')
+    # UX round 3 (A2): the case card's Exit button is gone — the exit modal opens from the
+    # hub header's Actions dropdown item ("Close Resettlement Case").
+    scenario 'Exit item in the Actions dropdown' do
+      item = find("a[data-bs-target='#exit-from-case']")
+      expect(item).to have_content('Close Resettlement Case')
     end
     scenario 'Note', js: true do
-      page.find("button[data-bs-target='#exit-from-case']").click
+      find('.client-hub__edit .dropdown-toggle').click
+      page.find("a[data-bs-target='#exit-from-case']").click
       page.find(:css, '#exit-from-case')
       within '#exit-from-case' do
         fill_in 'Exit Date', with: '2017-07-07'
@@ -483,7 +475,7 @@ describe 'Client' do
       # BS5-Q3: the streamlined SLO4HOME show page no longer prints time-in-care;
       # keep the calculation covered (the page renders without it).
       expect(accepted_client.time_in_care).to eq(1.0)
-      expect(page).to have_content('Resettlement Case')
+      expect(page).to have_content('Resettlement case')
     end
   end
 
