@@ -1,8 +1,9 @@
--# UX rung 5 — break-glass elevation modal for one locked (emergency_only) form on the client
--# Overview. Pure declarative BS5 (data-bs-* only, zero JS, CSP-clean); embeds the shared
--# break_glass_grants/_form — POST + redirect_back lands the viewer back on show with the form
--# unlocked and the active-grant chip visible.
--# locals: client:, custom_field:
+-# UX rung 5 / round 3 (B1) — break-glass elevation modal for one locked (emergency_only) form,
+-# rendered from the Forms partition page for ANY formable (Client or Family — lived under
+-# clients/ while the affordance was client-only). Pure declarative BS5 (data-bs-* only, zero
+-# JS, CSP-clean); embeds the shared break_glass_grants/_form — POST + redirect_back lands the
+-# viewer back on the Forms page with the form unlocked and the active-grant chip visible.
+-# locals: formable:, custom_field:
 .modal.fade{ id: "break-glass-#{custom_field.id}", tabindex: '-1', 'aria-hidden' => 'true', 'aria-labelledby' => "break-glass-#{custom_field.id}-title" }
   .modal-dialog
     .modal-content
@@ -17,4 +18,4 @@
           %strong= custom_field.form_title
         %p
           = t('break_glass.prompt.explanation', default: 'This form is classified emergency-only. Access requires a logged reason and is granted for 1 hour on this record only. Your name, the reason, and the time are recorded in the audit log.')
-        = render 'break_glass_grants/form', formable: client, custom_field: custom_field
+        = render 'break_glass_grants/form', formable: formable, custom_field: custom_field

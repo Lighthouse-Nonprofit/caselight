@@ -1,34 +1,15 @@
+-# UX round 3 (B1) — family hub: persistent header + tabs replace the top form dropdowns
+-# (forms live on the Forms tab) and the ibox pencil/trash (Edit/Delete live in Actions).
+= render 'families/family_header', family: @family, active_tab: :overview
 .row
   .col-12.family
-    .btn-group.small-btn-margin
-      %button.btn-sm.btn.btn-success.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @group_family_custom_fields.empty?) }
-        = t('.additional_forms')
-      %ul.dropdown-menu.scrollable-dropdown-menu
-        - @group_family_custom_fields.each do |_, family_custom_fields|
-          %li= link_to family_custom_fields.first.custom_field.form_title, family_custom_field_properties_path(@family, custom_field_id: family_custom_fields.first.custom_field_id)
-
-    - if can? :manage, CustomFieldProperty
-      .btn-group.small-btn-margin
-        %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @free_family_forms.empty?) }
-          = t('.add_form')
-        %ul.dropdown-menu.scrollable-dropdown-menu
-          - @free_family_forms.each do |custom_field|
-            %li= link_to custom_field.form_title, new_family_custom_field_property_path(@family, custom_field_id: custom_field)
-
     .ibox.mini-margin
       .ibox-title
-        %h5= "#{t('.general_info')} #{@family.name}"
+        %h5= t('.general_info')
         .ibox-tools
           %a.collapse-link
             .btn.btn-outline.btn-primary
               %i.fa.fa-chevron-up
-          - if can? :manage, Family
-            %small
-              = link_to edit_family_path(@family) do
-                .btn.btn-outline.btn-success
-                  %i.fa.fa-pencil
-              = remove_link(@family, {family_case: @family.cases_count}, 'btn-md')
-
       .ibox-content
         .row.family-summary
           .col-sm-12

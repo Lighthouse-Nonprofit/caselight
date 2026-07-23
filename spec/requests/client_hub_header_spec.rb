@@ -158,15 +158,18 @@ RSpec.describe 'Client hub header', type: :request do
       expect(response.body).to include('New Task')
     end
 
-    it 'custom_field_properties does NOT render the client header for a Family record' do
+    it 'custom_field_properties renders the FAMILY header, not the client one, for a Family record' do
       # (no property rows needed — the page renders an empty index; the cfp factory is
       # client-shaped and its create_client_history callback breaks for Family formables)
+      # UX round 3 (B1): family formables get their own hub header (shared .client-hub__*
+      # classes, .family-hub modifier) — the CLIENT's identity must never render here.
       family_cf = create(:custom_field, entity_type: 'Family', form_title: 'HubSpec Family Form',
                          fields: [{ 'type' => 'text', 'label' => 'Info' }])
       family    = create(:family)
       get family_custom_field_properties_path(family, custom_field_id: family_cf.id)
       expect(response).to have_http_status(:ok)
-      expect(response.body).not_to include('client-hub__name')
+      expect(response.body).to include('family-hub')
+      expect(response.body).not_to include('Hubert Header')
     end
   end
 end
