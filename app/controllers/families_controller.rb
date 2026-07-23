@@ -9,14 +9,16 @@ class FamiliesController < AdminController
     @family_grid = FamilyGrid.new(params[:family_grid])
     respond_to do |f|
       f.html do
-        @results = @family_grid.assets.size
-        @family_grid.scope { |scope| scope.page(params[:page]).per(20) }
+        # UX round 3 (B4/R10 — closes POAM-022): the HTML branch is ability-scoped like the
+        # XLS one. A no-op for the pre-existing roles (their Family rules are unconditional);
+        # load-bearing for the newly admitted caseload-scoped roles (case worker/able manager).
+        # .distinct: the caseload rule joins through cases -> possible duplicate rows.
+        @results = @family_grid.scope { |scope| scope.accessible_by(current_ability).distinct }.assets.size
+        @family_grid.scope { |scope| scope.accessible_by(current_ability).distinct.page(params[:page]).per(20) }
       end
       f.xls do
         # Phase 6 (U1): scope the export by ability (bulk-exfil hygiene; mirrors clients#index).
-        # The HTML branch is deliberately left as-is — index reachability is already gated by
-        # load_and_authorize_resource, and re-scoping HTML is tracked separately (POA&M).
-        @family_grid.scope { |scope| scope.accessible_by(current_ability) }
+        @family_grid.scope { |scope| scope.accessible_by(current_ability).distinct }
         send_data @family_grid.to_xls, filename: "family_report-#{Time.now}.xls"
       end
     end

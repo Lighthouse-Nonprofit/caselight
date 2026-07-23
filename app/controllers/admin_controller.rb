@@ -12,7 +12,9 @@ class AdminController < ApplicationController
 
   def set_sidebar_basic_info
     @client_count  = Client.accessible_by(current_ability).count
-    @family_count  = Family.count
+    # UX round 3 (B4): the sidebar badge follows the viewer's household scope (matches the
+    # @client_count idiom; .distinct — the caseload rule joins through cases).
+    @family_count  = Family.accessible_by(current_ability).distinct.count
     @user_count    = User.accessible_by(current_ability).count
     @partner_count = Partner.count
     @agency_count  = Agency.count
