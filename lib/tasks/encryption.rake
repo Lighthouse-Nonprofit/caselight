@@ -352,7 +352,13 @@ namespace :encryption do
   # (it re-encrypts the nil), hence read_attribute + update_columns: read_attribute decrypts
   # via current-or-previous scheme while bypassing the ignore_case reader override, and
   # update_columns serializes back through the encrypted types (new scheme + sidecar) without
-  # callbacks. Idempotent; per-tenant like the other tasks here.
+  # callbacks. Per-tenant like the other tasks here.
+  #
+  # IDEMPOTENT BY SKIPPING (2026-07-23 lesson): a column whose original_* sidecar is already
+  # populated is ALREADY on the new scheme — leave it alone. On such a row read_attribute(col)
+  # returns the DOWNCASED ignore_case column; blindly writing that into original_* (as this
+  # task once did) destroys the display case of every name on a re-run. The migration read is
+  # only correct for LEGACY rows, where the old-scheme ciphertext still holds the original case.
   CLIENT_NAME_COLUMNS = %i[given_name family_name local_given_name local_family_name].freeze
 
   desc 'Re-encrypt client name columns under the ignore_case scheme + populate original_* (UX round 3 C1). CONFIRM=1 required.'
@@ -365,6 +371,11 @@ namespace :encryption do
       Client.unscoped.find_each do |client|
         updates = {}
         CLIENT_NAME_COLUMNS.each do |col|
+          # IDEMPOTENCE: sidecar already populated = already migrated; a re-run must not touch
+          # it (read_attribute(col) is downcased on a migrated row — writing it into the
+          # sidecar would destroy the display case, as the 2026-07-23 box re-run proved).
+          next unless client.read_attribute(:"original_#{col}").nil?
+
           value = client.read_attribute(col)
           # NIL-GUARD (2026-07-22 incident): nil read + non-NULL stored value = the read failed,
           # not "the name is nil". Never replace stored ciphertext with NULL.
@@ -373,10 +384,14 @@ namespace :encryption do
                  'non-NULL — SKIPPING column'
             next
           end
+          next if value.nil? # nothing stored — nothing to migrate
+
           updates[col] = value
           updates[:"original_#{col}"] = value
         end
-        client.update_columns(updates) if updates.any?
+        next if updates.empty?
+
+        client.update_columns(updates)
         count += 1
       rescue => e
         puts "  [#{tenant}] Client##{client.id} FAILED: #{e.class}: #{e.message}"
