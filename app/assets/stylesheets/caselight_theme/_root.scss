@@ -34,6 +34,42 @@
   src: url('/fonts/open-sans/open-sans-700.woff2') format('woff2');
 }
 
+// ---- Manrope (UX round 4) — the DISPLAY family: h1–h5, page/hub titles, dashboard counts.
+//      Body/tables/forms stay Open Sans. Latin subset, static weights 500–800, woff2-only,
+//      self-hosted (CSP: no runtime font CDNs). font-display: swap + the system stack in
+//      $font-family-display keeps first paint readable.
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/manrope/manrope-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/manrope/manrope-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/manrope/manrope-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/manrope/manrope-800.woff2') format('woff2');
+}
+
 // ---- CaseLight brand tokens as CSS custom props (convenience handles for markup / inline use).
 :root {
   --cl-amber: #E8A33D;
@@ -57,19 +93,31 @@ body {
   color: $body-color;
 }
 
-// ---- Headings. Exact px sizes / weights / letter-spacing ported from _refresh.scss.
-h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: $font-family-base;
+// ---- Headings (UX round 4). h1–h5 speak the Manrope display family on a REM scale
+//      (deliberately NOT routed through BS $h*-font-size — those pass through the RFS
+//      fluid-type mixin, an uncontrolled behavior change). h6 stays the Open Sans
+//      uppercase MICRO-LABEL — the same vocabulary as table theads and info-grid labels.
+//      h3/h4/h5 margin-tops are load-bearing on legacy pages; keep them.
+h1, h2, h3, h4, h5, .h1, .h2, .h3, .h4, .h5 {
+  font-family: $headings-font-family;
   font-weight: 600;
   line-height: 1.25;
   color: $body-color;
 }
-h1, .h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
-h2, .h2 { font-size: 23px; font-weight: 600; letter-spacing: -0.01em; }
-h3, .h3 { font-size: 18px; font-weight: 600; margin-top: 8px; }
-h4, .h4 { font-size: 15px; font-weight: 600; margin-top: 6px; }
-h5, .h5 { font-size: 13px; font-weight: 600; margin-top: 5px; }
-h6, .h6 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+h1, .h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }   // 28px
+h2, .h2 { font-size: 1.375rem; font-weight: 700; letter-spacing: -0.015em; } // 22px
+h3, .h3 { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.01em; margin-top: 8px; } // 18px
+h4, .h4 { font-size: .9375rem; font-weight: 600; margin-top: 6px; }          // 15px
+h5, .h5 { font-size: .8125rem; font-weight: 600; margin-top: 5px; }          // 13px
+h6, .h6 {
+  font-family: $font-family-base;
+  font-size: .6875rem; // 11px
+  font-weight: 700;
+  line-height: 1.25;
+  color: $body-color;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 
 // ---- Links (harbor, with a soft color transition).
 a { color: $lazur; transition: color 0.12s ease-in-out; }

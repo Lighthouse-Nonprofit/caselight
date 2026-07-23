@@ -23,8 +23,8 @@
 
   .client-hub__name {
     margin: 0;
-    font-size: 22px;
-    font-weight: 600;
+    font-size: 1.5rem; // UX round 4: the record name is the page's display moment (Manrope)
+    font-weight: 700;
     color: $navy;
   }
 
