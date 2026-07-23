@@ -98,13 +98,12 @@
         = link_to client_client_enrollments_path(client), class: "nav-link #{'active' if active_tab == :programs}" do
           = t('clients.client_header.programs', default: 'Programs')
           %span.client-hub__tab-chip= client.client_enrollments.active.count
-      - if client_hub_forms(client).any?
-        -# UX review 1: the forms DROPDOWN was redundant with the Overview's Forms card —
-        -# the tab now jumps to that card (each form is one more click there).
-        %li.nav-item
-          = link_to client_path(client, anchor: 'client-forms'), class: "nav-link #{'active' if active_tab == :forms}" do
-            = t('clients.client_header.forms', default: 'Forms')
-            %span.client-hub__tab-chip= client_hub_forms(client).size
+      -# UX round 3 (A1): Forms is a real partition page (Programs-style; the Overview card and
+      -# its anchor are gone). Always rendered — Add Form needs a home even at zero filled forms.
+      %li.nav-item
+        = link_to client_forms_path(client), class: "nav-link #{'active' if active_tab == :forms}" do
+          = t('clients.client_header.forms', default: 'Forms')
+          %span.client-hub__tab-chip= client_hub_forms(client).size
       - if can? :manage, CaseNote
         %li.nav-item
           = link_to client_case_notes_path(client), class: "nav-link #{'active' if active_tab == :case_notes}" do
