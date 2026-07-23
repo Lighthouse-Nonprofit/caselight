@@ -31,6 +31,8 @@
               %li= link_to t('shared.actions.edit', default: 'Edit'), edit_family_path(family), class: 'dropdown-item'
             - if can? :manage, CustomFieldProperty
               %li= link_to t('families.family_header.add_form', default: 'Add Form'), family_forms_path(family), class: 'dropdown-item'
+            - if can? :create, family.family_notes.new
+              %li= link_to t('families.family_header.new_family_note', default: 'New Household Note'), new_family_family_note_path(family), class: 'dropdown-item'
             - if can? :destroy, family
               %li
                 %hr.dropdown-divider
@@ -48,3 +50,8 @@
       = link_to family_forms_path(family), class: "nav-link #{'active' if active_tab == :forms}" do
         = t('families.family_header.forms', default: 'Forms')
         %span.client-hub__tab-chip= family_hub_forms(family).size
+    - if can? :read, FamilyNote
+      %li.nav-item
+        = link_to family_family_notes_path(family), class: "nav-link #{'active' if active_tab == :notes}" do
+          = t('families.family_header.notes', default: 'Notes')
+          %span.client-hub__tab-chip= family.family_notes.count

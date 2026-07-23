@@ -50,6 +50,9 @@ namespace :encryption do
       'Client'       => %i[reason_for_referral background exit_note rejected_note
                            relevant_referral_information],
       'Family'       => %i[caregiver_information case_history],
+      # UX round 3 (B2): FamilyNote is born-encrypted (no plaintext rows exist to backfill) but
+      # registers here so encryption:verify covers it and the registry drift guard stays green.
+      'FamilyNote'   => %i[note],
       'ProgressNote' => %i[response additional_note]
     },
     '2' => {

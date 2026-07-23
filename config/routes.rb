@@ -217,6 +217,8 @@ Rails.application.routes.draw do
     resources :custom_field_properties
     # UX round 3 (B1) — the family hub's merged Forms partition page.
     resources :forms, only: [:index]
+    # UX round 3 (B2) — household-level notes (the hub's Notes tab).
+    resources :family_notes
     get 'version' => 'families#version'
   end
 
