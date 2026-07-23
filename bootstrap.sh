@@ -130,6 +130,15 @@ for TIER in 1 2 3 4 5; do
   docker compose run --rm app bundle exec rake encryption:verify   TIER="$TIER"
 done
 
+# 7c. UX round 3 (C1): rewrite the four client-name columns under the ignore_case scheme and
+#     populate their original_* display sidecars. MUST run before `up` — with ignore_case the
+#     reader prefers the sidecar for encrypted rows, so a legacy row without one reads as NIL
+#     (names would render blank) until this rewrites it. Idempotent like the tier backfills
+#     (already-rewritten rows round-trip unchanged). Runs AFTER the tier loop on purpose: the
+#     TIER=4 backfill re-ciphers the name columns but leaves the sidecars alone.
+echo "==> re-encrypting client names under the ignore_case scheme (C1)"
+docker compose run --rm app bundle exec rake encryption:reencrypt_client_names CONFIRM=1
+
 # 8. Up the app + worker.
 echo "==> starting app + sidekiq"
 docker compose up -d app sidekiq
