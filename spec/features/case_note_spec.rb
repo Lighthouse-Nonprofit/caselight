@@ -15,6 +15,16 @@ describe 'CaseNote' do
       visit new_client_case_note_path(client)
     end
 
+    # UX round 3 (D1/R7): sections render hidden until their domain group is picked in the
+    # "Domains discussed" Tom Select — drive the underlying tomselect instance directly
+    # (the CIF.Select adapter keeps the native <select> synced and fires onChange).
+    def pick_domain_section(domain_group)
+      page.execute_script(
+        "document.getElementById('case-note-domain-select').tomselect.addItem('#{domain_group.id}')"
+      )
+      expect(page).to have_css(".case-note-domain-section[data-domain-group-id='#{domain_group.id}']:not(.d-none)")
+    end
+
     def add_tasks(n)
       (1..n).each do |time|
         dismiss_datepicker
@@ -37,6 +47,10 @@ describe 'CaseNote' do
     end
 
     scenario 'valid', js: true do
+      # D1: all sections start hidden; pick the domain group first
+      expect(page).to have_css('.case-note-domain-section.d-none', visible: :all)
+      pick_domain_section(domain.domain_group)
+
       fill_in 'case_note_meeting_date', with: '2017-04-01'
       fill_in 'Who was there during the visit or conversation?', with: 'Jonh'
       fill_in 'Note', with: 'This is valid'
@@ -44,16 +58,48 @@ describe 'CaseNote' do
       add_tasks(5)
       dismiss_datepicker
       find('#case-note-submit-btn').click
-      
+
       sleep 1
       expect(page).to have_content('April 01, 2017')
       expect(page).to have_content('Jonh')
       expect(page).to have_content('This is valid')
     end
 
+    scenario 'unpicked sections do not persist (D1)', js: true do
+      other_group = create(:domain_group)
+      visit new_client_case_note_path(client) # re-visit so the new group renders
+
+      pick_domain_section(domain.domain_group)
+      fill_in 'case_note_meeting_date', with: '2017-04-01'
+      fill_in 'Who was there during the visit or conversation?', with: 'Jonh'
+      fill_in 'Note', with: 'Housing only'
+      dismiss_datepicker
+      find('#case-note-submit-btn').click
+
+      expect(page).to have_content('Housing only')
+      note = CaseNote.most_recents.first
+      expect(note.case_note_domain_groups.count).to eq(1)
+      expect(note.domain_groups).not_to include(other_group)
+    end
+
     xscenario 'invalid' do
       click_button 'Save'
       expect(page).to have_content("can't be blank")
+    end
+  end
+
+  feature 'Edit (D1 picker pre-selection)' do
+    let!(:case_note) { create(:case_note, client: client, assessment: assessment) }
+    let!(:filled_row) { create(:case_note_domain_group, case_note: case_note, domain_group: domain.domain_group, note: 'existing narrative') }
+    let!(:blank_group) { create(:domain_group) }
+
+    scenario 'filled sections show, blank ones stay hidden but pickable', js: true do
+      visit edit_client_case_note_path(client, case_note)
+
+      expect(page).to have_css(".case-note-domain-section[data-domain-group-id='#{domain.domain_group.id}']:not(.d-none)")
+      expect(page).to have_css(".case-note-domain-section[data-domain-group-id='#{blank_group.id}'].d-none", visible: :all)
+      # (have_field is shadowed by mongoid-rspec's HaveField matcher in this suite)
+      expect(find_field('Note').value).to eq('existing narrative')
     end
   end
 

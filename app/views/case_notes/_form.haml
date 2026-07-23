@@ -28,6 +28,17 @@
               .row
                 .col-12
                   #attendee-message.text-danger
+          -# UX round 3 (D1/R7): staff pick the domains the session covered — only those
+          -# sections show (JS hides + DISABLES the rest, so nothing from them submits; the
+          -# model reject_if is the no-JS/defense-in-depth path). Sections with existing
+          -# content are pre-selected on edit / validation re-render.
+          .mb-3.case-note-domain-picker
+            %label.form-label{ for: 'case-note-domain-select' }= t('.domains_discussed', default: 'Domains discussed')
+            %select#case-note-domain-select{ multiple: true, 'aria-describedby' => 'case-note-domain-hint' }
+              - @case_note.case_note_domain_groups.each do |cndg|
+                %option{ value: cndg.domain_group_id, selected: case_note_section_selected?(cndg) }
+                  = "#{cndg.domain_group.name} (#{cndg.domain_group.domain_identities})"
+            %small#case-note-domain-hint.text-muted= t('.domains_discussed_hint', default: 'Only the selected domains appear below and are saved.')
           = f.simple_fields_for :case_note_domain_groups do |cd|
             - if cd.object.domain_group.domains.assessment_domains_by_assessment_id(@case_note.assessment_id).any?
               = render 'form_with_assessment_domains', { cd: cd }
