@@ -1,8 +1,8 @@
--# UX rung 5 — the Overview tab's summary panes: enrolled programs, the resettlement case, and
--# recent program activity. UX round 3 (A1): the Forms card (incl. the break-glass locked list)
--# moved to the Forms partition page (forms#index); the hub tab links there.
+-# UX rung 5 — the Overview tab's summary panes. UX round 3: the Forms card moved to the Forms
+-# partition page (A1) and the Resettlement Case card folded into the About table (A2) — the
+-# row is now Programs | Recent program activity, side by side.
 .row.client-overview
-  .col-12.col-lg-3
+  .col-12.col-lg-6
     .ibox
       .ibox-title
         %h5= t('clients.client_header.programs', default: 'Programs')
@@ -28,10 +28,8 @@
           = link_to t('clients.overview.manage_programs', default: 'Manage programs'), client_client_enrollments_path(@client), class: 'btn btn-sm btn-outline-primary'
         - else
           %p.text-muted= t('clients.overview.no_program_access', default: 'You do not have access to program enrollments.')
-  = render 'placement'
-- if @recent_trackings.present?
-  .row
-    .col-12
+  - if @recent_trackings.present?
+    .col-12.col-lg-6
       .ibox
         .ibox-title
           %h5= t('clients.overview.recent_activity', default: 'Recent program activity')

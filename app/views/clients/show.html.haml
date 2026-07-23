@@ -140,6 +140,8 @@
                       = agency.name
 
               = render 'state'
+              -# UX round 3 (A2): the Resettlement Case card folded in here as plain rows.
+              = render 'about_case_rows', client: @client
               - if @client.exit_date
                 %tr
                   %td.spacing-first-col
