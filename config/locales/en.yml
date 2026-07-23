@@ -2195,6 +2195,8 @@ en:
       delete_blocked: Households with resettlement-case history cannot be deleted
       forms: Forms
       members: "%{count} member(s)"
+      new_family_note: New Household Note
+      notes: Notes
       overview: Overview
       since: Since
       unnamed: Household
@@ -2338,6 +2340,24 @@ en:
         edit: Edit
       update:
         successfully_updated: Custom Form has been successfully updated.
+  family_notes:
+    index:
+      family_notes: Household Notes
+      new_family_note: New Note
+      no_notes: No household notes yet.
+      present: Present
+    form:
+      edit_family_note: Edit Household Note
+      meeting_date: Date
+      new_family_note: New Household Note
+      note: Note
+      present: Present
+    create:
+      successfully_created: Household note has been successfully created.
+    update:
+      successfully_updated: Household note has been successfully updated.
+    destroy:
+      successfully_deleted: Household note has been successfully deleted.
   forms:
     index:
       filled_forms: Forms

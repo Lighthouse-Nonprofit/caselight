@@ -68,6 +68,9 @@ class Ability
       can :report, :all
 
       cannot :manage, CaseNote
+      # UX round 3 (B2): household notes mirror the CaseNote treatment — narrative PII is
+      # outside the oversight role's need-to-know entirely (cannot :manage revokes :read too).
+      cannot :manage, FamilyNote
     elsif user.case_worker?
       can :manage, AbleScreeningQuestion
       can :manage, Assessment
@@ -126,6 +129,7 @@ class Ability
         can :read, ProgressNote
       end
       can :manage, Family
+      can :manage, FamilyNote
       can :manage, Partner
       can :manage, Case, { case_type: 'EC', exited: false }
       can :manage, Assessment
@@ -157,6 +161,7 @@ class Ability
         can :read, ProgressNote
       end
       can :manage, Family
+      can :manage, FamilyNote
       can :manage, Partner
       can :manage, Case, { case_type: 'FC', exited: false }
       can :manage, Assessment
@@ -189,6 +194,7 @@ class Ability
         can :read, ProgressNote
       end
       can :manage, Family
+      can :manage, FamilyNote
       can :manage, Partner
       can :manage, Case, { case_type: 'KC', exited: false }
       can :manage, Assessment
@@ -222,6 +228,7 @@ class Ability
       can :manage, Assessment
       can :manage, CaseNote
       can :manage, Family
+      can :manage, FamilyNote
       can :manage, Partner
       can :manage, CustomFieldProperty, custom_formable_type: 'Client'
       can :manage, CustomFieldProperty, custom_formable_type: 'Family'

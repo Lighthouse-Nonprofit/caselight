@@ -1,0 +1,20 @@
+= simple_form_for [@family, @family_note] do |f|
+  .ibox
+    .ibox-title
+      %h5= @family_note.new_record? ? t('.new_family_note', default: 'New Household Note') : t('.edit_family_note', default: 'Edit Household Note')
+    .ibox-content
+      = f.error_notification
+      .mb-3.date.required.family_note_meeting_date{ class: ('has-error' if f.error :meeting_date) }
+        %label.date.required.form-label
+          %abbr{ title: 'required' } *
+          = t('.meeting_date', default: 'Date')
+        .input-group.date
+          = f.text_field :meeting_date, class: 'date required form-control date-picker', type: 'text', name: 'family_note[meeting_date]', id: 'family_note_meeting_date'
+          %span.input-group-text
+            %i.fa.fa-calendar-check-o
+        = f.error :meeting_date
+      = f.input :attendee, label: t('.present', default: 'Present')
+      = f.input :note, as: :text, label: t('.note', default: 'Note'), input_html: { rows: 6 }
+      .text-end
+        = link_to t('cancel', default: 'Cancel'), family_family_notes_path(@family), class: 'btn btn-outline-secondary'
+        = f.submit t('save', default: 'Save'), class: 'btn btn-primary'
