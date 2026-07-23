@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -278,6 +278,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_000002) do
     t.text "live_with", default: ""
     t.text "local_family_name", default: ""
     t.text "local_given_name", default: ""
+    t.text "original_family_name"
+    t.text "original_given_name"
+    t.text "original_local_family_name"
+    t.text "original_local_given_name"
     t.integer "province_id"
     t.text "reason_for_referral", default: ""
     t.integer "received_by_id"

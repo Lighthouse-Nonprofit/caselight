@@ -75,7 +75,11 @@ namespace :encryption do
     # encrypted type => stable ciphertext, same as Tier 3. NOT a login-blocker (unlike Tier 3 email), but
     # a name-SEARCH-blocker — un-backfilled rows won't match the ciphertext equality until this runs.
     '4' => {
-      'Client' => %i[given_name family_name local_given_name local_family_name]
+      # UX round 3 (C1): + the ignore_case original_* display sidecars (auto-encrypted,
+      # non-deterministic; populated by encryption:reencrypt_client_names, nil until then).
+      'Client' => %i[given_name family_name local_given_name local_family_name
+                     original_given_name original_family_name
+                     original_local_given_name original_local_family_name]
     },
     # Tier 5 (FINAL) — NON-DETERMINISTIC encryption of the polymorphic CUSTOM-FORM + program-stream JSONB
     # value stores (.properties). Columns were jsonb, widened to :text (20260625000004) + declared
@@ -314,6 +318,40 @@ namespace :encryption do
       stragglers.first(50).each { |t, m, a, id| puts "  tenant=#{t} #{m}##{id}.#{a}" }
       puts "  ...(+#{stragglers.size - 50} more)" if stragglers.size > 50
       abort '[encryption:verify] stragglers present — run encryption:backfill CONFIRM=1; do NOT flip strict mode.'
+    end
+  end
+
+  # UX round 3 (C1) — re-encrypt the four Tier-4 name columns under the ignore_case scheme and
+  # populate the original_* display sidecars. MUST run DURING the C1 deploy (between migrate
+  # and serving traffic — bootstrap.sh's backfill stage): with ignore_case, the reader prefers
+  # original_<col> for any encrypted row, so a legacy row without its sidecar reads as NIL —
+  # names would render blank until this runs. record.encrypt would NOT populate the sidecars
+  # (it re-encrypts the nil), hence read_attribute + update_columns: read_attribute decrypts
+  # via current-or-previous scheme while bypassing the ignore_case reader override, and
+  # update_columns serializes back through the encrypted types (new scheme + sidecar) without
+  # callbacks. Idempotent; per-tenant like the other tasks here.
+  CLIENT_NAME_COLUMNS = %i[given_name family_name local_given_name local_family_name].freeze
+
+  desc 'Re-encrypt client name columns under the ignore_case scheme + populate original_* (UX round 3 C1). CONFIRM=1 required.'
+  task reencrypt_client_names: :environment do
+    abort '[encryption:reencrypt_client_names] CONFIRM=1 required' unless ENV['CONFIRM'] == '1'
+    tenants = Organization.pluck(:short_name)
+    tenants.each do |tenant|
+      Apartment::Tenant.switch!(tenant)
+      count = 0
+      Client.unscoped.find_each do |client|
+        updates = {}
+        CLIENT_NAME_COLUMNS.each do |col|
+          value = client.read_attribute(col)
+          updates[col] = value
+          updates[:"original_#{col}"] = value
+        end
+        client.update_columns(updates)
+        count += 1
+      rescue => e
+        puts "  [#{tenant}] Client##{client.id} FAILED: #{e.class}: #{e.message}"
+      end
+      puts "[encryption:reencrypt_client_names] tenant=#{tenant} re-encrypted=#{count}"
     end
   end
 end

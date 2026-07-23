@@ -23,6 +23,13 @@ class ClientGrid
     end
   end
 
+  # UX round 3 (C1/R13) — the header quick search: first OR last name, case-insensitive,
+  # whole-token equality (see Client.quick_name_search). Subquery on purpose: this grid's scope
+  # carries heavy includes and Relation#or raises on structurally different relations.
+  filter(:quick_search, :string, header: -> { I18n.t('datagrid.columns.clients.quick_search', default: 'Name (first or last)') }) do |value, scope|
+    scope.where(id: Client.quick_name_search(value).select(:id))
+  end
+
   filter(:given_name, :string, header: -> { I18n.t('datagrid.columns.clients.given_name') }) { |value, scope| scope.given_name_like(value) }
 
   filter(:family_name, :string, header: -> { I18n.t('datagrid.columns.clients.family_name') }) { |value, scope| scope.family_name_like(value) }
