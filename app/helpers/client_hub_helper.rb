@@ -31,6 +31,23 @@ module ClientHubHelper
     end
   end
 
+  # UX round 3 (B3) — active alerts on any of the client's households ("read first" follows
+  # the people): a red chip in the header links to the household's Alerts tab. Single query,
+  # ability-scoped, memoized; fail-closed to none.
+  def client_hub_household_alerts(client)
+    @client_hub_household_alerts ||= begin
+      if defined?(FamilyAlert)
+        FamilyAlert.active.accessible_by(current_ability)
+                   .where(family_id: client.families.select(:id))
+                   .includes(:family).most_recents.to_a
+      else
+        []
+      end
+    rescue StandardError
+      []
+    end
+  end
+
   # Filled custom forms the current viewer may see for `client`, grouped by form — feeds the
   # header's Forms dropdown on every hub page. Gated on the Phase-5.3 record-aware visible
   # set (visible_custom_field_ids_for is exposed as a helper_method by SensitiveFields);

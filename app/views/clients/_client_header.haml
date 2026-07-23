@@ -23,6 +23,11 @@
         %span.client-hub__grant.badge.text-bg-warning{ title: t('clients.client_header.grant_title', default: 'Break-glass emergency access active on this record') }
           %i.fa.fa-unlock-alt{ 'aria-hidden' => 'true' }
           = t('clients.client_header.grant_expires', default: 'Emergency access · %{minutes} min left', minutes: [((first_grant.expires_at - Time.current) / 60).ceil, 0].max)
+      -# UX round 3 (B3): "read first" household alerts follow the members.
+      - if (can? :read, FamilyAlert) && (household_alert = client_hub_household_alerts(client).first)
+        = link_to family_family_alerts_path(household_alert.family), class: 'badge text-bg-danger client-hub__household-alert', title: t('clients.client_header.household_alert_title', default: '%{count} active household alert(s)', count: client_hub_household_alerts(client).size) do
+          %i.fa.fa-exclamation-triangle{ 'aria-hidden' => 'true' }
+          = t('clients.client_header.household_alert', default: 'Household alert')
       %p.client-hub__meta
         - if client.slug.present?
           %span.client-hub__slug= "##{client.slug}"
