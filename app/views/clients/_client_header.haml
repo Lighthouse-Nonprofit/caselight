@@ -1,14 +1,14 @@
--# UX rung 4 — persistent client hub header, rendered atop clients#show (full_actions: true)
--# and every client partition page (full_actions: false), so the partitions keep the client's
--# identity + one-click tab navigation. CSP-safe (BS5 data-bs-* only).
+-# UX rung 4 — persistent client hub header, rendered atop clients#show and every client
+-# partition page, so the partitions keep the client's identity + one-click tab navigation.
+-# CSP-safe (BS5 data-bs-* only).
 -#
 -# The status badge here is the ONLY status display outside the search filters (owner call).
 -# The tab bar renders only for accepted clients (pre-existing gating on the old button strip).
--# The "Open Resettlement Case" dropdown targets modals that clients/show.html.haml renders —
--# it therefore only appears when full_actions (i.e. on show itself).
+-# UX round 3 (A3): ONE Actions dropdown, identical on every hub page — every tab's create
+-# action lives here, and the exit modals render at the tail of this partial (they used to
+-# live on show only, which is why the case items were once show-gated via full_actions).
 -#
--# locals: client:, active_tab: (symbol from client_hub_active_tab), full_actions: (default false)
-- full_actions = local_assigns.fetch(:full_actions, false)
+-# locals: client:, active_tab: (symbol from client_hub_active_tab)
 - active_tab   = local_assigns[:active_tab]
 -# ClientsController decorates @client (care_code / date_of_birth_format live on
 -# ClientDecorator); the partition controllers hand us the bare model — normalize here.
@@ -53,7 +53,7 @@
             = t('clients.client_header.actions', default: 'Actions')
           %ul.dropdown-menu.dropdown-menu-end
             %li= link_to t('shared.actions.edit', default: 'Edit'), edit_client_path(client), class: 'dropdown-item'
-            - if full_actions && client.state == 'accepted'
+            - if client.state == 'accepted'
               - if can? :manage, Case
                 %li
                   %hr.dropdown-divider
@@ -80,7 +80,20 @@
                   %hr.dropdown-divider
               - if can? :create, CaseNote
                 %li= link_to t('clients.client_header.new_case_note', default: 'New Case Note'), new_client_case_note_path(client), class: 'dropdown-item'
-              - if can_read_client_progress_note?
+              -# UX round 3 (A3): every tab's create action lives here too.
+              - if can? :manage, CustomFieldProperty
+                %li= link_to t('clients.client_header.add_form', default: 'Add Form'), client_forms_path(client), class: 'dropdown-item'
+              - if can? :manage, Assessment
+                - if client.can_create_assessment?
+                  %li= link_to t('clients.client_header.new_assessment', default: 'New Assessment'), new_client_assessment_path(client), class: 'dropdown-item'
+                - else
+                  -# (mirrors assessments/index: creation waits out the 6-month window)
+                  %li
+                    %span.dropdown-item.disabled{ 'aria-disabled' => 'true', title: t('clients.client_header.next_assessment_hint', default: 'Next assessment available %{date}', date: date_format(client.next_assessment_date)) }
+                      = t('clients.client_header.new_assessment', default: 'New Assessment')
+              - if can? :manage, Task
+                %li= link_to t('clients.client_header.new_task', default: 'New Task'), new_client_task_path(client), class: 'dropdown-item'
+              - if can_read_client_progress_note?(client)
                 %li= link_to t('clients.show.progress_note'), client_progress_notes_path(client), class: 'dropdown-item'
               - if client.has_any_quarterly_reports? && (can? :manage, QuarterlyReport)
                 %li= link_to t('clients.show.view_legacy_quarterly_reports'), client_case_quarterly_reports_path(client, client.latest_case), class: 'dropdown-item'
@@ -121,3 +134,13 @@
         = link_to client_tasks_path(client), class: "nav-link #{'active' if active_tab == :tasks}" do
           = t('clients.client_header.tasks', default: 'Tasks')
           %span.client-hub__tab-chip= client.tasks.incomplete.count
+-# UX round 3 (A3): the exit modals the Actions items target — rendered with the header so
+-# the dropdown works on every hub page, not just show. Same gates as the menu items above.
+- if client.state == 'accepted' && (can? :manage, Case)
+  - if client.cases.exclude_referred.current.blank?
+    - if client.client_enrollments.active.count > 0
+      = render 'clients/remaining_programs', client: client
+    - else
+      = render 'clients/exit_ngo_form', client: client
+  - else
+    = render 'clients/exit_case_form', client: client, client_case: client.cases.exclude_referred.current
