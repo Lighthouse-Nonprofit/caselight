@@ -135,6 +135,26 @@ module ClientsHelper
     end
   end
 
+  # UX round 3 (C2/R12) — the admin grid's Name-header sort toggle (last-name A–Z <-> Z–A).
+  def next_name_order
+    params.dig(:client_grid, :order) == 'family_name' ? 'family_name_desc' : 'family_name'
+  end
+
+  def name_sort_caret
+    case params.dig(:client_grid, :order)
+    when 'family_name'      then 'fa-sort-asc'
+    when 'family_name_desc' then 'fa-sort-desc'
+    else 'fa-sort'
+    end
+  end
+
+  def name_sort_aria
+    case params.dig(:client_grid, :order)
+    when 'family_name'      then 'ascending'
+    when 'family_name_desc' then 'descending'
+    end
+  end
+
   def ec_manageable
     current_user.admin? || current_user.case_worker? || current_user.ec_manager? || current_user.manager?
   end
