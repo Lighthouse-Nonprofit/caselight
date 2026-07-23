@@ -34,13 +34,13 @@ cache, and job queue are not exposed to the network.
 | Component | Version | Role |
 |---|---|---|
 | Ruby | 4.0.5 (`ruby:4.0`, Debian Trixie) | Runtime |
-| Rails | 8.0.5 (Zeitwerk, Rack 3) | Framework |
+| Rails | 8.1.3 (Zeitwerk, Rack 3; POAM-020 **closed** 2026-07-19) | Framework |
 | PostgreSQL | 17 (`pg` 1.6) | Primary relational store (schema-per-tenant) |
 | MongoDB | 8.0 (Mongoid 9.0) | Change-history + access-audit store (single shared DB, tenant-field-scoped) |
-| Redis + Sidekiq | 7 / 7.3 | Background jobs (mailers, reports) |
+| Redis + Sidekiq | 7 / 8.1.6 | Background jobs (mailers, reports) |
 | Node | 24 LTS (build-time) | Terser JS compression / asset precompilation |
 | Asset pipeline | Sprockets 4.2 + dart-sass (dartsass-rails 0.5) + ES2015+ JS, haml 7.2 (POAM-017e **closed**, R6/R9–R11) | SCSS/JS compilation |
-| Browser UI | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g **closed** 2026-07-13; INSPINIA removed — see `poam-017g-verification.md`), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 4.7 | UI (whole POAM-017 family closed a–g; eval libraries replaced R12A/B; **enforced nonce-based CSP — POAM-017f closed**) |
+| Browser UI | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g **closed** 2026-07-13; INSPINIA removed — see `poam-017g-verification.md`), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 6.7.2 (v4 shims) | UI (whole POAM-017 family closed a–g; eval libraries replaced R12A/B; **enforced nonce-based CSP — POAM-017f closed**) |
 | PDF engine | wkhtmltopdf 0.12.6.1-3 (official bookworm build, sha256-pinned in the Dockerfile) | Government-report PDF download (upstream sunset tracked, POAM-019) |
 | App server | puma 8 (threaded; config/puma.rb), behind Dockerized Caddy (`proxy` profile) | HTTP (replaced the sparsely-maintained thin, 2026-07) |
 
@@ -113,7 +113,7 @@ resolvable code path; run `rake compliance:evidence` for a machine-checked snaps
 |---|---|---|---|
 | SC-5 / AC-7 DoS / rate-limit | Implemented | rack-attack throttles on auth + 2FA + passkey endpoints | `config/initializers/rack_attack.rb` |
 | SC-7 boundary / headers | Implemented | Explicit security headers; **enforced nonce-based CSP** (every directive `'self'`-pinned; violation reports → `/csp_reports`; `ENFORCE_CSP=false` kill switch = report-only shadow mode); force_ssl/assume_ssl behind proxy; `TenantBoundary` | `config/application.rb`, `content_security_policy.rb`, `csp_reports_controller.rb`, `tenant_boundary.rb` |
-| SC-8 transit encryption | Partial / Inherited | force_ssl + HSTS in app; **TLS termination is Caddy/Let's Encrypt, documented but not yet stood up** (§5) | `SETUP.md`/`OPERATIONS.md`; app: `production.rb` |
+| SC-8 transit encryption | Implemented (pilot) / Inherited | force_ssl + HSTS in app; TLS termination is Dockerized Caddy/Let's Encrypt (`proxy` compose profile) — **operating on the pilot box** since 2026-06; production hostname/DNS remain a real-data-gate item (§5) | `OPERATIONS.md`; app: `production.rb` |
 | SC-12 / SC-13 key mgmt & crypto | Implemented (pilot) / TBD (prod) | ActiveRecord Encryption; keys derived from `secret_key_base` in pilot — **real-data host MUST supply independent KMS-managed keys via ENV** | `config/initializers/active_record_encryption.rb`; `encryption-at-rest.md` §Key management |
 | SC-28 / SC-28(1) at rest | Implemented (primary + history) | Field-level encryption Tiers 1–5 (names/narratives/address/staff-PII/custom-form JSONB); history stores redacted at source + scrubbed | `encryption-at-rest.md`; `history-store-sc28-poam.md` (REMEDIATED); `tier{1..4}_encryption_spec`, `paper_trail_redaction_spec` |
 | SC-28 authorized file serving | Implemented | `DownloadsController` (CanCan + sensitivity gate + fail-closed); `UploadsStaticGuard` denies raw `/uploads/**` except org logo | `app/controllers/downloads_controller.rb`, `config/initializers/assets_uploads_guard.rb` |
@@ -141,7 +141,7 @@ is designed to sit correctly on top of them (e.g. `force_ssl` assumes a TLS-term
 | Control area | Inherited responsibility |
 |---|---|
 | SC-28 disk-at-rest | EBS volume encryption (defense-in-depth beneath field-level encryption; sole layer for the documented plaintext residuals) |
-| SC-8 transit | TLS termination + cert lifecycle (Caddy/Let's Encrypt) — **planned; not yet operating** (§5) |
+| SC-8 transit | TLS termination + cert lifecycle (Caddy/Let's Encrypt) — **operating on the pilot box** (auto-renewing; §5 covers the production hostname) |
 | SC-12 keys | KMS / Secrets Manager for the real-data host's AR-Encryption keys |
 | SC-7 network | Security groups (SSH via SSM only, zero inbound; DB/Mongo/Redis never exposed), private subnet/VPC, WAF |
 | AU-8 time | Trusted NTP time source |
@@ -167,8 +167,9 @@ behind `SECURITY.md`'s production gate.
 - **`cases.exit_note` plaintext** (POAM-012) — encrypt or read-through before real data (High).
 - **Live client-record retention window** — currently **TBD and blocking** (`policies/data-retention.md`
   §2); set with the org (immigration + minors' records especially).
-- **TLS in operation** — stand up Caddy/Let's Encrypt (documented, not yet live; box currently reached
-  only via the SSM tunnel on `127.0.0.1`).
+- **TLS in operation** — ~~stand up Caddy/Let's Encrypt~~ **live on the pilot box** (Dockerized
+  Caddy, auto-renewing Let's Encrypt). Remaining for real data: a production domain (the pilot
+  uses a nip.io hostname) and restricting 80/443 to pilot IPs/VPN per `SECURITY.md`.
 - **Incident/breach response plan with named owners** (`policies/incident-response.md` — owners TBD).
 - **Encrypted, tested backups + restore drill**; **WAF**; **network isolation** (inherited, must be
   confirmed operating).
@@ -177,9 +178,9 @@ behind `SECURITY.md`'s production gate.
 
 **Accepted residuals (documented, lower risk):** `Client.date_of_birth` plaintext (query/reporting
 need; locked), `users.pin_number` plaintext (not an authenticator; hash-if-repurposed), slug/org-code
-plaintext (routing identifiers). POAM-011 (webrick, transitive/never-booted, no patch yet),
-POAM-013/014/015/016, and POAM-AC3-COMPARE — all tracked in `vulnerability-poam.md`, none blocking the
-synthetic-data pilot.
+plaintext (routing identifiers). POAM-013/014/015 and POAM-AC3-COMPARE — all tracked in
+`vulnerability-poam.md`, none blocking the synthetic-data pilot (POAM-011 closed 2026-07-12,
+POAM-016 closed 2026-07-19).
 
 **Licensing (clean-fork handoff):** CaseLight is AGPL-3.0 (network use is a distribution trigger — a
 hosted client is owed the modified source). Open item: verify OSCaR's upstream license with

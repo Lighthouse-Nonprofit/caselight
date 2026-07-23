@@ -1,7 +1,9 @@
 # Incident Response Policy — CaseLight
 
 _NIST 800-53: IR-1, IR-4, IR-6, IR-8. SOC 2: CC7.3, CC7.4, CC7.5. Owner: the operating nonprofit.
-Review: annually and after any incident or tabletop exercise._
+Review: annually and after any incident or tabletop exercise. Last reviewed: **2026-07-23**, after
+the pilot-box data-loss incident (synthetic data; full IR-8 record:
+[`../incidents/2026-07-22-tier4-backfill-data-loss.md`](../incidents/2026-07-22-tier4-backfill-data-loss.md))._
 
 > **Production gate:** `SECURITY.md` requires "an incident/breach response plan with named owners"
 > **before real client data**. This policy is the template; the operating org MUST fill in the

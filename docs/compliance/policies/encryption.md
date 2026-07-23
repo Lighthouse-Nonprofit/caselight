@@ -13,7 +13,8 @@ primary.
 
 1. **In transit (SC-8).** All external traffic is HTTPS: the app sets `force_ssl` + HSTS and trusts a
    TLS-terminating reverse proxy (Caddy / Let's Encrypt). **Status:** documented and code-ready;
-   Caddy is **not yet stood up** on the pilot box (reached via the SSM tunnel on `127.0.0.1`).
+   Caddy is **live on the pilot box** (Dockerized, `proxy` compose profile, auto-renewing
+   Let's Encrypt; see `OPERATIONS.md`). SSM remains the only shell path — no public SSH.
    Standing up TLS is a production gate (`ssp.md` §5). Internal service ports (PG/Mongo/Redis) are not
    network-exposed.
 2. **At rest — field-level (SC-28/SC-28(1)).** Sensitive PII columns are encrypted with **ActiveRecord
