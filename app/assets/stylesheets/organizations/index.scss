@@ -16,7 +16,7 @@ body[id='organizations-index']{
     transition: 0.3s;
     vertical-align: middle;
     &:hover {
-      box-shadow: 1px 1px 10px #888888;
+      box-shadow: $refresh-shadow-md; // UX round 4: was a gray #888 outlier off the navy-tinted system
     }
     img {
       max-height: 50%;

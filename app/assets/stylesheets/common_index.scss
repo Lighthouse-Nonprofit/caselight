@@ -145,9 +145,7 @@
   left: 100%;
   margin-top: -6px;
   margin-left: -1px;
-  -webkit-border-radius: 0 0 4px 4px;
-  -moz-border-radius: 0 0 4px 4px;
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 $border-radius $border-radius;
 }
 
 .dropdown-submenu:hover .dropdown-menu {

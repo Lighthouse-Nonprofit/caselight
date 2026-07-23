@@ -24,7 +24,7 @@ trix-editor.trix-content {
   overflow-y: auto;
   background-color: #fff;
   border: 1px solid #e5e6e7; // matches the theme's .form-control border
-  border-radius: 1px;
+  border-radius: .375rem; // = $border-radius-sm (this file imports BEFORE caselight_theme — tokens unavailable)
   padding: 6px 12px;
 
   &:focus {

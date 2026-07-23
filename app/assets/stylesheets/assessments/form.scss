@@ -83,19 +83,19 @@ body[id='assessments-update'] {
 
   .wizard > .actions .disabled a{
     border: 1px solid #acb3ac;
-    border-radius: 3px;
+    border-radius: $border-radius-sm;
     text-align: center;
     display: inline;
   }
   .wizard > .actions a{
     text-align: center;
     display: inline;
-    border-radius: 3px;
+    border-radius: $border-radius-sm;
   }
 
   .score_option.is_error{
     border: 1px solid #a94442;
-    border-radius: 2px;
+    border-radius: $border-radius-sm;
   }
   .score_option {
     border: 1px solid #fff;
@@ -129,7 +129,7 @@ body[id='assessments-update'] {
         z-index: 90;
         width: 40px;
         height: 40px;
-        border-radius: 5px;
+        border-radius: $border-radius;
       }
       label:hover {
         background:#DDD;

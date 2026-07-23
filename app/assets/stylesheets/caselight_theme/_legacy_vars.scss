@@ -28,9 +28,12 @@ $sidebar-width:   $cl-sidebar-width;
 $label-badget-color: #454545;
 
 // Visual-refresh design tokens
+// UX round 4: the refresh radii now ALIAS the BS5 tokens (they were decoupled literals —
+// two radius systems that drifted). Every $refresh-radius consumer is a card surface
+// (.ibox, record-cards/grid, login, toastr), hence the -lg mapping.
 $refresh-border:      $cl-border;   // #e2e6ea
-$refresh-radius:      4px;
-$refresh-radius-sm:   3px;
+$refresh-radius:      $border-radius-lg;  // .75rem cards
+$refresh-radius-sm:   $border-radius-sm;  // .375rem
 $refresh-radius-pill: 10rem;
 $refresh-shadow-sm:   $box-shadow-sm;
 $refresh-shadow:      $box-shadow;

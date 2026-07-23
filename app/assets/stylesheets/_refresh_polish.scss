@@ -6,26 +6,11 @@
 $rp-hairline: #e2e6ea;
 $rp-label:    #6b7688;
 $rp-value:    #2b3648;
-$rp-radius:   6px;
 
-// --- Detail-page cards: gentle elevation + rounding (show pages only) ---
-// INSPINIA .ibox / .ibox-title are KEPT class names (restyled on BS5 DNA elsewhere in the theme);
-// this pass only layers the calmer elevation + navy heading treatment on show surfaces.
-body[id$="-show"] {
-  .ibox {
-    border-radius: $rp-radius;
-    box-shadow: 0 1px 3px rgba(31, 58, 95, .06), 0 1px 1px rgba(31, 58, 95, .04);
-  }
-  .ibox-title {
-    border-bottom: 1px solid $rp-hairline;
-
-    h5 {
-      font-weight: 600;
-      color: $navy;
-      letter-spacing: .01em;
-    }
-  }
-}
+// UX round 4 rung 2: the show-page-only .ibox radius/shadow overrides ($rp-radius 6px + a
+// hard-coded shadow pair) are RETIRED — cards now speak the unified $refresh-radius/$box-shadow
+// tokens on every page, and the hairline .ibox-title + navy h5 treatment was PROMOTED into
+// caselight_theme/_ibox.scss unscoped (index and show cards finally match).
 
 // --- Detail "About" attribute tables -> clean label/value rows (Casebook style).
 // Family summary + the client-show About-Individual panels share the .spacing-first-col label cell.

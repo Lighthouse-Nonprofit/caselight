@@ -10,7 +10,7 @@
   padding: 1px 5px;
   font-size: 12px;
   line-height: 1.5;
-  border-radius: 3px;
+  border-radius: $border-radius-sm;
 }
 
 // --- INSPINIA .btn-outline behaviour (65+128 uses) ---
@@ -65,7 +65,7 @@
 .clear { display: block; overflow: hidden; }
 .font-bold { font-weight: 600; }
 .text-xs { font-size: 11px; }
-.b-r-md { border-radius: 6px; }
+.b-r-md { border-radius: $border-radius; }
 .bg-color { background-color: #fff; }
 .wrapper-content { padding: 20px 10px 40px; }
 
