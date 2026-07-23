@@ -6,6 +6,8 @@
   .col-12
     - if @custom_formable.is_a?(Client)
       = render 'clients/client_header', client: @custom_formable, active_tab: client_hub_active_tab
+    - elsif @custom_formable.is_a?(Family)
+      = render 'families/family_header', family: @custom_formable, active_tab: family_hub_active_tab
     .ibox
       .ibox-title
         %h5= t('.filled_forms', default: 'Forms')
@@ -66,4 +68,4 @@
           - else
             %p.text-muted= t('.no_available_forms', default: 'Every available form has been started.')
 - @breakglass_forms.each do |custom_field|
-  = render 'clients/break_glass_modal', client: @custom_formable, custom_field: custom_field
+  = render 'shared/break_glass_modal', formable: @custom_formable, custom_field: custom_field

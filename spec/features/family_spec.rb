@@ -80,7 +80,7 @@ describe 'Family' do
       find(".family_clients select option[value='#{client.id}']", visible: false).select_option
       click_button 'Save'
       sleep 1
-      expect(page).to have_content('About Family Inactive Family')
+      expect(page).to have_css('h1.client-hub__name', text: 'Inactive Family') # UX round 3 (B1): name lives in the hub header
       client.reload
       expect(client.status).to eq('Referred')
     end
@@ -91,7 +91,7 @@ describe 'Family' do
       find(".family_clients select option[value='#{client.id}']", visible: false).select_option
       click_button 'Save'
       sleep 1
-      expect(page).to have_content('About Family Birth Family')
+      expect(page).to have_css('h1.client-hub__name', text: 'Birth Family')
       client.reload
       expect(client.status).to eq('Referred')
     end
@@ -102,7 +102,7 @@ describe 'Family' do
       find(".family_clients select option[value='#{client.id}']", visible: false).select_option
       click_button 'Save'
       sleep 1
-      expect(page).to have_content('About Family Emergency Family')
+      expect(page).to have_css('h1.client-hub__name', text: 'Emergency Family')
       client.reload
       expect(client.status).to eq('Active EC')
     end
@@ -113,7 +113,7 @@ describe 'Family' do
       find(".family_clients select option[value='#{client.id}']", visible: false).select_option
       click_button 'Save'
       sleep 1
-      expect(page).to have_content('About Family Foster Family')
+      expect(page).to have_css('h1.client-hub__name', text: 'Foster Family')
       client.reload
       expect(client.status).to eq('Active FC')
     end
@@ -124,7 +124,7 @@ describe 'Family' do
       find(".family_clients select option[value='#{client.id}']", visible: false).select_option
       click_button 'Save'
       sleep 1
-      expect(page).to have_content('About Family Kinship Family')
+      expect(page).to have_css('h1.client-hub__name', text: 'Kinship Family')
       client.reload
       expect(client.status).to eq('Active KC')
     end
@@ -169,12 +169,12 @@ describe 'Family' do
   end
 
   feature 'Delete', js: true do
-    # UX rung 2: the index delete buttons are gone — delete lives on the show page now
-    # (the disabled-delete variant is already pinned by the Show block below).
+    # UX round 3 (B1): delete lives in the family hub header's Actions dropdown now.
     before do
       visit family_path(family)
     end
     scenario 'success' do
+      find('.client-hub__edit .dropdown-toggle').click
       find("a[href='#{family_path(family)}'][data-method='delete']").click
       sleep 1
       expect(page).not_to have_content(family.name)
@@ -195,8 +195,11 @@ describe 'Family' do
       expect(page).to have_css("a[href='#{family_path(family)}'][data-method='delete']")
     end
     scenario 'disable delete' do
+      # UX round 3 (B1): a household with case history gets a disabled Delete dropdown item
+      # (a span, not a link) — no delete href renders at all.
       visit family_path(other_family)
-      expect(page).to have_css("a[href='#{family_path(other_family)}'][data-method='delete'][class='btn btn-outline btn-danger btn-md disabled']")
+      expect(page).to have_css('.client-hub__edit .dropdown-item.disabled.text-danger')
+      expect(page).not_to have_css("a[href='#{family_path(other_family)}'][data-method='delete']")
     end
   end
 

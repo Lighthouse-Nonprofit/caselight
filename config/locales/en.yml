@@ -2189,6 +2189,15 @@ en:
       successfully_deleted: Family has been successfully deleted.
     edit:
       edit_family_title: Edit Family
+    family_header:
+      actions: Actions
+      add_form: Add Form
+      delete_blocked: Households with resettlement-case history cannot be deleted
+      forms: Forms
+      members: "%{count} member(s)"
+      overview: Overview
+      since: Since
+      unnamed: Household
     form:
       address: Address
       caregiver_information: Household Notes
