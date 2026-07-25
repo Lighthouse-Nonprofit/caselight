@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '~> 8.1.0'  # POAM-020: on 8.1.x. 8.0.x was security-only, EOL 2026-11-07; this rung
 # lands the 8.1 hop ahead of Brakeman's ~2026-09-08 pending-EOL warning (target was 2026-10-31).
-# 8.2 is a future rung, capped out for now by mongoid 9.0.11 / ros-apartment / devise-two-factor
+# 8.2 is a future rung, capped out for now by mongoid 9.1 (activemodel < 8.2) / ros-apartment / devise-two-factor
 # (all activemodel/AR < 8.2). Prior: 7.2 closed POAM-005b; 8.0.5 closed POAM-018.
 gem 'nokogiri', '~> 1.16'
 gem 'loofah', '~> 2.3'
@@ -158,8 +158,8 @@ gem 'connection_pool',        '~> 3.0'
 # server 3.6-8.2 (the upcoming server-8.0 rung), making every step an officially-supported
 # combo. Driver stays mongo 2.x unpinned (9.0 requires >= 2.18; >= 2.21 covers server 8.0;
 # the lock already resolves the newest 2.x). No mongoid.yml changes: the app deliberately
-# carries zero Mongoid feature-flag config, so 9.0 defaults apply wholesale.
-gem 'mongoid', '~> 9.0.11'
+# carries zero Mongoid feature-flag config, so the 9.x defaults apply wholesale.
+gem 'mongoid', '~> 9.1.0'
 
 group :development, :test do
   gem 'pry'

@@ -378,7 +378,7 @@ GEM
     mongo (2.24.1)
       base64
       bson (>= 4.14.1, < 6.0.0)
-    mongoid (9.0.11)
+    mongoid (9.1.0)
       activemodel (>= 5.1, < 8.2, != 7.0.0)
       concurrent-ruby (>= 1.0.5, < 2.0)
       mongo (>= 2.18.0, < 3.0.0)
@@ -725,7 +725,7 @@ DEPENDENCIES
   loofah (~> 2.3)
   mail_interceptor (~> 0.0.7)
   mini_magick (~> 5.0)
-  mongoid (~> 9.0.11)
+  mongoid (~> 9.1.0)
   mongoid-rspec (~> 4.2)
   nokogiri (~> 1.16)
   paper_trail (~> 17.0)
