@@ -40,17 +40,29 @@ Encryption is rolled out in **tiers**, each a registered entry in `lib/tasks/enc
 | **1** | Client narrative/free-text fields | **Non-deterministic** | no equality/substring on ciphertext | Merged |
 | **2** | Client address / location fields | **Non-deterministic** | address fields pruned from advanced-search; in-memory sort where needed | Merged |
 | **3** | `User.email` + staff `first_name`/`last_name`/`mobile` + `uid` | **Deterministic** (+ downcase on email/uid) | equality + unique email index survive; iLIKE/range/ORDER BY do not | Merged |
-| **4** | `Client.given_name`/`family_name`/`local_given_name`/`local_family_name` | **Deterministic** (no downcase) | exact name lookup via equality (advanced search routed to `clients.id IN (?)` via the `*_like` scopes); **case-sensitive**; substring search dropped; name dropped from SQL ORDER (alphabetical sort moved in-memory) | Merged |
+| **4** | `Client.given_name`/`family_name`/`local_given_name`/`local_family_name` + `original_*` display sidecars | **Deterministic + `ignore_case`** (`fixed: false`, `previous:` = the original deterministic scheme); sidecars non-deterministic | whole-name equality lookup, **case-insensitive** (`quick_name_search`; advanced search routed to `clients.id IN (?)` via the `*_like` scopes); substring search still dropped; name dropped from SQL ORDER (alphabetical sort moved in-memory); display case preserved via the `original_*` sidecars | Merged (re-keyed UX round 3 C1) |
 
 **Tier 4 note — why deterministic, not blind_index.** The original (locked) design picked `blind_index`
 for exact + prefix name lookup. Prefix lookup turned out to be **cryptographically impossible** over an
 HMAC (changing any input byte changes the whole digest), so `blind_index` would only deliver **exact**
 match — the same capability **deterministic** encryption already gives (and Tier 3 already uses for
 staff names), while adding a second master-key system + four sidecar columns + a custom backfill. We
-therefore use deterministic encryption. Trade-off: name search is now **exact and case-sensitive** (no
-`downcase:`, so the stored — and therefore displayed — casing is preserved; `downcase:true` would make
-`Client#name` render lowercase everywhere). Case-insensitive name search would require the declined
-`blind_index` sidecar; it is a documented, accepted limitation for the pilot.
+therefore use deterministic encryption.
+
+**Tier 4 update (UX round 3 C1, 2026-07-22 — this note previously documented case-sensitive search
+as an accepted limitation; that limitation is removed).** The name columns now use Rails'
+`ignore_case:` deterministic encryption: the stored column is downcased ciphertext (so equality is
+**case-insensitive**), display case is preserved in encrypted non-deterministic `original_*`
+sidecar columns (Rails-native, not blind_index), and `deterministic: { fixed: false }` +
+`previous: [{ deterministic: true }]` keep pre-migration ciphertext readable during rollout. The
+`Client.quick_name_search` scope builds the first/last/full-name equality queries. Migration is
+`rake encryption:reencrypt_client_names` (below). **Operational invariants (learned from the
+2026-07-22 pilot-box incident — see `incidents/2026-07-22-tier4-backfill-data-loss.md`):** any
+task that reads an encrypted attribute to write it back must use `read_attribute` (the
+`ignore_case` *reader* prefers the sidecar and does not reflect the column); the backfill refuses
+to overwrite a non-NULL stored value with a nil read; and the reencrypt task is idempotent **by
+skipping** rows whose sidecars are already populated (a re-run must not round-trip a migrated row
+— that lowercases the display sidecar).
 
 **Tier 5 (JSONB) — MERGED** (PR #47; this paragraph previously said PENDING and had gone stale —
 refreshed in Phase 6): the polymorphic custom-form `.properties` values on CustomFieldProperty,
@@ -107,6 +119,11 @@ prove `encrypts`-declared, raw-ciphertext round-trip, the rewritten query/sort s
 3/4 — deterministic exact/case-sensitive equality lookup). They run in the CI non-feature suite. The
 scheduler spec (`spec/schedule_spec.rb`), fixed in this close-out, is added to the same CI rspec command.
 Each tier's deploy runs, per Apartment tenant: `db:migrate` + `apartment:migrate` →
-`rake encryption:backfill TIER=N CONFIRM=1` → `rake encryption:verify TIER=N`. Tier 4's backfill is a
+`rake encryption:backfill TIER=N CONFIRM=1` → `rake encryption:verify TIER=N` → (after the tier
+loop) `rake encryption:reencrypt_client_names CONFIRM=1`, which migrates legacy Tier-4 rows onto
+the `ignore_case` scheme and populates the `original_*` display sidecars — without it, legacy
+rows *render blank* (the `ignore_case` reader prefers the not-yet-populated sidecar). A routine
+redeploy reports `re-encrypted=0` (idempotent by skipping). Tier 4's backfill is a
 name-**search** blocker (not a login blocker) for un-backfilled rows; Tier 3's email backfill is a
-login blocker and must precede login.
+login blocker and must precede login. Task-level regression specs:
+`spec/lib/tasks/encryption_backfill_spec.rb`, `spec/lib/tasks/encryption_reencrypt_names_spec.rb`.

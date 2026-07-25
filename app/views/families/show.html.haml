@@ -1,145 +1,47 @@
+-# UX round 3 (B1) — family hub: persistent header + tabs replace the top form dropdowns
+-# (forms live on the Forms tab) and the ibox pencil/trash (Edit/Delete live in Actions).
+= render 'families/family_header', family: @family, active_tab: :overview
+-# UX round 3 (B3) — "read first" active alerts, before anything else.
+= render 'families/active_alerts_banner', family: @family
 .row
   .col-12.family
-    .btn-group.small-btn-margin
-      %button.btn-sm.btn.btn-success.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @group_family_custom_fields.empty?) }
-        = t('.additional_forms')
-      %ul.dropdown-menu.scrollable-dropdown-menu
-        - @group_family_custom_fields.each do |_, family_custom_fields|
-          %li= link_to family_custom_fields.first.custom_field.form_title, family_custom_field_properties_path(@family, custom_field_id: family_custom_fields.first.custom_field_id)
-
-    - if can? :manage, CustomFieldProperty
-      .btn-group.small-btn-margin
-        %button.btn-sm.btn.btn-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @free_family_forms.empty?) }
-          = t('.add_form')
-        %ul.dropdown-menu.scrollable-dropdown-menu
-          - @free_family_forms.each do |custom_field|
-            %li= link_to custom_field.form_title, new_family_custom_field_property_path(@family, custom_field_id: custom_field)
-
     .ibox.mini-margin
       .ibox-title
-        %h5= "#{t('.general_info')} #{@family.name}"
+        %h5= t('.general_info')
         .ibox-tools
           %a.collapse-link
             .btn.btn-outline.btn-primary
               %i.fa.fa-chevron-up
-          - if can? :manage, Family
-            %small
-              = link_to edit_family_path(@family) do
-                .btn.btn-outline.btn-success
-                  %i.fa.fa-pencil
-              = remove_link(@family, {family_case: @family.cases_count}, 'btn-md')
-
       .ibox-content
-        .row.family-summary
-          .col-sm-12
-            %table.table.table-bordered
-              %tr
-                %td.spacing-first-col
-                  = t('.code')
-                %td
-                  %strong
-                    = @family.code
-              %tr
-                %td.spacing-first-col
-                  = t('.case_history')
-                %td
-                  %strong
-                    = family_case_history(@family)
-              %tr
-                %td.spacing-first-col
-                  = t('.address')
-                %td
-                  %strong
-                    = @family.address
-
-              %tr
-                %td.spacing-first-col
-                  = t('.member_count')
-                %td
-                  %strong
-                    = pluralize(@family.member_count, 'Person')
-
-              %tr
-                %td.spacing-first-col
-                  = t('.caregiver_information')
-                %td
-                  %strong
-                    = @family.caregiver_information
-
-              %tr
-                %td.spacing-first-col
-                  = t('.significant_family_member_count')
-                %td
-                  %strong
-                    = @family.significant_family_member_count
-
-              %tr
-                %td.spacing-first-col
-                  = t('.household_income')
-                %td
-                  %strong
-                    = number_to_currency @family.household_income
-
-              %tr
-                %td.spacing-first-col
-                  = "#{t('.dependable_income')}?"
-                %td
-                  %strong
-                    = human_boolean(@family.dependable_income)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.female_children_count')
-                %td
-                  %strong
-                    = @family.female_children_count.to_i
-
-              %tr
-                %td.spacing-first-col
-                  = t('.male_children_count')
-                %td
-                  %strong
-                    = @family.male_children_count.to_i
-
-              %tr
-                %td.spacing-first-col
-                  = t('.female_adult_count')
-                %td
-                  %strong
-                    = @family.female_adult_count.to_i
-
-              %tr
-                %td.spacing-first-col
-                  = t('.male_adult_count')
-                %td
-                  %strong
-                    = @family.male_adult_count.to_i
-              %tr
-                %td.spacing-first-col
-                  = t('.contract_date')
-                %td
-                  %strong
-                    = date_format(@family.contract_date)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.province')
-                %td
-                  %strong
-                    = @family.province.try(:name)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.family_type')
-                %td
-                  %strong
-                    = family_type_label(@family.family_type)
+        -# UX round 4 (R4-3): the 16-row bordered table becomes the label-over-value info
+        -# grid (label/value text unchanged — spec contract). .family-summary kept as a
+        -# greppable wrapper class.
+        .family-summary
+          - items = []
+          - items << info_item(t('.code'), @family.code)
+          - items << info_item(t('.case_history'), family_case_history(@family))
+          - items << info_item(t('.address'), @family.address)
+          - items << info_item(t('.member_count'), pluralize(@family.member_count, 'Person'))
+          - items << info_item(t('.caregiver_information'), @family.caregiver_information)
+          - items << info_item(t('.significant_family_member_count'), @family.significant_family_member_count)
+          - items << info_item(t('.household_income'), number_to_currency(@family.household_income))
+          - items << info_item("#{t('.dependable_income')}?", human_boolean(@family.dependable_income))
+          - items << info_item(t('.female_children_count'), @family.female_children_count.to_i)
+          - items << info_item(t('.male_children_count'), @family.male_children_count.to_i)
+          - items << info_item(t('.female_adult_count'), @family.female_adult_count.to_i)
+          - items << info_item(t('.male_adult_count'), @family.male_adult_count.to_i)
+          - items << info_item(t('.contract_date'), date_format(@family.contract_date))
+          - items << info_item(t('.province'), @family.province.try(:name))
+          - items << info_item(t('.family_type'), family_type_label(@family.family_type))
+          = render 'shared/info_grid', items: items
 .row
   .col-12.clients
     .ibox
       .ibox-title
         %h5= @results
         %span.badge.text-bg-info= t('.results')
+        .ibox-tools
+          = render 'shared/ibox_collapse_link'
       .ibox-content
         %h6.household-members__heading= t('.household_members', default: 'Household members')
         - members = @family.clients.to_a.uniq

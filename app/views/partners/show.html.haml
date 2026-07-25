@@ -31,61 +31,16 @@
               = remove_link(@partner, {partner_case: @partner.cases_count}, 'btn-md')
 
       .ibox-content
-        .row.partner-summary
-          .col-sm-12
-            %table.table.table-bordered
-              %tr
-                %td.spacing-first-col
-                  = t('.address')
-                %td
-                  %strong
-                    = @partner.address
-              %tr
-                %td.spacing-first-col
-                  = t('.contact_name')
-                %td
-                  %strong
-                    = @partner.contact_person_name
-              %tr
-                %td.spacing-first-col
-                  = t('.contact_email')
-                %td
-                  %strong
-                    = mail_to @partner.contact_person_email
-              %tr
-                %td.spacing-first-col
-                  = t('.contact_mobile')
-                %td
-                  %strong
-                    = @partner.contact_person_mobile.phony_formatted(normalize: :KH, format: :international) if @partner.contact_person_mobile
-              %tr
-                %td.spacing-first-col
-                  = t('.affiliation')
-                %td
-                  %strong
-                    = @partner.affiliation
-              %tr
-                %td.spacing-first-col
-                  = t('.engagement')
-                %td
-                  %strong
-                    = @partner.engagement
-              %tr
-                %td.spacing-first-col
-                  = t('.background')
-                %td
-                  %strong
-                    = @partner.background
-              %tr
-                %td.spacing-first-col
-                  = t('.start_date')
-                %td
-                  %strong
-                    = date_format(@partner.start_date)
-
-              %tr
-                %td.spacing-first-col
-                  = t('.province')
-                %td
-                  %strong
-                    = @partner.province.try(:name)
+        -# UX round 4 (R4-4): the bordered table becomes the info grid (label text unchanged).
+        .partner-summary
+          - items = []
+          - items << info_item(t('.address'), @partner.address)
+          - items << info_item(t('.contact_name'), @partner.contact_person_name)
+          - items << info_item(t('.contact_email'), (mail_to(@partner.contact_person_email) if @partner.contact_person_email.present?))
+          - items << info_item(t('.contact_mobile'), (@partner.contact_person_mobile.phony_formatted(normalize: :KH, format: :international) if @partner.contact_person_mobile))
+          - items << info_item(t('.affiliation'), @partner.affiliation)
+          - items << info_item(t('.engagement'), @partner.engagement)
+          - items << info_item(t('.background'), @partner.background, full: true)
+          - items << info_item(t('.start_date'), date_format(@partner.start_date))
+          - items << info_item(t('.province'), @partner.province.try(:name))
+          = render 'shared/info_grid', items: items

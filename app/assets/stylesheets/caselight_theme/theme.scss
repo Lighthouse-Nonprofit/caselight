@@ -76,4 +76,5 @@
 @import 'login';       // devise session card
 @import 'compat';      // INSPINIA micro-utilities kept alive + .sr-only alias + .btn-xs
 @import 'focus-ring';  // one consistent :focus-visible ring (ported from _refresh)
+@import 'motion';      // UX round 3 (D5/R14): the token-driven motion layer (reduced-motion aware)
 @import 'print';       // hide chrome on print

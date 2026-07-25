@@ -12,15 +12,39 @@ class ClientGrid
     Client.includes({ cases: [:family, :partner] }, { client_enrollments: :program_stream }, :referral_source, :received_by, :followed_up_by, :province, :assessments, :birth_province).order('clients.status')
   end
 
+  # UX round 3 (C2/R12) — the name sort options the UI offers. These are RUBY-side sorts (the
+  # name columns are encrypted; SQL ORDER BY sorts ciphertext), so ClientGridOptions strips
+  # them from what datagrid sees (unknown order => Datagrid::OrderUnsupported) and the
+  # controller routes through name_sorted_assets + Kaminari.paginate_array instead.
+  NAME_ORDERS = {
+    'given_name'       => { by: :given_name,  descending: false },
+    'given_name_desc'  => { by: :given_name,  descending: true  },
+    'family_name'      => { by: :family_name, descending: false },
+    'family_name_desc' => { by: :family_name, descending: true  }
+  }.freeze
+
   # In-memory alphabetical-by-name ordering for the encrypted name columns: `assets` returns the
-  # SQL-ordered relation (now status-only); a caller wanting the legacy status-then-name ordering calls
-  # this. Decryption happens per-row in Ruby (O(n) over the page) — acceptable for the pilot's small
-  # client volume. (A clients index/controller needing the legacy alphabetical display should call
-  # name_sorted_assets — flagged for the controller owner.)
-  def name_sorted_assets
-    assets.to_a.sort_by do |client|
-      [client.status.to_s, client.given_name.to_s.downcase, client.family_name.to_s.downcase]
-    end
+  # SQL-ordered relation (now status-only); decryption happens per-row in Ruby — acceptable for
+  # the pilot's client volume (TODO: revisit around ~5k rows; would need a sortable digest column).
+  # Zero-arg form keeps the legacy status-then-given-then-family contract (tier4 spec pins it);
+  # by:/descending: back the C2 explicit first/last-name sorts.
+  def name_sorted_assets(by: nil, descending: false)
+    rows = assets.to_a
+    sorted =
+      if by.nil?
+        rows.sort_by { |c| [c.status.to_s, c.given_name.to_s.downcase, c.family_name.to_s.downcase] }
+      else
+        secondary = by == :given_name ? :family_name : :given_name
+        rows.sort_by { |c| [c.public_send(by).to_s.downcase, c.public_send(secondary).to_s.downcase] }
+      end
+    descending ? sorted.reverse : sorted
+  end
+
+  # UX round 3 (C1/R13) — the header quick search: first OR last name, case-insensitive,
+  # whole-token equality (see Client.quick_name_search). Subquery on purpose: this grid's scope
+  # carries heavy includes and Relation#or raises on structurally different relations.
+  filter(:quick_search, :string, header: -> { I18n.t('datagrid.columns.clients.quick_search', default: 'Name (first or last)') }) do |value, scope|
+    scope.where(id: Client.quick_name_search(value).select(:id))
   end
 
   filter(:given_name, :string, header: -> { I18n.t('datagrid.columns.clients.given_name') }) { |value, scope| scope.given_name_like(value) }

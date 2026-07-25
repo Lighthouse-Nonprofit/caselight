@@ -8,9 +8,6 @@ body[id='clients-show'] {
     text-decoration: none;
     margin: 0 5px;
   }
-  .align-justify{
-    width: 50%;
-  }
   .show-name{
     font-size: 20px;
   }
@@ -36,10 +33,8 @@ body[id='clients-show'] {
   .client {
     .card-body {
       min-height: 498px;
-      .first-table, .second-table {
-        max-width: 420px;
-        overflow-x: scroll;
-      }
+      // (UX round 4 R4-3: the .first-table/.second-table max-width + overflow-x scroll hack
+      // died with the About tables — the info grid reflows responsively.)
     }
   }
 
@@ -98,10 +93,6 @@ body[id='clients-show'] {
    right: 5px;
    bottom: 3px;
    margin: 0;
-  }
-
-  td.spacing-first-col {
-    width: 172px;
   }
 
   .overflow-case {

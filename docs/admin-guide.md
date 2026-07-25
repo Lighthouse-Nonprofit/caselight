@@ -13,8 +13,17 @@ surfaces.
 ## 1 · Users & access
 
 Under **Users**, add a staff account for each person and assign a role — the role decides
-what they can see and do (see the User Guide's role table). Add a user, set their role, and
-export the roster to XLS.
+what they can see and do (see the User Guide's role table). Beyond add/edit/export:
+
+- **Manager assignment** — each case worker's record names their manager; that hierarchy is
+  what scopes a manager's view to their team's caseloads. Keep it current when teams change.
+- **Disable, don't delete** — when staff leave, disable the account. A disabled account cannot
+  sign in, but every note, task, and change it made stays attributed. The Access Review report
+  flags disabled staff who still hold caseloads so those can be reassigned.
+- **Google Calendar sync** — a per-user opt-in on the user record; off by default. The internal
+  calendar works either way.
+- **User custom fields** — users can carry custom forms too (certifications, training records),
+  designed in the same form builder.
 
 <p align="center"><img src="screenshots/manage-users.jpg" alt="Users" width="860"></p>
 <p align="center"><em>Users — one account per staff member.</em></p>
@@ -47,11 +56,33 @@ Every form carries a **sensitivity**, set at design time:
 > Because sensitivity is chosen when the form is designed, a brand-new form can never
 > accidentally expose data — it inherits an explicit classification from the start.
 
+**Designing good forms.** Two rules of thumb carry most of the weight:
+
+- **Tracking form or custom form?** Data that belongs to a *program* (a recurring check-in that
+  only makes sense while enrolled) is a tracking on that program stream (§3). Data that belongs
+  to the *person or household* regardless of program is a custom form. Ask: "would we still
+  record this if they left the program?"
+- **Pick widgets for the analysis, not just the entry.** Selects, radio groups, and checkboxes
+  produce countable, filterable data (checkboxes = multi-select, radios = one answer); free-text
+  areas produce narrative that Advanced Search can't aggregate. Don't re-collect identifying
+  details the record already holds, and keep forms short — every field is work for frontline
+  staff on every entry.
+
+Individual forms appear on the person's **Forms** tab; household forms on the household's.
+
 ## 3 · Program streams
 
 Define the programs your organization actually runs under **Manage → Programs**.
 Each stream is enrollable, has its own custom form, and supports recurring, date-stamped
 trackings.
+
+Before building anything, sketch your organization's program flow on paper — where people
+enter, the decision points, where they exit. It doesn't have to be perfect, just good enough
+to name the streams. Each stream then gets: program details, optional **enrollment rules**
+(conditions a person must meet, with a preview of who currently qualifies), an **enrollment
+form**, one or more **tracking forms**, and an **exit form**. Editing a stream that already
+has enrollments shows a warning first — form changes affect everyone enrolled, so coordinate
+with whoever owns that program's reporting.
 
 <p align="center"><img src="screenshots/programs.jpg" alt="Program streams" width="900"></p>
 <p align="center"><em>Program streams — the enrollable programs behind every case.</em></p>
@@ -137,6 +168,24 @@ CaseLight is hardened at the application layer toward **NIST 800-53 Moderate** a
 - **Tenant isolation** — each organization is its own subdomain and database schema.
 - **Data lifecycle** — retention/deletion routines, guarded and audited deletion, and a
   subject-access export.
+
+### Data-lifecycle operations (command line)
+
+Three operator tasks cover the lifecycle obligations; each is dry-run by default and requires
+`CONFIRM=1` (or an explicit tenant/client) to act:
+
+- **Subject-access export** — `rake privacy:subject_access_export TENANT=<t> CLIENT=<id>`
+  produces everything held about one person as a reviewable bundle under `tmp/exports/`, and
+  writes an audit-log entry recording the export.
+- **Retention** — `rake retention:report` shows what is past policy;
+  `rake retention:purge_versions` / `retention:purge_client_histories` purge aged change
+  history (a `DAYS` floor guards against accidentally aggressive runs).
+- **Deletion** — client deletion from the Actions menu is guarded and audited; it removes the
+  record and its dependents, while the append-only audit log keeps the fact that a deletion
+  happened.
+
+Deploy and box operations (the bootstrap script, encryption backfills, and their invariants)
+are documented in [`../OPERATIONS.md`](../OPERATIONS.md).
 
 > The full compliance package — System Security Plan, SOC 2 control matrix, policies, POA&M,
 > and a reproducible `rake compliance:evidence` bundle — lives in `docs/compliance/`.

@@ -123,13 +123,35 @@ module ClientsHelper
     label_tag "#{column}_", label_column[column.to_sym]
   end
 
-  def case_button(type)
-    link_to new_client_case_path(@client, case_type: type) do
+  # UX round 3 (A3): takes the client explicitly — the hub header renders on partition pages
+  # where the @client ivar is absent (e.g. custom_field_properties sets @custom_formable).
+  def case_button(type, client = @client)
+    link_to new_client_case_path(client, case_type: type) do
       content_tag(:span, '') do
         # absolute key: lazy t('.x') resolves against the RENDERING template's path, and this
         # helper now renders from clients/_client_header (the hub) as well as clients/show
         content_tag(:span, t("clients.show.add_#{type.downcase}_btn"), class: 'text-success')
       end
+    end
+  end
+
+  # UX round 3 (C2/R12) — the admin grid's Name-header sort toggle (last-name A–Z <-> Z–A).
+  def next_name_order
+    params.dig(:client_grid, :order) == 'family_name' ? 'family_name_desc' : 'family_name'
+  end
+
+  def name_sort_caret
+    case params.dig(:client_grid, :order)
+    when 'family_name'      then 'fa-sort-asc'
+    when 'family_name_desc' then 'fa-sort-desc'
+    else 'fa-sort'
+    end
+  end
+
+  def name_sort_aria
+    case params.dig(:client_grid, :order)
+    when 'family_name'      then 'ascending'
+    when 'family_name_desc' then 'descending'
     end
   end
 
@@ -145,8 +167,10 @@ module ClientsHelper
     current_user.admin? || current_user.case_worker? || current_user.kc_manager? || current_user.manager?
   end
 
-  def can_read_client_progress_note?
-    @client.able? && (current_user.case_worker? || current_user.able_manager? || current_user.admin? || current_user.fc_manager? || current_user.manager? || current_user.kc_manager? || current_user.strategic_overviewer?)
+  # UX round 3 (A3): takes the client explicitly — the hub header renders on partition pages
+  # where the @client ivar is absent (e.g. custom_field_properties sets @custom_formable).
+  def can_read_client_progress_note?(client = @client)
+    client.able? && (current_user.case_worker? || current_user.able_manager? || current_user.admin? || current_user.fc_manager? || current_user.manager? || current_user.kc_manager? || current_user.strategic_overviewer?)
   end
 
   def disable_case_histories?

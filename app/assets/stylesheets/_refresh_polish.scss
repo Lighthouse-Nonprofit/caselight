@@ -4,67 +4,18 @@
 // for cascade priority. Uses local $rp-* tokens + confirmed refresh vars ($navy/$lazur/$light-blue).
 
 $rp-hairline: #e2e6ea;
-$rp-label:    #6b7688;
-$rp-value:    #2b3648;
-$rp-radius:   6px;
+// UX round 4 (R4-3): the label/value vocabulary moved to the theme ($cl-text-*); these
+// aliases keep the remaining chip/heading rules compiling.
+$rp-label:    $cl-text-label;
+$rp-value:    $cl-text-value;
 
-// --- Detail-page cards: gentle elevation + rounding (show pages only) ---
-// INSPINIA .ibox / .ibox-title are KEPT class names (restyled on BS5 DNA elsewhere in the theme);
-// this pass only layers the calmer elevation + navy heading treatment on show surfaces.
-body[id$="-show"] {
-  .ibox {
-    border-radius: $rp-radius;
-    box-shadow: 0 1px 3px rgba(31, 58, 95, .06), 0 1px 1px rgba(31, 58, 95, .04);
-  }
-  .ibox-title {
-    border-bottom: 1px solid $rp-hairline;
+// UX round 4 rung 2: the show-page-only .ibox radius/shadow overrides ($rp-radius 6px + a
+// hard-coded shadow pair) are RETIRED — cards now speak the unified $refresh-radius/$box-shadow
+// tokens on every page, and the hairline .ibox-title + navy h5 treatment was PROMOTED into
+// caselight_theme/_ibox.scss unscoped (index and show cards finally match).
 
-    h5 {
-      font-weight: 600;
-      color: $navy;
-      letter-spacing: .01em;
-    }
-  }
-}
-
-// --- Detail "About" attribute tables -> clean label/value rows (Casebook style).
-// Family summary + the client-show About-Individual panels share the .spacing-first-col label cell.
-.family-summary,
-body[id="clients-show"] .first-table,
-body[id="clients-show"] .second-table {
-  table {
-    width: 100%;
-    margin-bottom: 0;
-    border: 0;
-    background: transparent;
-  }
-
-  td {
-    border: 0 !important;
-    border-bottom: 1px solid $rp-hairline !important;
-    padding: 11px 16px !important;
-    vertical-align: top;
-    color: $rp-value;
-  }
-
-  tr:last-child td { border-bottom: 0 !important; }
-  tr:hover td { background: rgba($lazur, .035); }
-
-  td.spacing-first-col {
-    width: 36%;
-    color: $rp-label;
-    font-size: .72rem;
-    font-weight: 600;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    white-space: normal;
-  }
-
-  td strong {
-    color: $navy;
-    font-weight: 600;
-  }
-}
+// UX round 4 (R4-3): the "About" attribute-TABLE restyle is GONE — those surfaces now render
+// the shared/_info_grid component (stacked label-over-value dl; shared/_info_grid.scss).
 
 // --- Household members: clean linked chips (index card, grid + detail all share the tokens) ---
 .household-members__heading {
@@ -94,7 +45,7 @@ ul.household-members {
   border: 1px solid $rp-hairline;
   border-radius: 999px;
   color: $lazur;
-  font-weight: 500;
+  font-weight: 600; // UX round 4: 500 had no woff2 on disk (faux weight); 600 is real
   line-height: 1.4;
   text-decoration: none;
   transition: background-color .12s ease, border-color .12s ease;

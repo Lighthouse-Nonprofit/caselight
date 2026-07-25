@@ -1,14 +1,14 @@
--# UX rung 5 — the Overview tab's summary panes: enrolled programs, filled forms (with locked
--# break-glass cards for emergency-only forms an eligible viewer could unlock), and recent
--# program activity. Everything here is reachable in one click from the profile; the masked
--# form cards NEVER link to edit (edit/update/destroy have no field-level gate — view only).
--# UX review 1: the most pertinent cards sit in one row right under About Individual —
--# Programs | Resettlement Case (the placement partial self-wraps as .col-md-6) | Forms.
+-# UX rung 5 — the Overview tab's summary panes. UX round 3: the Forms card moved to the Forms
+-# partition page (A1) and the Resettlement Case card folded into the About table (A2) — the
+-# row is now Programs | Recent program activity, side by side.
 .row.client-overview
-  .col-12.col-lg-3
-    .ibox
+  .col-12.col-lg-6
+    - programs_empty = @active_client_enrollments.blank? && @inactive_client_enrollments.blank?
+    %div{ class: ibox_classes(collapsed: programs_empty) }
       .ibox-title
         %h5= t('clients.client_header.programs', default: 'Programs')
+        .ibox-tools
+          = render 'shared/ibox_collapse_link', collapsed: programs_empty
       .ibox-content
         - if can? :read, ClientEnrollment
           - if @active_client_enrollments.present?
@@ -31,49 +31,13 @@
           = link_to t('clients.overview.manage_programs', default: 'Manage programs'), client_client_enrollments_path(@client), class: 'btn btn-sm btn-outline-primary'
         - else
           %p.text-muted= t('clients.overview.no_program_access', default: 'You do not have access to program enrollments.')
-  = render 'placement'
-  .col-12.col-lg-3#client-forms
-    .ibox
-      .ibox-title
-        %h5= t('clients.client_header.forms', default: 'Forms')
-        .ibox-tools
-          - if can? :manage, CustomFieldProperty
-            .btn-group
-              %button.btn.btn-sm.btn-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', class: ('disabled' if @free_client_forms.empty?), type: 'button' }
-                = t('clients.show.add_form')
-              %ul.dropdown-menu.dropdown-menu-end.scrollable-dropdown-menu
-                - @free_client_forms.each do |custom_field|
-                  %li= link_to custom_field.form_title, new_client_custom_field_property_path(@client, custom_field_id: custom_field), class: 'dropdown-item'
-      .ibox-content
-        - if @group_client_custom_fields.present?
-          %ul.client-overview__list
-            - @group_client_custom_fields.each do |custom_field_id, props|
-              %li
-                = link_to props.first.custom_field.form_title, client_custom_field_properties_path(@client, custom_field_id: custom_field_id)
-                %span.text-muted= "· #{t('clients.overview.entries', default: '%{count} entries', count: props.size)} · #{date_format(props.map(&:created_at).max)}"
-        - elsif @breakglass_client_forms.blank?
-          %p.text-muted= t('clients.overview.no_forms', default: 'No forms filled yet.')
-        - if @breakglass_client_forms.present?
-          %h5.client-overview__subhead
-            %i.fa.fa-lock{ 'aria-hidden' => 'true' }
-            = t('clients.overview.locked_forms', default: 'Emergency-only')
-          %ul.client-overview__list.client-overview__list--locked
-            - @breakglass_client_forms.each do |custom_field|
-              %li.client-overview__locked
-                %i.fa.fa-lock.text-danger{ 'aria-hidden' => 'true' }
-                %span= custom_field.form_title
-                %span.text-muted= t('clients.overview.locked_hint', default: '— access requires a logged reason, 1 hour')
-                %button.btn.btn-xs.btn-outline-danger{ type: 'button', 'data-bs-toggle' => 'modal', 'data-bs-target' => "#break-glass-#{custom_field.id}" }
-                  = t('clients.overview.unlock', default: 'Request access')
-- if @breakglass_client_forms.present?
-  - @breakglass_client_forms.each do |custom_field|
-    = render 'clients/break_glass_modal', client: @client, custom_field: custom_field
-- if @recent_trackings.present?
-  .row
-    .col-12
+  - if @recent_trackings.present?
+    .col-12.col-lg-6
       .ibox
         .ibox-title
           %h5= t('clients.overview.recent_activity', default: 'Recent program activity')
+          .ibox-tools
+            = render 'shared/ibox_collapse_link'
         .ibox-content
           %ul.client-overview__list
             - @recent_trackings.each do |tracking|

@@ -7,7 +7,8 @@
           = t('.exit_ngo')
 
       .modal-body
-        = simple_form_for(@client) do |f|
+        -# locals: client: (UX round 3 A3 — rendered from the hub header on every partition page)
+        = simple_form_for(client) do |f|
           = f.error_notification
           .form-inputs
             .mb-3.date.client_exit_date

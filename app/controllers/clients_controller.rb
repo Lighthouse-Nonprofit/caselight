@@ -22,7 +22,18 @@ class ClientsController < AdminController
         @csi_statistics   = CsiStatistic.new(@client_grid.assets, visible_levels: visible_domain_levels).assessment_domain_score.to_json
         @cases_statistics = CaseStatistic.new(@client_grid.assets).statistic_data.to_json
         @results          = @client_grid.scope { |scope| scope.accessible_by(current_ability) }.assets.size
-        @client_grid.scope { |scope| scope.accessible_by(current_ability).page(params[:page]).per(20) }
+        # UX round 3 (C2/R12): name sorts are Ruby-side (encrypted columns) — sort the full
+        # accessible set in memory, then paginate the array. @name_sort is stashed by
+        # ClientGridOptions#client_grid_params; every other order stays pure datagrid SQL.
+        @clients =
+          if @name_sort
+            @client_grid.scope { |scope| scope.accessible_by(current_ability) }
+            sorted = @client_grid.name_sorted_assets(by: @name_sort[:by], descending: @name_sort[:descending])
+            Kaminari.paginate_array(sorted).page(params[:page]).per(20)
+          else
+            @client_grid.scope { |scope| scope.accessible_by(current_ability).page(params[:page]).per(20) }
+            @client_grid.assets
+          end
       end
       f.xls do
         @client_grid.scope { |scope| scope.accessible_by(current_ability) }
@@ -34,29 +45,15 @@ class ClientsController < AdminController
 
   def show
     @ordered_client_answers     = @client.answers.order(:created_at)
-    custom_field_ids            = @client.custom_field_properties.pluck(:custom_field_id)
-    visible = visible_custom_field_ids_for(@client)  # record-aware (per-record break-glass)
-    @group_client_custom_fields = @client.custom_field_properties
-                                         .includes(:custom_field)
-                                         .where(custom_field_id: visible.to_a)
-                                         .sort_by { |c| c.custom_field.form_title }
-                                         .group_by(&:custom_field_id)
-    # UX rung 5 — Overview panes (all additive; the sort_by chain above also gained
-    # includes(:custom_field), fixing a latent per-property N+1)
+    # UX rung 5 — Overview panes. UX round 3 (A1): the Forms-card ivars
+    # (@group_client_custom_fields / @free_client_forms / @breakglass_client_forms) moved to
+    # FormsController#index with the card.
     @active_client_enrollments   = @client.client_enrollments.active.includes(:program_stream).order(:enrollment_date)
     @inactive_client_enrollments = @client.client_enrollments.inactive.includes(:program_stream, :leave_program).order(:enrollment_date)
     @recent_trackings            = ClientEnrollmentTracking.joins(:client_enrollment)
                                                            .where(client_enrollments: { client_id: @client.id })
                                                            .includes(:tracking, client_enrollment: :program_stream)
                                                            .order(created_at: :desc).limit(5)
-    @free_client_forms          = CustomField.client_forms
-                                             .not_used_forms(custom_field_ids)
-                                             .where(id: visible.to_a)
-                                             .order_by_form_title
-    # Phase 5.4 — emergency_only forms (with data) this viewer lacks but could break-glass into;
-    # rendered as 🔒 locked entries that link to cfp#index (the elevation prompt). Empty for
-    # admin (sees all) and ineligible roles, so the show page is unchanged for them.
-    @breakglass_client_forms    = breakglass_form_candidates(@client)
     initial_visit_client
   end
 

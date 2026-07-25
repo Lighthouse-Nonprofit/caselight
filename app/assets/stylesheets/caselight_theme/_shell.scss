@@ -89,15 +89,10 @@ body.mini-navbar {
   #page-wrapper { margin-left: 0; }
   .footer.fixed { margin-left: 0; }
 
-  // On small screens the toggle SHOWS the full sidebar (overlay).
-  body.mini-navbar {
-    nav.navbar-static-side {
-      transform: translateX(0);
-      box-shadow: $box-shadow-lg;
-    }
-    #page-wrapper { margin-left: 0; }
-    .footer.fixed { margin-left: 0; }
-  }
+  // UX round 3 (D3/R9): the pure-CSS overlay-open rules are GONE — opening the overlay is
+  // JS-only (body.body-small.mini-navbar below). The D3 sidebar cookie renders mini-navbar
+  // server-side for the desktop rail; without this removal a phone would paint the overlay
+  // OPEN over the content before JS strips the class.
 }
 
 // ---- RESPONSIVE OFF-CANVAS (JS class-driven: body.body-small) --------------

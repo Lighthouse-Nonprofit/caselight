@@ -45,15 +45,21 @@ RSpec.describe 'external asset reference guard (POAM-017f)' do
       .to include("Rails.root.join('public/pdf/bootstrap-3.3.6.min.css').read")
   end
 
-  it 'ships the self-hosted Open Sans faces the stylesheet points at' do
+  it 'ships the self-hosted font faces the stylesheet points at (Open Sans + Manrope)' do
     %w[300 400 600 700].each do |weight|
       expect(File.exist?(ROOT.join("public/fonts/open-sans/open-sans-#{weight}.woff2"))).to be(true),
         "missing public/fonts/open-sans/open-sans-#{weight}.woff2"
     end
+    # UX round 4: Manrope is the display family — same self-hosting contract.
+    %w[500 600 700 800].each do |weight|
+      expect(File.exist?(ROOT.join("public/fonts/manrope/manrope-#{weight}.woff2"))).to be(true),
+        "missing public/fonts/manrope/manrope-#{weight}.woff2"
+    end
     # POAM-017g flip: the @font-face blocks moved from the deleted wrapbootstrap tree into the
     # in-house theme (caselight_theme/_root.scss, imported by caselight_theme/theme.scss).
+    # 4 Open Sans + 4 Manrope (UX round 4).
     faces = File.read(ROOT.join('app/assets/stylesheets/caselight_theme/_root.scss'))
-    expect(faces.scan(/@font-face/).size).to eq(4)
+    expect(faces.scan(/@font-face/).size).to eq(8)
     expect(File.read(ROOT.join('app/assets/stylesheets/caselight_theme/theme.scss')))
       .to include("@import 'root';")
   end

@@ -144,8 +144,8 @@
     left: auto;
     margin-top: 0;
     border: 1px solid $cl-border;
-    border-radius: $border-radius;
-    box-shadow: $box-shadow-lg;
+    // (UX round 4 rung 2: radius + shadow now come from BS5 itself — $enable-shadows emits
+    // the identical $dropdown-box-shadow; restating them here was redundant.)
 
     > li > a {
       padding: 8px 16px;

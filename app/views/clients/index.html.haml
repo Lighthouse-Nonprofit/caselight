@@ -1,7 +1,7 @@
 = render 'shared/page_header',
   title: t('.title', default: 'Individuals'),
   filter_target: '#client-search-form',
-  search: { url: clients_url, param: 'client_grid[given_name]', value: params.dig(:client_grid, :given_name), label: t('.quick_search_label', default: 'Search by given name (exact match)'), placeholder: t('.quick_search_placeholder', default: 'Given name (exact match)') },
+  search: { url: clients_url, param: 'client_grid[quick_search]', value: params.dig(:client_grid, :quick_search), label: t('.quick_search_label', default: 'Search by first or last name'), placeholder: t('.quick_search_placeholder', default: 'First or last name') },
   primary: ((can? :manage, Client) ? { label: t('.add_new_client'), url: new_client_path } : nil),
   secondary: [((can? :manage, :all) ? { label: t('.reports'), button: true, id: 'client-statistic' } : nil),
               { label: t('.advanced_search'), url: client_advanced_searches_path },
@@ -43,14 +43,15 @@
             - else
               = hidden_field_tag("client_grid[#{k}]", v)
           %label.visually-hidden{ for: 'client_grid_order' }= t('.sort_label', default: 'Sort individuals')
-          = select_tag 'client_grid[order]', options_for_select([[t('.sort_status', default: 'Status'), 'status'], [t('.sort_id', default: 'ID'), 'slug'], [t('.sort_age', default: 'Age'), 'age'], [t('.sort_province', default: 'State'), 'province']], params.dig(:client_grid, :order)), include_blank: t('.sort_default', default: 'Sort by…'), id: 'client_grid_order', class: 'form-select form-select-sm record-cards__sort-select', data: { auto_submit: true }
+          -# UX round 3 (C2/R12): first/last-name options are Ruby-side sorts (encrypted columns).
+          = select_tag 'client_grid[order]', options_for_select([[t('.sort_status', default: 'Status'), 'status'], [t('.sort_first_name', default: 'First name (A–Z)'), 'given_name'], [t('.sort_first_name_desc', default: 'First name (Z–A)'), 'given_name_desc'], [t('.sort_last_name', default: 'Last name (A–Z)'), 'family_name'], [t('.sort_last_name_desc', default: 'Last name (Z–A)'), 'family_name_desc'], [t('.sort_id', default: 'ID'), 'slug'], [t('.sort_age', default: 'Age'), 'age'], [t('.sort_province', default: 'State'), 'province']], params.dig(:client_grid, :order)), include_blank: t('.sort_default', default: 'Sort by…'), id: 'client_grid_order', class: 'form-select form-select-sm record-cards__sort-select', data: { auto_submit: true }
       .ibox-content
         %h2#clients-list-heading.visually-hidden= t('.grid_caption', default: 'Clients')
         - if current_user.admin? || current_user.strategic_overviewer?
-          = render partial: 'clients/client_grid', locals: { clients: @client_grid.assets }
+          = render partial: 'clients/client_grid', locals: { clients: @clients }
         - else
           %ul.record-cards{ role: 'list', 'aria-labelledby' => 'clients-list-heading', data: { 'info-load' => t('.load'), 'info-end' => t('.end') } }
-            = render partial: 'clients/client_card', collection: @client_grid.assets, as: :object
+            = render partial: 'clients/client_card', collection: @clients, as: :object
         %span.d-none{ id: 'sinfo', 'data-infoshow' => t('.sInfoShow'), 'data-infoto' => t('.sInfoTo'), 'data-infototal' => t('.sInfoTotal') }
       .ibox-footer.text-center
-        = paginate @client_grid.assets
+        = paginate @clients

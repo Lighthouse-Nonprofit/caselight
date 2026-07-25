@@ -23,8 +23,9 @@
 .ibox.collapsed .fa.fa-chevron-down:before { content: "\f077"; }
 
 // ---- Title bar ---------------------------------------------------------------
-// White header with a 2px navy-hairline top edge, hairline sides, soft shadow;
-// no bottom border so it fuses seamlessly with .ibox-content below.
+// White header with a 2px navy-hairline top edge, hairline sides, soft shadow.
+// UX round 4 rung 2: the hairline BOTTOM border (previously a show-page-only refresh_polish
+// override) is now the app-wide treatment — the header reads as a distinct band on every card.
 .ibox-title {
   position: relative;
   margin-bottom: 0;
@@ -34,7 +35,7 @@
   background-color: #fff;
   border: 1px solid $refresh-border;
   border-top: 2px solid $refresh-border;
-  border-bottom: none;
+  border-bottom: 1px solid $refresh-border;
   border-radius: $refresh-radius $refresh-radius 0 0;
   box-shadow: $refresh-shadow-sm;
 
@@ -47,9 +48,10 @@
     display: inline-block;
     float: left;
     max-width: 100%;
-    font-size: 14px;
+    font-size: .875rem; // UX round 4: rem hygiene (same optical size; family = Manrope now)
     font-weight: 600;
     letter-spacing: 0.01em;
+    color: $navy; // promoted from the show-page-only refresh_polish treatment (round 4 rung 2)
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -74,8 +76,10 @@
   border-bottom: none;
 
   h3 {
-    font-weight: 300;
-    font-size: 24px;
+    // UX round 4: was the app's only 300-weight text (a faux-light INSPINIA holdover);
+    // now speaks the display scale like every other heading.
+    font-weight: 600;
+    font-size: 1.25rem;
   }
 }
 

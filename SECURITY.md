@@ -15,8 +15,8 @@ protection concerns.
 
 ## Stack posture
 
-The application stack is current and supported, **backend and frontend** (Ruby 4.0 / Rails 8.0 /
-PostgreSQL 17 / MongoDB 8.0 / Redis 7 / Sidekiq 7.3; browser side Bootstrap 5.3 + jQuery 4 under an
+The application stack is current and supported, **backend and frontend** (Ruby 4.0 / Rails 8.1 /
+PostgreSQL 17 / MongoDB 8.0 / Redis 7 / Sidekiq 8.1; browser side Bootstrap 5.3 + jQuery 4 under an
 **enforced, nonce-based CSP** — the frontend-EOL POA&M family POAM-017 is closed a–g; see
 `docs/compliance/ssp.md` §1 for the authoritative pin). It receives upstream
 security patches, and the **application-layer hardening program (Phases 0–7) is complete**: secure-SDLC
@@ -37,7 +37,9 @@ while fit is assessed and lets staff test workflows honestly.
 - [ ] Security group locked: shell access via SSM only (zero inbound); app (443) restricted to pilot
       users' IPs or behind a VPN. Postgres/Mongo/Redis ports never exposed (compose binds the app to
       `127.0.0.1`).
-- [ ] HTTPS only (Caddy / Let's Encrypt); HTTP redirects. *(Documented; stand up before staff use.)*
+- [x] HTTPS only (Caddy / Let's Encrypt); HTTP redirects. *(Live on the pilot box — Dockerized
+      Caddy, `proxy` compose profile, auto-renewing certificates; see `OPERATIONS.md`. For real
+      production use, revisit the host/domain rather than the pilot's nip.io hostname.)*
 - [ ] Strong Devise passwords; no shared logins — one `User` per staff member so the audit trail is
       meaningful (enforced: complexity + no-reuse; see `policies/access-control.md`).
 - [ ] Automated EBS snapshots (daily), retained encrypted.

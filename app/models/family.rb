@@ -22,6 +22,8 @@ class Family < ActiveRecord::Base
   has_many :cases, dependent: :restrict_with_error
   has_many :clients, through: :cases
   has_many :custom_field_properties, as: :custom_formable, dependent: :destroy
+  has_many :family_notes, dependent: :destroy   # UX round 3 (B2) — household-level notes
+  has_many :family_alerts, dependent: :destroy  # UX round 3 (B3) — "read first" household alerts
   has_many :custom_fields, through: :custom_field_properties, as: :custom_formable
 
   # Phase 6 (SC-28 / POAM-SC28-HIST) — keep the encrypted PII columns out of version payloads

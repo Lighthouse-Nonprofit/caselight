@@ -65,6 +65,8 @@ class Client < ActiveRecord::Base
   # macro runs before the `encrypts` declarations below — the paper_trail_redaction_spec drift-guard
   # fails CI if a future `encrypts` is added without a matching skip entry.
   has_paper_trail skip: %i[given_name family_name local_given_name local_family_name
+                           original_given_name original_family_name
+                           original_local_given_name original_local_family_name
                            reason_for_referral background exit_note rejected_note
                            relevant_referral_information current_address school_name
                            house_number street_number village commune district live_with]
@@ -104,20 +106,50 @@ class Client < ActiveRecord::Base
   # Phase 4 Tier 4 — field-level encryption at rest for CLIENT NAME PII (FedRAMP SC-28, SOC 2 C1.1).
   # DETERMINISTIC (mirrors the Tier 3 staff-name approach): same plaintext => same ciphertext, so exact
   # equality lookup (where(given_name: 'Maria')) still works; iLIKE substring + ORDER BY do NOT — the
-  # *_like scopes below become exact where()s and name sorts move in-memory at the call sites. NO
-  # downcase: deterministic match is therefore CASE-SENSITIVE, but the displayed name keeps its original
-  # casing (downcase:true would case-fold the STORED value, so Client#name would render lowercase). The
-  # locked decision chose deterministic over blind_index once prefix lookup proved impossible over an
-  # HMAC; the cost is exact, case-sensitive whole-name search (no substring). Case-insensitive name
-  # search would require the declined blind_index sidecar. The Tier-4 migration widens these four string
-  # columns to text (the ciphertext envelope overflows varchar). support_unencrypted_data=true tolerates
-  # not-yet-backfilled plaintext during the window; run `rake encryption:backfill TIER=4 CONFIRM=1` then
-  # `rake encryption:verify TIER=4`. (Unlike Tier 3 email this is NOT a login-blocker, but it IS a
-  # name-search-blocker: un-backfilled rows won't match the ciphertext equality until backfilled.)
-  encrypts :given_name,        deterministic: true
-  encrypts :family_name,       deterministic: true
-  encrypts :local_given_name,  deterministic: true
-  encrypts :local_family_name, deterministic: true
+  # *_like scopes below become exact where()s and name sorts move in-memory at the call sites.
+  # UX round 3 (C1): + ignore_case — the ciphertext is computed over the DOWNCASED value (equality
+  # match becomes case-INSENSITIVE: 'maria' finds 'Maria') while the display casing is preserved in
+  # the original_* sidecar columns (migration 20260722000003). This supersedes the earlier "no
+  # downcase" tradeoff: ignore_case gives case-folded MATCHING without case-folding what Client#name
+  # renders (the old comment predated considering it; blind_index remains declined — substring/prefix
+  # search over an HMAC is still impossible, so search stays whole-token equality).
+  # previous: [{deterministic: true}] keeps rows written under the old (case-sensitive) scheme
+  # matching until `rake encryption:reencrypt_client_names CONFIRM=1` rewrites them — run it
+  # IMMEDIATELY after deploy. deterministic: { fixed: false } is LOAD-BEARING: fixed
+  # deterministic encryption (the default) serializes new writes with the OLDEST scheme when a
+  # previous: exists — i.e. WITHOUT ignore_case — which would silently keep matching
+  # case-sensitive forever. extend_queries (initializers/active_record_encryption.rb) makes
+  # reads probe both schemes. support_unencrypted_data=true still tolerates pre-Tier-4
+  # plaintext; `rake encryption:backfill TIER=4` + `rake encryption:verify TIER=4` unchanged.
+  encrypts :given_name,        deterministic: { fixed: false }, ignore_case: true, previous: [{ deterministic: true }]
+  encrypts :family_name,       deterministic: { fixed: false }, ignore_case: true, previous: [{ deterministic: true }]
+  encrypts :local_given_name,  deterministic: { fixed: false }, ignore_case: true, previous: [{ deterministic: true }]
+  encrypts :local_family_name, deterministic: { fixed: false }, ignore_case: true, previous: [{ deterministic: true }]
+
+  # UX round 3 (C1/R13) — the header quick search: whole-token equality (deterministic encryption;
+  # no substring), case-insensitive via ignore_case. One token matches ANY name column; two or more
+  # try given+family, the swap, the local pair, and the whole string against either single column
+  # (compound given names like "Mary Jane" Smith). Composed subquery-style by callers
+  # (where(id: ...select(:id))) — ClientGrid's scope carries heavy includes, and Relation#or raises
+  # on structurally different relations.
+  scope :quick_name_search, lambda { |term|
+    term = term.to_s.strip.gsub(/\s+/, ' ')
+    next none if term.blank?
+    tokens = term.split(' ')
+    if tokens.size >= 2
+      first_tok, rest = tokens.first, tokens[1..].join(' ')
+      where(given_name: first_tok, family_name: rest)
+        .or(where(given_name: rest, family_name: first_tok))
+        .or(where(local_given_name: first_tok, local_family_name: rest))
+        .or(where(given_name: term))
+        .or(where(family_name: term))
+    else
+      where(given_name: term)
+        .or(where(family_name: term))
+        .or(where(local_given_name: term))
+        .or(where(local_family_name: term))
+    end
+  }
 
   validates :rejected_note, presence: true, on: :update, if: :reject?
   validates :exit_date, presence: true, on: :update, if: :exit_ngo?

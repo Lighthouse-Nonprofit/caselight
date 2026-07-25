@@ -1,0 +1,22 @@
+-# UX round 3 (A2) / round 4 (R4-3) — the Resettlement Case facts in the About info grid,
+-# as an item-appender (renders nothing; mutates the caller's items array). Only the facts
+-# the About grid does NOT already carry: case state, intake date, the CASE household (can
+-# differ from the non-case families item), and the exit date for a closed case. Case
+-# Manager / Status stay in their canonical spots (case-worker item / header badge);
+-# Edit/Exit live in the header Actions dropdown.
+-# locals: client:, items:
+- current_case = client.cases.exclude_referred.current
+- if current_case.present?
+  - items << info_item(t('clients.show.resettlement_case', default: 'Resettlement case'), t('clients.show.case_active', default: 'Active'))
+  - items << info_item(t('clients.show.intake_date', default: 'Intake date'), (date_format(current_case.start_date) if current_case.start_date))
+  - if current_case.family.present?
+    - household_html = capture do
+      - if can? :read, Family
+        = link_to family(current_case.family), family_path(current_case.family)
+      - else
+        = family(current_case.family)
+    - items << info_item(t('clients.show.case_household', default: 'Case household'), household_html.presence)
+- elsif (last_case = client.cases.exclude_referred.inactive.order(:exit_date).last).present?
+  - items << info_item(t('clients.show.resettlement_case', default: 'Resettlement case'), t('clients.show.case_exited', default: 'Closed'))
+  - if last_case.exit_date.present?
+    - items << info_item(t('clients.show.case_exit_date', default: 'Case closed on'), date_format(last_case.exit_date))

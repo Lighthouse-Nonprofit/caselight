@@ -22,3 +22,12 @@ ActiveRecord::Encryption.configure(
 # migration window (lets us encrypt existing rows incrementally). Set on the config object
 # directly so it applies regardless of initializer/railtie ordering.
 ActiveRecord::Encryption.config.support_unencrypted_data = true
+
+# UX round 3 (C1) — extend deterministic queries so WHERE clauses on encrypted columns also
+# probe (a) the downcased value for ignore_case columns (the Tier-4 names), (b) `previous:`
+# scheme ciphertext (rows not yet rewritten by encryption:reencrypt_client_names), and
+# (c) cleartext while support_unencrypted_data is on. The app doesn't use load_defaults, so
+# the framework default (off) applied and the railtie never installed the query extension —
+# set the flag AND install the module here, in this file's ordering-independent style.
+ActiveRecord::Encryption.config.extend_queries = true
+ActiveRecord::Encryption::ExtendedDeterministicQueries.install_support

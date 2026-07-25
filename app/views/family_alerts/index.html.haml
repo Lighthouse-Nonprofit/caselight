@@ -1,0 +1,46 @@
+-# UX round 3 (B3) — the family hub's Alerts tab: active "read first" alerts as prominent,
+-# NON-dismissible alert boxes (resolve is the only way to clear one), then the resolved log.
+= render 'families/family_header', family: @family, active_tab: :alerts
+.row
+  .col-12
+    .ibox
+      .ibox-title
+        %h5= t('.active_alerts', default: 'Active alerts')
+        .ibox-tools
+          - if can? :create, @family.family_alerts.new
+            = link_to t('.new_alert', default: 'New Alert'), new_family_family_alert_path(@family), class: 'btn btn-primary button'
+      .ibox-content
+        - if @active_alerts.any?
+          - @active_alerts.each do |alert|
+            %div{ class: "alert #{family_alert_css_class(alert)} family-alert", role: 'alert' }
+              %h5.alert-heading
+                %i.fa.fa-exclamation-triangle{ 'aria-hidden' => 'true' }
+                = alert.title
+                %span.badge.text-bg-light.family-alert__severity= t("family_alerts.severities.#{alert.severity}", default: alert.severity.titleize)
+              - if alert.body.present?
+                %p.family-alert__body= alert.body
+              %small.text-muted
+                = "#{t('.raised_by', default: 'Raised by')} #{alert.created_by.try(:name) || t('.unknown', default: 'unknown')} · #{date_format(alert.created_at)}"
+              .family-alert__actions.text-end
+                - if can? :update, alert
+                  = link_to t('shared.actions.edit', default: 'Edit'), edit_family_family_alert_path(@family, alert), class: 'btn btn-sm btn-outline-secondary'
+                  = button_to t('.resolve', default: 'Resolve'), resolve_family_family_alert_path(@family, alert), method: :patch, form_class: 'd-inline family-alert__resolve', data: { confirm: t('.resolve_confirm', default: 'Mark this alert resolved? It stays in the log below.') }, class: 'btn btn-sm btn-outline-secondary'
+        - else
+          %p.text-muted= t('.no_active_alerts', default: 'No active alerts.')
+    %div{ class: ibox_classes(collapsed: @resolved_alerts.none?) }
+      .ibox-title
+        %h5= t('.resolved_alerts', default: 'Resolved')
+        .ibox-tools
+          = render 'shared/ibox_collapse_link', collapsed: @resolved_alerts.none?
+      .ibox-content
+        - if @resolved_alerts.any?
+          %ul.client-overview__list
+            - @resolved_alerts.each do |alert|
+              %li.text-muted
+                %strong= alert.title
+                %span= "· #{t("family_alerts.severities.#{alert.severity}", default: alert.severity.titleize)}"
+                %span= "· #{t('.resolved_by', default: 'resolved by')} #{alert.resolved_by.try(:name) || '—'} · #{date_format(alert.resolved_at)}"
+        - else
+          %p.text-muted= t('.no_resolved_alerts', default: 'Nothing resolved yet.')
+      .ibox-footer.text-center
+        = paginate @resolved_alerts

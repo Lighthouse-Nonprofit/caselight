@@ -1113,6 +1113,12 @@ en:
       exit_from_ec: Close Resettlement Case
       exit_from_fc: Close Resettlement Case
       exit_from_kc: Close Resettlement Case
+      resettlement_case: Resettlement case
+      intake_date: Intake date
+      case_household: Case household
+      case_active: Active
+      case_exited: Closed
+      case_exit_date: Case closed on
       exit_ngo_btn: Exit From Organization
       exit_note: Exit Note
       families: Households
@@ -2183,6 +2189,19 @@ en:
       successfully_deleted: Family has been successfully deleted.
     edit:
       edit_family_title: Edit Family
+    family_header:
+      actions: Actions
+      add_form: Add Form
+      alerts: Alerts
+      delete_blocked: Households with resettlement-case history cannot be deleted
+      forms: Forms
+      members: "%{count} member(s)"
+      new_alert: New Alert
+      new_family_note: New Household Note
+      notes: Notes
+      overview: Overview
+      since: Since
+      unnamed: Household
     form:
       address: Address
       caregiver_information: Household Notes
@@ -2323,6 +2342,68 @@ en:
         edit: Edit
       update:
         successfully_updated: Custom Form has been successfully updated.
+  family_alerts:
+    severities:
+      notice: Notice
+      caution: Caution
+      critical: Critical
+    index:
+      active_alerts: Active alerts
+      new_alert: New Alert
+      no_active_alerts: No active alerts.
+      resolved_alerts: Resolved
+      no_resolved_alerts: Nothing resolved yet.
+      raised_by: Raised by
+      resolved_by: resolved by
+      resolve: Resolve
+      resolve_confirm: Mark this alert resolved? It stays in the log below.
+      unknown: unknown
+    form:
+      new_alert: New Household Alert
+      edit_alert: Edit Household Alert
+      severity: Severity
+      title: Alert (one line, shown everywhere)
+      body: Details
+    create:
+      successfully_created: Household alert has been raised.
+    update:
+      successfully_updated: Household alert has been updated.
+    resolve:
+      resolved: Alert marked resolved.
+  family_notes:
+    index:
+      family_notes: Household Notes
+      new_family_note: New Note
+      no_notes: No household notes yet.
+      present: Present
+    form:
+      edit_family_note: Edit Household Note
+      meeting_date: Date
+      new_family_note: New Household Note
+      note: Note
+      present: Present
+    create:
+      successfully_created: Household note has been successfully created.
+    update:
+      successfully_updated: Household note has been successfully updated.
+    destroy:
+      successfully_deleted: Household note has been successfully deleted.
+  forms:
+    index:
+      filled_forms: Forms
+      form: Form
+      entries: Entries
+      latest_entry: Latest entry
+      actions: Actions
+      view_entries: View entries
+      add_entry: Add entry
+      available_forms: Available forms
+      add_form: Add form
+      no_forms: No forms filled yet.
+      no_available_forms: Every available form has been started.
+      locked: "—"
+      locked_hint: "— access requires a logged reason, 1 hour"
+      unlock: Request access
   government_reports:
     create:
       successfully_created: Government Report has been successfully created.
@@ -3224,6 +3305,8 @@ en:
   shared:
     fields:
       required: required
+    ibox_collapse_link:
+      toggle: Toggle section
     page_header:
       more_actions: More actions
     filters:

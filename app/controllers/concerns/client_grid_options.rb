@@ -11,6 +11,20 @@ module ClientGridOptions
     end
   end
 
+  # UX round 3 (C2/R12): the name sorts are Ruby-side (encrypted columns). Strip a NAME_ORDERS
+  # order from what ClientGrid.new sees — datagrid raises Datagrid::OrderUnsupported on orders
+  # that aren't SQL-orderable columns — and stash it for the controller, which routes through
+  # name_sorted_assets + Kaminari.paginate_array. Raw params stay intact for the view (the
+  # select's selected option + the sort form's hidden-field replay). XLS exports come through
+  # here too, so a name order never reaches the export path (stays status-ordered).
+  def client_grid_params
+    grid_params = params.fetch(:client_grid, {})
+    order = grid_params[:order].to_s
+    return grid_params unless ClientGrid::NAME_ORDERS.key?(order)
+    @name_sort = ClientGrid::NAME_ORDERS[order]
+    grid_params.except(:order, :descending)
+  end
+
   def columns_visibility
     @client_columns ||= ClientColumnsVisibility.new(@client_grid, params.merge(column_form_builder: column_form_builder))
     @client_columns.visible_columns
@@ -58,9 +72,9 @@ module ClientGridOptions
     vis_ids = visible_custom_field_ids
     if params[:client_grid] && params[:client_grid][:quantitative_types]
       quantitative_types = params[:client_grid][:quantitative_types]
-      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(qType: quantitative_types, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
+      @client_grid = ClientGrid.new(client_grid_params.merge!(qType: quantitative_types, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
     else
-      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
+      @client_grid = ClientGrid.new(client_grid_params.merge!(dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
     end
     @client_grid
   end
@@ -70,9 +84,9 @@ module ClientGridOptions
     vis_ids = visible_custom_field_ids
     if params[:client_grid] && params[:client_grid][:quantitative_types]
       quantitative_types = params[:client_grid][:quantitative_types]
-      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: current_user, qType: quantitative_types, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
+      @client_grid = ClientGrid.new(client_grid_params.merge!(current_user: current_user, qType: quantitative_types, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
     else
-      @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: current_user, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
+      @client_grid = ClientGrid.new(client_grid_params.merge!(current_user: current_user, dynamic_columns: column_form_builder, visible_custom_field_ids: vis_ids))
     end
     @client_grid
   end

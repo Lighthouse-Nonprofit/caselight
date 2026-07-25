@@ -25,9 +25,17 @@ const SHOTS = [
   ['clients-grid-director.jpg', 'director', '/clients', 1500, 938, {}],
   ['clients-cards.jpg', 'worker', '/clients', 1560, 975, {}],
   ['client-detail.jpg', 'admin', '@client', 1560, 975, {}],
+  ['client-forms.jpg', 'admin', '@client/forms', 1500, 938, {}],
+  // household hub (UX round 3): overview w/ member list (+ alert banner when one is active),
+  // plus the Notes and Alerts tabs. '@family' = first data-bearing household, probed like @client.
+  ['family-detail.jpg', 'admin', '@family', 1560, 975, {}],
+  ['family-notes.jpg', 'admin', '@family/family_notes', 1500, 938, {}],
+  ['family-alerts.jpg', 'admin', '@family/family_alerts', 1500, 938, {}],
   ['programs.jpg', 'admin', '/program_streams', 1500, 938, {}],
   ['client-programs.jpg', 'admin', '@client/client_enrollments', 1500, 938, {}],
   ['case-notes.jpg', 'admin', '@client/case_notes', 1500, 938, {}],
+  ['case-note-form.jpg', 'admin', '@client/case_notes/new', 1500, 1100, {}],
+  ['tasks.jpg', 'admin', '/tasks', 1560, 975, {}],
   ['domains.jpg', 'admin', '/domains', 1500, 938, {}],
   ['calendar.jpg', 'admin', '/calendars', 1560, 975, {}],
   ['form-builder.jpg', 'admin', '/custom_fields/new', 1400, 1032, {}],
@@ -68,12 +76,18 @@ const SHOTS = [
     Array.from(document.querySelectorAll('a[href*="/clients/"]'))
       .map((a) => (a.getAttribute('href') || '').split('?')[0])
       .find((h) => /\/clients\/(?!new$)[a-z0-9-]+$/i.test(h)));
+  await probe.goto(`${BASE}/families`, { waitUntil: 'networkidle' });
+  const familyPath = await probe.evaluate(() =>
+    Array.from(document.querySelectorAll('a[href*="/families/"]'))
+      .map((a) => (a.getAttribute('href') || '').split('?')[0])
+      .find((h) => /\/families\/(?!new$)\d+$/i.test(h)));
   await probe.close();
   console.log('client for detail shots:', clientPath);
+  console.log('family for hub shots:', familyPath);
 
   let failures = 0;
   for (const [file, role, rawPath, w, h, opts] of SHOTS) {
-    const p = rawPath.replace('@client', clientPath);
+    const p = rawPath.replace('@client', clientPath).replace('@family', familyPath);
     const ctx = role === null
       ? await browser.newContext({ viewport: { width: w, height: h } })
       : await login(role);

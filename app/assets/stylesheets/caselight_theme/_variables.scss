@@ -29,10 +29,16 @@ $light:     #f3f3f4;
 $dark:      $cl-nav-bg;
 
 // ---- Typography -------------------------------------------------------------------------
-// Open Sans is self-hosted (faces declared in _root.scss); broad system fallback for FOUT.
+// Open Sans (body/tables/forms) + Manrope (display: h1–h5, titles, counts) — both
+// self-hosted (faces declared in _root.scss); broad system fallback for FOUT.
 $font-family-sans-serif: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
   'Helvetica Neue', Helvetica, Arial, sans-serif;
 $font-family-base: $font-family-sans-serif;
+// UX round 4: the geometric display family. BS5's %heading emits $headings-font-family, so
+// modal titles / card headings inherit it without per-component rules.
+$font-family-display: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  'Helvetica Neue', Helvetica, Arial, sans-serif;
+$headings-font-family: $font-family-display;
 // THE whole-app density lever (plan F2): 13px base to match INSPINIA's information density.
 $font-size-base:      .8125rem;
 $body-color:          #333333;
@@ -42,12 +48,38 @@ $headings-color:      #333333;
 // ---- Surfaces / borders / radius / shadow ----------------------------------------------
 $body-bg:          #ffffff;
 $border-color:     $cl-border;
-$border-radius:    .25rem;    // 4px
-$border-radius-sm: .1875rem;  // 3px
-$border-radius-lg: .3125rem;
+// UX round 4: soft-modern scale — controls 8px, cards/modals 12px. $refresh-radius* in
+// _legacy_vars now aliases these, so BOTH radius systems move together.
+$border-radius:    .5rem;     // 8px  — buttons, inputs, dropdowns, alerts, pills' base
+$border-radius-sm: .375rem;   // 6px
+$border-radius-lg: .75rem;    // 12px — cards (.ibox via alias), modals
 $box-shadow-sm: 0 1px 2px rgba(31, 58, 95, .06);
 $box-shadow:    0 1px 3px rgba(31, 58, 95, .08), 0 1px 2px rgba(31, 58, 95, .06);
 $box-shadow-lg: 0 4px 12px rgba(31, 58, 95, .10);
+
+// UX round 4: real depth — BS5 gates dropdown/modal/popover shadows behind this flag (the
+// $dropdown-box-shadow etc. vars below were set but INERT until now).
+$enable-shadows: true;
+// Neutralize the flag's control-level side effects — depth is for overlays/cards, not for
+// skeuomorphic insets on every button/input. TWO PITFALLS, both load-bearing:
+//   1. A literal `none` inside BS's comma-joined focus shadows is invalid CSS and silently
+//      DROPS THE FOCUS RING — never use `none` here.
+//   2. `null` does NOT work either: BS declares these with `!default`, and Sass `!default`
+//      re-assigns over null — the inset comes straight back. (Verified live.)
+// The zero-size transparent shadow (BS's own .btn-link trick) survives both.
+$btn-box-shadow:         0 0 0 rgba(0, 0, 0, 0);
+$btn-active-box-shadow:  0 0 0 rgba(0, 0, 0, 0);
+$input-box-shadow:       0 0 0 rgba(0, 0, 0, 0);
+$form-select-box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+$progress-box-shadow:    0 0 0 rgba(0, 0, 0, 0);
+
+$card-border-radius: $border-radius-lg;
+$card-box-shadow:    $box-shadow-sm;
+
+// UX round 4 (R4-3): the label/value text vocabulary — info-grid labels, micro-labels,
+// value text. (Formerly refresh_polish's local $rp-label/$rp-value; promoted to the theme.)
+$cl-text-label: #6b7688;
+$cl-text-value: #2b3648;
 
 // ---- Links ------------------------------------------------------------------------------
 $link-color:       $harbor;

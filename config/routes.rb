@@ -180,6 +180,8 @@ Rails.application.routes.draw do
     end
 
     resources :custom_field_properties
+    # UX round 3 (A1) — the merged Forms partition page (filled + available custom forms).
+    resources :forms, only: [:index]
     # resources :government_reports
     resources :assessments do
       # Phase 5.3 — authenticated, sensitivity-gated attachment download (replaces the guessable
@@ -213,6 +215,14 @@ Rails.application.routes.draw do
 
   resources :families do
     resources :custom_field_properties
+    # UX round 3 (B1) — the family hub's merged Forms partition page.
+    resources :forms, only: [:index]
+    # UX round 3 (B2) — household-level notes (the hub's Notes tab).
+    resources :family_notes
+    # UX round 3 (B3) — household alerts. Resolve-not-delete: no show/destroy routes.
+    resources :family_alerts, except: %i[show destroy] do
+      patch :resolve, on: :member
+    end
     get 'version' => 'families#version'
   end
 

@@ -1,20 +1,8 @@
+-# UX round 4 (R4-3): item-appender for the About info grid (renders nothing; mutates the
+-# caller's items array — the dl equivalent of the bare-%tr rows it used to emit).
+-# locals: items:
 - if @client.state == 'rejected'
-  %tr
-    %td
-      = t('.state')
-    %td
-      %strong
-        = @client.state.titleize
-  %tr
-    %td
-      = t('.rejected_note')
-    %td
-      %strong
-        = @client.rejected_note
+  - items << info_item(t('.state'), @client.state.titleize)
+  - items << info_item(t('.rejected_note'), @client.rejected_note)
 - elsif @client.state == 'accepted'
-  %tr
-    %td
-      = t('.state')
-    %td
-      %strong
-        = @client.state.titleize
+  - items << info_item(t('.state'), @client.state.titleize)

@@ -1,0 +1,49 @@
+// UX round 4 (R4-3) — the app-wide label-over-value information grid (shared/_info_grid.haml).
+// Stacked pairs in responsive auto-fill columns; hairline-free (the calm 2026 idiom). The
+// label vocabulary ($cl-text-label/-value) is shared with table theads and micro-labels.
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--info-grid-min, 240px), 1fr));
+  gap: 2px 32px;
+  margin: 0;
+}
+
+.info-grid--wide { --info-grid-min: 340px; } // long-label / long-value surfaces
+
+.info-grid--natural-case .info-grid__label {
+  font-size: .78rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.info-grid__item {
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.info-grid__item--full { grid-column: 1 / -1; }
+
+.info-grid__label {
+  margin: 0 0 2px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: $cl-text-label;
+}
+
+.info-grid__value {
+  margin: 0;
+  font-size: .875rem; // 14px
+  color: $cl-text-value;
+  overflow-wrap: anywhere;
+
+  strong { color: $navy; font-weight: 600; }
+  a { overflow-wrap: anywhere; }
+
+  // Entity badges (case workers / families / agencies / quantitative values) keep their
+  // markup; give them breathing room inside a value cell.
+  .badge.text-bg-light { line-height: 2.2; margin-right: 3px; }
+}
+
+.info-grid__empty { color: #8a94a6; }

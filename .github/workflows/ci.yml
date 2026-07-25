@@ -138,7 +138,7 @@ jobs:
         options: >-
           --health-cmd "mongosh --quiet --eval 'db.runCommand({ping:1}).ok'" --health-interval 5s --health-timeout 5s --health-retries 20
       redis:
-        image: redis:7   # sidekiq 7's redis-client needs Redis server >= 6.2
+        image: redis:7   # sidekiq's redis-client needs Redis server >= 6.2 (sidekiq 8.1 in the bundle)
         ports: ["6379:6379"]
         options: >-
           --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 20

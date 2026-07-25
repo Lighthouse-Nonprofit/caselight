@@ -10,6 +10,7 @@ module ClientHubHelper
     'leave_enrolled_programs'          => :programs,
     'client_enrollment_trackings'      => :programs,
     'client_enrolled_program_trackings' => :programs,
+    'forms'                            => :forms,
     'custom_field_properties'          => :forms,
     'case_notes'                       => :case_notes,
     'assessments'                      => :assessments,
@@ -25,6 +26,23 @@ module ClientHubHelper
   def client_hub_active_grants(client)
     @client_hub_active_grants ||= begin
       defined?(BreakGlassGrant) ? BreakGlassGrant.for_user_and_record(current_user, client).active.order(:expires_at).to_a : []
+    rescue StandardError
+      []
+    end
+  end
+
+  # UX round 3 (B3) — active alerts on any of the client's households ("read first" follows
+  # the people): a red chip in the header links to the household's Alerts tab. Single query,
+  # ability-scoped, memoized; fail-closed to none.
+  def client_hub_household_alerts(client)
+    @client_hub_household_alerts ||= begin
+      if defined?(FamilyAlert)
+        FamilyAlert.active.accessible_by(current_ability)
+                   .where(family_id: client.families.select(:id))
+                   .includes(:family).most_recents.to_a
+      else
+        []
+      end
     rescue StandardError
       []
     end

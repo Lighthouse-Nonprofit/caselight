@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # bootstrap.sh — one-shot, idempotent deploy of CaseLight on the pilot box.
 #
-# CaseLight is modernized (Ruby 4.0 / Rails 8.0 / PostgreSQL 17 / Mongo 6.0). The repo carries
+# CaseLight is modernized (Ruby 4.0 / Rails 8.1 / PostgreSQL 17 / Mongo 8.0). The repo carries
 # the Dockerfile and compose files, so there is nothing to scp — just run this script.
 # Rerun any time to deploy the latest main: it fetches, hard-resets to origin/$BRANCH,
 # rebuilds, migrates (shared template + every tenant), encrypts existing rows at rest
 # (Phase 4 / SC-28), and restarts the stack.
 #
 # Prereqs: Docker + the compose plugin installed, and the docker group active for the
-# run user (see provision.sh / OPERATIONS.md). Run as the deploy user.
+# run user (see OPERATIONS.md). Run as the deploy user.
 set -euo pipefail
 
 REPO_URL="${REPO_URL:-git@github.com:Lighthouse-Nonprofit/caselight.git}"  # only used for the first clone
@@ -24,9 +24,19 @@ if [ ! -d "$APP_DIR/.git" ]; then
 fi
 cd "$APP_DIR"
 echo "==> syncing to origin/$BRANCH"
+PRE_SYNC_SHA="$(git rev-parse HEAD)"
 git fetch origin --tags
 git reset --hard "origin/$BRANCH"
 echo "    now at: $(git log --oneline -1)"
+
+# Self-update guard: bash keeps executing the OLD text of a script whose file changed mid-run,
+# so a deploy that itself updates bootstrap.sh would run WITHOUT the new stages (on 2026-07-22
+# this skipped the reencrypt stage and the stale backfill destroyed the client names). If the
+# sync touched this script, re-exec the fresh copy exactly once.
+if [ "${BOOTSTRAP_REEXEC:-0}" != "1" ] && ! git diff --quiet "$PRE_SYNC_SHA" HEAD -- bootstrap.sh; then
+  echo "==> bootstrap.sh changed in this sync — re-exec'ing the updated script"
+  BOOTSTRAP_REEXEC=1 exec bash "$APP_DIR/bootstrap.sh"
+fi
 
 # 2. .env — generated once with fresh secrets; never committed. Edit afterwards as needed.
 if [ ! -f .env ]; then
@@ -81,7 +91,7 @@ EOF
   chmod 600 .env
 fi
 
-# 3. Build the image (Ruby 4.0 / Rails 8.0; native gems compile here — slow on first build).
+# 3. Build the image (Ruby 4.0 / Rails 8.1; native gems compile here — slow on first build).
 echo "==> docker compose build"
 docker compose build
 
@@ -129,6 +139,18 @@ for TIER in 1 2 3 4 5; do
   docker compose run --rm app bundle exec rake encryption:backfill TIER="$TIER" CONFIRM=1
   docker compose run --rm app bundle exec rake encryption:verify   TIER="$TIER"
 done
+
+# 7c. UX round 3 (C1): rewrite the four client-name columns under the ignore_case scheme and
+#     populate their original_* display sidecars. MUST run before `up` — with ignore_case the
+#     reader prefers the sidecar for encrypted rows, so a legacy row without one reads as NIL
+#     (names would render blank) until this rewrites it. Idempotent BY SKIPPING (hotfix #203,
+#     2026-07-23): rows whose sidecar is already populated are untouched — a re-run must NOT
+#     round-trip them (read_attribute returns the DOWNCASED column on a migrated row; writing
+#     it into the sidecar destroys display case). A routine redeploy reports re-encrypted=0.
+#     Runs AFTER the tier loop on purpose: the TIER=4 backfill re-ciphers the name columns but
+#     leaves the sidecars alone.
+echo "==> re-encrypting client names under the ignore_case scheme (C1)"
+docker compose run --rm app bundle exec rake encryption:reencrypt_client_names CONFIRM=1
 
 # 8. Up the app + worker.
 echo "==> starting app + sidekiq"

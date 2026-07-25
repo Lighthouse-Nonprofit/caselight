@@ -1,0 +1,122 @@
+// caselight_theme/_motion.scss — UX round 3 (D5/R14): the refined-and-restrained motion
+// layer. CSS-only (CSP-safe, zero JS), spoken entirely in the --cl-ease/--cl-dur-* tokens
+// from _root.scss, and killed wholesale under prefers-reduced-motion.
+//
+// DON'T list (owner-locked scope): no parallax, no skeleton screens, no scroll-jacking,
+// no `transition: all`, no animating width/height outside Bootstrap's .collapsing, no new
+// JS libraries, no re-importing bootstrap5/toasts (toastr owns .toast — scope any toast
+// styling STRICTLY to #toast-container), and the application.scss manifest tail
+// (shared/page_header, refresh_polish) stays last.
+
+@keyframes cl-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes cl-pop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ---- Buttons: the record-card hover grammar (lift + shadow), app-wide -----------------
+.btn {
+  transition:
+    background-color var(--cl-dur-fast) var(--cl-ease),
+    border-color var(--cl-dur-fast) var(--cl-ease),
+    color var(--cl-dur-fast) var(--cl-ease),
+    box-shadow var(--cl-dur-fast) var(--cl-ease),
+    transform var(--cl-dur-fast) var(--cl-ease);
+
+  &:hover { transform: translateY(-1px); box-shadow: $refresh-shadow-sm; }
+  &:active, &.disabled, &:disabled { transform: none; box-shadow: none; }
+}
+
+// ---- Dropdown entrance: a 4px settle from the toggle ----------------------------------
+.dropdown-menu.show {
+  animation: cl-pop var(--cl-dur-base) var(--cl-ease);
+  transform-origin: top right;
+}
+
+// ---- Form controls: border/shadow ease (the focus ring itself is _focus-ring.scss's) --
+.form-control,
+.form-select {
+  transition:
+    border-color var(--cl-dur-fast) var(--cl-ease),
+    box-shadow var(--cl-dur-fast) var(--cl-ease);
+}
+
+// ---- Tables: row hover ease; the C2 name-sort caret ------------------------------------
+.table > tbody > tr { transition: background-color var(--cl-dur-fast) var(--cl-ease); }
+.record-grid__sort-link .fa { transition: color var(--cl-dur-fast) var(--cl-ease); }
+
+// ---- Bootstrap collapse retimed to the tokens (page-header filter drawer etc.).
+//      KEEP the sidebar exception (#side-menu .collapsing { transition: none } in
+//      _sidebar.scss — metisMenu owns that timing); the .ibox slideToggle stays jQuery
+//      (its inline display is load-bearing for the D2 server-collapsed contract).
+.collapsing {
+  transition-duration: var(--cl-dur-base);
+  transition-timing-function: var(--cl-ease);
+}
+
+// ---- Hub pill tabs: color/elevation settle on switch -----------------------------------
+.client-hub__tabs .nav-link {
+  transition:
+    background-color var(--cl-dur-fast) var(--cl-ease),
+    color var(--cl-dur-fast) var(--cl-ease),
+    box-shadow var(--cl-dur-fast) var(--cl-ease);
+}
+
+// ---- Badges / count chips ---------------------------------------------------------------
+.badge,
+.client-hub__tab-chip {
+  transition:
+    background-color var(--cl-dur-fast) var(--cl-ease),
+    color var(--cl-dur-fast) var(--cl-ease);
+}
+
+// ---- Page-enter: opacity-only fade on the content wrapper (no transform — avoids
+//      scroll-anchor jumps). ---------------------------------------------------------------
+#page-wrapper { animation: cl-fade-in var(--cl-dur-slow) ease-out; }
+
+// ---- Card entrance stagger (CSS-only, capped at 8 — later cards appear instantly) -------
+.record-cards > li { animation: cl-fade-in var(--cl-dur-base) var(--cl-ease) both; }
+@for $i from 1 through 8 {
+  .record-cards > li:nth-child(#{$i}) { animation-delay: #{$i * 25}ms; }
+}
+
+// ---- Toastr skin (STRICTLY #toast-container — never bare .toast) ------------------------
+#toast-container > div {
+  border-radius: $refresh-radius;
+  box-shadow: $refresh-shadow-md;
+  opacity: 1;
+}
+
+// ---- Empty-state utility (pairs with the D2 collapsed-empty sections) -------------------
+.empty-state {
+  // UX round 4 (R4-5): calmer — more air, constrained line length, centered.
+  max-width: 36rem;
+  margin-inline: auto;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: $text-muted;
+}
+
+// ---- Accessibility: the whole layer yields to reduced-motion ----------------------------
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .dropdown-menu.show,
+  .form-control,
+  .form-select,
+  .table > tbody > tr,
+  .record-grid__sort-link .fa,
+  .collapsing,
+  .client-hub__tabs .nav-link,
+  .badge,
+  .client-hub__tab-chip,
+  #page-wrapper,
+  .record-cards > li {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

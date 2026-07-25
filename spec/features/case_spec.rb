@@ -81,7 +81,7 @@ feature 'Case' do
       fill_in 'Carer Name', with: 'Carer Name'
       fill_in 'Start Date', with: FFaker::Time.date
       click_button 'Save'
-      expect(page).to have_content('Resettlement Case')
+      expect(page).to have_content(/resettlement case/i) # About-row label renders uppercased (CSS text-transform)
       expect(client.cases.last.carer_names).to eq('Carer Name')
     end
 
@@ -96,7 +96,8 @@ feature 'Case' do
       fill_in 'Carer Names', with: 'Jonh'
       fill_in 'Start Date', with: '2017-04-01'
       click_button 'Save'
-      expect(page).to have_content('April 01, 2017')
+      # UX round 3 (A2): the intake date renders as an About row via date_format (%d %B, %Y)
+      expect(page).to have_content('01 April, 2017')
       expect(client.cases.last.carer_names).to eq('Jonh')
     end
   end
@@ -113,7 +114,7 @@ feature 'Case' do
       click_button 'Save'
 
       sleep 1
-      expect(page).to have_content('Resettlement Case')
+      expect(page).to have_content(/resettlement case/i) # About-row label renders uppercased (CSS text-transform)
       expect(active_case.reload.carer_names).to eq('Carer Name')
     end
 
@@ -132,7 +133,9 @@ feature 'Case' do
     end
 
     scenario 'success', js: true do
-      page.find("button[data-bs-target='#exit-from-case']").click
+      # UX round 3 (A2): the exit modal opens from the hub header's Actions dropdown
+      find('.client-hub__edit .dropdown-toggle').click
+      page.find("a[data-bs-target='#exit-from-case']").click
       within('#exit-from-case') do
         fill_in 'Exit Date', with: '2017-07-01'
         fill_in 'Exit Note', with: FFaker::Lorem.paragraph

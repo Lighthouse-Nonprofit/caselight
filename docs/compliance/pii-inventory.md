@@ -17,13 +17,15 @@ honest — when they drift, CI fails before this page lies:
 
 | Model | Fields | Category | Protection | Notes |
 |---|---|---|---|---|
-| Client | given/family/local_given/local_family_name | Identity | **Encrypted (Tier 4, deterministic)** | Exact, case-sensitive equality search only |
+| Client | given/family/local_given/local_family_name | Identity | **Encrypted (Tier 4, deterministic + ignore_case)** | Whole-name equality search, case-insensitive (`quick_name_search`); no substring search by design. Each column carries an encrypted non-deterministic `original_*` display sidecar (also Tier 4) preserving case (UX round 3 C1) |
 | Client | reason_for_referral, background, exit_note, rejected_note, relevant_referral_information | Narrative (health/protection context) | **Encrypted (Tier 1, non-det)** | Unqueryable by design |
 | Client | current_address, school_name, house_number, street_number, village, commune, district, live_with | Address/location | **Encrypted (Tier 2, non-det)** | |
 | Client | date_of_birth | Identity | **Plaintext (locked decision)** | Age/range/EXTRACT queries require it; protected by RBAC + disk encryption; revisit for the real-data host (`encryption-at-rest.md`) |
 | Client | slug, code | Routing identifiers | Plaintext (by design) | FriendlyId routing + unique indexes; non-PII identifiers |
 | Family | caregiver_information, case_history | Narrative | **Encrypted (Tier 1)** | |
 | Family | address | Address | **Encrypted (Tier 2)** | |
+| FamilyNote | note | Narrative (household context) | **Encrypted (Tier 1, non-det)** | Added UX round 3; paper_trail-redacted; reads access-audited |
+| FamilyAlert | title, body | Narrative (safety/operational warnings) | **Encrypted (Tier 1, non-det)** | Added UX round 3; resolved-not-deleted; paper_trail-redacted; reads access-audited |
 | Partner | address | Address | **Encrypted (Tier 2)** | contact_person_* remain plaintext-searchable (staff-entered org contacts) |
 | User | email, uid, first_name, last_name, mobile | Staff identity/contact | **Encrypted (Tier 3, deterministic; email/uid downcase)** | email is the login key |
 | User | pin_number | Staff identifier | **Plaintext (locked decision)** | Not an authenticator; excluded from the XLS export (Phase 6 U1); if it ever gates access: HASH it |
@@ -67,7 +69,7 @@ on record destroy (CarrierWave default, verified Phase 6).
 | Access-review CSV | Staff roster (deliberate AC-2(j) artifact; admin-only) |
 | `privacy:subject_access_export` | One subject's records, allowlist-based; staff as ids; files by name; every run writes `record_exported` (U9) |
 | `api/clients#compare` | Cross-tenant identity match — documented residual **POAM-AC3-COMPARE** |
-| UserSerializer (`api`) | Still emits `pin_number` in its attribute list — flagged for the next API pass |
+| UserSerializer (`api`) | `pin_number` **removed** from the attribute list (POAM-016, closed 2026-07-19) |
 
 ## 5. Residual gaps (all tracked)
 

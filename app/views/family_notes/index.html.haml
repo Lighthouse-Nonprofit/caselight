@@ -1,0 +1,36 @@
+-# UX round 3 (B2) — the family hub's Notes tab: dated household-level narrative entries.
+= render 'families/family_header', family: @family, active_tab: :notes
+.row
+  .col-12
+    .ibox
+      .ibox-title
+        %h5= t('.family_notes', default: 'Household Notes')
+        .ibox-tools
+          - if can? :create, @family.family_notes.new
+            = link_to t('.new_family_note', default: 'New Note'), new_family_family_note_path(@family), class: 'btn btn-primary button'
+          = render 'shared/ibox_collapse_link'
+      .ibox-content
+        - if @family_notes.any?
+          - @family_notes.each do |family_note|
+            .card.mb-3
+              .card-header
+                %strong= date_format(family_note.meeting_date)
+                - if family_note.attendee.present?
+                  %span.text-muted= "· #{t('.present', default: 'Present')}: #{family_note.attendee}"
+                .float-end
+                  - if can? :update, family_note
+                    = link_to edit_family_family_note_path(@family, family_note), 'aria-label' => t('shared.actions.edit', default: 'Edit') do
+                      .btn.btn-outline.btn-success.btn-xs
+                        = fa_icon('pencil')
+                  - if can? :destroy, family_note
+                    = link_to family_family_note_path(@family, family_note), method: :delete, data: { confirm: t('families.show.are_you_sure', default: 'Are you sure you want to delete?') }, 'aria-label' => t('shared.actions.delete', default: 'Delete') do
+                      .btn.btn-outline.btn-danger.btn-xs
+                        = fa_icon('trash')
+              .card-body
+                %p.family-note__body= family_note.note
+                - if family_note.user.present?
+                  %small.text-muted= "— #{family_note.user.name}"
+        - else
+          %p.text-muted= t('.no_notes', default: 'No household notes yet.')
+      .ibox-footer.text-center
+        = paginate @family_notes

@@ -1,6 +1,6 @@
 .row
   .col-12
-    = render 'clients/client_header', client: @client, active_tab: :overview, full_actions: true
+    = render 'clients/client_header', client: @client, active_tab: :overview
     .row
       .col-md-9
       .col-md-3
@@ -47,16 +47,7 @@
             .col-12
               %button.btn.btn-danger.mini-margin{ disabled: 'disabled', class:'agree-btn' } #{t('.reject')}
 
-    - if @client.state == 'accepted'
-      -# Modals targeted by the hub header's "Open Resettlement Case" dropdown (rendered
-      -# there with full_actions: true — the header lives above, the modals live here).
-      - if can? :manage, Case
-        - if @client.client_enrollments.active.count > 0
-          = render 'remaining_programs', client: @client
-        - else
-          = render 'exit_ngo_form', client: @client
-        - if @client.cases.exclude_referred.current.present?
-          = render 'exit_case_form', client_case: @client.cases.exclude_referred.current, exit_from_cif: true
+    -# (UX round 3 A3: the exit modals moved into _client_header — one render, every hub page.)
 .row.mini-margin
   .col-12
     .ibox
@@ -68,109 +59,47 @@
             .btn.btn-outline.btn-primary
               %i.fa.fa-chevron-up
       .ibox-content
-        .row
-          .col-sm-12.col-md-6.first-table
-            %table.table.table-bordered
-              %tr
-                %td.spacing-first-col
-                  = t('.families')
-                %td
-                  %strong
-                    - @client.families.as_non_cases.uniq.each do |family|
-                      %strong.badge.text-bg-light.family
-                        - if can? :read, Family
-                          = link_to family(family), family_path(family)
-                        - else
-                          = family(family)
-              %tr
-                %td.spacing-first-col
-                  = t('.address')
-                %td
-                  %strong
-                    - if @client.current_address.present?
-                      = @client.current_address
-                    - else
-                      = merged_address(@client)
-              / %tr
-              /   %td.spacing-first-col
-              /     = t('.completed')
-              /   %td
-              /     %strong
-              /       = human_boolean(@client.completed)
-              %tr
-                %td.spacing-first-col
-                  = t('.birth_province')
-                %td
-                  %strong
-                    = @client.birth_province
-          .col-sm-12.col-md-6.second-table
-            %table.table.table-bordered
-              %tr
-                %td.spacing-first-col
-                  = t('.school_name')
-                %td
-                  %strong
-                    = @client.school_name
-              %tr
-                %td.spacing-first-col
-                  = t('.school_grade')
-                %td
-                  %strong
-                    = @client.grade
-              %tr
-                %td.spacing-first-col
-                  = t('.relevant_referral_information')
-                %td
-                  %strong
-                    = @client.relevant_referral_information
-              %tr
-                %td.spacing-first-col
-                  = t('.case_worker_or_staff')
-                %td
-                  %strong
-                    - order_case_worker(@client).each do |case_worker|
-                      %strong.badge.text-bg-light
-                        = user case_worker
-              %tr
-                %td.spacing-first-col
-                  = t('.agencies_involved')
-                %td
-                  - @client.agencies.each do|agency|
-                    %strong.badge.text-bg-light.agency
-                      = agency.name
-
-              = render 'state'
-              - if @client.exit_date
-                %tr
-                  %td.spacing-first-col
-                    = t('.accepted_date')
-                  %td
-                    %strong
-                      = date_format(@client.accepted_date)
-                %tr
-                  %td.spacing-first-col
-                    = t('.exit_date')
-                  %td
-                    %strong
-                      = date_format(@client.exit_date)
-                %tr
-                  %td.spacing-first-col
-                    = t('.exit_note')
-                  %td
-                    %strong
-                      = @client.exit_note
-
-        .row
-          .col-12
-            %table.table.table-bordered
-              - @client.quantitative_cases.group_by(&:quantitative_type).each do |qtypes|
-                %tr
-                  %td.align-justify
-                    = qtypes.first.name
-                  %td.align-justify
-                    - qtypes.last.each do |qcase|
-                      %strong.badge.text-bg-light
-                        = qcase.value
+        -# UX round 4 (R4-3): the two bordered About tables + the quantitative table merged
+        -# into ONE responsive label-over-value info grid (shared/_info_grid). Label/value
+        -# TEXT is byte-identical to the tables it replaces (spec contract).
+        - items = []
+        - families_html = capture do
+          - @client.families.as_non_cases.uniq.each do |family|
+            %strong.badge.text-bg-light.family
+              - if can? :read, Family
+                = link_to family(family), family_path(family)
+              - else
+                = family(family)
+        - items << info_item(t('.families'), families_html.presence)
+        - items << info_item(t('.address'), @client.current_address.presence || merged_address(@client))
+        - items << info_item(t('.birth_province'), @client.birth_province)
+        - items << info_item(t('.school_name'), @client.school_name)
+        - items << info_item(t('.school_grade'), @client.grade)
+        - items << info_item(t('.relevant_referral_information'), @client.relevant_referral_information)
+        - case_workers_html = capture do
+          - order_case_worker(@client).each do |case_worker|
+            %strong.badge.text-bg-light
+              = user case_worker
+        - items << info_item(t('.case_worker_or_staff'), case_workers_html.presence)
+        - agencies_html = capture do
+          - @client.agencies.each do |agency|
+            %strong.badge.text-bg-light.agency
+              = agency.name
+        - items << info_item(t('.agencies_involved'), agencies_html.presence)
+        = render 'state', items: items
+        -# UX round 3 (A2): the Resettlement Case facts (item-appender since R4-3).
+        = render 'about_case_rows', client: @client, items: items
+        - if @client.exit_date
+          - items << info_item(t('.accepted_date'), date_format(@client.accepted_date))
+          - items << info_item(t('.exit_date'), date_format(@client.exit_date))
+          - items << info_item(t('.exit_note'), @client.exit_note)
+        - @client.quantitative_cases.group_by(&:quantitative_type).each do |qtypes|
+          - qvalues_html = capture do
+            - qtypes.last.each do |qcase|
+              %strong.badge.text-bg-light
+                = qcase.value
+          - items << info_item(qtypes.first.name, qvalues_html.presence)
+        = render 'shared/info_grid', items: items
 -# UX review 1: About Individual leads; the Programs | Resettlement Case | Forms cards sit
 -# just under it (the placement partial renders inside the overview row); screening answers
 -# and recent activity follow.

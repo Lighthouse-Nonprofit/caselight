@@ -5,7 +5,12 @@
     %caption.visually-hidden= t('.grid_caption', default: 'Individuals')
     %thead
       %tr
-        %th{ scope: 'col' }= t('datagrid.columns.clients.name', default: 'Name')
+        -# UX round 3 (C2/R12): the Name header toggles a last-name A–Z/Z–A sort (a Ruby-side
+        -# sort — the name columns are encrypted; the cards' sort select stays the full menu).
+        %th{ scope: 'col', 'aria-sort' => name_sort_aria }
+          = link_to clients_path(request.query_parameters.deep_merge('client_grid' => { 'order' => next_name_order })), class: 'record-grid__sort-link' do
+            = t('datagrid.columns.clients.name', default: 'Name')
+            %i.fa{ class: name_sort_caret, 'aria-hidden' => 'true' }
         %th{ scope: 'col' }= t('datagrid.columns.clients.gender_age', default: 'Gender / Age')
         %th{ scope: 'col' }= t('datagrid.columns.clients.program_streams', default: 'Programs')
         %th{ scope: 'col' }= t('datagrid.columns.clients.case_manager', default: 'Case Manager')

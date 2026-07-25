@@ -1,0 +1,64 @@
+-# UX round 3 (B1) — persistent family hub header, rendered atop families#show and every
+-# family partition page (Forms now; Notes/Alerts land in B2/B3), mirroring the client hub.
+-# Reuses the .client-hub__* classes on purpose — same layout system, zero new SCSS.
+-# CSP-safe (BS5 data-bs-* only).
+-#
+-# locals: family:, active_tab: (symbol from family_hub_active_tab)
+- active_tab = local_assigns[:active_tab]
+.client-hub.family-hub
+  .client-hub__identity
+    .client-hub__who
+      %h1.client-hub__name= family.name.presence || family.code.presence || t('families.family_header.unnamed', default: 'Household')
+      %span.client-hub__status= cl_badge(family_type_label(family.family_type), family.inactive? ? :secondary : :primary)
+      %p.client-hub__meta
+        - if family.code.present?
+          %span.client-hub__slug= "##{family.code}"
+        %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+        %span= t('families.family_header.members', default: '%{count} member(s)', count: family.member_count.to_i)
+        - if family.province.present?
+          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+          %span= family.province.name
+        - if family.contract_date.present?
+          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+          %span= "#{t('families.family_header.since', default: 'Since')} #{date_format(family.contract_date)}"
+    .client-hub__actions
+      - if (can? :manage, Family) || (can? :manage, CustomFieldProperty)
+        .dropdown.client-hub__edit
+          %button.btn.btn-outline-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', 'aria-expanded' => 'false', type: 'button' }
+            = t('families.family_header.actions', default: 'Actions')
+          %ul.dropdown-menu.dropdown-menu-end
+            - if can? :update, family
+              %li= link_to t('shared.actions.edit', default: 'Edit'), edit_family_path(family), class: 'dropdown-item'
+            - if can? :manage, CustomFieldProperty
+              %li= link_to t('families.family_header.add_form', default: 'Add Form'), family_forms_path(family), class: 'dropdown-item'
+            - if can? :create, family.family_notes.new
+              %li= link_to t('families.family_header.new_family_note', default: 'New Household Note'), new_family_family_note_path(family), class: 'dropdown-item'
+            - if can? :create, family.family_alerts.new
+              %li= link_to t('families.family_header.new_alert', default: 'New Alert'), new_family_family_alert_path(family), class: 'dropdown-item'
+            - if can? :destroy, family
+              %li
+                %hr.dropdown-divider
+              - if family.cases_count.to_i.zero?
+                %li= link_to t('shared.actions.delete', default: 'Delete'), family_path(family), method: 'delete', data: { confirm: t('families.show.are_you_sure', default: 'Are you sure you want to delete?') }, class: 'dropdown-item text-danger'
+              - else
+                -# households with case history can't be deleted (mirrors the old remove_link guard)
+                %li
+                  %span.dropdown-item.disabled.text-danger{ 'aria-disabled' => 'true', title: t('families.family_header.delete_blocked', default: 'Households with resettlement-case history cannot be deleted') }
+                    = t('shared.actions.delete', default: 'Delete')
+  %ul.nav.nav-pills.client-hub__tabs
+    %li.nav-item
+      = link_to t('families.family_header.overview', default: 'Overview'), family_path(family), class: "nav-link #{'active' if active_tab == :overview}"
+    %li.nav-item
+      = link_to family_forms_path(family), class: "nav-link #{'active' if active_tab == :forms}" do
+        = t('families.family_header.forms', default: 'Forms')
+        %span.client-hub__tab-chip= family_hub_forms(family).size
+    - if can? :read, FamilyNote
+      %li.nav-item
+        = link_to family_family_notes_path(family), class: "nav-link #{'active' if active_tab == :notes}" do
+          = t('families.family_header.notes', default: 'Notes')
+          %span.client-hub__tab-chip= family.family_notes.count
+    - if can? :read, FamilyAlert
+      %li.nav-item
+        = link_to family_family_alerts_path(family), class: "nav-link #{'active' if active_tab == :alerts}" do
+          = t('families.family_header.alerts', default: 'Alerts')
+          %span.client-hub__tab-chip= family.family_alerts.active.count

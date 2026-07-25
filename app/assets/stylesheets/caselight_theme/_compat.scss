@@ -10,7 +10,7 @@
   padding: 1px 5px;
   font-size: 12px;
   line-height: 1.5;
-  border-radius: 3px;
+  border-radius: $border-radius-sm;
 }
 
 // --- INSPINIA .btn-outline behaviour (65+128 uses) ---
@@ -65,7 +65,7 @@
 .clear { display: block; overflow: hidden; }
 .font-bold { font-weight: 600; }
 .text-xs { font-size: 11px; }
-.b-r-md { border-radius: 6px; }
+.b-r-md { border-radius: $border-radius; }
 .bg-color { background-color: #fff; }
 .wrapper-content { padding: 20px 10px 40px; }
 
@@ -154,3 +154,8 @@
 .wizard > .content > .body { position: relative; }
 
 // .pace-done (Pace loader body class) needs no style — intentionally omitted.
+
+// UX round 3 (D4/R6) — destructive-control separation: red actions sit LAST in an inline
+// action group with this gap so they never read as the "next" routine button
+// (docs/ui-conventions.md).
+.action-gap-start { margin-left: .75rem; }
