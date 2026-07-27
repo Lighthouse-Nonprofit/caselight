@@ -25,6 +25,9 @@ class ApplicationController < ActionController::Base
   # per-request reset guarantees the enforcement-flag memo can never leak across requests on a pooled
   # thread (tenant-keyed too). Cheap: a single Hash#delete of one key.
   before_action { EnforcementSetting.clear_cache! }
+  # SECURITY.md pilot baseline ("noindex / do not let it get crawled"): robots.txt is advisory —
+  # this header is the enforcement layer, on EVERY response (pages, errors, downloads, JSON).
+  before_action { response.set_header('X-Robots-Tag', 'noindex, nofollow') }
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :find_association, if: :devise_controller?
   before_action :set_locale

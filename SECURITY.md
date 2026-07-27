@@ -43,7 +43,10 @@ while fit is assessed and lets staff test workflows honestly.
 - [ ] Strong Devise passwords; no shared logins — one `User` per staff member so the audit trail is
       meaningful (enforced: complexity + no-reuse; see `policies/access-control.md`).
 - [ ] Automated EBS snapshots (daily), retained encrypted.
-- [ ] `noindex` / not linked publicly; do not let it get crawled.
+- [x] `noindex` / not linked publicly; do not let it get crawled. *(Done 2026-07-26: the served
+      robots.txt — the dynamic route reading `config/robots/production.txt` — was allow-all since
+      go-live; now disallow-all, plus an `X-Robots-Tag: noindex, nofollow` header on every
+      response and a robots meta tag in the layout.)*
 - [ ] Ideally an isolated AWS account, or at least a dedicated VPC.
 
 ## Production gate (real client data) — a separate, deliberate decision

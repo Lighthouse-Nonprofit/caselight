@@ -6,6 +6,8 @@
     %meta{:content => "width=device-width, initial-scale=1", :name => "viewport"}
     %meta{:content => "", :name => "description"}
     %meta{:content => "", :name => "author"}
+    -# Pilot baseline: never crawled/indexed (belt to the X-Robots-Tag header's suspenders).
+    %meta{:content => "noindex,nofollow", :name => "robots"}
 
     %title= current_organization.try(:short_name) == 'mho' ? "Mother's Heart Cambodia" : "CaseLight"
     %link{ rel: 'icon', href: image_path('brand/favicon.svg'), type: 'image/svg+xml' }
