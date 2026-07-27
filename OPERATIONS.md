@@ -67,6 +67,13 @@ an `APP_HOST` + DNS change, no code. Setting `APP_HOST` turns Rails host authori
 - **Backups**: take a `pg_dumpall` + `mongodump` into `~/backups/<label>/` before any deploy
   that migrates data or changes encryption schemes. Daily EBS snapshots are the box-level
   baseline per `SECURITY.md`.
+- **Tenant export ("give the org their data back", POAM-014)**:
+  `docker compose exec -T app bundle exec rake export:tenant TENANT=<short_name>
+  EXPORT_PASSPHRASE=<phrase>` → a tar.gz(.enc) under `tmp/exports/` in the container: the
+  tenant's schema dump (`pg_restore`-able), its Mongo history/audit slices, every upload its
+  rows reference, and a checksummed manifest. Copy it out with `docker compose cp`, hand it
+  off out-of-band, then delete it — the bundle holds decrypted PII. Every run writes a
+  `record_exported` AccessLog.
 
 ## Scheduled jobs (host cron)
 
