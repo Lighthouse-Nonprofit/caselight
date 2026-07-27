@@ -380,8 +380,11 @@ The **Security Enforcement** panel lets an administrator turn live security cont
 their organization** — global authorization enforcement, least-privilege narrowing, the
 tenant-boundary tripwire, required MFA, idle session timeout, lockout threshold, password expiry,
 and inactive-account auto-disable — each mapped to a NIST 800-53 control. Each control shows a
-**shadow window** first — what the stricter rule *would* have denied — so you can review the
-impact before enabling it.
+**shadow window** — what the stricter rule *would* have denied — so you can review the impact
+before changing it. The three authorization controls are **on by default** in production (since
+2026-07-26); your panel settings override the default in either direction, and every change is
+audited. Requiring MFA follows the enforcement-window practice: turn it on only after your staff
+have had time to enroll their authentication of choice.
 
 ### Break-glass emergency access
 

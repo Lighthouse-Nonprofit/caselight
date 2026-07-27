@@ -30,9 +30,11 @@ protect.
    escalated per the incident-response policy); read-access rows support after-the-fact "who viewed
    this client" investigation. Reviews run against the ≥90-day online window (`audit-retention.md`).
 5. **Retention (AU-11).** AccessLog: ≥90 days online / ≥1 year WORM archive (`audit:purge`, 90-day
-   floor). Change/history stores: `retention:purge_*` (365-day floor). All purges dry-run by default,
-   require `CONFIRM=1`, and are manual until the verified-archive precondition is code-enforced
-   (POAM-015). Policy detail: `data-retention.md`.
+   code floor). Change/history stores: `retention:purge_*` (365-day floor; 3-year windows ratified
+   2026-07-26). All purges dry-run by default, require `CONFIRM=1`, and — since POAM-015 closed
+   (2026-07-26) — **refuse in code without a verified archive** (archive → verify → purge, weekly
+   on the host crontab; a failed verify makes the purge a refusal). Policy detail:
+   `data-retention.md`, `audit-retention.md` §4.2.
 6. **Resilience.** Auditing must never break the request it audits — every writer is rescue-wrapped
    and downgrades a failure to a logged error.
 

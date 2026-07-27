@@ -77,7 +77,13 @@ the toggle governs only the `read` event type.
 emitted from the destroy success branches), `account_disabled` (AC-2(3) inactive-account
 auto-disable, written by `accounts:disable_inactive` via the request-less
 `AccessLog.system_event!`), and `record_exported` (subject-access exports, written by
-`privacy:subject_access_export` — the export FILE is the payload; the log row never is).
+`privacy:subject_access_export`, and whole-tenant exports via `export:tenant` — the export FILE is
+the payload; the log row never is).
+
+**2026-07-26 addition:** `client_compare_probe` — every duplicate-check probe against
+`api/clients#compare` (match count only; the probe's query string carries a client name, so the
+row logs the query-stripped path via `security_event!`'s `scrub_query:` option — AU-3 stays
+values-free).
 
 **Inherited from infra:** OS / container / reverse-proxy events (SSH sessions,
 sudo, network ACL hits) are audited at the host layer, not by CaseLight.
