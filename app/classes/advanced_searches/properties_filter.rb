@@ -18,6 +18,7 @@ module AdvancedSearches
   # real-data host: a custom-form search there should move to a queryable design (a deterministic
   # blind-index sidecar per searchable field, or a decrypted materialized search table refreshed out of
   # band). Do NOT ship this rewrite to production volume without that follow-up.
+  # Ledgered 2026-07-26 as POAM-024 (docs/compliance/vulnerability-poam.md) — a pre-real-data gate.
   #
   # SEMANTICS REPRODUCED (1:1 with the old SQL — VERIFIED against a live Postgres oracle in caselight-app-1):
   #   * equal/not_equal  <- `properties -> 'f' ? 'v'` (jsonb `?` = string-key/element membership):

@@ -189,9 +189,11 @@ values-free `client_compare_probe` audit; the cross-tenant read path and its Ten
 allowlist entry are gone).
 
 **Licensing (clean-fork handoff):** CaseLight is AGPL-3.0 (network use is a distribution trigger — a
-hosted client is owed the modified source). Open item: verify OSCaR's upstream license with
-Rotati/Children-in-Families before relying on the AGPL LICENSE added at fork time (tracked in
-`vulnerability-poam.md` / README).
+hosted client is owed the modified source). **Upstream license VERIFIED (2026-07-26, POAM-021
+closed):** the maintained upstream repo's README (`github.com/Children-in-Families/oscar-web`,
+License section) releases OSCaR under AGPL — the fork-time AGPL-3.0 `LICENSE` is confirmed correct;
+same license, no relicensing. Also tracked pre-real-data: **POAM-024** (Tier-5 custom-form search is
+O(n)-decrypt in Ruby — needs a queryable design before production volume).
 
 ---
 
