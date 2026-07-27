@@ -70,7 +70,10 @@
                               .card-header
                                 %h4= t('.attachments')
                               .card-body
-                                = render 'attachment', cdg: cdg
+                                - if case_note_attachments_visible?(cdg)
+                                  = render 'attachment', cdg: cdg
+                                - else
+                                  = restricted_masked_notice
       .ibox-footer
         .text-center
           = paginate @case_notes

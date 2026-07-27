@@ -224,6 +224,18 @@ RSpec.describe 'Authorized upload downloads', type: :request do
       expect(response).not_to have_http_status(:ok)
       expect(response.body).not_to eq(fixture_bytes)
     end
+
+    it 'layers the derived domain-GROUP sensitivity gate on top of record-auth (POAM-013)' do
+      # Full matrix in case_note_domain_group_attachment_authz_spec — this pins the wiring here:
+      # record-auth passes (case worker reads every case note) but the group carries an
+      # emergency_only domain, which is masked for every non-admin.
+      create(:domain, domain_group: cndg.domain_group, sensitivity: 'emergency_only')
+      worker = create(:user, roles: 'case worker')
+      sign_in_as(worker)
+      get authorized_download_path('case_note_domain_group', cndg.id, 'attachments', 0)
+      expect(response).to have_http_status(:forbidden)
+      expect(response.body).not_to eq(fixture_bytes)
+    end
   end
 
   # ---------------------------------------------------------------------------------------------------

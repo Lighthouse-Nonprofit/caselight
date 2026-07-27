@@ -10,7 +10,10 @@
                 %td.image-title.vert-align
                   = original_filename(attachment)
                 %td.vert-align
-                  = link_to preview_or_download(attachment), attachment.url, class: 'btn btn-info btn-sm btn-download', target: target_blank(attachment)
+                  -# Raw attachment.url points into /uploads/**, which the uploads guard 403s for
+                  -# everyone — serve through the authorized, domain-sensitivity-gated route the
+                  -# show page already uses (POAM-013 dead-link fix).
+                  = link_to preview_or_download(attachment), download_attachment_client_assessment_path(@assessment.client, @assessment, assessment_domain_id: ad.object.id, index: index), class: 'btn btn-info btn-sm btn-download', target: target_blank(attachment)
                 %td.vert-align.text-center
                   .delete.fa.fa-trash.btn.btn-outline.btn-danger{ data: { url: (client_assessment_path(@assessment.client, @assessment, assessment_domain: ad.object, file_index: index)), comfirm: t('.are_you_sure') }}
 .row

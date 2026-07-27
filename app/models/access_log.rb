@@ -166,7 +166,9 @@ class AccessLog
     # Record a security event (login_failure / account_locked / access_denied) from
     # a raw ActionDispatch::Request (Warden hook has env, the rescues have request).
     # user is optional — unauthenticated failures have none. Same resilience contract.
-    def security_event!(event_type:, request:, user: nil, metadata: {})
+    # scrub_query: true logs the query-string-free path — for GET surfaces whose params
+    # carry PII values (the client_compare_probe name fields), keeping AU-3 values-free.
+    def security_event!(event_type:, request:, user: nil, metadata: {}, scrub_query: false)
       attrs = {
         event_type:  event_type,
         user_id:     user.try(:id),
@@ -174,7 +176,7 @@ class AccessLog
         controller:  (request.params[:controller] if request.respond_to?(:params)),
         action:      (request.params[:action] if request.respond_to?(:params)),
         http_method: request.request_method,
-        path:        request.fullpath,
+        path:        scrub_query ? request.path : request.fullpath,
         remote_ip:   request.remote_ip,
         request_id:  request.request_id,
         metadata:    metadata || {}

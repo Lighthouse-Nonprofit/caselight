@@ -49,7 +49,7 @@ honest — when they drift, CI fails before this page lies:
 |---|---|---|
 | attachment/{file,image} | Progress-note documents; able-screening question images | **Authorized DownloadsController only** (U7); raw static requests 403 |
 | custom_field_property/attachments | Custom-form documents (identity docs, leases, IEPs…) | Authorized + custom-field sensitivity gate (U7) |
-| case_note_domain_group/attachments | Case-note documents | Authorized (record-level; domain-sensitivity residual = POAM-013) |
+| case_note_domain_group/attachments | Case-note documents | Authorized + derived domain-GROUP sensitivity gate (viewer must be cleared for every domain in the group — most-sensitive governs; POAM-013, closed 2026-07-26) |
 | form_builder_attachment/file | Enrollment/tracking/leave-program documents | Authorized + CFP sensitivity gate where applicable (U7) |
 | assessment_domain/attachments | Assessment documents | Authorized + domain-sensitivity gate (Phase 5.3) |
 | organization/logo | Org branding | Public by design (login page) |
@@ -68,7 +68,7 @@ on record destroy (CarrierWave default, verified Phase 6).
 | Families/Partners/Users/ProgressNotes XLS | Ability-scoped (U1); pin_number excluded |
 | Access-review CSV | Staff roster (deliberate AC-2(j) artifact; admin-only) |
 | `privacy:subject_access_export` | One subject's records, allowlist-based; staff as ids; files by name; every run writes `record_exported` (U9) |
-| `api/clients#compare` | Cross-tenant identity match — documented residual **POAM-AC3-COMPARE** |
+| `api/clients#compare` | Current-tenant duplicate check: minimal `{id, organization}` payload (no record values), name-field required, values-free `client_compare_probe` audit (**POAM-AC3-COMPARE closed 2026-07-26** — the cross-tenant loop is gone) |
 | UserSerializer (`api`) | `pin_number` **removed** from the attribute list (POAM-016, closed 2026-07-19) |
 
 ## 5. Residual gaps (all tracked)
@@ -78,7 +78,7 @@ on record destroy (CarrierWave default, verified Phase 6).
 | Client.date_of_birth plaintext | `encryption-at-rest.md` (locked; revisit for real-data host) |
 | users.pin_number plaintext | `encryption-at-rest.md` (locked; hash-if-authenticator) |
 | ~~cases.exit_note plaintext copy~~ | **POAM-012 — closed 2026-07-26** (encrypted Tier 1; see §1) |
-| Case-note domain-group attachments lack per-domain sensitivity mapping | **POAM-013** |
+| ~~Case-note domain-group attachments lack per-domain sensitivity mapping~~ | **POAM-013 — closed 2026-07-26** (derived group gate; see §3) |
 | Tenant-level full data export (backup/portability) | **POAM-014** (deferred; inherited backups cover DR) |
 | Purge auto-scheduling blocked on archive-verification gate | **POAM-015** |
-| Assessment edit-form attachment link dead (guard-403'd; show page uses the safe route) | **POAM-013** note |
+| ~~Assessment edit-form attachment link dead (guard-403'd; show page uses the safe route)~~ | **POAM-013 note — fixed 2026-07-26** (repointed to the authorized route) |

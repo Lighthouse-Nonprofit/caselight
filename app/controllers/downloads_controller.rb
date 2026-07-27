@@ -17,9 +17,11 @@
 #                                 have no Attachment rule but legitimately read progress notes.
 #   * custom_field_property    -> authorize! :read on the custom_formable + the Phase-5.3
 #                                 custom-field sensitivity gate (record-aware, break-glass honoring).
-#   * case_note_domain_group   -> authorize! :read on the case_note. (Field-level domain sensitivity
-#                                 is not cleanly derivable from a domain GROUP — recorded as a
-#                                 POA&M residual; record-auth holds.)
+#   * case_note_domain_group   -> authorize! :read on the case_note, + the derived domain-GROUP
+#                                 sensitivity gate (POAM-013, closed): the viewer's visible domain
+#                                 levels must cover EVERY domain in the group — the attachment
+#                                 belongs to the whole section and cannot be attributed to a single
+#                                 domain, so the most sensitive domain governs. Nil group fails closed.
 #   * form_builder_attachment  -> authorize! :read on the polymorphic form_buildable, + the CFP
 #                                 sensitivity gate when the buildable is a CustomFieldProperty.
 #
@@ -117,8 +119,11 @@ class DownloadsController < AdminController
   end
 
   # Phase-5.3 field-level gate on top of record-auth: custom-form attachments are PART of the
-  # custom-field value, so they follow the same visibility set as the rendered field.
+  # custom-field value, so they follow the same visibility set as the rendered field. Case-note
+  # attachments follow the derived domain-GROUP sensitivity (POAM-013) — see below.
   def sensitivity_allows?
+    return case_note_domain_group_visible? if params[:record_type] == 'case_note_domain_group'
+
     cfp = case params[:record_type]
           when 'custom_field_property'  then @record
           when 'form_builder_attachment' then (@record.form_buildable if @record.form_buildable.is_a?(CustomFieldProperty))
@@ -126,6 +131,19 @@ class DownloadsController < AdminController
     return true if cfp.nil?
 
     visible_custom_field_ids_for(cfp.custom_formable).include?(cfp.custom_field_id)
+  end
+
+  # POAM-013 derived gate: sensitivity lives on Domain, not DomainGroup, and a case-note section
+  # covers ALL of its group's domains — the attachment cannot be attributed to one domain, so the
+  # viewer must be cleared for every domain in the group (most-sensitive governs). Nil group fails
+  # closed (parity with the assessments nil-domain 403). An empty group has nothing sensitive
+  # declared and passes on record-auth alone.
+  def case_note_domain_group_visible?
+    group = @record.domain_group
+    return false if group.nil?
+
+    levels = visible_domain_levels
+    group.domains.all? { |domain| levels.include?(domain.sensitivity) }
   end
 
   # Explicit dispatch (not public_send(params[:mount])) — the route constraint already whitelists
