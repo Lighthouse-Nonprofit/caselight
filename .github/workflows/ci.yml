@@ -67,10 +67,8 @@ jobs:
       BUNDLE_WITHOUT: "development test"
     steps:
       - uses: actions/checkout@v7
-      - name: System deps (libpq for pg + imagemagick for the mini_magick image specs + pg client 17 for export:tenant)
-        # postgresql-client-17 from the runner's preconfigured PGDG repo: the stock client (16)
-        # refuses the postgres:17 service ("server version mismatch") in the export_spec pg_dump.
-        run: sudo apt-get update && sudo apt-get install -y libpq-dev imagemagick postgresql-client-17
+      - name: System deps (libpq for pg + imagemagick for the mini_magick image specs)
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev imagemagick
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "4.0"
@@ -148,6 +146,14 @@ jobs:
       - uses: actions/checkout@v7
       - name: System deps (libpq for pg + imagemagick for the mini_magick image specs)
         run: sudo apt-get update && sudo apt-get install -y libpq-dev imagemagick
+      - name: PostgreSQL client 17 (export_spec pg_dump — the runner's stock client refuses a PG-17 server)
+        # Explicit PGDG bootstrap; the runner's own repo set does not reliably carry client-17.
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update && sudo apt-get install -y postgresql-client-17
+          pg_dump --version
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "4.0"
