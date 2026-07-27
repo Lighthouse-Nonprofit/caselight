@@ -101,7 +101,10 @@ originally built by **Rotati Consulting** and **Children in Families**.
 
 - Upstream project: https://github.com/pannsamnang/oscar-web-os
 
-OSCaR is licensed under **AGPL-3.0**, and CaseLight preserves it (see [`LICENSE`](LICENSE)).
+OSCaR is licensed under **AGPL-3.0** — stated in the upstream
+[README's License section](https://github.com/Children-in-Families/oscar-web#license)
+("OSCaR Web Application is released under AGPL"; verified 2026-07-26) — and CaseLight preserves it
+(see [`LICENSE`](LICENSE)).
 The AGPL's **network-use clause** is important: if you run a modified version of CaseLight
 as a network service, you must make your modified source available to its users. Publish
 your fork's source accordingly.
