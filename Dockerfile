@@ -4,9 +4,10 @@
 FROM ruby:4.0
 
 # ruby:4.0 base is a current Debian, apt mirrors live — normal install.
-# Only libpq-dev (for the pg gem) is required; gcc/make/git ship in the base image.
+# libpq-dev for the pg gem; postgresql-client (Trixie ships client 17, matching the server) for
+# export:tenant / db:dump — pg_dump was silently absent in-container until POAM-014.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends libpq-dev \
+ && apt-get install -y --no-install-recommends libpq-dev postgresql-client \
  && rm -rf /var/lib/apt/lists/*
 
 # Node is needed only for execjs asset precompilation. Binary tarball keeps the

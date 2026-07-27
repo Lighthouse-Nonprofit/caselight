@@ -67,8 +67,10 @@ jobs:
       BUNDLE_WITHOUT: "development test"
     steps:
       - uses: actions/checkout@v7
-      - name: System deps (libpq for pg + imagemagick for the mini_magick image specs)
-        run: sudo apt-get update && sudo apt-get install -y libpq-dev imagemagick
+      - name: System deps (libpq for pg + imagemagick for the mini_magick image specs + pg client 17 for export:tenant)
+        # postgresql-client-17 from the runner's preconfigured PGDG repo: the stock client (16)
+        # refuses the postgres:17 service ("server version mismatch") in the export_spec pg_dump.
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev imagemagick postgresql-client-17
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "4.0"

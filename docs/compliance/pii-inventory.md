@@ -68,6 +68,7 @@ on record destroy (CarrierWave default, verified Phase 6).
 | Families/Partners/Users/ProgressNotes XLS | Ability-scoped (U1); pin_number excluded |
 | Access-review CSV | Staff roster (deliberate AC-2(j) artifact; admin-only) |
 | `privacy:subject_access_export` | One subject's records, allowlist-based; staff as ids; files by name; every run writes `record_exported` (U9) |
+| `export:tenant` | Whole-tenant portability bundle (schema dump + tenant Mongo slices + row-referenced uploads + manifest), operator-run, optional passphrase encryption; every run writes `record_exported` (**POAM-014 closed 2026-07-26**) |
 | `api/clients#compare` | Cross-tenant identity match — documented residual **POAM-AC3-COMPARE** |
 | UserSerializer (`api`) | `pin_number` **removed** from the attribute list (POAM-016, closed 2026-07-19) |
 
@@ -79,6 +80,6 @@ on record destroy (CarrierWave default, verified Phase 6).
 | users.pin_number plaintext | `encryption-at-rest.md` (locked; hash-if-authenticator) |
 | ~~cases.exit_note plaintext copy~~ | **POAM-012 — closed 2026-07-26** (encrypted Tier 1; see §1) |
 | ~~Case-note domain-group attachments lack per-domain sensitivity mapping~~ | **POAM-013 — closed 2026-07-26** (derived group gate; see §3) |
-| Tenant-level full data export (backup/portability) | **POAM-014** (deferred; inherited backups cover DR) |
+| ~~Tenant-level full data export (backup/portability)~~ | **POAM-014 — closed 2026-07-26** (`export:tenant`; see §4. Inherited backups still cover DR) |
 | Purge auto-scheduling blocked on archive-verification gate | **POAM-015** |
 | ~~Assessment edit-form attachment link dead (guard-403'd; show page uses the safe route)~~ | **POAM-013 note — fixed 2026-07-26** (repointed to the authorized route) |
