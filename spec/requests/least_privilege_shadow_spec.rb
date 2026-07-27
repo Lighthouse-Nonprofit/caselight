@@ -56,6 +56,18 @@ RSpec.describe 'Least-privilege shadow', type: :request do
       expect(response).not_to have_http_status(:ok) # CanCan::AccessDenied -> redirect
       expect(AccessLog.where(event_type: 'least_privilege_shadow').count).to eq(0)
     end
+
+    it 'enforces via the PERSISTED per-tenant path too (EnforcementSetting row, config.x stays off)' do
+      # The 2026-07-26 production flip reads config.x; per-tenant rows are the other live path and
+      # had no ON-proof for THIS flag (tenant_boundary/authorization already have one each).
+      Rails.application.config.x.enforce_least_privilege = false
+      EnforcementSetting.create!(enforce_least_privilege: true)
+      sign_in_as(so)
+
+      get client_version_path(client)
+      expect(response).not_to have_http_status(:ok)
+      expect(AccessLog.where(event_type: 'least_privilege_shadow').count).to eq(0)
+    end
   end
 
   # --- ProgressNote path: defense-in-depth, no divergence on the find_client-gated page ---

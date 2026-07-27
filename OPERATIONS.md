@@ -91,6 +91,25 @@ Archives + `manifest.json` live on the persisted `archives` Docker volume (`/app
 `ARCHIVE_DIR`) — on the encrypted EBS root, covered by snapshots; copying them to the WORM tier
 remains the infra hand-off (`docs/compliance/audit-retention.md` §3).
 
+## Enforcement flags (the flip runbook)
+
+The three Phase-5 flags — `enforce_authorization` (AC-3), `enforce_least_privilege` (AC-6),
+`enforce_tenant_boundary` (SC-7) — have been **ON as the production default since 2026-07-26**
+(`config/environments/production.rb`), flipped after the shadow-window review recorded **zero**
+divergence events all-time. Resolution order per request: the tenant's persisted
+`EnforcementSetting` row (the audited `/admin/enforcement_settings` panel) → else the environment
+default. Rollback, softest first: panel → "Shadow (off)" or "Use system default" (per-tenant,
+audited, next-request effect); console escape hatch
+`EnforcementSetting.instance.update!(<flag>: nil)` inside the tenant; or revert the production.rb
+block (deploy).
+
+**The enforcement window (owner policy):** any flip that changes what staff can see or must do is
+**announced before it lands**, and account-affecting enforcement waits for setup time. In
+particular **`require_mfa` stays OFF** until every staff account has had time to enroll its auth
+of choice (TOTP or passkey) — new-account onboarding includes MFA enrollment *before* the org
+flips `require_mfa`. (By design `require_mfa` is an enroll-*nudge*, never a hard block — login,
+the enrollment page, and the panel stay reachable — but the window policy stands regardless.)
+
 ## Containment (incident response)
 
 Per `docs/compliance/policies/incident-response.md`: to contain, stop the app tier

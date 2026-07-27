@@ -1,7 +1,9 @@
 # frozen_string_literal: true
-# Phase 5 authorization-hardening feature flags. ALL DEFAULT OFF. Shipping the Phase 5
-# code changes NO behavior until the org explicitly flips each flag (after the log-only
-# shadow window and the locked allowlist/matrix). Same kill-switch pattern as
+# Phase 5 authorization-hardening feature flags. The lines below are the FAIL-SAFE fallback
+# (OFF) — since 2026-07-26 the PRODUCTION default is ON via config/environments/production.rb
+# (environments load before initializers; the `unless == true` guard preserves it). Dev/test
+# stay shadow-only unless a spec forces the flag; per-tenant EnforcementSetting rows override
+# either default via the audited admin panel. Same kill-switch pattern as
 # config/initializers/two_factor.rb (enforce_mfa_for_privileged) and the AccessAudit
 # access_logging_enabled flag.
 #

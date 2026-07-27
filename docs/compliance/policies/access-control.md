@@ -19,8 +19,10 @@ mechanism, not aspiration.
    fields and assessment domains are classified (standard / restricted / emergency-only) and masked
    per role by `SensitivityPolicy` + the `SensitiveFields` concern. Emergency-only fields require
    **break-glass** (`BreakGlassGrant`): a 1-hour self-elevation with a mandatory reason, audit written
-   first (fail-closed). The least-privilege and mandatory-authorization enforcement flags ship OFF
-   (shadow-first) and are flipped per environment only after reviewing the AccessReview shadow tables.
+   first (fail-closed). The least-privilege and mandatory-authorization enforcement flags shipped
+   shadow-first and have been the **production default since 2026-07-26** (flipped after the
+   AccessReview shadow review found zero divergences; per-tenant panel overrides remain the
+   audited runtime switch — flip runbook and the enforcement-window policy in `OPERATIONS.md`).
 4. **Strong authentication (IA-2/IA-5).** MFA (TOTP) and passkeys (WebAuthn) are available; MFA is
    required for privileged roles once the org enables the flag. Passwords: ≥12 chars with complexity,
    no reuse of the last 5 (devise-security). Rate-limiting on auth endpoints (rack-attack).

@@ -85,8 +85,8 @@ resolvable code path; run `rake compliance:evidence` for a machine-checked snaps
 |---|---|---|---|
 | AC-2 account management | Implemented | Devise users, one per staff (`app/models/user.rb`); admin CRUD; `disable` flag | AccessReview report + CSV (`app/controllers/access_reviews_controller.rb`, AC-2(j)) |
 | AC-2(3) disable inactive accounts | Implemented | `accounts:disable_inactive` rake + `EnforcementSetting#inactive_disable_days` (per-tenant, report-only until set, last-admin guard) | `lib/tasks/accounts.rake`; `account_disabled` AccessLog event |
-| AC-3 access enforcement | Implemented (shadow-first) | CanCanCan `app/classes/ability.rb`; mandatory-auth cutover flag `config/initializers/authorization_enforcement.rb`; `TenantBoundary` concern | `authorization_coverage_guard_spec`; `authorization_shadow` events in AccessReview |
-| AC-6 least privilege | Implemented (shadow-first) | Role-scoped abilities; `least_privilege` flag; `SensitivityPolicy` + `SensitiveFields`/`SensitiveVersionScope` (field-level, 3 sensitivity levels) | `least_privilege_shadow` events; `sensitive_field_masking_*` specs |
+| AC-3 access enforcement | **Implemented (ENFORCED 2026-07-26)** | CanCanCan `app/classes/ability.rb`; mandatory-auth `check_authorization` + the `TenantBoundary` 409 refusal — production default ON (`config/environments/production.rb`; per-tenant panel overrides remain) after a shadow review recording ZERO divergences all-time | `authorization_coverage_guard_spec`; `authorization_cutover_route_smoke_spec` (every action × every role); flip evidence in the flip PR + `OPERATIONS.md` runbook |
+| AC-6 least privilege | **Implemented (ENFORCED 2026-07-26)** | Role-scoped abilities narrowed (`least_privilege` production default ON — same flip/evidence); `SensitivityPolicy` + `SensitiveFields`/`SensitiveVersionScope` field masking is always-on and flag-independent | `least_privilege_shadow` history (zero events); persisted-path + config-path ON specs; `sensitive_field_masking_*` specs |
 | AC-6 break-glass (emergency access) | Implemented | `BreakGlassGrant` — 1-hour self-elevation, mandatory reason, audit-written-first | `app/models/break_glass_grant.rb`; `break_glass:smoke` rake |
 | AC-7 unsuccessful-logon lockout | Implemented | Devise `:lockable` (10/1h; floor ≥3 admin-brick guard) + rack-attack throttles | `config/initializers/rack_attack.rb`, `devise.rb`; `account_locked` AccessLog event |
 | AC-12 session termination | Implemented | Devise `:timeoutable` (30 min, panel-tunable); secure session cookie | `config/initializers/session_store.rb`, `two_factor.rb` |
@@ -176,8 +176,12 @@ behind `SECURITY.md`'s production gate.
 - **Incident/breach response plan with named owners** (`policies/incident-response.md` — owners TBD).
 - **Encrypted, tested backups + restore drill**; **WAF**; **network isolation** (inherited, must be
   confirmed operating).
-- **Enforcement-flag flip** — the AC-3/AC-6 flags ship shadow-first (OFF); flip per-environment after a
-  shadow-window review of the AccessReview tables.
+- **Enforcement-flag flip** — ~~the AC-3/AC-6 flags ship shadow-first (OFF); flip per-environment
+  after a shadow-window review of the AccessReview tables~~ **DONE (2026-07-26):** all three flags
+  (AC-3, AC-6, SC-7) are the production default after the review found ZERO shadow-divergence
+  events all-time across every tenant; per-tenant panel overrides remain the audited runtime
+  switch, and the flip runbook (incl. the enforcement-window policy — `require_mfa` stays OFF
+  until staff enroll their auth of choice) lives in `OPERATIONS.md`.
 
 **Accepted residuals (documented, lower risk):** `Client.date_of_birth` plaintext (query/reporting
 need; locked), `users.pin_number` plaintext (not an authenticator; hash-if-repurposed), slug/org-code
