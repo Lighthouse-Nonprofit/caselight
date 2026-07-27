@@ -75,6 +75,22 @@ an `APP_HOST` + DNS change, no code. Setting `APP_HOST` turns Rails host authori
   off out-of-band, then delete it — the bundle holds decrypted PII. Every run writes a
   `record_exported` AccessLog.
 
+## Scheduled jobs (host cron)
+
+`bootstrap.sh` installs `config/schedule.rb` into the **host** crontab on every deploy
+(`docker compose run --rm app bundle exec whenever | crontab -` — it REPLACES the ubuntu user's
+crontab, which this deploy owns). Every job shells into the app container, so the host needs no
+Ruby; output appends to `~/oscar/log/cron.log` (retention pipeline) and `~/oscar/log/whenever.log`
+(reminders/reports). Inspect with `crontab -l`.
+
+The weekly retention pipeline (POAM-015, archive-gated): Sunday 02:00 UTC `retention:archive`
+(access_logs at 90d, versions + Mongo histories at 1095d) → 02:30 `retention:verify_archive`
+(sha256 + recount; exits 1 on mismatch) → 03:00 the three `CONFIRM=1` purges, each of which
+**refuses in code** unless its window has a verified archive and deletes at the manifest's cutoff.
+Archives + `manifest.json` live on the persisted `archives` Docker volume (`/app/archives`,
+`ARCHIVE_DIR`) — on the encrypted EBS root, covered by snapshots; copying them to the WORM tier
+remains the infra hand-off (`docs/compliance/audit-retention.md` §3).
+
 ## Containment (incident response)
 
 Per `docs/compliance/policies/incident-response.md`: to contain, stop the app tier

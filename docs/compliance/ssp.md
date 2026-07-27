@@ -181,9 +181,12 @@ behind `SECURITY.md`'s production gate.
 
 **Accepted residuals (documented, lower risk):** `Client.date_of_birth` plaintext (query/reporting
 need; locked), `users.pin_number` plaintext (not an authenticator; hash-if-repurposed), slug/org-code
-plaintext (routing identifiers). POAM-013/014/015 and POAM-AC3-COMPARE — all tracked in
-`vulnerability-poam.md`, none blocking the synthetic-data pilot (POAM-011 closed 2026-07-12,
-POAM-016 closed 2026-07-19).
+plaintext (routing identifiers). POAM-014/015 — tracked in `vulnerability-poam.md`, none blocking
+the synthetic-data pilot (POAM-011 closed 2026-07-12, POAM-016 closed 2026-07-19, POAM-013 closed
+2026-07-26 PR #206, **POAM-AC3-COMPARE closed 2026-07-26** — `api/clients#compare` is
+current-tenant-only with a minimal `{id, organization}` payload, a required name field, and a
+values-free `client_compare_probe` audit; the cross-tenant read path and its TenantBoundary
+allowlist entry are gone).
 
 **Licensing (clean-fork handoff):** CaseLight is AGPL-3.0 (network use is a distribution trigger — a
 hosted client is owed the modified source). Open item: verify OSCaR's upstream license with

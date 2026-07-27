@@ -8,11 +8,13 @@
 module TenantBoundary
   extend ActiveSupport::Concern
 
-  # Actions that DELIBERATELY operate across tenants (Organization.switch_to loops) and so
-  # legitimately leave Apartment::Tenant.current != the request subdomain. VERIFIED by grep:
-  # only api/clients#compare and api/custom_fields {fetch_custom_fields,fields} switch tenants.
+  # Actions that DELIBERATELY operate across tenants (Organization.switch_to loops) and may
+  # legitimately leave Apartment::Tenant.current != the request subdomain when this after_action
+  # fires. api/clients#compare LEFT this list 2026-07-26 (POAM-AC3-COMPARE: compare is now
+  # current-tenant-only). Other mid-request switchers exist (form_builder/custom_fields,
+  # program_streams — cross-org form CONFIG reads, never client values) but restore the request
+  # tenant before returning, so they need no entry here.
   CROSS_TENANT_ALLOWLIST = {
-    'api/clients'       => %w[compare].freeze,
     'api/custom_fields' => %w[fetch_custom_fields fields].freeze
   }.freeze
 

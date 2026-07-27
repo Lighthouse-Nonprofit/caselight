@@ -24,7 +24,10 @@ namespace :compliance do
     ['history_verify_versions',         'history:verify_versions',         true],
     ['history_verify_client_histories', 'history:verify_client_histories', true],
     ['break_glass_smoke',               'break_glass:smoke',               true],
-    ['retention_report',                'retention:report',                false] # read-only snapshot, informational
+    ['retention_report',                'retention:report',                false], # read-only snapshot, informational
+    # POAM-015: gating, but an EMPTY manifest passes (nothing archived yet is a valid state on a
+    # fresh install); only a checksum/count mismatch fails.
+    ['retention_verify_archive',        'retention:verify_archive',        true]
   ].freeze
 
   desc 'Run the read-only compliance verifiers into a timestamped evidence bundle (tmp/evidence/<ts>/). ' \

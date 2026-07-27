@@ -77,17 +77,16 @@ RSpec.describe 'Tenant boundary tripwire (AC-3 / SC-7)', type: :request do
     end
   end
 
-  describe 'cross-tenant allowlist (api/clients#compare)' do
-    it 'does NOT refuse or log even under a mismatch with enforcement ON' do
-      enforce_tenant_boundary!       # a NON-allowlisted route would 409 here
+  describe 'cross-tenant allowlist (api/clients#compare left it 2026-07-26, POAM-AC3-COMPARE)' do
+    it 'REFUSES a mismatched compare request like any other route (no longer exempt)' do
+      enforce_tenant_boundary!
       host_implies_tenant('otherorg')
 
       expect {
-        get compare_api_clients_path # deliberately operates across tenants -> exempt
-      }.not_to change { tenant_mismatch_logs.count }
+        get compare_api_clients_path # current-tenant-only now -> subject to the tripwire
+      }.to change { tenant_mismatch_logs.count }.by(1)
 
-      expect(response).not_to have_http_status(:conflict)
-      expect(response).to have_http_status(:ok)
+      expect(response).to have_http_status(:conflict)
     end
   end
 

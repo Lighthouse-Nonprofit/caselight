@@ -26,8 +26,8 @@ for the audit store; this document incorporates it by reference.
 | Category | Window | Basis / status |
 |---|---|---|
 | Live client/case records | **TBD — BLOCKS PRODUCTION.** Must be set with the org (and their legal/funder obligations) before any real record is entered. Refugee-resettlement records raise specific questions: immigration case files and minors' records may carry multi-year (or majority-age-plus) obligations. | `SECURITY.md` production gate explicitly requires this decision. The pilot runs synthetic data, so no window is in force yet. |
-| `versions` (change audit) | **Proposed: 3 years** (owner to ratify) | Long enough for after-the-fact investigation + SOC 2 evidence; bounded so the per-tenant tables stop growing without limit. Floor: never below **365 days** (enforced in code). |
-| Mongo `ClientHistory`/`TaskHistory` | **Proposed: 3 years** (owner to ratify) | Same rationale; post-redaction these carry association/state history only. Same 365-day code floor. |
+| `versions` (change audit) | **3 years — RATIFIED 2026-07-26 (owner)** | Long enough for after-the-fact investigation + SOC 2 evidence; bounded so the per-tenant tables stop growing without limit. Floor: never below **365 days** (enforced in code). Purged weekly at DAYS=1095, archive-gated (§3). |
+| Mongo `ClientHistory`/`TaskHistory` | **3 years — RATIFIED 2026-07-26 (owner)** | Same rationale; post-redaction these carry association/state history only. Same 365-day code floor; same weekly archive-gated purge. |
 | `AccessLog` | ≥ 90 days online / ≥ 1 year WORM archive | Existing policy — `audit-retention.md` (AU-11). |
 | Uploaded documents | Follow the owning record (removed on record destroy via CarrierWave) + the live-record window above | Deletion path verified Phase 6. |
 | Backups | Infrastructure baseline | Inherited; must not silently extend the live-record window (expired-data restores are handled by the deletion-path re-run on restore). |
@@ -42,10 +42,14 @@ for the audit store; this document incorporates it by reference.
 | Live records | In-app destroy (CanCan-authorized; Client destroy guarded on associated cases/enrollments) → cascades to children + uploaded files (CarrierWave) + the record's Mongo history docs; the final destroy version (PII-free) is **kept** as deletion evidence | Phase-6 deletion-lifecycle unit; every destroy emits a values-free `record_destroyed` AccessLog event |
 | Subject-access / erasure requests | Operator-run per the privacy rake (`privacy:subject_access_export`) + the in-app destroy path above | Logged; see Phase-6 export unit |
 
-**None of the purges are scheduled.** The verified-archive-before-purge precondition
-(`audit-retention.md` §4.2) is not yet code-enforced — until it is (tracked as a POA&M item),
-every purge is a deliberate operator action: dry-run → reconcile counts against the archive →
-`CONFIRM=1`. `rake retention:report` provides the read-only age-bucket evidence for reviews.
+**The purges are SCHEDULED as of 2026-07-26 (POAM-015 closed).** The verified-archive-before-purge
+precondition (`audit-retention.md` §4.2) is now **code-enforced**: `retention:archive` exports each
+purge window to checksummed gzip JSONL + a manifest, `retention:verify_archive` recounts/re-hashes
+and stamps `verified_at`, and every `CONFIRM=1` purge refuses without a verified entry and deletes
+at the manifest's cutoff (deleted ⊆ archived). The host crontab (installed by `bootstrap.sh` from
+`config/schedule.rb`) runs archive → verify → purges weekly (Sun 02:00/02:30/03:00 UTC); a failed
+archive/verify makes that week's purge a refusal, not a data loss. Manual runs remain available
+with the same gates. `rake retention:report` provides the read-only age-bucket evidence for reviews.
 
 ## 4. Legal hold / exceptions
 

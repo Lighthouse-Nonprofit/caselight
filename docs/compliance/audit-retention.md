@@ -62,17 +62,22 @@ span all tenants and so runs **`unscoped`** (section 4.3).
 `delete_all` — the callback-skipping path, which is *intended*: the append-only
 `before_destroy` guard protects the request path, not this operator task.
 
-### 4.2 Archive-before-delete guard (AU-9 / AU-11)
+### 4.2 Archive-before-delete guard (AU-9 / AU-11) — CODE-ENFORCED (POAM-015 closed 2026-07-26)
 Deletion is destructive and irreversible. The task therefore:
 - **Defaults to DRY-RUN.** It only reports the cutoff and the count to be
-  purged. Nothing is deleted unless the operator passes `CONFIRM=1`.
-- **Must not delete before archive is confirmed.** Purging online rows is only
-  authorized once those rows have been written to WORM archive (section 3) and
-  the archive write is verified. The dry-run count is the reconciliation handle:
-  the operator confirms the same window has been archived before re-running with
-  `CONFIRM=1`. Until the archive export is wired into this task (infra
-  hand-off), CONFIRM is a manual gate, not an automated one. A code-enforced
-  verified-archive precondition is tracked as a POA&M item.
+  purged. Nothing is deleted unless the operator (or the scheduled job) passes `CONFIRM=1`.
+- **Cannot delete before a verified archive exists.** `rake retention:archive`
+  exports every purge-eligible row to gzip JSONL under `ARCHIVE_DIR` (a persisted
+  Docker volume on the encrypted, EBS-snapshotted host disk) and records each
+  window in `manifest.json` (sha256 + row count); `rake retention:verify_archive`
+  recounts and re-checksums each entry and stamps `verified_at` — any mismatch
+  exits 1. A `CONFIRM=1` purge then **refuses in code** unless a verified entry
+  covers its window, and deletes **at the manifest's cutoff** (never the
+  requested one), so deleted ⊆ archived by construction; if candidates exceed
+  the archived count (a write backdated into the window), it refuses. The
+  90-day `DAYS` floor is also code-enforced. Copying archives to the WORM tier
+  (section 3) remains the infrastructure hand-off; the code gate guarantees a
+  local, checksummed, verified copy exists before anything is deleted.
 
 ### 4.3 Cross-tenant semantics (the crux)
 `AccessLog` carries a tenant-bound `default_scope`. In a rake/console context no
@@ -103,9 +108,13 @@ only way a row leaves the online store is by aging out uniformly.
   contractual / regulatory retention obligation for the resettlement program.
 
 ## 6. Operational notes
-- Run via Sidekiq-cron or an OS cron once daily, **dry-run first**, reconcile the
-  count against the archive export, then run with `CONFIRM=1`.
-- The task is idempotent: re-running with the same `DAYS` after a successful
-  purge reports/deletes only newly-aged rows.
-- Never lower `DAYS` below 90 without a documented exception — 90 days is the
-  AU-11 online floor for this system.
+- **Scheduled since 2026-07-26** (POAM-015): the host crontab (installed by
+  `bootstrap.sh` from `config/schedule.rb`) runs the weekly pipeline — Sunday
+  02:00 `retention:archive`, 02:30 `retention:verify_archive`, 03:00 the three
+  `CONFIRM=1` purges. A failed archive/verify simply makes that week's purge
+  refuse (fail-safe). Output: `~/oscar/log/cron.log`.
+- The tasks are idempotent: re-running with the same `DAYS` after a successful
+  purge reports/deletes only newly-aged-and-archived rows.
+- `DAYS` below 90 is refused in code — 90 days is the AU-11 online floor for
+  this system.
+- Do **not** run purges during an incident (`policies/incident-response.md`).

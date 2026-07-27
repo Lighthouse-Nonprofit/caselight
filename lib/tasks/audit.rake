@@ -6,8 +6,12 @@
 # delete_all to skip those guards (see docs/compliance/audit-retention.md).
 #
 # Safety posture:
-#  - DRY-RUN by default. Deletes ONLY when CONFIRM=1 (archive-before-delete gate).
-#  - DAYS (default 90) is the AU-11 online-retention floor; do not go below 90.
+#  - DRY-RUN by default. Deletes ONLY when CONFIRM=1.
+#  - DAYS (default 90) is the AU-11 online-retention floor — now CODE-ENFORCED (POAM-015 closed the
+#    floor asymmetry vs retention.rake).
+#  - POAM-015 archive gate: CONFIRM=1 deletes only rows covered by a VERIFIED archive-manifest
+#    entry (retention:archive -> retention:verify_archive), at the MANIFEST's cutoff — the shared
+#    gate helpers live in retention.rake.
 #
 # Cross-tenant (the crux): AccessLog has a tenant-bound default_scope
 # (where(tenant: Organization.current...)). In a rake context no tenant is
@@ -21,6 +25,10 @@ namespace :audit do
        "DRY-RUN unless CONFIRM=1. e.g. DAYS=90 CONFIRM=1 rake audit:purge"
   task purge: :environment do
     days    = Integer(ENV.fetch("DAYS", "90"))
+    if days < 90
+      abort "[audit:purge] REFUSED: DAYS=#{days} is below the 90-day AU-11 online-retention floor " \
+            "(docs/compliance/audit-retention.md)."
+    end
     confirm = ENV["CONFIRM"] == "1"
     cutoff  = days.days.ago
 
@@ -46,15 +54,22 @@ namespace :audit do
     end
 
     unless confirm
-      puts "[audit:purge] DRY-RUN — no rows deleted. Re-run with CONFIRM=1 " \
-           "AFTER the >=1yr WORM archive of this window is confirmed."
+      puts "[audit:purge] DRY-RUN — no rows deleted. CONFIRM=1 deletes rows covered by a " \
+           "VERIFIED archive (retention:archive + retention:verify_archive; POAM-015 gate)."
       next
     end
 
+    # POAM-015 gate: delete at the newest VERIFIED archive cutoff, never the requested one —
+    # deleted ⊆ archived by construction (helpers from retention.rake).
+    archived_cutoff, entry = verified_archive_for!('audit:purge', 'access_logs', ARCHIVE_TENANT_ALL, cutoff)
+    gated = AccessLog.unscoped.where(:created_at.lt => archived_cutoff)
+    assert_archive_covers!('audit:purge', 'access_logs', ARCHIVE_TENANT_ALL, entry, gated.count)
+
     # delete_all: the sanctioned callback-skipping deletion (append-only guards
     # intentionally bypassed here, and only here).
-    deleted = scope.delete_all
-    Rails.logger.info("[audit:purge] DELETED #{deleted} AccessLog rows (cutoff=#{cutoff.iso8601})")
-    puts "[audit:purge] DELETED #{deleted} rows across #{by_tenant.size} tenant(s)."
+    deleted = gated.delete_all
+    Rails.logger.info("[audit:purge] DELETED #{deleted} AccessLog rows (archived cutoff=#{archived_cutoff.iso8601})")
+    puts "[audit:purge] DELETED #{deleted} rows across #{by_tenant.size} tenant(s) " \
+         "(verified-archive window #{archived_cutoff.utc.iso8601})."
   end
 end
