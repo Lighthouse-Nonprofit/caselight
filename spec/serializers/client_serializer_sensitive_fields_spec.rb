@@ -2,7 +2,8 @@ require 'rails_helper'
 
 # Phase 5.3 (NIST AC) — ClientSerializer gates #additional_form + #add_forms by the
 # :visible_custom_field_ids instance option, and #assessments/#case_notes by :visible_domain_levels.
-# Tests the serializer methods directly (the live consumer is api/clients#compare).
+# Tests the serializer methods directly (live consumers: the client/family serializer fan-out —
+# api/clients#compare stopped using ClientSerializer 2026-07-26, POAM-AC3-COMPARE).
 describe ClientSerializer, 'sensitive-field gating (Phase 5.3)' do
   let(:client) { create(:client) }
   let!(:std)   { create(:custom_field, entity_type: 'Client', sensitivity: 'standard') }
@@ -58,7 +59,7 @@ end
 # Domain#sensitivity is not in the viewer's :visible_domain_levels (levels.include?(...), fail-closed to
 # standard-only). Restricted-domain scores are among the most sensitive data in the app; the filter lives
 # ONLY in these two methods and must also survive the SerializableResource(each_serializer:) path that the
-# live consumer (api/clients#compare) renders through. Complements the #additional_form/#add_forms specs above.
+# collection surfaces render through. Complements the #additional_form/#add_forms specs above.
 describe ClientSerializer, 'domain-sensitivity masking (#assessments / #case_notes)' do
   let(:client)       { create(:client) }
   let(:domain_group) { create(:domain_group) }
@@ -119,7 +120,7 @@ describe ClientSerializer, 'domain-sensitivity masking (#assessments / #case_not
     end
   end
 
-  describe 'via SerializableResource collection (mirrors api/clients#compare)' do
+  describe 'via SerializableResource collection (the bulk, break_glass: [] path)' do
     let!(:case_note) { create(:case_note, client: client, assessment: assessment) }
     let!(:cdg)       { create(:case_note_domain_group, case_note: case_note, domain_group: domain_group) }
 

@@ -68,7 +68,7 @@ on record destroy (CarrierWave default, verified Phase 6).
 | Families/Partners/Users/ProgressNotes XLS | Ability-scoped (U1); pin_number excluded |
 | Access-review CSV | Staff roster (deliberate AC-2(j) artifact; admin-only) |
 | `privacy:subject_access_export` | One subject's records, allowlist-based; staff as ids; files by name; every run writes `record_exported` (U9) |
-| `api/clients#compare` | Cross-tenant identity match — documented residual **POAM-AC3-COMPARE** |
+| `api/clients#compare` | Current-tenant duplicate check: minimal `{id, organization}` payload (no record values), name-field required, values-free `client_compare_probe` audit (**POAM-AC3-COMPARE closed 2026-07-26** — the cross-tenant loop is gone) |
 | UserSerializer (`api`) | `pin_number` **removed** from the attribute list (POAM-016, closed 2026-07-19) |
 
 ## 5. Residual gaps (all tracked)
