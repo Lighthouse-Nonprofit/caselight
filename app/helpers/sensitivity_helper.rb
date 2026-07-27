@@ -38,6 +38,16 @@ module SensitivityHelper
     false
   end
 
+  # POAM-013: case-note attachments belong to a domain-GROUP section — visible only when the viewer
+  # is cleared for EVERY domain in the group (the file cannot be attributed to a single domain, so
+  # the most sensitive domain governs; mirrors DownloadsController#case_note_domain_group_visible?).
+  # Nil group fails closed; an empty group has nothing sensitive declared.
+  def case_note_attachments_visible?(cdg)
+    group = cdg&.domain_group
+    return false if group.nil?
+    group.domains.all? { |domain| domain_visible?(domain) }
+  end
+
   # --- Masked-field affordances (Phase 5.3/5.4 view vocabulary) ------------------------------------
   # ONE place for the "this is hidden from you" chrome, so every surface annotates masking the same
   # way. CHROME ONLY — these never emit a masked value, label, form title, or count of *what* was
