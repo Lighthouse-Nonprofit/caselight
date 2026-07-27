@@ -23,9 +23,15 @@ called out under "Residual gaps").
   **derived from `secret_key_base` in dev/test/CI**, taken from **ENV in production**.
   Derived keys are acceptable on THIS box because it is the synthetic-data demo/pilot box; the
   real-data host MUST supply independent, KMS-managed keys via ENV (not derived).
-- `support_unencrypted_data = true` is set **on purpose** (the migration window — lets already-written
-  plaintext rows still read while the per-tenant backfill runs). **Do not flip it** until every tenant
-  is backfilled across every tier; flipping early makes un-backfilled rows unreadable.
+- **STRICT MODE since 2026-07-26**: `support_unencrypted_data = false`. The Phase-4 migration
+  window (`= true`, letting already-written plaintext rows read while the per-tenant backfills ran)
+  was closed after `encryption:verify` PASSed **every tier in every tenant on dev and the pilot
+  box** — the exact precondition the old warning here demanded. A non-envelope value in an
+  encrypted column now raises on read. The sanctioned migration rakes (`encryption:backfill`,
+  `encryption:reencrypt_client_names`) re-enable the window for their **own rake process only** —
+  they remain the healing path for any future straggler, which strict mode would otherwise make
+  unreadable and unfixable. Proof: `spec/models/encryption_strict_mode_spec.rb` (raise-on-plaintext
+  + the rakes' window, source-pinned).
 - Tier 4 uses the **same** AR Encryption keys (no new key system). Deterministic encryption was chosen
   over a `blind_index` sidecar (see the Tier 4 note below), so there is no separate blind-index master
   key to manage.

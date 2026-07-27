@@ -212,6 +212,12 @@ namespace :encryption do
   desc 'Encrypt-at-rest backfill across ALL tenants. DRY-RUN unless CONFIRM=1. ' \
        'TIER=1 (default) or MODELS="Model:col,col;..."; TENANT=, BATCH=500, RESET=1.'
   task backfill: :environment do
+    # STRICT-MODE exception (2026-07-26 cutover): this task IS the migration window. Re-enable
+    # plaintext tolerance for THIS rake process only, so a straggler can be read (then encrypted)
+    # instead of raising Errors::Decryption — strict mode would otherwise make the healing path
+    # unable to heal. App/server processes stay strict.
+    ActiveRecord::Encryption.config.support_unencrypted_data = true
+
     target_map = encryption_target_map
     confirm    = ENV['CONFIRM'] == '1'
     batch_size = Integer(ENV.fetch('BATCH', BATCH_SIZE_DEFAULT))
@@ -370,6 +376,10 @@ namespace :encryption do
 
   desc 'Re-encrypt client name columns under the ignore_case scheme + populate original_* (UX round 3 C1). CONFIRM=1 required.'
   task reencrypt_client_names: :environment do
+    # STRICT-MODE exception — same rationale as encryption:backfill above: the migration tasks
+    # are the sanctioned window; a legacy/plaintext read here must convert, not raise.
+    ActiveRecord::Encryption.config.support_unencrypted_data = true
+
     abort '[encryption:reencrypt_client_names] CONFIRM=1 required' unless ENV['CONFIRM'] == '1'
     tenants = Organization.pluck(:short_name)
     tenants.each do |tenant|

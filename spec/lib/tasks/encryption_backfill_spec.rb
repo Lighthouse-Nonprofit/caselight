@@ -14,6 +14,17 @@ require 'rails_helper'
 # initializer) is what lets us PLANT genuine plaintext via raw SQL to simulate a pre-migration row
 # and still READ it through the model. Mongo (ClientHistory) is cleaned around each example.
 RSpec.describe 'encryption backfill + verify logic', type: :model do
+  # This whole file exercises the MIGRATION-WINDOW machinery: it plants genuine plaintext and reads
+  # it back through models, exactly what the real rake tasks do — and since the 2026-07-26
+  # strict-mode cutover those tasks re-enable plaintext tolerance for their own process. Mirror
+  # that here; every other spec runs strict.
+  around(:each) do |example|
+    ActiveRecord::Encryption.config.support_unencrypted_data = true
+    example.run
+  ensure
+    ActiveRecord::Encryption.config.support_unencrypted_data = false
+  end
+
   before(:each) { ClientHistory.delete_all }
   after(:each)  { ClientHistory.delete_all }
 

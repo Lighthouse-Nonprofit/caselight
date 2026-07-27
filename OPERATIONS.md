@@ -36,6 +36,12 @@ Two behaviors worth knowing, both born from the 2026-07-22 incident:
   reports `re-encrypted=0`). If a deploy log shows `SKIPPING column` warnings, stop and
   investigate before re-running anything — that is the guard refusing to destroy data.
   Full narrative: `docs/compliance/incidents/2026-07-22-tier4-backfill-data-loss.md`.
+- **Strict mode (since 2026-07-26)** — the app runs `support_unencrypted_data=false`: a
+  non-envelope value in an encrypted column raises on read instead of being tolerated. The two
+  migration rakes above re-enable the window for their own process, so the deploy stages still
+  heal stragglers exactly as before; if the APP ever throws
+  `ActiveRecord::Encryption::Errors::Decryption`, a straggler slipped in outside the deploy path —
+  run `encryption:backfill` for its tier, then `encryption:verify`.
 
 ## Verifying a deploy (by state, not logs)
 
