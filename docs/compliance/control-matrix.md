@@ -80,4 +80,6 @@ Tracked in `ssp.md` §5 + `vulnerability-poam.md`: KMS-managed encryption keys (
 TLS hostname (CC6.7 — TLS itself is live on the pilot box via Caddy/Let's Encrypt), the live
 client-record retention window (P4 — TBD-blocking), a named-owner incident
 plan (CC7.4), and confirmed inherited backups/WAF/network isolation. The AC-3/AC-6 enforcement flags
-ship shadow-first and are flipped per environment after an AccessReview shadow-window review.
+shipped shadow-first and were **flipped to the production default on 2026-07-26** after the
+AccessReview shadow-window review recorded zero divergence events all-time (flip runbook +
+enforcement-window policy: `OPERATIONS.md`).

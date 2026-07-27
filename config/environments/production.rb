@@ -127,4 +127,17 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # Phase-5 enforcement cutover — ENFORCED as the production default since 2026-07-26 (the SSP §5
+  # "flip per environment after a shadow-window review" gate). Evidence at the flip: ZERO
+  # authorization_shadow / least_privilege_shadow / tenant_mismatch AccessLog events, ALL-TIME,
+  # across every tenant on the pilot box. Per-tenant EnforcementSetting rows still override in both
+  # directions via the audited admin panel; rollback = panel "Shadow (off)"/"system default", the
+  # console escape hatch (EnforcementSetting.instance.update!(flag: nil)), or reverting this block.
+  # NB the enforcement-WINDOW policy lives in OPERATIONS.md: flips are announced to staff, and
+  # require_mfa (the auth-setup-affecting toggle — an enroll-NUDGE by design, never a hard block)
+  # stays per-tenant OFF until accounts have enrolled their auth of choice.
+  config.x.enforce_authorization   = true
+  config.x.enforce_least_privilege = true
+  config.x.enforce_tenant_boundary = true
 end

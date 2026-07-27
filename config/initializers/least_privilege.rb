@@ -3,11 +3,12 @@
 # config/initializers/authorization_enforcement.rb (enforce_authorization /
 # enforce_tenant_boundary) and two_factor.rb (enforce_mfa_for_privileged).
 #
-# DEFAULT OFF: with the flag off the Ability rule set is byte-identical to today
-# (zero behavior change) AND ApplicationController logs (only) what the narrowed
-# rules WOULD have denied -- event_type 'least_privilege_shadow', context-only
-# metadata, never record values -- so the org can validate the narrowing against
-# real usage before enforcing.
+# FAIL-SAFE fallback OFF below — since 2026-07-26 the PRODUCTION default is ON via
+# config/environments/production.rb (environments load before initializers; the
+# `unless == true` guard preserves it). With the flag off the Ability rule set is
+# byte-identical to shadow days AND ApplicationController logs (only) what the
+# narrowed rules WOULD have denied -- event_type 'least_privilege_shadow',
+# context-only metadata, never record values.
 #
 # Flip to true to ENFORCE:
 #   * strategic_overviewer loses `can :version, :all` (NO paper_trail history) and
