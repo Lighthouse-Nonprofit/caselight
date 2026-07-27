@@ -156,6 +156,19 @@ docker compose run --rm app bundle exec rake encryption:reencrypt_client_names C
 echo "==> starting app + sidekiq"
 docker compose up -d app sidekiq
 
+# 9. POAM-015: install the whenever schedule into the HOST crontab (the box had NO crontab
+#    before 2026-07-26 -- config/schedule.rb was dead code). schedule.rb wraps every job in
+#    `docker compose exec -T app ...`, so the host needs no Ruby; job output appends to
+#    log/cron.log / log/whenever.log under this directory. `crontab -` REPLACES the user
+#    crontab -- this deploy owns it (verified empty before the first install; OPERATIONS.md).
+#    The retention purges carry CONFIRM=1 but REFUSE in code unless their window has a
+#    verified archive (retention:archive -> retention:verify_archive), so scheduling them is
+#    fail-safe.
+echo "==> installing the whenever crontab (app schedule + archive-gated retention)"
+mkdir -p log
+docker compose run --rm app bundle exec whenever | crontab -
+echo "    installed $(crontab -l | grep -c "docker compose exec") cron job(s)"
+
 echo "==> done. App on 127.0.0.1:3000 (reach via the SSM/SSH tunnel)."
 echo "    Public HTTPS: set APP_HOST in .env, point DNS at this box, open SG 80/443, then"
 echo "      docker compose --profile proxy up -d caddy"

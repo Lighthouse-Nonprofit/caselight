@@ -78,6 +78,36 @@ RSpec.describe 'Scheduler (config/schedule.rb cron jobs)' do
     end
   end
 
+  # POAM-015 (closed): the archive-gated retention pipeline is SCHEDULED — weekly
+  # archive -> verify -> purge, with the purges carrying CONFIRM=1 (safe: the code gate refuses
+  # any purge whose window lacks a verified archive).
+  describe 'Retention pipeline (POAM-015)' do
+    it 'archives weekly on Sunday at 02:00 am (audit 90d, records 1095d)' do
+      expect(scheduled?(task: 'retention:archive AUDIT_DAYS=90 DAYS=1095', every: :sunday, at: '02:00 am')).to be true
+    end
+
+    it 'verifies the archives on Sunday at 02:30 am' do
+      expect(scheduled?(task: 'retention:verify_archive', every: :sunday, at: '02:30 am')).to be true
+    end
+
+    it 'runs the three gated purges on Sunday at 03:00 am with CONFIRM=1' do
+      expect(scheduled?(task: 'audit:purge DAYS=90 CONFIRM=1',                       every: :sunday, at: '03:00 am')).to be true
+      expect(scheduled?(task: 'retention:purge_versions DAYS=1095 CONFIRM=1',        every: :sunday, at: '03:00 am')).to be true
+      expect(scheduled?(task: 'retention:purge_client_histories DAYS=1095 CONFIRM=1', every: :sunday, at: '03:00 am')).to be true
+    end
+  end
+
+  # The box installs this crontab on the HOST, so every job must shell into the app container —
+  # a bare `bundle exec` host job would silently fail (no Ruby on the host).
+  describe 'docker-wrapped job types (host crontab shells into the app container)' do
+    it 'wraps rake and runner jobs in docker compose exec' do
+      all_jobs = job_list.instance_variable_get(:@jobs).values.flat_map(&:values).flatten
+      outputs  = all_jobs.map { |job| job.output }
+      expect(outputs).to all(include('docker compose exec -T app'))
+      expect(outputs).to all(include('cd /home/ubuntu/oscar'))
+    end
+  end
+
   # Specificity guard: a real task asserted at the WRONG frequency or WRONG time must NOT match — this
   # keeps the rewrite as strict as the old `.every(...).at(...)` matcher chain.
   describe 'guard: the assertion is specific (wrong frequency / time do not match)' do
