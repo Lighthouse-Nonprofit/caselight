@@ -177,7 +177,11 @@ behind `SECURITY.md`'s production gate.
   Caddy, auto-renewing Let's Encrypt). Remaining for real data: a production domain (the pilot
   uses a nip.io hostname) and restricting 80/443 to pilot IPs/VPN per `SECURITY.md`.
 - **Incident/breach response plan with named owners** (`policies/incident-response.md` — owners TBD).
-- **Encrypted, tested backups + restore drill**; **WAF**; **network isolation** (inherited, must be
+- **Encrypted, tested backups + restore drill** — the **restore drill is DONE (2026-07-26,
+  first execution PASS**: dumps restored into throwaway stores; counts matched the live baseline;
+  encrypted values decrypted to exact live values under the box keys; PASS standard + runbook now
+  in `docs/compliance/drills/` + `OPERATIONS.md`, incl. the dumps+`.env` recovery-unit finding).
+  Still open: automated EBS snapshots + **WAF** + **network isolation** (inherited, must be
   confirmed operating).
 - **Enforcement-flag flip** — ~~the AC-3/AC-6 flags ship shadow-first (OFF); flip per-environment
   after a shadow-window review of the AccessReview tables~~ **DONE (2026-07-26):** all three flags

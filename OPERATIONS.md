@@ -72,7 +72,21 @@ an `APP_HOST` + DNS change, no code. Setting `APP_HOST` turns Rails host authori
   in-place via the stepwise FCV ladder. Take the dump *before* touching the volume.
 - **Backups**: take a `pg_dumpall` + `mongodump` into `~/backups/<label>/` before any deploy
   that migrates data or changes encryption schemes. Daily EBS snapshots are the box-level
-  baseline per `SECURITY.md`.
+  baseline per `SECURITY.md`. **The recovery unit is dumps + `.env` (or an EBS snapshot) — never
+  dumps alone**: the AR-Encryption keys derive from the box's generated `SECRET_KEY_BASE`, so a
+  dump set without its `.env` is ciphertext-locked. Encrypt any dump set that leaves the box
+  (`openssl enc -aes-256-cbc -pbkdf2`, the export:tenant primitive); on-box sets rest on the
+  encrypted EBS volume.
+- **Restore (drilled 2026-07-26 — `docs/compliance/drills/`)**: throwaway stores on the compose
+  network — `docker run -d --name drill-pg --network oscar_default -e POSTGRES_PASSWORD=drill
+  postgres:17` (+ `drill-mongo` on `mongo:8.0`), then
+  `docker exec -i drill-pg psql -U postgres -f - < pg_dumpall.sql` and
+  `docker exec -i drill-mongo mongorestore --archive < mongodump.archive`, then a one-off app
+  container with `DATABASE_HOST=drill-pg HISTORY_DATABASE_HOST=drill-mongo` running the evidence
+  checks (counts == baseline; a Tier-4 value decrypts to its EXACT live value; Mongo collections
+  non-empty), then `docker rm -f drill-pg drill-mongo`. For disaster recovery to a NEW box, swap
+  the drill stores for the real compose stores before `up`, with the escrowed `.env` in place.
+  Re-drill after any major schema/encryption change, and at least quarterly.
 - **Tenant export ("give the org their data back", POAM-014)**:
   `docker compose exec -T app bundle exec rake export:tenant TENANT=<short_name>
   EXPORT_PASSPHRASE=<phrase>` → a tar.gz(.enc) under `tmp/exports/` in the container: the
