@@ -112,12 +112,14 @@ namespace :history do
     user_keys   = HistoryPiiFilter.scrub_keys_for(User)
     client_keys = HistoryPiiFilter.scrub_keys_for(Client)
     family_keys = HistoryPiiFilter.scrub_keys_for(Family)
+    case_keys   = HistoryPiiFilter.scrub_keys_for(Case)
     cfp_keys    = HistoryPiiFilter.scrub_keys_for(CustomFieldProperty)
 
     {
       ClientHistory => client_keys.map { |k| "object.#{k}" } +
                        user_keys.map   { |k| "case_worker_client_histories.$[].object.#{k}" } +
                        family_keys.map { |k| "client_family_histories.$[].object.#{k}" } +
+                       case_keys.map   { |k| "case_client_histories.$[].object.#{k}" } +
                        cfp_keys.map    { |k| "client_custom_field_property_histories.$[].object.#{k}" },
       TaskHistory   => user_keys.map { |k| "case_worker_task_histories.$[].object.#{k}" }
     }

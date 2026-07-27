@@ -127,32 +127,28 @@ RSpec.describe 'paper_trail PII redaction', type: :model do
   end
 
   # ---------------------------------------------------------------------------------------------
-  # POAM-012 — Case#exit_note history exposure + the drift-guard blind spot above cannot catch it.
+  # POAM-012 CLOSED — Case#exit_note history redaction.
   #
-  # Case `has_paper_trail` with NO skip: list and does NOT include RedactedUpdateVersions. It carries
-  # PLAINTEXT PII columns: exit_note is copied from the ENCRYPTED Client#exit_note via update_all
-  # (case.rb ~L150), which bypasses AR Encryption; adjacent carer_names/carer_address/support_note are
-  # plaintext too. So the exit narrative that was redacted+encrypted on Client is written UNREDACTED
-  # into the versions table — the same SC28-HIST plaintext-shadow-copy exposure Phase 6 closed for
-  # Client, re-opened on Case.
-  #
-  # The drift guard at the top of this file CANNOT catch this: it inspects only models that already
-  # declare encrypted attributes (`next if encrypted.empty?`). Case has zero encrypted_attributes, so
-  # a versioned model carrying plaintext PII is a silent hole. These examples pin the live exposure
-  # (POAM-012 open) and the target state for when it closes.
-  describe 'Case#exit_note history exposure (POAM-012)' do
-    it 'records the exit narrative in plaintext in the update version object_changes' do
+  # Case used to `has_paper_trail` with NO skip: list, so the exit narrative that was redacted +
+  # encrypted on Client#exit_note was written UNREDACTED into the versions table (the SC28-HIST
+  # plaintext-shadow-copy exposure Phase 6 closed for Client, re-opened on Case) — and, with zero
+  # encrypted_attributes, Case fell into the top-of-file drift guard's blind spot (`next if
+  # encrypted.empty?`). Closing POAM-012 gave Case `encrypts :exit_note` + the four-column skip list
+  # (exit_note carer_names carer_address support_note) + RedactedUpdateVersions, which also pulls it
+  # into the drift guard's audit set and into history_redaction.rake's redacted_models. These
+  # examples pin the closed state so a dropped skip: or encrypts regresses red.
+  describe 'Case#exit_note history redaction (POAM-012 closed)' do
+    it 'omits the exit narrative from update version payloads (values-free who/when version only)' do
       kase = create(:case, :inactive, exit_note: 'Original exit summary.')
       kase.update!(exit_note: 'CONFIDENTIAL_EXIT_NARRATIVE_SENTINEL')
 
       version = kase.versions.where(event: 'update').reorder(:created_at, :id).last
-      expect(version).to be_present
-      expect(version.changeset.keys).to include('exit_note')
-      # UNREDACTED: the same narrative that is encrypted on Client#exit_note sits in cleartext here.
-      expect(version.object_changes.to_s).to include('CONFIDENTIAL_EXIT_NARRATIVE_SENTINEL')
+      expect(version).to be_present # RedactedUpdateVersions forces the values-free version
+      expect(version.changeset.keys).not_to include('exit_note')
+      expect(version.object_changes.to_s).not_to include('CONFIDENTIAL_EXIT_NARRATIVE_SENTINEL')
     end
 
-    it 'falls into the drift-guard blind spot: versioned + plaintext PII but zero encrypted_attributes' do
+    it 'sits inside the drift-guard audit set: versioned, encrypted, and fully skip-listed' do
       Rails.application.eager_load!
 
       versioned = ActiveRecord::Base.descendants.select do |klass|
@@ -160,23 +156,21 @@ RSpec.describe 'paper_trail PII redaction', type: :model do
       end
       expect(versioned).to include(Case)
 
-      # Reproduce the drift guard's audit set (it does `next if encrypted.empty?`): Case is excluded,
-      # because it declares no encrypted attributes and is absent from the ENCRYPTION_TIERS registry.
-      expect(Array(Case.try(:encrypted_attributes))).to be_empty
+      # The top-of-file drift guard audits models with encrypted attributes — Case now qualifies.
+      expect(Case.encrypted_attributes).to include(:exit_note)
       audited = versioned.select { |k| Array(k.try(:encrypted_attributes)).map(&:to_s).any? }
-      expect(audited).not_to include(Case)
+      expect(audited).to include(Case)
 
-      # Yet Case carries plaintext PII columns that are in NO skip: list -> unaudited history exposure.
+      # All four plaintext-PII-bearing columns are skip-listed (encryption covers exit_note only;
+      # carer_*/support_note stay plaintext columns but never enter version payloads).
       skipped = Array(Case.paper_trail_options[:skip]).map(&:to_s)
       %w[exit_note carer_names carer_address support_note].each do |pii_col|
         expect(Case.column_names).to include(pii_col)
-        expect(skipped).not_to include(pii_col)
+        expect(skipped).to include(pii_col)
       end
     end
 
-    it 'target state (POAM-012 closed): omits exit_note and carer_* PII from version payloads' do
-      pending 'POAM-012 open: Case declares no has_paper_trail skip:, so exit_note/carer_* leak into versions'
-
+    it 'omits exit_note and carer_* PII from version payloads end to end' do
       kase = create(:case, :inactive, exit_note: 'Original exit summary.',
                     carer_names: 'Jane Carer', carer_address: '12 Shelter Lane')
       kase.update!(exit_note: 'TARGET_EXIT_SENTINEL', carer_names: 'John Carer')

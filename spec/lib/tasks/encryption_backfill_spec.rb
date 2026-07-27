@@ -18,6 +18,7 @@ RSpec.describe 'encryption backfill + verify logic', type: :model do
   after(:each)  { ClientHistory.delete_all }
 
   TIER1 = {
+    Case         => %i[exit_note],
     Client       => %i[reason_for_referral background exit_note rejected_note relevant_referral_information],
     Family       => %i[caregiver_information case_history],
     ProgressNote => %i[response additional_note]
@@ -100,6 +101,22 @@ RSpec.describe 'encryption backfill + verify logic', type: :model do
       expect(raw).not_to eq(secret)
       expect(ciphertext?(Client, :relevant_referral_information, raw)).to be(true)
       expect(Client.find(client.id).relevant_referral_information).to eq(secret) # decrypts back
+    end
+
+    it 'converts a planted pre-migration Case exit_note (the POAM-012 copy) to ciphertext' do
+      kase   = create(:case, :inactive)
+      secret = 'Exited to permanent housing; sponsor family assumed ongoing support.'
+
+      plant_plaintext(Case, kase.id, :exit_note, secret)
+      expect(ciphertext?(Case, :exit_note, raw_value(Case, kase.id, :exit_note))).to be(false)
+      expect(Case.find(kase.id).exit_note).to eq(secret) # readable during the migration window
+
+      backfill_row(Case.find(kase.id), TIER1[Case])
+
+      raw = raw_value(Case, kase.id, :exit_note)
+      expect(raw).not_to eq(secret)
+      expect(ciphertext?(Case, :exit_note, raw)).to be(true)
+      expect(Case.find(kase.id).exit_note).to eq(secret) # decrypts back
     end
 
     it 'encrypts all Tier 1 columns on Family and ProgressNote too' do
@@ -212,6 +229,14 @@ RSpec.describe 'encryption backfill + verify logic', type: :model do
       client = create(:client)
       expect { backfill_row(Client.find(client.id), TIER1[Client]) }
         .not_to change { PaperTrail::Version.where(item_type: 'Client', item_id: client.id).count }
+    end
+
+    it 'does not fire Case after_save callbacks or write a Version on the Case backfill (POAM-012)' do
+      kase = create(:case, :inactive)
+      ClientHistory.delete_all # ignore the create-time history
+      expect { backfill_row(Case.find(kase.id), TIER1[Case]) }
+        .not_to change { PaperTrail::Version.where(item_type: 'Case', item_id: kase.id).count }
+      expect(ClientHistory.count).to eq(0) # after_save :create_client_history did not fire
     end
   end
 

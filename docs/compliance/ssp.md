@@ -164,7 +164,10 @@ behind `SECURITY.md`'s production gate.
   backfilled + verified across every tier (`encryption-at-rest.md`).
 - **History-store SC-28** — POAM-SC28-HIST is **CLOSED (2026-07-12)**: box scrub + both verifies PASS
   at the production deploy; closure evidence attached in `history-store-sc28-poam.md`.
-- **`cases.exit_note` plaintext** (POAM-012) — encrypt or read-through before real data (High).
+- **`cases.exit_note` plaintext** (POAM-012) — ~~encrypt or read-through before real data (High)~~
+  **CLOSED (2026-07-26):** encrypted (Tier 1, non-deterministic) with the fan-out write path moved
+  off `update_all`; historical rows backfill + verify at every deploy (bootstrap stage 7b), and the
+  one-time Mongo scrub now covers embedded Case snapshots (`history:scrub_client_histories`).
 - **Live client-record retention window** — currently **TBD and blocking** (`policies/data-retention.md`
   §2); set with the org (immigration + minors' records especially).
 - **TLS in operation** — ~~stand up Caddy/Let's Encrypt~~ **live on the pilot box** (Dockerized

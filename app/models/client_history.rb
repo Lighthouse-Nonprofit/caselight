@@ -42,8 +42,9 @@ class ClientHistory
   private
 
   # Every embedded snapshot below routes through HistoryPiiFilter.scrub — a no-op for models with
-  # no encrypted attributes (Agency/Case/QuantitativeCase today), load-bearing for User/Family/
-  # CustomFieldProperty. try(:attributes) may be nil (record since deleted); scrub passes nil through.
+  # no encrypted attributes (Agency/QuantitativeCase today), load-bearing for User/Family/Case
+  # (exit_note, POAM-012)/CustomFieldProperty. try(:attributes) may be nil (record since deleted);
+  # scrub passes nil through.
 
   def create_client_quantitative_case_history
     object['quantitative_case_ids'].each do |quantitative_case_id|

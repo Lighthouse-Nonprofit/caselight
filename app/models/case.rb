@@ -7,7 +7,15 @@ class Case < ActiveRecord::Base
   has_many :case_contracts
   has_many :quarterly_reports
 
-  has_paper_trail
+  # Tier-1 narrative PII: non-deterministic ciphertext at rest; paper_trail must never see the
+  # plaintext (skip + RedactedUpdateVersions = values-free who/when versions). The reflective
+  # paper_trail_redaction_spec drift-guards this pairing. exit_note is the point-in-time copy
+  # of the client's encrypted exit narrative (POAM-012); carer_*/support_note remain plaintext
+  # columns but are skip-listed out of version payloads.
+  has_paper_trail skip: %i[exit_note carer_names carer_address support_note]
+  include RedactedUpdateVersions
+
+  encrypts :exit_note
 
   scope :emergencies,    -> { where(case_type: 'EC') }
   scope :non_emergency,  -> { where.not(case_type: 'EC') }
@@ -146,11 +154,16 @@ class Case < ActiveRecord::Base
   end
 
   def update_cases_to_exited_from_cif
-    if exited_from_cif && status_was.empty? && User.managers.any?
-      if client.cases.active.update_all(exited_from_cif: true, exited: true, exit_date: exit_date, exit_note: exit_note)
-        ClientMailer.exited_notification(client, User.managers.pluck(:email)).deliver_now
-      end
+    return unless exited_from_cif && status_was.empty? && User.managers.any?
+
+    # Per-record update_columns, NOT update_all: exit_note is encrypted (POAM-012) and a bulk
+    # update_all would write plaintext into the ciphertext column. update_columns keeps the old
+    # no-validation/no-callback semantics. `.to_a` first — the update flips `exited`, which
+    # mutates rows out of the live `.active` relation mid-iteration.
+    client.cases.active.to_a.each do |sibling|
+      sibling.update_columns(exited_from_cif: true, exited: true, exit_date: exit_date, exit_note: exit_note)
     end
+    ClientMailer.exited_notification(client, User.managers.pluck(:email)).deliver_now
   end
 
   def create_client_history
