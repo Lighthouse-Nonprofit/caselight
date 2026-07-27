@@ -2,9 +2,10 @@
 require 'rails_helper'
 
 # Phase 4 Tier 1 — field-level encryption-at-rest regression specs (FedRAMP SC-28, SOC 2 C1.1).
-# Proves the 9 narrative PII columns on Client/Family/ProgressNote are encrypted (transparent decrypt
-# on read; ciphertext in the raw DB column), the families.case_history column was widened to text, the
-# now-unsearchable scopes were removed, and FamilyGrid no longer filters/sorts the encrypted columns.
+# Proves the narrative PII columns on Client/Family/ProgressNote/Case (the POAM-012 exit_note copy)
+# are encrypted (transparent decrypt on read; ciphertext in the raw DB column), the
+# families.case_history column was widened to text, the now-unsearchable scopes were removed, and
+# FamilyGrid no longer filters/sorts the encrypted columns.
 #
 # Runs in tenant 'app' (spec_helper before(:each) switches there). Client saves write a ClientHistory
 # doc to Mongo via after_save :create_client_history; DatabaseCleaner is active_record-only, so we
@@ -33,6 +34,10 @@ RSpec.describe 'Tier 1 PII encryption at rest (SC-28)', type: :model do
 
     it 'encrypts the two ProgressNote narrative columns' do
       expect(ProgressNote.encrypted_attributes).to include(:response, :additional_note)
+    end
+
+    it 'encrypts the Case exit_note copy (POAM-012)' do
+      expect(Case.encrypted_attributes).to include(:exit_note)
     end
 
     it 'widened families.case_history to text so non-deterministic ciphertext fits' do
@@ -84,6 +89,16 @@ RSpec.describe 'Tier 1 PII encryption at rest (SC-28)', type: :model do
       expect(reloaded.additional_note).to eq('Follow up in two weeks.')
       expect(raw_column(ProgressNote, note.id, :response)).not_to eq('Client engaged well.')
       expect(raw_column(ProgressNote, note.id, :additional_note)).not_to eq('Follow up in two weeks.')
+    end
+  end
+
+  describe 'round-trip + raw-ciphertext (Case)' do
+    after { ClientHistory.delete_all }
+
+    it 'stores exit_note as ciphertext (deep coverage in case_exit_note_encryption_spec)' do
+      kase = create(:case, :inactive, exit_note: 'Exited to permanent housing 2026-07.')
+      expect(Case.find(kase.id).exit_note).to eq('Exited to permanent housing 2026-07.')
+      expect(raw_column(Case, kase.id, :exit_note)).not_to eq('Exited to permanent housing 2026-07.')
     end
   end
 

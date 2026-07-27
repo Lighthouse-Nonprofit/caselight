@@ -37,7 +37,7 @@ Encryption is rolled out in **tiers**, each a registered entry in `lib/tasks/enc
 
 | Tier | Model · fields | Scheme | Query impact | Status |
 |---|---|---|---|---|
-| **1** | Client narrative/free-text fields | **Non-deterministic** | no equality/substring on ciphertext | Merged |
+| **1** | Client narrative/free-text fields (+ Family, ProgressNote, FamilyNote/FamilyAlert, and `Case.exit_note` — the client-exit-narrative copy, POAM-012, added 2026-07-26) | **Non-deterministic** | no equality/substring on ciphertext | Merged |
 | **2** | Client address / location fields | **Non-deterministic** | address fields pruned from advanced-search; in-memory sort where needed | Merged |
 | **3** | `User.email` + staff `first_name`/`last_name`/`mobile` + `uid` | **Deterministic** (+ downcase on email/uid) | equality + unique email index survive; iLIKE/range/ORDER BY do not | Merged |
 | **4** | `Client.given_name`/`family_name`/`local_given_name`/`local_family_name` + `original_*` display sidecars | **Deterministic + `ignore_case`** (`fixed: false`, `previous:` = the original deterministic scheme); sidecars non-deterministic | whole-name equality lookup, **case-insensitive** (`quick_name_search`; advanced search routed to `clients.id IN (?)` via the `*_like` scopes); substring search still dropped; name dropped from SQL ORDER (alphabetical sort moved in-memory); display case preserved via the `original_*` sidecars | Merged (re-keyed UX round 3 C1) |

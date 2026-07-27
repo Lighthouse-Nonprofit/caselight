@@ -58,7 +58,8 @@ acceptance with compensating controls**. The authoritative, itemized gate is
   tenant is backfilled and `rake encryption:verify` passes across every tier.
 - **Encryption in transit and at rest, end to end** — TLS in operation (Caddy), field-level + disk
   encryption (in place), and the history-store scrub run on the box (`history:verify_*` PASS).
-- **`cases.exit_note`** plaintext copy encrypted (POAM-012).
+- **`cases.exit_note`** plaintext copy encrypted (POAM-012) — **done 2026-07-26** (Tier 1;
+  historical rows backfill + verify automatically at deploy, bootstrap stage 7b).
 - **A data retention/deletion policy with the live-record window set** (immigration and minor records
   especially) — currently TBD-blocking in `policies/data-retention.md`.
 - **Network isolation** (private subnet, reachable only via the proxy / VPN) and a **WAF** in front.

@@ -32,7 +32,7 @@ honest — when they drift, CI fails before this page lies:
 | User | encrypted_password, otp_secret, otp_backup_codes, tokens, reset/unlock tokens | Credentials | bcrypt / AR-encrypted (otp_secret) / hashed | Never serialized into versions (U2 skip) or history snapshots (U3) or exports (U9) |
 | ProgressNote | response, additional_note | Narrative | **Encrypted (Tier 1)** | |
 | CustomFieldProperty / ClientEnrollment / ClientEnrollmentTracking / LeaveProgram | properties (JSON) | Custom-form values (any category the org configures — health, immigration, income…) | **Encrypted (Tier 5, non-det)** | In-Ruby search; sensitivity-classified per form (Phase 5.2) |
-| Case | exit_note | Narrative | **Plaintext — POAM-012** | `case.rb` copies the client's encrypted exit_note into this plaintext column on exit |
+| Case | exit_note | Narrative | **Encrypted (Tier 1, non-det)** | Point-in-time copy of the client's exit narrative, fanned to sibling active cases per-record via `update_columns` (POAM-012, closed 2026-07-26); paper_trail-redacted with carer_names/carer_address/support_note |
 | versions (paper_trail) | object / object_changes | Change audit | **PII-redacted at write (U2) + one-time scrub (U4)** | Who/when/event + non-PII before/after only; retention via `retention:purge_versions` |
 
 ## 2. MongoDB — single shared database (tenant field + default_scope)
@@ -77,7 +77,7 @@ on record destroy (CarrierWave default, verified Phase 6).
 |---|---|
 | Client.date_of_birth plaintext | `encryption-at-rest.md` (locked; revisit for real-data host) |
 | users.pin_number plaintext | `encryption-at-rest.md` (locked; hash-if-authenticator) |
-| cases.exit_note plaintext copy | **POAM-012** |
+| ~~cases.exit_note plaintext copy~~ | **POAM-012 — closed 2026-07-26** (encrypted Tier 1; see §1) |
 | Case-note domain-group attachments lack per-domain sensitivity mapping | **POAM-013** |
 | Tenant-level full data export (backup/portability) | **POAM-014** (deferred; inherited backups cover DR) |
 | Purge auto-scheduling blocked on archive-verification gate | **POAM-015** |

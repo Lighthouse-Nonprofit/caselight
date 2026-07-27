@@ -54,6 +54,9 @@ namespace :encryption do
   # model-name => array of (already `encrypts`-declared) column symbols.
   ENCRYPTION_TIERS = {
     '1' => {
+      # POAM-012: the Case copy of the client's exit narrative (written per-record via
+      # update_columns since the update_all fan-out was retired with the `encrypts`).
+      'Case'         => %i[exit_note],
       'Client'       => %i[reason_for_referral background exit_note rejected_note
                            relevant_referral_information],
       'Family'       => %i[caregiver_information case_history],
@@ -252,7 +255,11 @@ namespace :encryption do
           relation.in_batches(of: batch_size) do |batch|
             max_id = nil
             batch.each do |record|
-              max_id = record.id
+              # Track the true batch max: in_batches orders its PK *cursor*, but the yielded
+              # relation reads UNORDERED, so the last-iterated id is arbitrary (heap order). A
+              # low floor is safe (idempotent re-work) but re-encrypts already-done rows on
+              # every resume/deploy.
+              max_id = record.id if max_id.nil? || record.id > max_id
               encrypt_record!(record, columns, confirm)
               processed += 1
             end
