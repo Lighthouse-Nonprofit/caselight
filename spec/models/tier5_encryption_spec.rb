@@ -161,6 +161,15 @@ RSpec.describe 'Tier 5 custom-form/program-stream JSONB properties encryption at
   describe 'backfill primitive (update_columns) serializes the decrypted Hash to a verifiable envelope' do
     after { ClientHistory.delete_all }
 
+    # Migration-window simulation: the planted plaintext read below needs the tolerance the real
+    # rake re-enables for its own process (strict-mode cutover 2026-07-26).
+    around(:each) do |example|
+      ActiveRecord::Encryption.config.support_unencrypted_data = true
+      example.run
+    ensure
+      ActiveRecord::Encryption.config.support_unencrypted_data = false
+    end
+
     # Mirrors lib/tasks/encryption.rake#encrypt_record!: read the decrypted attr, write it straight back via
     # update_columns -> routes through the encrypted :json type -> envelope. We FIRST plant a genuine
     # PLAINTEXT JSON straggler (a pre-migration '{...}' text value, readable under support_unencrypted_data)

@@ -57,8 +57,10 @@ acceptance with compensating controls**. The authoritative, itemized gate is
 [`docs/compliance/ssp.md`](docs/compliance/ssp.md) §5. In summary, before real records:
 
 - **KMS-managed encryption keys** — replace the pilot's `secret_key_base`-derived ActiveRecord
-  Encryption keys with independent ENV/KMS keys; do not disable `support_unencrypted_data` until every
-  tenant is backfilled and `rake encryption:verify` passes across every tier.
+  Encryption keys with independent ENV/KMS keys (its own carefully-gated session; see `ssp.md` §5).
+  *The strict-mode precondition is already met and shipped:* `support_unencrypted_data` has been
+  **off since 2026-07-26**, flipped only after `rake encryption:verify` passed every tier in every
+  tenant.
 - **Encryption in transit and at rest, end to end** — TLS in operation (Caddy), field-level + disk
   encryption (in place), and the history-store scrub run on the box (`history:verify_*` PASS).
 - **`cases.exit_note`** plaintext copy encrypted (POAM-012) — **done 2026-07-26** (Tier 1;

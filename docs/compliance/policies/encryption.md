@@ -35,9 +35,11 @@ primary.
    encryption (not field-encrypted).
 6. **Key management (SC-12) — the pilot/production line.** In the pilot, AR-Encryption keys are
    **derived from `secret_key_base`** — acceptable only because the box holds synthetic data. **Before
-   real client data (hard gate):** supply independent, **KMS-managed keys via ENV** (not derived), and
-   do **not** set `support_unencrypted_data=false` until every tenant is backfilled and
-   `encryption:verify` passes across every tier.
+   real client data (hard gate):** supply independent, **KMS-managed keys via ENV** (not derived).
+   **Strict mode is DONE (2026-07-26):** `support_unencrypted_data=false` shipped after
+   `encryption:verify` PASSed every tier in every tenant (dev + pilot box) — the flip's stated
+   precondition; the migration rakes alone re-open the window, for their own process
+   (`encryption-at-rest.md`).
 7. **Algorithms (SC-13).** Cryptography is the Rails/ActiveRecord Encryption default (AES-256-GCM);
    no custom crypto.
 

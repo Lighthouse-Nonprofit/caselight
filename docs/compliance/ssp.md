@@ -160,8 +160,11 @@ behind `SECURITY.md`'s production gate.
 
 **Hard gates (must close):**
 - **KMS-managed encryption keys** — replace the pilot's `secret_key_base`-derived AR-Encryption keys
-  with independent ENV/KMS keys; do not flip `support_unencrypted_data=false` until every tenant is
-  backfilled + verified across every tier (`encryption-at-rest.md`).
+  with independent ENV/KMS keys (deferred to its own session: deterministic-key rotation breaks
+  login/name equality until re-encrypted, and the gem-managed `otp_secret` sits outside the
+  registry — needs a dev spike first). **The strict-mode half is DONE (2026-07-26):**
+  `support_unencrypted_data=false` shipped after every tier verified as ciphertext in every tenant
+  on dev and the box; only the migration rakes re-open the window, for their own process.
 - **History-store SC-28** — POAM-SC28-HIST is **CLOSED (2026-07-12)**: box scrub + both verifies PASS
   at the production deploy; closure evidence attached in `history-store-sc28-poam.md`.
 - **`cases.exit_note` plaintext** (POAM-012) — ~~encrypt or read-through before real data (High)~~

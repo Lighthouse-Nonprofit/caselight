@@ -18,16 +18,23 @@ ActiveRecord::Encryption.configure(
   key_derivation_salt: ENV['AR_ENCRYPTION_KEY_DERIVATION_SALT'].presence || Digest::SHA256.hexdigest("#{key_base}::ar-encryption-salt")
 )
 
-# Don't raise if a plaintext value is read from a not-yet-encrypted column during the Phase 4
-# migration window (lets us encrypt existing rows incrementally). Set on the config object
-# directly so it applies regardless of initializer/railtie ordering.
-ActiveRecord::Encryption.config.support_unencrypted_data = true
+# STRICT MODE (cutover 2026-07-26): a non-envelope value read from an encrypted column now RAISES
+# (ActiveRecord::Encryption::Errors::Decryption) instead of being tolerated. The Phase-4 migration
+# window (support_unencrypted_data=true, which let plaintext rows read while the per-tenant
+# backfills ran) is closed — the flip was gated on `rake encryption:verify` PASSing every tier in
+# every tenant on dev AND the pilot box, which it does. The sanctioned migration tasks
+# (encryption:backfill / encryption:reencrypt_client_names) re-enable the window for their OWN
+# rake process only — they are the healing path for any future straggler, which strict mode would
+# otherwise make unreadable and unfixable. Set on the config object directly so it applies
+# regardless of initializer/railtie ordering.
+ActiveRecord::Encryption.config.support_unencrypted_data = false
 
 # UX round 3 (C1) — extend deterministic queries so WHERE clauses on encrypted columns also
-# probe (a) the downcased value for ignore_case columns (the Tier-4 names), (b) `previous:`
-# scheme ciphertext (rows not yet rewritten by encryption:reencrypt_client_names), and
-# (c) cleartext while support_unencrypted_data is on. The app doesn't use load_defaults, so
-# the framework default (off) applied and the railtie never installed the query extension —
-# set the flag AND install the module here, in this file's ordering-independent style.
+# probe (a) the downcased value for ignore_case columns (the Tier-4 names) and (b) `previous:`
+# scheme ciphertext (rows not yet rewritten by encryption:reencrypt_client_names). The third
+# branch — cleartext probing — self-disabled with the strict-mode cutover above (it only ran
+# while support_unencrypted_data was on). The app doesn't use load_defaults, so the framework
+# default (off) applied and the railtie never installed the query extension — set the flag AND
+# install the module here, in this file's ordering-independent style.
 ActiveRecord::Encryption.config.extend_queries = true
 ActiveRecord::Encryption::ExtendedDeterministicQueries.install_support
