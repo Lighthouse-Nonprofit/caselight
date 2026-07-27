@@ -183,8 +183,10 @@ Confidentiality · Privacy)** auditability at the application layer — the phas
   `/csp_reports`; `ENFORCE_CSP=false` falls back to report-only), a
   strict security-header set (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, …), and
   **secure / HttpOnly / SameSite** session cookies.
-- **Field-level encryption at rest** (Rails ActiveRecord Encryption) for sensitive values, and
-  **parameter-log redaction** of credentials and PII.
+- **Field-level encryption at rest** (Rails ActiveRecord Encryption) for sensitive values — running
+  in **strict mode** (`support_unencrypted_data=false`: a non-ciphertext value in an encrypted
+  column raises rather than being silently tolerated) — and **parameter-log redaction** of
+  credentials and PII.
 
 **Audit & access logging**
 - **Structured request logs** — `lograge` emits one JSON line per request, tagged with `request_id`,
@@ -208,7 +210,9 @@ Confidentiality · Privacy)** auditability at the application layer — the phas
 **Authorization & data protection**
 - **Role-based access control** (CanCanCan + Pundit) with **field-level sensitivity** — forms and
   assessment domains are classified **Standard / Restricted / Emergency-only**, and records mask what a
-  role isn't cleared to see.
+  role isn't cleared to see. Mandatory authorization, least-privilege narrowing, and the
+  tenant-boundary tripwire are **enforcing by default in production** (flipped 2026-07-26 after a
+  zero-divergence shadow review).
 - **Break-glass emergency access** — an eligible worker can self-elevate to an emergency-only field for
   one hour, with a mandatory reason and the audit record written *first*; scoped to the record and
   auto-expiring.
@@ -216,8 +220,11 @@ Confidentiality · Privacy)** auditability at the application layer — the phas
   (AC-3), least-privilege (AC-6), tenant-boundary (SC-7), MFA (IA-2), idle timeout (AC-12), lockout
   (AC-7), password expiry (IA-5), and inactive-account auto-disable (AC-2(3)) — each with a shadow
   window to review impact before enabling.
-- **Data lifecycle** — retention/deletion routines, guarded and audited record deletion, history-store
-  redaction, and a subject-access export.
+- **Data lifecycle** — **archive-gated, scheduled retention** (purges refuse in code without a
+  verified, checksummed archive of their window), guarded and audited record deletion, history-store
+  redaction, a per-client subject-access export, and a whole-tenant **portability export**
+  (encrypted bundle: schema dump + history slices + documents). Backups are **restore-drilled**
+  (first drill passed 2026-07-26 — `docs/compliance/drills/`).
 - **Compliance package** — a System Security Plan, SOC 2 control matrix, policy set, and a reproducible
   `rake compliance:evidence` bundle live in [`docs/compliance/`](docs/compliance).
 

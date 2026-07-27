@@ -3,7 +3,8 @@
 _System categorization: **FedRAMP Moderate** baseline (NIST SP 800-53 Rev. 5), aligned to **SOC 2**
 Trust Services Criteria (Security + Confidentiality + Privacy). Scope: the **application layer** of a
 single-instance, self-hosted deployment. Owner: Lighthouse Nonprofit Technologies. Last updated:
-Phase 7 (2026-07)._
+2026-07-26 (post-Phase-7 hardening: enforcement flags ON, strict encryption mode, archive-gated
+scheduled retention, tenant export, restore drill, noindex baseline)._
 
 This SSP is a **pragmatic, honest** control statement: it documents the control families CaseLight
 actually implements at the application layer, maps each to its code + evidence, names what is
@@ -146,7 +147,7 @@ is designed to sit correctly on top of them (e.g. `force_ssl` assumes a TLS-term
 | SC-7 network | Security groups (SSH via SSM only, zero inbound; DB/Mongo/Redis never exposed), private subnet/VPC, WAF |
 | AU-8 time | Trusted NTP time source |
 | AU-9 WORM | Immutable/object-lock log storage; MongoDB access control (least-privilege DB users) |
-| CP / backups | Encrypted EBS snapshots, retention, and a tested restore drill |
+| CP / backups | Encrypted EBS snapshots + retention (inherited). The **restore drill is app-side and DONE** — first execution PASS 2026-07-26 (`drills/`), runbook in `OPERATIONS.md`; snapshot automation remains the inherited half |
 | IR | Incident-response operations (the app provides detection signal; see `policies/incident-response.md`) |
 | PE | Physical security (AWS data centers) |
 
@@ -233,8 +234,10 @@ retention, field-level encryption of PII at rest across the primary and history 
 document serving, a full deletion/retention/subject-access lifecycle, and a CI pipeline that gates SAST
 / dependency-CVE / secret findings. All known High dependency findings are closed.
 
-It is **ready to operate on synthetic data** under the pilot baseline. It is **not yet cleared for real
-client data**: the §5 hard gates — chiefly KMS-managed keys, TLS in operation, the live-record
-retention decision, backups/restore + WAF + network isolation confirmation, and a named-owner incident
-plan — must be met and the risk formally accepted first. That gate is a deliberate, separate decision,
-exactly as `SECURITY.md` requires.
+It is **ready to operate on synthetic data** under the pilot baseline — and since 2026-07-26 that
+operation runs with the authorization/least-privilege/tenant-boundary flags **enforcing**, encryption
+in **strict mode**, retention **archive-gated on a live schedule**, and a **passed restore drill**.
+It is **not yet cleared for real client data**: the remaining §5 hard gates — KMS-managed keys, a
+production hostname, the live-record retention decision, automated EBS snapshots + WAF + network
+isolation confirmation, and a named-owner incident plan — must be met and the risk formally accepted
+first. That gate is a deliberate, separate decision, exactly as `SECURITY.md` requires.

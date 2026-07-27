@@ -136,6 +136,13 @@ The **Security Enforcement** panel turns live security controls on or off for yo
 organization, each mapped to a NIST 800-53 control, and each showing a **shadow window** —
 what the stricter rule *would have* denied — so you can review impact before enabling.
 
+Since **2026-07-26** the three authorization controls (global authorization, least-privilege
+narrowing, and the tenant-boundary tripwire) are **on by default in production** — the flip was
+made after the shadow window recorded zero divergences. Your panel settings still override the
+default in either direction, and every change is audited. Account-affecting controls (like
+requiring MFA) follow the **enforcement-window policy**: they stay off until your staff have had
+time to enroll their authentication of choice.
+
 <p align="center"><img src="screenshots/enforcement.jpg" alt="Security Enforcement panel" width="720"></p>
 <p align="center"><em>Security Enforcement — per-organization control toggles.</em></p>
 

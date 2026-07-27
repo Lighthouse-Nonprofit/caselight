@@ -27,8 +27,9 @@ and documents, minors' records, health and mental-health needs, government IDs. 
 - **Phase 3 — audit & access logging** *(complete)*: AccessLog (read + security events), lograge,
   paper_trail change audit, retention.
 - **Phase 4 — encryption at rest** *(complete)*: ActiveRecord Encryption, Tiers 1–5.
-- **Phase 5 — authorization + sensitive-field access control** *(complete)*: RBAC + field-level
-  sensitivity + break-glass; enforcement flags shadow-first, flipped per environment after AccessReview windows.
+- **Phase 5 — authorization + sensitive-field access control** *(complete; ENFORCED)*: RBAC +
+  field-level sensitivity + break-glass; the enforcement flags shipped shadow-first and became the
+  **production default on 2026-07-26** after the AccessReview shadow window recorded zero divergences.
 - **Phase 6 — privacy & data lifecycle** *(complete, 2026-07)*: history-store redaction + scrub
   [POAM-SC28-HIST], retention purges + policy, guarded/audited deletion, authorized upload downloads
   [POAM-SC28-UPLOADS], AC-2(3) inactive-account lifecycle, subject-access export, PII inventory — plus the
@@ -37,10 +38,14 @@ and documents, minors' records, health and mental-health needs, government IDs. 
   `control-matrix.md`, the full `policies/` set, and `rake compliance:evidence` + a Brakeman gate that
   actually fails on new findings.
 
-Remaining work is the **production gate** (real client data), not application-layer controls: KMS-managed
-keys, a production TLS hostname (pilot TLS is live — Caddy/Let's Encrypt), the live-record retention
-decision, confirmed inherited backups/WAF/network
-isolation, and a named-owner incident plan. See `ssp.md` §5 + `SECURITY.md`.
+Since Phase 7 the gate has kept shrinking: the enforcement flags are the **production default**
+(2026-07-26, zero-divergence shadow evidence), encryption runs in **strict mode**
+(`support_unencrypted_data=false`), retention purges are **archive-gated and scheduled**, a
+per-tenant **portability export** exists, and the **first restore drill passed**
+([`drills/`](drills/)). Remaining work is the **production gate** (real client data), not
+application-layer controls: KMS-managed keys, a production TLS hostname (pilot TLS is live —
+Caddy/Let's Encrypt), the live-record retention decision, automated EBS snapshots + confirmed
+WAF/network isolation, and a named-owner incident plan. See `ssp.md` §5 + `SECURITY.md`.
 
 ## Artifacts
 - [`ssp.md`](ssp.md) — **System Security Plan** (the anchor): system description + pinned stack, RA-2
@@ -53,6 +58,9 @@ isolation, and a named-owner incident plan. See `ssp.md` §5 + `SECURITY.md`.
   [`data-retention`](policies/data-retention.md).
 - `vulnerability-poam.md` — Plan of Action & Milestones: known findings + remediation schedule.
 - `pii-inventory.md` — where PII lives, how each location is protected, how it leaves the system.
+- [`drills/`](drills/) — dated exercise records (first restore drill: 2026-07-26, PASS).
+- [`incidents/`](incidents/) — IR-8 incident records (e.g. the 2026-07-22 tier-4 backfill
+  incident: synthetic data, recovered same day, hardened with regression specs).
 - `encryption-at-rest.md` / `history-store-sc28-poam.md` — SC-28 narrative + the history-store record.
 - `audit-logging.md` / `audit-retention.md` — AU-family narrative + AccessLog retention policy.
 

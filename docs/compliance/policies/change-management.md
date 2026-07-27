@@ -28,8 +28,10 @@ changes.
 4. **Security-configuration changes (CM-5).** The runtime enforcement flags (authorization,
    least-privilege, tenant-boundary, MFA/lockout/timeout/expiry, inactive-disable) are changed only
    through the **admin-only enforcement-settings control room**, and **every flip is audited**
-   (`enforcement_flag_changed` AccessLog event with who/from/to). Flags ship shadow-first (OFF) and
-   are flipped per environment after reviewing the AccessReview shadow tables.
+   (`enforcement_flag_changed` AccessLog event with who/from/to). The flags shipped shadow-first and
+   have been the **production default since 2026-07-26** (flipped after the AccessReview shadow
+   review recorded zero divergences; the per-tenant panel remains the audited runtime override —
+   flip runbook + enforcement-window policy in `OPERATIONS.md`).
 5. **Migrations.** Schema changes are per-tenant: `db:migrate` + `apartment:migrate`; numbered to
    avoid collisions; verified on dev before the box.
 6. **Deploy.** The box is redeployed by rerunning the idempotent `bootstrap.sh` (build, migrate,

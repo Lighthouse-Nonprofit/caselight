@@ -68,7 +68,9 @@ acceptance with compensating controls**. The authoritative, itemized gate is
 - **A data retention/deletion policy with the live-record window set** (immigration and minor records
   especially) — currently TBD-blocking in `policies/data-retention.md`.
 - **Network isolation** (private subnet, reachable only via the proxy / VPN) and a **WAF** in front.
-- **Encrypted, tested backups** with a defined retention and a **restore drill**.
+- **Encrypted, tested backups** with a defined retention and a **restore drill** — *the drill is
+  done and repeatable* (first execution PASS 2026-07-26, `docs/compliance/drills/`; recovery unit =
+  dumps + `.env` or an EBS snapshot); automated daily snapshots remain the open infra half.
 - **Role-based access** with the "read first" wellness flags and "emergencies only" contacts enforced
   as restricted fields (in place: `SensitivityPolicy` + break-glass), and the enforcement flags flipped
   per environment after an AccessReview shadow-window review.
