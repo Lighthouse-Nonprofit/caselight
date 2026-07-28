@@ -105,7 +105,16 @@ namespace :encryption do
       'CustomFieldProperty'      => %i[properties],
       'ClientEnrollment'         => %i[properties],
       'ClientEnrollmentTracking' => %i[properties],
-      'LeaveProgram'             => %i[properties]
+      'LeaveProgram'             => %i[properties],
+      # POAM-024: the *SearchEntry sidecar rows are born-encrypted (written only through the
+      # PropertiesSearchable diff-sync, deterministic, never plaintext) but register here so
+      # encryption:verify covers them and the registry drift guard stays green (FamilyNote
+      # precedent). NULL values are presence markers — verify's blank/NULL rule already treats
+      # them as "nothing sensitive stored", not stragglers.
+      'CustomFieldPropertySearchEntry'      => %i[value],
+      'ClientEnrollmentSearchEntry'         => %i[value],
+      'ClientEnrollmentTrackingSearchEntry' => %i[value],
+      'LeaveProgramSearchEntry'             => %i[value]
     }
   }.freeze
 

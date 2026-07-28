@@ -18,6 +18,10 @@ class ClientEnrollment < ActiveRecord::Base
   attribute :properties, :json
   encrypts  :properties
 
+  # POAM-024 — deterministic search-entry sidecar (ClientEnrollmentSearchEntry); see
+  # custom_field_property.rb / PropertiesSearchable.
+  include PropertiesSearchable
+
   validates :enrollment_date, presence: true
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
 

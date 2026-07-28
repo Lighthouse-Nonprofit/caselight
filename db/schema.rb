@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_28_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -217,6 +217,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_000003) do
     t.index ["user_id"], name: "index_changelogs_on_user_id"
   end
 
+  create_table "client_enrollment_search_entries", force: :cascade do |t|
+    t.integer "client_enrollment_id", null: false
+    t.datetime "created_at", null: false
+    t.text "field_label", null: false
+    t.datetime "updated_at", null: false
+    t.text "value"
+    t.index ["client_enrollment_id", "field_label"], name: "idx_ce_se_owner_label"
+    t.index ["field_label"], name: "idx_ce_se_label"
+    t.index ["value"], name: "idx_ce_se_value_hash", using: :hash
+  end
+
+  create_table "client_enrollment_tracking_search_entries", force: :cascade do |t|
+    t.integer "client_enrollment_tracking_id", null: false
+    t.datetime "created_at", null: false
+    t.text "field_label", null: false
+    t.datetime "updated_at", null: false
+    t.text "value"
+    t.index ["client_enrollment_tracking_id", "field_label"], name: "idx_cet_se_owner_label"
+    t.index ["field_label"], name: "idx_cet_se_label"
+    t.index ["value"], name: "idx_cet_se_value_hash", using: :hash
+  end
+
   create_table "client_enrollment_trackings", id: :serial, force: :cascade do |t|
     t.integer "client_enrollment_id"
     t.datetime "created_at", precision: nil, null: false
@@ -319,6 +341,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_000003) do
     t.text "properties", default: "{}"
     t.datetime "updated_at", precision: nil, null: false
     t.index ["custom_field_id"], name: "index_custom_field_properties_on_custom_field_id"
+  end
+
+  create_table "custom_field_property_search_entries", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "custom_field_property_id", null: false
+    t.text "field_label", null: false
+    t.datetime "updated_at", null: false
+    t.text "value"
+    t.index ["custom_field_property_id", "field_label"], name: "idx_cfp_se_owner_label"
+    t.index ["field_label"], name: "idx_cfp_se_label"
+    t.index ["value"], name: "idx_cfp_se_value_hash", using: :hash
   end
 
   create_table "custom_fields", id: :serial, force: :cascade do |t|
@@ -544,6 +577,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_000003) do
     t.datetime "updated_at", precision: nil
     t.index ["intervention_id"], name: "index_interventions_progress_notes_on_intervention_id"
     t.index ["progress_note_id"], name: "index_interventions_progress_notes_on_progress_note_id"
+  end
+
+  create_table "leave_program_search_entries", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "field_label", null: false
+    t.integer "leave_program_id", null: false
+    t.datetime "updated_at", null: false
+    t.text "value"
+    t.index ["field_label"], name: "idx_lp_se_label"
+    t.index ["leave_program_id", "field_label"], name: "idx_lp_se_owner_label"
+    t.index ["value"], name: "idx_lp_se_value_hash", using: :hash
   end
 
   create_table "leave_programs", id: :serial, force: :cascade do |t|
@@ -1079,11 +1123,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_000003) do
   add_foreign_key "case_worker_tasks", "users"
   add_foreign_key "changelog_types", "changelogs"
   add_foreign_key "changelogs", "users"
+  add_foreign_key "client_enrollment_search_entries", "client_enrollments", on_delete: :cascade
+  add_foreign_key "client_enrollment_tracking_search_entries", "client_enrollment_trackings", on_delete: :cascade
   add_foreign_key "client_enrollment_trackings", "client_enrollments"
   add_foreign_key "client_enrollments", "clients"
   add_foreign_key "client_enrollments", "program_streams"
   add_foreign_key "clients", "donors"
   add_foreign_key "custom_field_properties", "custom_fields"
+  add_foreign_key "custom_field_property_search_entries", "custom_field_properties", on_delete: :cascade
   add_foreign_key "domains", "domain_groups"
   add_foreign_key "family_alerts", "families"
   add_foreign_key "family_alerts", "users", column: "created_by_id"
@@ -1092,6 +1139,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_000003) do
   add_foreign_key "family_notes", "users"
   add_foreign_key "interventions_progress_notes", "interventions"
   add_foreign_key "interventions_progress_notes", "progress_notes"
+  add_foreign_key "leave_program_search_entries", "leave_programs", on_delete: :cascade
   add_foreign_key "leave_programs", "client_enrollments"
   add_foreign_key "progress_notes", "clients"
   add_foreign_key "progress_notes", "locations"

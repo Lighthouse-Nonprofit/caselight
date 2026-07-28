@@ -14,6 +14,10 @@ class ClientEnrollmentTracking < ActiveRecord::Base
   attribute :properties, :json
   encrypts  :properties
 
+  # POAM-024 — deterministic search-entry sidecar (ClientEnrollmentTrackingSearchEntry); see
+  # custom_field_property.rb / PropertiesSearchable.
+  include PropertiesSearchable
+
   accepts_nested_attributes_for :form_builder_attachments, reject_if: proc { |attributes| attributes['name'].blank? &&  attributes['file'].blank? }
 
   # Phase 6 (SC-28 / POAM-SC28-HIST) — keep the Tier-5 encrypted properties out of version payloads.
