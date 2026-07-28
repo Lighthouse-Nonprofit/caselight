@@ -152,6 +152,19 @@ done
 echo "==> re-encrypting client names under the ignore_case scheme (C1)"
 docker compose run --rm app bundle exec rake encryption:reencrypt_client_names CONFIRM=1
 
+# 7d. POAM-024: rebuild/diff-sync the Tier-5 search-entry sidecar, then verify it. IDEMPOTENT BY
+#     CONSTRUCTION: the sync inserts only missing pairs and deletes only stale rows, so a routine
+#     redeploy MUST report added=0 removed=0 — a non-zero line here means entries drifted and
+#     verify will say where (verify non-zero-exits on drift; set -e halts the deploy). Runs AFTER
+#     7b (rows must be ciphertext before this walk reads them under strict mode) and BEFORE `up`
+#     so search never serves a half-built sidecar. NB the TIER=5 loop in 7b also re-writes the
+#     entry VALUES themselves (the entry models are registered born-encrypted for verify/drift
+#     coverage); deterministic ciphertext is byte-stable so that pass is a no-op rewrite — the
+#     zero-PROOF lives here, in this step's added=0 removed=0 line.
+echo "==> rebuilding the Tier-5 search-entry sidecar (backfill + verify, POAM-024)"
+docker compose run --rm app bundle exec rake properties_search:backfill CONFIRM=1
+docker compose run --rm app bundle exec rake properties_search:verify
+
 # 8. Up the app + worker.
 echo "==> starting app + sidekiq"
 docker compose up -d app sidekiq
