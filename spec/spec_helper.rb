@@ -6,8 +6,9 @@ require 'factory_bot'
 require 'ffaker'
 require 'capybara/rails'
 # BS5-Q3: cuprite (Ferrum/CDP on headless Chromium) is the js feature-spec driver — the
-# poltergeist port these specs waited on since the PhantomJS retirement. The dev image
-# doesn't bake a browser: `apt-get install -y chromium` in the app container first.
+# poltergeist port these specs waited on since the PhantomJS retirement. Since PR B2
+# (POAM-019) the image BAKES chromium (it also powers PdfRenderer), so a freshly rebuilt
+# container runs the js suite with no manual `apt-get install chromium` step.
 require 'capybara/cuprite'
 Capybara.register_driver(:cuprite) do |app|
   Capybara::Cuprite::Driver.new(

@@ -702,6 +702,7 @@ DEPENDENCIES
   dropzonejs-rails (~> 0.8.5)
   erubis
   factory_bot_rails (~> 6.0)
+  ferrum (~> 0.17)
   ffaker (~> 2.25.0)
   fog-aws
   foreman (~> 0.87)
