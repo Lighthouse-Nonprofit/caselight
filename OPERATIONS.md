@@ -42,6 +42,13 @@ Two behaviors worth knowing, both born from the 2026-07-22 incident:
   heal stragglers exactly as before; if the APP ever throws
   `ActiveRecord::Encryption::Errors::Decryption`, a straggler slipped in outside the deploy path —
   run `encryption:backfill` for its tier, then `encryption:verify`.
+- **Tier-5 search sidecar (POAM-024, step 7d)** — `properties_search:backfill CONFIRM=1` then
+  `properties_search:verify` run on **every** deploy, after the encryption stages and before
+  `up`. The backfill is a diff-sync (insert missing / delete stale, nothing else), so a routine
+  redeploy MUST log `added=0 removed=0`; a non-zero delta means entries drifted outside the
+  write path — `verify` will name the drifted records (values-free) and non-zero-exits, halting
+  the deploy. The sidecar rows are derived data: a full rebuild is always safe
+  (`properties_search:backfill CONFIRM=1` after any manual surgery, then re-verify).
 
 ## Verifying a deploy (by state, not logs)
 

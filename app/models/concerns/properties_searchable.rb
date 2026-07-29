@@ -71,7 +71,9 @@ module PropertiesSearchable
 
   # Diff-sync: insert missing pairs, delete stale/duplicate rows, touch nothing else.
   # Returns { added:, removed: } so the backfill rake can report (and prove the zero) per tenant.
-  def sync_properties_search_entries!
+  # dry_run: true computes the SAME delta without applying it — the rake's DRY-RUN mode rides this
+  # so there is exactly one implementation of the diff.
+  def sync_properties_search_entries!(dry_run: false)
     entry_class = self.class.properties_search_entry_class
     foreign_key = self.class.properties_search_entry_foreign_key
     desired     = properties_search_desired_pairs
@@ -88,9 +90,11 @@ module PropertiesSearchable
     end
     missing = desired - keep
 
-    entry_class.where(id: stale_ids).delete_all if stale_ids.any?
-    missing.each do |field_label, value|
-      entry_class.create!(foreign_key => id, field_label: field_label, value: value)
+    unless dry_run
+      entry_class.where(id: stale_ids).delete_all if stale_ids.any?
+      missing.each do |field_label, value|
+        entry_class.create!(foreign_key => id, field_label: field_label, value: value)
+      end
     end
 
     { added: missing.size, removed: stale_ids.size }
