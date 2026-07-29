@@ -1,31 +1,35 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-# UX round 3 (D3/R9) — selecting a sidebar menu item collapses the sidebar again.
-# Desktop semantics: the leaf-link click writes a cl_sidebar=mini cookie; the NEXT page
-# renders body.mini-navbar server-side (icon rail, no FOUC). The hamburger re-expands and
-# persists the choice the same way.
-describe 'sidebar collapse on menu select', js: true do
+# Investor UX round (2026-07) — the sidebar does NOT auto-collapse on desktop navigation
+# (the UX-round-3 leaf-click collapse is retired). The icon rail appears only when the user
+# collapses it via the hamburger; that choice is written to the cl_sidebar cookie and the
+# NEXT page renders body.mini-navbar server-side (icon rail, no FOUC).
+describe 'sidebar collapse behavior', js: true do
   let!(:admin) { create(:user, roles: 'admin') }
 
   before { login_as(admin) }
 
-  scenario 'a leaf menu click collapses the sidebar on the next page, and it stays collapsed' do
+  scenario 'a leaf menu click does NOT collapse the sidebar, and no cookie is written' do
     visit root_path
     expect(page).not_to have_css('body.mini-navbar')
 
     within '#side-menu' do
       first("a[href*='clients']").click
     end
-    expect(page).to have_css('body.mini-navbar')
+    expect(page).to have_current_path(%r{/clients}, url: false)
+    expect(page).not_to have_css('body.mini-navbar')
 
-    visit root_path # an unrelated navigation stays collapsed (cookie)
-    expect(page).to have_css('body.mini-navbar')
+    visit root_path # an unrelated navigation stays expanded (no cookie)
+    expect(page).not_to have_css('body.mini-navbar')
   end
 
-  scenario 'the hamburger re-expands and the choice persists' do
+  scenario 'the hamburger collapses/expands and each choice persists across pages' do
     visit root_path
-    within('#side-menu') { first("a[href*='clients']").click }
+    find('.navbar-minimalize').click
+    expect(page).to have_css('body.mini-navbar')
+
+    visit root_path # collapsed choice persists (cookie)
     expect(page).to have_css('body.mini-navbar')
 
     find('.navbar-minimalize').click
@@ -42,7 +46,7 @@ describe 'sidebar collapse on menu select', js: true do
   # ------------------------------------------------------------------------------------------------
   def collapse_rail!
     visit root_path
-    within('#side-menu') { first("a[href*='clients']").click } # writes cl_sidebar=mini
+    find('.navbar-minimalize').click # writes cl_sidebar=mini
     expect(page).to have_css('body.mini-navbar')
   end
 
