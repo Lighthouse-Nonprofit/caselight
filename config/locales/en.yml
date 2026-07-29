@@ -2125,6 +2125,7 @@ en:
       name: Name
       'no': 'No'
       province: State
+      results: Results
       significant_family_member_count: Household Size
       'yes': 'Yes'
     update:
