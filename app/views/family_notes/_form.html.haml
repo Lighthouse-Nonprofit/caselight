@@ -15,6 +15,12 @@
         = f.error :meeting_date
       = f.input :attendee, label: t('.present', default: 'Present')
       = f.input :note, as: :text, label: t('.note', default: 'Note'), input_html: { rows: 6 }
-      .text-end
-        = link_to t('cancel', default: 'Cancel'), family_family_notes_path(@family), class: 'btn btn-outline-secondary'
-        = f.submit t('save', default: 'Save'), class: 'btn btn-primary'
+      -# Investor UX round (2026-07): Delete anchored at the OPPOSITE outer edge (edit only) —
+      -# destructive placement per docs/ui-conventions.md; the card trash icons are gone.
+      .d-flex.justify-content-between.align-items-center
+        %div
+          - if f.object.persisted? && (can? :destroy, f.object)
+            = link_to t('shared.actions.delete', default: 'Delete'), family_family_note_path(@family, f.object), method: :delete, data: { confirm: t('families.show.are_you_sure', default: 'Are you sure you want to delete?') }, class: 'btn btn-outline-danger'
+        .text-end
+          = link_to t('cancel', default: 'Cancel'), family_family_notes_path(@family), class: 'btn btn-outline-secondary'
+          = f.submit t('save', default: 'Save'), class: 'btn btn-primary'

@@ -23,3 +23,8 @@
     .ibox-footer
       = f.submit t('.save'), class: 'btn btn-primary form-btn'
       = link_to t('.cancel'), polymorphic_path([@custom_formable, CustomFieldProperty], custom_field_id: @custom_field), class: 'btn btn-outline-secondary form-btn'
+      -# Investor UX round (2026-07): delete lives on the EDIT page (show_delete — never new),
+      -# destructive control last/outermost per docs/ui-conventions.md.
+      - if local_assigns[:show_delete] && @custom_field_property.persisted? && (can? :destroy, @custom_field_property)
+        = link_to polymorphic_path([@custom_formable, @custom_field_property], custom_field_id: @custom_field), method: :delete, data: { confirm: t('are_you_sure') }, class: 'btn btn-outline-danger form-btn action-gap-start' do
+          = t('shared.actions.delete', default: 'Delete')
