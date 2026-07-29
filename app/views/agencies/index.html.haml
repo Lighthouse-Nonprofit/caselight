@@ -16,6 +16,7 @@
               %tr
                 %th.custom_column_name= t('.agency_names')
                 %th.custom_column_description= t('.description')
+                %th.custom_column_clients= t('.clients', default: 'Individuals')
                 - if can? :manage, Agency
                   %th.text-center.custom_column_manage{ colspan: '2' }= t('.manage')
                 - if can? :version, Agency
@@ -25,6 +26,13 @@
                 %tr
                   %td= agency.name
                   %td= agency.description
+                  %td
+                    -# Investor UX round (2026-07): linked individuals, mirroring donors#index.
+                    -# accessible_by-SCOPED: this index is reachable by every role, so a
+                    -# case worker sees only their own caseload here (leak guard).
+                    - agency.clients.accessible_by(current_ability).each do |client|
+                      %strong.badge.text-bg-light.client
+                        = link_to entity_name(client), client_path(client)
                   - if can? :manage, Agency
                     %td.text-center
                       = link_to '#', {class: 'btn btn-outline btn-success btn-xs', "data-bs-target" => "#agencyModal-#{agency.id}", "data-bs-toggle" => "modal", :type => "button"} do

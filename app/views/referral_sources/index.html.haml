@@ -16,6 +16,7 @@
               %tr
                 %th.custom_column_name= t('.referral_source_name')
                 %th.custom_column_description= t('.description')
+                %th.custom_column_clients= t('.clients', default: 'Individuals')
                 - if can? :manage, ReferralSource
                   %th.text-center.custom_column_manage{:colspan => "2"}
                     = t('.manage')
@@ -26,6 +27,12 @@
                 %tr
                   %td= referral_source.name
                   %td= referral_source.description
+                  %td
+                    -# Investor UX round (2026-07): linked individuals, mirroring donors#index.
+                    -# accessible_by-SCOPED — reachable by every role (leak guard).
+                    - referral_source.clients.accessible_by(current_ability).each do |client|
+                      %strong.badge.text-bg-light.client
+                        = link_to entity_name(client), client_path(client)
                   - if can? :manage, ReferralSource
                     %td.text-center
                       = link_to '#', {class: 'btn btn-outline btn-success btn-xs', "data-bs-target" => "#referral_sourceModal-#{referral_source.id}", "data-bs-toggle" => "modal", :type => "button"} do
