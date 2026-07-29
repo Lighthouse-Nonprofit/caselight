@@ -116,8 +116,11 @@ $(function () {
   function openFlyout(manage) {
     var el = buildFlyout();
     if (!el) { return; }
+    // DISABLE (not just hide) the trigger's tooltip while the flyout is open: the pointer is
+    // still hovering the cogs, so a plain hide() gets re-shown by the hover trigger and the
+    // pill sits over the flyout title. closeFlyout re-arms it.
     var tip = bootstrap.Tooltip.getInstance(manage);
-    if (tip) { tip.hide(); } // never overlap the flyout with its own tooltip
+    if (tip) { tip.disable(); tip.hide(); }
 
     el.classList.add('show');
     var railRect = document.querySelector('nav.navbar-static-side').getBoundingClientRect();
@@ -138,6 +141,8 @@ $(function () {
     var manage = document.getElementById('manage');
     if (manage) {
       manage.setAttribute('aria-expanded', 'false');
+      var tip = bootstrap.Tooltip.getInstance(manage);
+      if (tip && isDesktopMini()) { tip.enable(); } // re-arm the tooltip the open disabled
       if (refocus) { manage.focus(); }
     }
   }
