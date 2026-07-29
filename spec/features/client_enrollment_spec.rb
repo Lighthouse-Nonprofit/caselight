@@ -55,37 +55,40 @@ describe 'Client Enrollment' do
     end
   end
 
-  feature 'List client enrollment not status active' do
+  # Investor UX round (2026-07): the Programs tab is per-program sub-tabs + an Add Program
+  # modal (rack_test sees all panes — no CSS visibility).
+  feature 'Consolidated Programs tab' do
     before do
       program_stream_exited.reload
       program_stream_exited.update_columns(completed: true)
+      second_program_stream.reload
+      second_program_stream.update_columns(completed: true)
 
       visit client_client_enrollments_path(client)
     end
 
-    scenario 'program lists' do
-      expect(page).to have_content('Adam Eve (Romeo Juliet) - Programs List')
+    scenario 'one sub-tab per ever-enrolled program' do
+      expect(page).to have_css("#program-tab-#{program_stream.id}", text: program_stream.name)
+      expect(page).to have_css("#program-tab-#{program_stream_active.id}", text: program_stream_active.name)
+      expect(page).to have_css("#program-tab-#{program_stream_exited.id}", text: program_stream_exited.name)
+      expect(page).not_to have_content('Programs List') # the old two-table page is gone
     end
 
-    scenario 'program name' do
-      expect(page).to have_content(program_stream.name)
+    scenario 'exited pane offers Re-enroll; active pane offers Exit Program' do
+      expect(page).to have_link('Re-enroll')
+      expect(page).to have_link('Exit Program')
     end
 
-    scenario 'quantity' do
-      expect(page).to have_content('10')
+    scenario 'the Add Program modal lists only never-enrolled complete streams' do
+      within('#add-program-modal') do
+        expect(page).to have_content(second_program_stream.name)
+        expect(page).to have_link('Enroll')
+        expect(page).not_to have_content(program_stream.name)
+      end
     end
 
-    scenario 'domain' do
-      expect(page).to have_content(program_stream.domains.pluck(:identity).join(', '))
-    end
-
-    scenario 'enroll link' do
-      expect(page).to have_link('Enroll')
-    end
-
-    scenario 'exit status' do
-      client_enrollment.update_columns(status: 'Exited')
-      expect(client_enrollment.status).to have_content('Exited')
+    scenario 'the timeline leads with the Forms column' do
+      expect(page.body).to match(%r{<th>Forms</th>\s*<th>Date</th>\s*<th>Actions</th>})
     end
   end
 
@@ -97,7 +100,9 @@ describe 'Client Enrollment' do
       second_program_stream.reload
       second_program_stream.update_columns(completed: true)
       visit client_client_enrollments_path(client)
-      click_link('Enroll')
+      # Investor UX round (2026-07): Enroll lives in the Add Program modal now.
+      click_button('Add Program')
+      within('#add-program-modal') { click_link('Enroll') }
     end
 
     scenario 'Valid' do
@@ -110,6 +115,10 @@ describe 'Client Enrollment' do
         dismiss_datepicker
         click_button 'Save'
       end
+      # lands on the new program's pane; the values live behind the timeline's View link
+      expect(page).to have_content('Enrollment has been successfully created.')
+      expect(page).to have_css("#program-tab-#{second_program_stream.id}", text: second_program_stream.name)
+      within("#program-pane-#{second_program_stream.id}") { first(:link, 'View').click }
       expect(page).to have_content('3')
       expect(page).to have_content('this is testing')
       expect(page).to have_content('test@example.com')
@@ -202,13 +211,16 @@ describe 'Client Enrollment' do
   end
 
   feature 'Destroy', js: true do
+    # Investor UX round (2026-07): delete moved to the EDIT page footer (it cascades the
+    # program's trackings + exit record; the show page keeps pencil + Back only).
     before do
-      visit client_client_enrollment_path(client, client_enrollment, program_stream_id: program_stream.id)
+      visit edit_client_client_enrollment_path(client, client_enrollment, program_stream_id: program_stream.id)
     end
 
     scenario 'success' do
-      find("a[data-method='delete'][href='#{client_client_enrollment_path(client, client_enrollment, program_stream_id: program_stream.id)}']").click
-      expect(page).not_to have_content(client_enrollment.enrollment_date.strftime('%d %B, %Y'))
+      find("a[data-method='delete'][href*='#{client_client_enrollment_path(client, client_enrollment)}']").click
+      expect(page).to have_content('Enrollment has been successfully deleted.')
+      expect(page).not_to have_css("#program-tab-#{program_stream.id}")
     end
   end
 end

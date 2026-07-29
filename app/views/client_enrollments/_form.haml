@@ -28,3 +28,9 @@
     = hidden_field_tag :program_stream_id, @program_stream.id
     = f.submit t('.save'), class: 'btn btn-primary form-btn'
     = cancel_url
+    -# Investor UX round (2026-07): delete lives HERE (edit only) — it cascades the program's
+    -# trackings + exit record, so it sits behind the edit step, destructive-last per
+    -# docs/ui-conventions.md.
+    - if @client_enrollment.persisted? && (can? :destroy, @client_enrollment)
+      = link_to client_client_enrollment_path(@client, @client_enrollment, program_stream_id: @program_stream), method: 'delete', data: { confirm: t('client_enrollments.show.are_you_sure', default: 'Are you sure you want to delete?') }, class: 'btn btn-outline-danger form-btn action-gap-start' do
+        = t('.delete', default: 'Delete')

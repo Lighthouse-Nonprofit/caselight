@@ -1,0 +1,36 @@
+-# The Add Program picker (investor UX round, 2026-07) — replaces the old full-page
+-# "Programs List" table. Pre-rendered with the page (precedent: clients/_remaining_programs);
+-# lists ONLY never-enrolled, completely-configured streams — exited programs re-enroll from
+-# their own pane. The UI-only full-program guard carries over (server-side quantity
+-# validation remains a pre-existing, ledger-noted gap).
+#add-program-modal.modal.fade{ 'aria-hidden' => 'true', role: 'dialog', tabindex: '-1' }
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        %h4.modal-title= t('.title', default: 'Add Program')
+        %button.btn-close{ 'aria-label' => 'Close', 'data-bs-dismiss' => 'modal', type: 'button' }
+      .modal-body
+        .cl-table-scroll
+          %table.table.cl-record-table
+            %thead
+              %tr
+                %th= t('.name', default: 'Program Name')
+                %th= t('.domain', default: 'Domain')
+                %th= t('.places', default: 'Places left')
+                %th= t('.actions', default: 'Actions')
+            %tbody
+              - @enrollable_streams.each do |ps|
+                %tr
+                  %td= link_to ps.name, program_stream_path(ps, client: true)
+                  %td
+                    - ps.domains_format.each do |domain|
+                      %strong.badge.text-bg-light= domain
+                  %td= ps.place_available
+                  %td
+                    - if ps.maximum_client?
+                      .badge.text-bg-info= t('client_enrollments.manage.full_program', default: 'This Program is full')
+                    - else
+                      = link_to new_client_client_enrollment_path(@client, program_stream_id: ps.id) do
+                        .btn.btn-primary.btn-xs.btn-width= t('.enroll', default: 'Enroll')
+      .modal-footer
+        %button.btn.btn-outline-secondary{ 'data-bs-dismiss' => 'modal', type: 'button' }= t('.close', default: 'Close')

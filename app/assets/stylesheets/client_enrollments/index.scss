@@ -1,4 +1,4 @@
-body[id='client_enrollments-index'],
+// Legacy family page (retires with P2 of the investor UX round).
 body[id='client_enrolled_programs-index'] {
   td.manage {
     min-width: 150px;
@@ -17,5 +17,29 @@ body[id='client_enrolled_programs-index'] {
 
   th.status, th.report, td.status, td.report {
     min-width: 100px;
+  }
+}
+
+// Investor UX round (2026-07): the consolidated Programs tab — per-program sub-tabs + pane.
+body[id='client_enrollments-index'] {
+  .programs-tabs {
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  .programs-tab-content {
+    padding-top: 16px;
+  }
+
+  .program-pane__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
   }
 }

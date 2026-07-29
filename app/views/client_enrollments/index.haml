@@ -1,80 +1,34 @@
 = render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
--# UX rung 4 — merged "Programs" entry point: enrolled programs first (the old
--# client_enrolled_programs page's scope + partials), then the enrollable/exited list below.
-- if @enrolled_program_streams.present?
-  .ibox
-    .ibox-title
-      %h5= "#{@client.en_and_local_name} - #{t('clients.client_header.enrolled_programs', default: 'Enrolled Programs')}"
-      .ibox-tools
-        = render 'shared/ibox_collapse_link'
-    .ibox-content
-      .table-responsive
-        %table.table.table-bordered.table-striped.table-hover.client_enrollment
-          %thead
-            %tr
-              %th.status= t('.status')
-              %th.name= t('.name')
-              %th.domain= t('.domain')
-              %th.quantity= t('.quantity')
-              %th.report= t('.report')
-              %th.manage= t('.actions')
-          %tbody
-            - @enrolled_program_streams.each do |ps|
-              %tr
-                %td.status
-                  = render 'client_enrolled_programs/status', program_stream: ps
-                %td.name
-                  = link_to ps.name, program_stream_path(ps, client: true)
-                %td.domain
-                  - ps.domains_format.each do |domain|
-                    %strong.badge.text-bg-light= domain
-                %td.quantity
-                  = ps.place_available
-                %td.report
-                  = link_to t('client_enrolled_programs.index.view', default: 'View'), report_client_client_enrolled_programs_path(@client, program_stream_id: ps)
-                %td.manage
-                  = render 'client_enrolled_programs/manage', program_stream: ps
-.ibox
-  .ibox-title
-    %h5= "#{@client.en_and_local_name} - #{t('.program_lists')}"
-    .ibox-tools
-      = render 'shared/ibox_collapse_link'
-  .ibox-content
-    .table-responsive
-      %table.table.table-bordered.table-striped.table-hover.client_enrollment
-        %thead
-          %tr
-            %th.status
-              = t('.status')
-              .float-end
-                = render 'order', column: :status
-            %th.name
-              = t('.name')
-              .float-end
-                = render 'order', column: :name
-            %th.domain= t('.domain')
-            %th.quantity
-              = t('.quantity')
-              .float-end
-                = render 'order', column: :quantity
-            %th.report= t('.report')
-            %th.manage= t('.actions')
-        %tbody
-          - @program_streams.each do |ps|
-            %tr
-              %td.status
-                = render 'status', program_stream: ps
-              %td.name
-                = link_to ps.name, program_stream_path(ps, client: true)
-              %td.domain
-                - ps.domains_format.each do |domain|
-                  %strong.badge.text-bg-light= domain
-              %td.quantity
-                = ps.place_available
-              %td.report
-                = view_report_link(ps)
-              %td.manage
-                = render 'manage', program_stream: ps
-
-  .ibox-footer.text-center
-    = paginate @program_streams
+-# Investor UX round (2026-07) — the consolidated Programs tab: one BS5 sub-tab per
+-# ever-enrolled program (active panes first, then exited), each pane carrying the program's
+-# dates, actions, and report timeline; the old two-table page (Enrolled Programs + the full
+-# enrollable "Programs List") is gone. Never-enrolled programs live in the Add Program modal;
+-# exited programs re-enroll from their own pane. Server renders the active pane from
+-# ?program_stream_id= (the Overview deep-link contract) — no custom JS, BS5 data-bs-toggle
+-# handles the switching (precedent: program_streams/index.haml).
+.row
+  .col-12
+    .ibox
+      .ibox-title
+        %h5= t('.title', default: 'Programs')
+        .ibox-tools
+          - if (can? :manage, ClientEnrollment) && @enrollable_streams.any?
+            %button.btn.btn-primary.btn-xs{ type: 'button', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#add-program-modal' }
+              = t('.add_program', default: 'Add Program')
+      .ibox-content
+        - if @pane_streams.any?
+          %ul.nav.nav-tabs.programs-tabs{ role: 'tablist' }
+            - @pane_streams.each do |ps|
+              %li.nav-item{ role: 'presentation' }
+                %button.nav-link{ class: ('active' if ps.id == @selected_stream_id), id: "program-tab-#{ps.id}", type: 'button', role: 'tab', 'data-bs-toggle' => 'tab', 'data-bs-target' => "#program-pane-#{ps.id}", 'aria-controls' => "program-pane-#{ps.id}", 'aria-selected' => (ps.id == @selected_stream_id).to_s }
+                  %span.programs-tabs__name= ps.name
+                  - if (status = ps.enrollment_status_value(@client))
+                    = cl_badge(status, ps.enrollment_status_variant(@client))
+          .tab-content.programs-tab-content
+            - @pane_streams.each do |ps|
+              .tab-pane.fade{ id: "program-pane-#{ps.id}", class: ('show active' if ps.id == @selected_stream_id), role: 'tabpanel', 'aria-labelledby' => "program-tab-#{ps.id}" }
+                = render 'program_pane', program_stream: ps, enrollments: (@enrollments_by_stream[ps.id] || [])
+        - else
+          %p.text-muted= t('.no_programs', default: 'Not yet enrolled in a program.')
+- if (can? :manage, ClientEnrollment) && @enrollable_streams.any?
+  = render 'add_program_modal'

@@ -2,11 +2,30 @@ class ClientEnrollmentTrackingsController < AdminController
   load_and_authorize_resource
 
   include ClientEnrollmentTrackingsConcern
+  include SensitiveFields   # the client hub header (rendered on these pages now) reads the visible set
   include FormBuilderAttachments
 
-  def index
-    @tracking_grid = TrackingGrid.new(params[:tracking_grid])
-    @tracking_grid.scope { |scope| scope.where(program_stream_id: @program_stream).page(params[:page]).per(20) }
+  # Investor UX round (2026-07): new/create PORTED from the retired legacy controller
+  # (ClientEnrolledProgramTrackingsController) — this family never had them, so tracking
+  # creation only worked through the legacy pages. index/report died with the TrackingGrid
+  # page: trackings render inside the Programs tab's per-program pane, and every redirect
+  # lands on that pane's deep link.
+
+  def new
+    @client_enrollment_tracking = @enrollment.client_enrollment_trackings.new
+    @attachment = @client_enrollment_tracking.form_builder_attachments.build
+    authorize @client_enrollment_tracking
+  end
+
+  def create
+    @client_enrollment_tracking = @enrollment.client_enrollment_trackings.new(client_enrollment_tracking_params)
+    authorize @client_enrollment_tracking
+
+    if @client_enrollment_tracking.save
+      redirect_to client_client_enrollments_path(@client, program_stream_id: @program_stream.id), notice: t('.successfully_created')
+    else
+      render :new
+    end
   end
 
   def edit
@@ -17,7 +36,7 @@ class ClientEnrollmentTrackingsController < AdminController
     authorize @client_enrollment_tracking
     if @client_enrollment_tracking.update(client_enrollment_tracking_params)
       add_more_attachments(@client_enrollment_tracking)
-      redirect_to report_client_client_enrollment_client_enrollment_trackings_path(@client, @enrollment, tracking_id: @tracking.id), notice: t('.successfully_updated')
+      redirect_to client_client_enrollments_path(@client, program_stream_id: @program_stream.id), notice: t('.successfully_updated')
     else
       render :edit
     end
@@ -29,17 +48,12 @@ class ClientEnrollmentTrackingsController < AdminController
   def destroy
     name = params[:file_name]
     index = params[:file_index].to_i
-    notice = ""
     if name.present? && index.present?
       delete_form_builder_attachment(@client_enrollment_tracking, name, index)
       redirect_to request.referer, notice: t('.delete_attachment_successfully')
     else
       @client_enrollment_tracking.destroy
-      redirect_to report_client_client_enrolled_program_client_enrolled_program_trackings_path(@client, @enrollment, tracking_id: @client_enrollment_tracking.tracking.id), notice: t('.successfully_deleted')
+      redirect_to client_client_enrollments_path(@client, program_stream_id: @program_stream.id), notice: t('.successfully_deleted')
     end
-  end
-
-  def report
-    @client_enrollment_trackings = @enrollment.client_enrollment_trackings.enrollment_trackings_by(@tracking).order(created_at: :desc)
   end
 end
