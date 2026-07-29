@@ -1,8 +1,12 @@
 CIF.ClientsIndex = (function () {
+  // D1 (grid modernization): this module lost its dead half. `_fixedHeaderTableColumns`
+  // (jquery.dataTables cosmetic init), `_handleScrollTable` (niceScroll), `_infiniteScroll`
+  // (never even called) and `_getClientPath` (row click-through) all targeted the legacy
+  // `table.clients` markup — the clients index renders the in-house `.record-grid` (UX round 3)
+  // which ships its own navigation, so none of that code had anything to run against.
   const _init = function () {
     _enableSelect2();
     _columnsVisibility();
-    _fixedHeaderTableColumns();
     _cssClassForlabelDynamic();
     _restrictNumberFilter();
     _quantitativeCaesByQuantitativeType();
@@ -11,32 +15,17 @@ CIF.ClientsIndex = (function () {
     _formatReportxAxis();
     _handleCreateCaseReport();
     _handleCreateCsiDomainReport();
-    _handleScrollTable();
-    _setDefaultCheckColumnVisibilityAll();
-    return _getClientPath();
+    return _setDefaultCheckColumnVisibilityAll();
   };
 
+  // D1 fix: the old guard tested `.visibility .checked` — iCheck's WRAPPER class, which stopped
+  // existing at the POAM-017g flip — so this re-checked "all" on EVERY load, visually flagging
+  // every column even when the user had a specific selection. Test the real inputs instead.
   var _setDefaultCheckColumnVisibilityAll = function () {
-    if ($('.visibility .checked').length === 0) {
+    if ($('.visibility input[type=checkbox]:checked').length === 0) {
       return $('.all-visibility #all_').prop('checked', true).trigger('change');
     }
   };
-
-  const _infiniteScroll = () =>
-    $('table.clients .page').infinitescroll({
-      navSelector: 'ul.pagination', // selector for the paged navigation (it will be hidden)
-      nextSelector: 'ul.pagination a[rel=next]', // selector for the NEXT link (to page 2)
-      itemSelector: 'table.clients tbody tr', // selector for all items you'll retrieve
-      loading: {
-        // was http://i.imgur.com/qkKy8.gif — a plain-http third-party image that the
-        // enforced CSP's img-src 'self' would block (12C-1); the local spinner ships
-        // in public/images
-        img: '/images/loading.gif',
-        msgText: $('.clients-table').data('info-load'),
-      },
-      donetext: $('.clients-table').data('info-end'),
-      binder: $('.clients-table .dataTables_scrollBody'),
-    });
 
   var _handleCreateCsiDomainReport = function () {
     const element = $('#cis-domain-score');
@@ -78,38 +67,15 @@ CIF.ClientsIndex = (function () {
 
   var _handleResizeWindow = () => window.dispatchEvent(new Event('resize'));
 
+  // D1: bound to the NATIVE change event directly. The old ifChecked/ifUnchecked binding only
+  // kept working via caselight_shell.js's iCheck compat shim (verified live before this change:
+  // the cascade DID work through the shim) — the direct binding removes the indirection.
   var _columnsVisibility = function () {
     $('.columns-visibility').click((e) => e.stopPropagation());
 
-    const allCheckboxes = $('.all-visibility #all_');
-
-    allCheckboxes.on('ifChecked', () =>
-      $('.visibility input[type=checkbox]').prop('checked', true).trigger('change'),
-    );
-    return allCheckboxes.on('ifUnchecked', () =>
-      $('.visibility input[type=checkbox]').prop('checked', false).trigger('change'),
-    );
-  };
-
-  var _fixedHeaderTableColumns = function () {
-    const sInfoShow = $('#sinfo').data('infoshow');
-    const sInfoTo = $('#sinfo').data('infoto');
-    const sInfoTotal = $('#sinfo').data('infototal');
-    $('.clients-table').removeClass('table-responsive');
-    if (!$('table.clients tbody tr td').hasClass('noresults')) {
-      return $('table.clients').dataTable({
-        sScrollY: 'auto',
-        bFilter: false,
-        bAutoWidth: true,
-        bSort: false,
-        sScrollX: '100%',
-        bInfo: false,
-        bLengthChange: false,
-        bPaginate: false,
-      });
-    } else {
-      return $('.clients-table').addClass('table-responsive');
-    }
+    return $('.all-visibility #all_').on('change', function () {
+      $('.visibility input[type=checkbox]').prop('checked', this.checked).trigger('change');
+    });
   };
 
   var _cssClassForlabelDynamic = function () {
@@ -195,46 +161,6 @@ CIF.ClientsIndex = (function () {
       },
       error(error) {},
     });
-
-  var _handleScrollTable = () =>
-    $(window).on('load', function () {
-      const ua = navigator.userAgent;
-      if (
-        !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
-          ua,
-        )
-      ) {
-        $('.clients-table .dataTables_scrollBody').niceScroll({
-          scrollspeed: 30,
-          cursorwidth: 10,
-          cursoropacitymax: 0.4,
-        });
-        return _handleResizeWindow();
-      }
-    });
-
-  var _getClientPath = function () {
-    if (
-      $('table.clients tbody tr').text().trim() === 'No results found' ||
-      $('table.clients tbody tr').text().trim() === 'មិនមានលទ្ធផល' ||
-      $('table.clients tbody tr').text().trim() === 'No data available in table'
-    ) {
-      return;
-    }
-    $('table.clients tbody tr').click(function (e) {
-      if ($(e.target).hasClass('btn') || $(e.target).hasClass('fa')) {
-        return;
-      }
-      return (window.location = $(this).data('href'));
-    });
-
-    if (
-      $('table.clients tbody tr').text().trim() === 'No data available in table' ||
-      $('table.clients tbody tr').text().trim() === 'មិនមានលទ្ធផល'
-    ) {
-      return;
-    }
-  };
 
   return { init: _init };
 })();

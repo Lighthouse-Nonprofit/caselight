@@ -111,7 +111,6 @@
 //= require report_creator
 //= require clients/show
 //= require clients/form
-//= require families/index
 //= require families/form
 //= require families/show
 //= require users/show
