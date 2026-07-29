@@ -22,6 +22,29 @@
 .ibox.collapsed .fa.fa-chevron-up:before   { content: "\f078"; }
 .ibox.collapsed .fa.fa-chevron-down:before { content: "\f077"; }
 
+// Investor UX round (2026-07): the chevron is a QUIET icon control, not button chrome —
+// .btn is reserved for real actions ("Links vs buttons", docs/ui-conventions.md).
+.ibox-collapse-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: #8a94a6;
+  transition: color 0.12s ease-in-out, background-color 0.12s ease-in-out;
+
+  .collapse-link:hover &,
+  .collapse-link:focus-visible & {
+    color: $navy;
+    background-color: rgba(44, 110, 155, 0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ibox-collapse-glyph { transition: none; }
+}
+
 // ---- Title bar ---------------------------------------------------------------
 // White header with a 2px navy-hairline top edge, hairline sides, soft shadow.
 // UX round 4 rung 2: the hairline BOTTOM border (previously a show-page-only refresh_polish

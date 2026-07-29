@@ -55,9 +55,7 @@
         %h5=t('.general_info')
         .ibox-tools
           -# (UX rung 4: edit/delete moved to the hub header's Edit dropdown — one canonical spot.)
-          %a.collapse-link
-            .btn.btn-outline.btn-primary
-              %i.fa.fa-chevron-up
+          = render 'shared/ibox_collapse_link'
       .ibox-content
         -# UX round 4 (R4-3): the two bordered About tables + the quantitative table merged
         -# into ONE responsive label-over-value info grid (shared/_info_grid). Label/value

@@ -39,7 +39,17 @@
   overflow-wrap: anywhere;
 
   strong { color: $navy; font-weight: 600; }
-  a { overflow-wrap: anywhere; }
+  // Investor UX round (2026-07): linked values are visibly links — harbor + underline on
+  // hover — so a linked household/agency badge reads differently from a plain-text one.
+  a {
+    overflow-wrap: anywhere;
+    color: $lazur;
+
+    &:hover,
+    &:focus {
+      text-decoration: underline;
+    }
+  }
 
   // Entity badges (case workers / families / agencies / quantitative values) keep their
   // markup; give them breathing room inside a value cell.

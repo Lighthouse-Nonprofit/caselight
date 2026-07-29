@@ -30,3 +30,20 @@ Collapsible `.ibox` sections use `shared/_ibox_collapse_link` in `.ibox-tools` +
 `ibox_classes(collapsed:)` on the `.ibox`. `.collapsed` on the `.ibox` is the single source
 of truth; the chevron glyph is CSS-owned — always ship `fa-chevron-up`. Empty sections
 should start collapsed (pass the same flag to both helpers).
+
+## Links vs buttons (investor UX round, 2026-07)
+
+One visual vocabulary for "what happens when I click":
+
+1. **Navigations are links.** Harbor color, underline **on hover** (the global
+   `#page-wrapper a:hover` rule in `caselight_theme/_root.scss` — exclusion-scoped so
+   buttons/nav/chips/cards keep their own treatments). Linked values inside info-grid badges
+   pick up the same affordance so they read differently from plain-text badges.
+2. **`.btn` chrome is reserved for actions** (submits, state changes, openers). Counts and
+   statuses are **badges/chips, never `.btn`** — the family grid's popover totals were the
+   offenders (now `.badge.text-bg-info`).
+3. **Quiet icon controls** (the ibox collapse chevron) get the `.ibox-collapse-glyph`
+   treatment, not button chrome. Always render via `shared/_ibox_collapse_link`.
+4. **Grandfathered:** ~60 legacy sites wrap a `.btn`-classed DIV inside a `link_to`. They
+   are excluded from the hover-underline rule via `:has()` guards and are NOT to be
+   imitated: new code puts the `.btn` classes on the anchor/button element itself.
