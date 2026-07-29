@@ -50,7 +50,6 @@ CIF.Client_advanced_searchesIndex = (function () {
     _handleSearch();
     _addRuleCallback();
     _filterSelectChange();
-    _handleScrollTable();
     _getClientPath();
     return _setDefaultCheckColumnVisibilityAll();
   };
@@ -542,17 +541,9 @@ CIF.Client_advanced_searchesIndex = (function () {
     }
   };
 
-  var _handleInitDatatable = () =>
-    $('.clients-table table').DataTable({
-      sScrollY: 'auto',
-      bFilter: false,
-      bAutoWidth: true,
-      bSort: false,
-      sScrollX: '100%',
-      bInfo: false,
-      bLengthChange: false,
-      bPaginate: false,
-    });
+  // D2: was a feature-disabled DataTable init (fixed header + scroll only). The native
+  // .cl-table-scroll container provides both; this module is otherwise out of the D2 scope.
+  var _handleInitDatatable = () => $('.clients-table').addClass('cl-table-scroll');
 
   var _handleStringfyRules = function (rules) {
     rules = JSON.stringify(rules);
@@ -564,21 +555,7 @@ CIF.Client_advanced_searchesIndex = (function () {
     return $('form#advanced-search').append(checkedFields);
   };
 
-  var _handleScrollTable = () =>
-    $(window).on('load', function () {
-      const ua = navigator.userAgent;
-      if (
-        !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
-          ua,
-        )
-      ) {
-        return $('.clients-table .dataTables_scrollBody').niceScroll({
-          scrollspeed: 30,
-          cursorwidth: 10,
-          cursoropacitymax: 0.4,
-        });
-      }
-    });
+  // (D2: the niceScroll _handleScrollTable that lived here left with the plugin.)
 
   var _getClientPath = () =>
     $('table.clients tbody tr').click(function (e) {

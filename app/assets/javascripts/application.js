@@ -21,11 +21,8 @@
 //= require jquery.steps.min
 //= require jquery.validate
 //= require jquery.validate.additional-methods
-//= require jquery.nicescroll.min
-//= require dataTables/jquery.dataTables
-// POAM-017g flip: DataTables Bootstrap-5 styling integration (vendored; sites keep their
-// existing $(table).dataTable(...) calls — this only restyles the wrapper/controls).
-//= require dataTables/dataTables.bootstrap5.min
+// (D2: jquery.nicescroll + dataTables/* requires removed — the feature-disabled cosmetic
+// table inits were replaced by the native .cl-table-scroll pattern; see shared/record_table.)
 // POAM-017c: Tom Select 2.x (vendored) replaced the hand-vendored select2 3.5.2.
 // All call sites go through the CIF.Select adapter (shared/select_widget, in the
 // LOAD MODULE block below — it needs the CIF namespace).
@@ -91,13 +88,12 @@
 //= require util
 //= require initializer
 //= require common
-//= require jquery.infinitescroll.min
 //= require footable.all.min
 
 //APPLICATION JS
 //= require check_duplicate_array.js
 //= require custom_form_builder
-//= require table_scroll
+//= require shared/record_table
 //= require filters
 //= require assessments/form
 //= require tasks/form
