@@ -126,6 +126,10 @@ Rails.application.routes.draw do
 
   get '/data_trackers' => 'data_trackers#index'
 
+  # Investor UX round (2026-07): the Reports landing page (charts moved off clients#index;
+  # per-flavor reporting mounts here).
+  resources :reports, only: [:index]
+
   namespace :able_screens, path: '/' do
     namespace :question_submissions, path: '/' do
       resources :stages

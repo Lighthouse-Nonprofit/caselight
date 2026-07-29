@@ -98,10 +98,13 @@ module AdvancedSearches
     # column to a `clients.id IN (?)` clause via the model's *_like scope (rewritten to deterministic
     # equality `where(col: value)`). Substring operators are not offered for these fields
     # (FilterTypes.text_equal_options), so only equal / not_equal / is_empty / is_not_empty arrive.
-    # is_empty / is_not_empty test the DECRYPTED value in Ruby (a ciphertext column cannot be NULL/''-
-    # tested in SQL); acceptable for the small pilot client volume. The returned `values` is the id
-    # ARRAY — generate appends it as ONE element of @values against the single `IN (?)` placeholder; the
-    # consumer (ClientAdvancedSearch#filter) binds each @values element once and Rails expands the array.
+    # is_empty / is_not_empty probe `[nil, '']` in SQL (POAM-025): deterministic encryption makes the
+    # '' ciphertext queryable (ignore_case downcases the probe and ''.downcase == ''; `previous:`
+    # schemes expand via ExtendedDeterministicQueries), and NULL needs no decryption. Divergence from
+    # the retired Ruby `present?` scan, accepted: whitespace-only values now count as NOT empty.
+    # The returned `values` is the id ARRAY — generate appends it as ONE element of @values against
+    # the single `IN (?)` placeholder; the consumer (ClientAdvancedSearch#filter) binds each @values
+    # element once and Rails expands the array.
     def name_encrypted_sql(field, operator, value)
       scope = "#{field}_like".to_sym
       ids =
@@ -111,9 +114,9 @@ module AdvancedSearches
         when 'not_equal'
           @clients.where.not(id: @clients.public_send(scope, value).ids).ids
         when 'is_empty'
-          @clients.reject { |c| c.public_send(field).present? }.map(&:id)
+          @clients.where(field => [nil, '']).ids
         when 'is_not_empty'
-          @clients.select { |c| c.public_send(field).present? }.map(&:id)
+          @clients.where.not(id: @clients.where(field => [nil, '']).ids).ids
         else
           []
         end

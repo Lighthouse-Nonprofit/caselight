@@ -52,7 +52,7 @@ RSpec.describe 'Client Forms page', type: :request do
   describe 'admin' do
     before { sign_in_as(admin) }
 
-    it 'renders the hub header, filled table with counts + entries links, and available forms' do
+    it 'renders the hub header, name-linked filled rows, and the Add-new-form picker' do
       get client_forms_path(client)
       expect(response).to have_http_status(:ok)
       body = response.body
@@ -61,15 +61,39 @@ RSpec.describe 'Client Forms page', type: :request do
       expect(body).to include('client-hub__name')
       expect(body).to include('Paige Formsworth')
       expect(body).to match(%r{class="nav-link active" href="[^"]*/forms[^"]*"})
-      # filled form row: title, entry count, View-entries link
+      # filled form row: the NAME is the entries link (investor UX round — button retired)
       expect(body).to include('FormsPage Intake')
       expect(CGI.unescapeHTML(body)).to include(client_custom_field_properties_path(client, custom_field_id: standard_cf.id))
       expect(body).to match(/<td>\s*2\s*<\/td>/)
+      expect(body).not_to include('View entries')
       # admin sees every filled title (no lock affordance — admin sees all, so no candidates)
       expect(body).to include('FormsPage Emergency Contact')
-      # available (unstarted) forms table with the Add form action
+      # the available-forms TABLE is gone; unstarted forms live in the Add-new-form dropdown
+      expect(body).not_to include('Available forms')
+      expect(body).to include('Add new form')
       expect(body).to include('FormsPage Unstarted')
       expect(CGI.unescapeHTML(body)).to include(new_client_custom_field_property_path(client, custom_field_id: free_cf.id))
+    end
+  end
+
+  describe 'family hub (the same polymorphic view)' do
+    let!(:family)    { create(:family, name: 'Formsworth House') }
+    let!(:family_cf) do
+      create(:custom_field, entity_type: 'Family', form_title: 'FormsPage Household Check',
+             sensitivity: 'standard', fields: [{ 'type' => 'text', 'label' => 'Anything' }])
+    end
+
+    it 'renders the family header and the Add-new-form picker' do
+      sign_in_as(admin)
+      get family_forms_path(family)
+      expect(response).to have_http_status(:ok)
+      body = response.body
+
+      expect(body).to include('Formsworth House')
+      expect(body).to include('Add new form')
+      expect(body).to include('FormsPage Household Check')
+      expect(CGI.unescapeHTML(body)).to include(new_family_custom_field_property_path(family, custom_field_id: family_cf.id))
+      expect(body).not_to include('Available forms')
     end
   end
 

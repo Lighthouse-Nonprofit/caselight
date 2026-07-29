@@ -105,6 +105,7 @@
 //= require admin/tasks
 //= require clients/index
 //= require report_creator
+//= require reports/index
 //= require clients/show
 //= require clients/form
 //= require families/form

@@ -9,21 +9,18 @@
       .ibox-title
         %h5= t('.general_info')
         .ibox-tools
-          %a.collapse-link
-            .btn.btn-outline.btn-primary
-              %i.fa.fa-chevron-up
+          = render 'shared/ibox_collapse_link'
       .ibox-content
-        -# UX round 4 (R4-3): the 16-row bordered table becomes the label-over-value info
-        -# grid (label/value text unchanged — spec contract). .family-summary kept as a
-        -# greppable wrapper class.
+        -# UX round 4 (R4-3): the 16-row bordered table becomes the label-over-value info grid.
+        -# Investor UX round (2026-07): Household ID / State / Household Type / Household Size
+        -# rows removed — the type already badges the header, size duplicated Member Count, and
+        -# record numbers/geography are edit-form + filter concerns, not display ones.
         .family-summary
           - items = []
-          - items << info_item(t('.code'), @family.code)
           - items << info_item(t('.case_history'), family_case_history(@family))
           - items << info_item(t('.address'), @family.address)
           - items << info_item(t('.member_count'), pluralize(@family.member_count, 'Person'))
           - items << info_item(t('.caregiver_information'), @family.caregiver_information)
-          - items << info_item(t('.significant_family_member_count'), @family.significant_family_member_count)
           - items << info_item(t('.household_income'), number_to_currency(@family.household_income))
           - items << info_item("#{t('.dependable_income')}?", human_boolean(@family.dependable_income))
           - items << info_item(t('.female_children_count'), @family.female_children_count.to_i)
@@ -31,8 +28,6 @@
           - items << info_item(t('.female_adult_count'), @family.female_adult_count.to_i)
           - items << info_item(t('.male_adult_count'), @family.male_adult_count.to_i)
           - items << info_item(t('.contract_date'), date_format(@family.contract_date))
-          - items << info_item(t('.province'), @family.province.try(:name))
-          - items << info_item(t('.family_type'), family_type_label(@family.family_type))
           = render 'shared/info_grid', items: items
 .row
   .col-12.clients
@@ -53,6 +48,8 @@
         - else
           %p.household-members__empty= t('.no_members', default: 'No household members on record.')
         .clients-table
-          = datagrid_table @client_grid, html: { class: 'table cl-record-table clients'}
+          -# Investor UX round (2026-07): lean member columns — the full 28-column ClientGrid
+          -# belongs to the index/advanced-search surfaces, not a household card.
+          = datagrid_table @client_grid, columns: %i[given_name family_name gender age status program_streams user], html: { class: 'table cl-record-table clients'}
       .ibox-footer.text-center
         = paginate @client_grid.assets
