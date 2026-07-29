@@ -7,8 +7,8 @@ module AdvancedSearches
   # AdvancedSearches::PropertiesFilter for the 1:1 mapping). The return shape is UNCHANGED, so
   # ClientBaseSqlBuilder / ClientAdvancedSearch are untouched.
   #
-  # PERF FLAG: O(n)-decrypt over every CustomFieldProperty for the (Client, form) pair — fine at pilot
-  # volume, must be revisited (blind-index sidecar / decrypted search table) before real-data scale.
+  # POAM-024 CLOSED (A4): served from the deterministic search-entry sidecar via PropertiesFilter#apply
+  # (equality = indexed SQL; residual operators = presence-prefiltered Ruby). Kill switch: TIER5_SIDECAR_SEARCH=off.
   class ClientCustomFormSqlBuilder
 
     def initialize(selected_custom_form, rule)

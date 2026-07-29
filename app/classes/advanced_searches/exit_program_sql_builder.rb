@@ -2,7 +2,7 @@ module AdvancedSearches
   # Phase 4 Tier 5 (SC-28 / SOC 2 C1.1) — REWRITTEN from raw JSONB SQL to in-Ruby decrypt-and-filter.
   # LeaveProgram.properties is now NON-DETERMINISTICALLY encrypted. Same scope (joins(:client_enrollment),
   # this program_stream's leave_programs) and same { id: 'clients.id IN (?)', values: client_ids } contract;
-  # client_id read THROUGH the join. PERF FLAG: O(n)-decrypt over this program's exit rows.
+  # client_id read THROUGH the join. POAM-024 CLOSED (A4): served from the search-entry sidecar.
   #
   # PRE-EXISTING INCONSISTENCY (PRESERVED ON PURPOSE — see Tier 5 residual risks): the original #initialize
   # NEVER assigned @type (verified in source), so its `integer?` was always nil/false and EVERY numeric

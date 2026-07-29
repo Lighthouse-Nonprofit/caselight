@@ -280,42 +280,21 @@ RSpec.describe 'Tier 5 in-Ruby property search rewrite', type: :model do
       expect(ids).to eq([client.id])
     end
 
-    it 'shadow mode serves LEGACY results and logs ONE values-free divergence event when the sidecar drifts' do
-      AccessLog.delete_all
-      client = create(:client)
-      record = cfp!(client, 'Color' => 'blue')
-      # Corrupt the sidecar so the two paths disagree (simulates a missed write, the exact case
-      # shadow exists to catch).
-      CustomFieldPropertySearchEntry.where(custom_field_property_id: record.id).delete_all
-
-      rule = { 'field' => 'formbuilder_X_Color', 'operator' => 'equal', 'value' => 'blue', 'type' => 'text' }
-      result = with_sidecar_mode(:shadow) { search(rule) }
-      expect(result).to eq([client.id]) # legacy (correct) result served
-
-      events = AccessLog.where(event_type: 'tier5_sidecar_shadow').to_a
-      expect(events.size).to eq(1)
-      meta = events.first.metadata
-      expect(meta['owner_model']).to eq('CustomFieldProperty')
-      expect(meta['operator']).to eq('equal')
-      expect(meta['legacy_count']).to eq(1)
-      expect(meta['sidecar_count']).to eq(0)
-      # VALUES-FREE: never the label, never the probed value.
-      expect(meta.values.join).not_to include('Color', 'blue')
-    ensure
-      AccessLog.delete_all
-    end
-
-    it 'shadow mode logs nothing when the paths agree' do
-      AccessLog.delete_all
+    # A4 cutover: the shadow comparison arm retired after the zero-divergence soak (its live
+    # catch — an un-backfilled dev checkout, sidecar_count=0 signature — is recorded in the
+    # POAM-024 ledger row). What remains testable: the one-release kill switch.
+    it 'TIER5_SIDECAR_SEARCH=off (the kill switch) serves the legacy path with identical results' do
       client = create(:client)
       cfp!(client, 'Color' => 'blue')
-
       rule = { 'field' => 'formbuilder_X_Color', 'operator' => 'equal', 'value' => 'blue', 'type' => 'text' }
-      result = with_sidecar_mode(:shadow) { search(rule) }
-      expect(result).to eq([client.id])
-      expect(AccessLog.where(event_type: 'tier5_sidecar_shadow').count).to eq(0)
-    ensure
-      AccessLog.delete_all
+
+      expect(with_sidecar_mode(:off) { search(rule) })
+        .to eq(with_sidecar_mode(:on) { search(rule) })
+      expect(with_sidecar_mode(:off) { search(rule) }).to eq([client.id])
+    end
+
+    it 'the default mode is :on (cutover) and the initializer never resolves to :shadow' do
+      expect(%i[on off]).to include(Rails.application.config.x.tier5_sidecar_search)
     end
   end
 end

@@ -73,10 +73,22 @@ skipping** rows whose sidecars are already populated (a re-run must not round-tr
 **Tier 5 (JSONB) — MERGED** (PR #47; this paragraph previously said PENDING and had gone stale —
 refreshed in Phase 6): the polymorphic custom-form `.properties` values on CustomFieldProperty,
 ClientEnrollment, ClientEnrollmentTracking and LeaveProgram are encrypted **non-deterministically**
-(jsonb → text + `attribute :json` + `encrypts`; the Hash read interface is preserved). The four
-JSONB-SQL search builders were rewritten to in-Ruby decrypt-and-filter via
-`AdvancedSearches::PropertiesFilter`. Backfill/verify ran per tenant (dev + the pilot box, all
-tiers PASS). Register: `ENCRYPTION_TIERS` in `lib/tasks/encryption.rake`.
+(jsonb → text + `attribute :json` + `encrypts`; the Hash read interface is preserved). Backfill/
+verify ran per tenant (dev + the pilot box, all tiers PASS). Register: `ENCRYPTION_TIERS` in
+`lib/tasks/encryption.rake`.
+
+**Tier-5 SEARCH (POAM-024, closed 2026-07-28):** the post-encryption in-Ruby decrypt-and-filter
+search was replaced by a **deterministic search-entry sidecar** — one row per (record,
+field-label, value element) in four per-tenant `*_search_entries` tables, `value` encrypted with
+the standard AR **deterministic** scheme (registered in `ENCRYPTION_TIERS['5']`, born-encrypted;
+no hand-rolled HMAC, so key custody/rotation ride the same rails as Tiers 3/4), kept in lock-step
+by an in-transaction diff-sync + the every-deploy `properties_search:backfill/verify` gate
+(bootstrap 7d). Equality searches are indexed ciphertext SQL; substring/ordered operators run
+presence-prefiltered Ruby over the unchanged oracle-verified semantics. **Accepted leakage — the
+same class already accepted for the Tier-3/4 deterministic columns:** a DB-level adversary can see
+equality classes and per-field value cardinality of sidecar entries (field LABELS are plaintext by
+design — they already sit in plaintext in `custom_fields.fields` / program-stream definitions).
+The non-deterministic Tier-5 source blobs are unchanged.
 
 ## Residual gaps (tracked, not silently accepted)
 

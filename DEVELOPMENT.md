@@ -114,4 +114,9 @@ strictly local.
   ```
   (On a container built from a pre-B2 image: `apt-get install -y chromium` still works as the
   stopgap until the next `make dev-build`.)
+- **Tier-5 search sidecar (POAM-024):** after pulling the sidecar migration onto an existing
+  dev database, run `bundle exec rake properties_search:backfill CONFIRM=1` once (then
+  `properties_search:verify`) — a migrated-but-unbackfilled checkout serves empty sidecar
+  results for pre-existing custom-form data (this is exactly what the A3 shadow window caught
+  on dev). Deployed boxes never need this by hand; bootstrap step 7d runs it every deploy.
 - Keep `.env` out of git. It is gitignored; confirm before any `git add`.

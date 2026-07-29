@@ -12,13 +12,11 @@ module AdvancedSearches
   # the SQL would have. Each builder keeps its { id: '<table>.id IN (?)', values: [ids] } contract, so
   # ClientBaseSqlBuilder / ClientAdvancedSearch are UNCHANGED.
   #
-  # PERFORMANCE — FLAG (mirrors the Tier 2/3 caveat density): this is O(n)-decrypt — one AES-GCM decrypt
-  # per candidate row in the builder's scope, vs the old single indexed JSONB query. ACCEPTABLE at the
-  # pilot's volume (a handful of staff, synthetic data, low hundreds of rows). It will NOT scale to the
-  # real-data host: a custom-form search there should move to a queryable design (a deterministic
-  # blind-index sidecar per searchable field, or a decrypted materialized search table refreshed out of
-  # band). Do NOT ship this rewrite to production volume without that follow-up.
-  # Ledgered 2026-07-26 as POAM-024 (docs/compliance/vulnerability-poam.md) — a pre-real-data gate.
+  # PERFORMANCE — POAM-024 CLOSED (2026-07-28, PRs A1–A4): the O(n)-decrypt above is no longer the
+  # serving path. #apply (below) serves searches from the DETERMINISTIC SEARCH-ENTRY SIDECAR
+  # (PropertiesSearchEntry + PropertiesSearchable): the equality family is indexed SQL; the residual
+  # operators run this file's oracle-verified #match? over a presence-prefiltered candidate superset.
+  # The legacy full-decrypt path survives one release behind TIER5_SIDECAR_SEARCH=off (kill switch).
   #
   # SEMANTICS REPRODUCED (1:1 with the old SQL — VERIFIED against a live Postgres oracle in caselight-app-1):
   #   * equal/not_equal  <- `properties -> 'f' ? 'v'` (jsonb `?` = string-key/element membership):
@@ -70,12 +68,11 @@ module AdvancedSearches
     end
 
     # ------------------------------------------------------------------------------------------------
-    # POAM-024 (PR A3) — the sidecar read path. Takes the builder's RELATION and returns a RELATION
-    # (same scope narrowed to matching rows), so the builders keep their joins and project client ids
-    # with a pluck instead of instantiating records. Mode comes from config.x.tier5_sidecar_search
-    # (config/initializers/tier5_sidecar_search.rb): off = legacy only; shadow (default) = serve
-    # legacy, compare against the sidecar and log a VALUES-FREE tier5_sidecar_shadow AccessLog event
-    # on divergence; on = sidecar-served.
+    # POAM-024 (A3, cut over in A4) — the sidecar read path. Takes the builder's RELATION and returns
+    # a RELATION (same scope narrowed to matching rows), so the builders keep their joins and project
+    # client ids with a pluck instead of instantiating records. Mode comes from
+    # config.x.tier5_sidecar_search (config/initializers/tier5_sidecar_search.rb): on (default) =
+    # sidecar-served; off = the legacy O(n)-decrypt path (one-release kill switch).
     #
     # Operator strategy (matches the ledger design):
     #   * equality family (equal / not_equal / is_empty / is_not_empty) -> pure indexed SQL against
@@ -97,17 +94,13 @@ module AdvancedSearches
     EQUALITY_OPERATORS = %w[equal not_equal is_empty is_not_empty].freeze
 
     def apply(relation)
-      case sidecar_mode
-      when :on     then sidecar_apply(relation)
-      when :shadow then shadow_apply(relation)
-      else              legacy_apply(relation)
-      end
+      sidecar_mode == :off ? legacy_apply(relation) : sidecar_apply(relation)
     end
 
     private
 
     def sidecar_mode
-      Rails.application.config.x.tier5_sidecar_search || :shadow
+      Rails.application.config.x.tier5_sidecar_search || :on
     end
 
     def legacy_apply(relation)
@@ -122,32 +115,10 @@ module AdvancedSearches
       end
     end
 
-    # Serve legacy, race the sidecar, log divergence. SELF-RESCUING: a sidecar failure must never
-    # break search while shadowing (AuthorizationShadow contract) — it logs and falls through.
-    def shadow_apply(relation)
-      legacy_ids = select(relation).map(&:id)
-      begin
-        sidecar_ids = sidecar_apply(relation).pluck(:id)
-        if legacy_ids.to_set != sidecar_ids.to_set
-          AccessLog.system_event!(
-            event_type: 'tier5_sidecar_shadow',
-            metadata:   {
-              # VALUES-FREE by design: model / operator / type / counts. Never the field label,
-              # never the probed value, never matched ids.
-              owner_model:   relation.klass.name,
-              operator:      @operator,
-              field_type:    @type,
-              legacy_count:  legacy_ids.size,
-              sidecar_count: sidecar_ids.size,
-              diff_count:    (legacy_ids.to_set ^ sidecar_ids.to_set).size
-            }
-          )
-        end
-      rescue => e
-        Rails.logger.warn("[tier5_sidecar_shadow] comparison failed: #{e.class}: #{e.message}")
-      end
-      relation.where(id: legacy_ids)
-    end
+    # (A4 cutover: the A3 shadow_apply comparison arm — serve legacy, race the sidecar, log a
+    # values-free tier5_sidecar_shadow AccessLog event on divergence — retired after the
+    # zero-divergence soak. Its event_type remains documented in access_log.rb for the
+    # historical Mongo rows.)
 
     def entry_class_for(relation)
       relation.klass.properties_search_entry_class
