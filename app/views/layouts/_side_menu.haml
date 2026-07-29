@@ -119,6 +119,13 @@
               - if can? :read, ReferralSource
                 %li{ class: active_menu('referral_sources') }
                   = link_to t('.referral_sources'), referral_sources_path
+        -# Investor UX round (2026-07): the Reports landing page — admin + strategic overviewer
+        -# (can? :index, :report mirrors ReportsController's authorize_resource class: false).
+        - if can? :index, :report
+          %li{ class: active_menu('reports') }
+            = link_to reports_path do
+              = fa_icon('bar-chart', 'aria-hidden': true)
+              %span.nav-label= t('.reports')
         - if can? :read, DataTracker
           %li{ class: active_menu('data_trackers') }
             = link_to data_trackers_path do
