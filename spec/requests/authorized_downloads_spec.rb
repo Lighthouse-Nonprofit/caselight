@@ -353,4 +353,80 @@ RSpec.describe 'Authorized upload downloads', type: :request do
       expect(response).not_to have_http_status(:forbidden)
     end
   end
+
+  # POAM-019 (PR B3) — verified-PDF inline viewing. `?disposition=inline` is a serving-mode HINT:
+  # honored only for a file with an allowlisted .pdf extension AND %PDF- magic bytes, always with
+  # a `Content-Security-Policy: sandbox` response header; everything else silently keeps the
+  # Phase-6 attachment discipline. Authorization/sensitivity behave IDENTICALLY on this path.
+  describe 'verified-PDF inline viewing (?disposition=inline)' do
+    let!(:client) { create(:client) }
+    let!(:cf) do
+      create(:custom_field, entity_type: 'Client', form_title: 'Inline View Form',
+             fields: [{ 'type' => 'file', 'label' => 'Document', 'name' => 'file-1' }])
+    end
+    let!(:cfp) do
+      create(:custom_field_property, custom_field: cf, custom_formable: client,
+             attachments: [uploaded_fixture])
+    end
+
+    def inline_path(record = cfp, index = 0)
+      authorized_download_path('custom_field_property', record.id, 'attachments', index,
+                               disposition: 'inline')
+    end
+
+    it 'serves a REAL pdf inline, typed application/pdf, with the sandbox CSP' do
+      sign_in_as(admin)
+      get inline_path
+      expect(response).to have_http_status(:ok)
+      expect(response.headers['Content-Disposition']).to include('inline')
+      expect(response.headers['Content-Type']).to eq('application/pdf')
+      expect(response.headers['Content-Security-Policy']).to eq('sandbox')
+      expect(response.body).to eq(fixture_bytes)
+    end
+
+    it 'without the param the serve is unchanged: attachment, no sandbox header' do
+      sign_in_as(admin)
+      get authorized_download_path('custom_field_property', cfp.id, 'attachments', 0)
+      expect(response.headers['Content-Disposition']).to include('attachment')
+      expect(response.headers['Content-Security-Policy']).not_to eq('sandbox')
+    end
+
+    it 'a renamed non-PDF (magic-byte mismatch) is NOT served inline — falls back to attachment' do
+      fake = Tempfile.new(['not_really', '.pdf'])
+      begin
+        fake.binmode
+        fake.write(image_bytes) # PNG bytes wearing a .pdf name
+        fake.flush
+        impostor = create(:custom_field_property, custom_field: cf, custom_formable: client,
+                          attachments: [Rack::Test::UploadedFile.new(fake.path, 'application/pdf')])
+
+        sign_in_as(admin)
+        get inline_path(impostor)
+        expect(response).to have_http_status(:ok)
+        expect(response.headers['Content-Disposition']).to include('attachment')
+        expect(response.headers['Content-Security-Policy']).not_to eq('sandbox')
+      ensure
+        fake.close!
+      end
+    end
+
+    it 'the sensitivity gate denies EXACTLY as on the download path (inline is not an access mode)' do
+      worker = create(:user, roles: 'case worker')
+      client.users << worker
+      cf.update_columns(sensitivity: 'emergency_only')
+
+      sign_in_as(worker)
+      get inline_path
+      expect(response).to have_http_status(:forbidden)
+      expect(response.body).not_to eq(fixture_bytes)
+    end
+
+    it 'record authorization denies exactly as on the download path' do
+      outsider = create(:user, roles: 'case worker')
+      sign_in_as(outsider)
+      get inline_path
+      expect(response).not_to have_http_status(:ok)
+      expect(response.body).not_to eq(fixture_bytes)
+    end
+  end
 end
