@@ -10,17 +10,13 @@
     .client-hub__who
       %h1.client-hub__name= family.name.presence || family.code.presence || t('families.family_header.unnamed', default: 'Household')
       %span.client-hub__status= cl_badge(family_type_label(family.family_type), family.inactive? ? :secondary : :primary)
+      -# Investor UX round (2026-07): the "#code" record number left the display (still the h1
+      -# fallback for unnamed households, still searchable via the drawer filter).
+      - meta_items = [content_tag(:span, t('families.family_header.members', default: '%{count} member(s)', count: family.member_count.to_i))]
+      - meta_items << content_tag(:span, family.province.name) if family.province.present?
+      - meta_items << content_tag(:span, "#{t('families.family_header.since', default: 'Since')} #{date_format(family.contract_date)}") if family.contract_date.present?
       %p.client-hub__meta
-        - if family.code.present?
-          %span.client-hub__slug= "##{family.code}"
-        %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
-        %span= t('families.family_header.members', default: '%{count} member(s)', count: family.member_count.to_i)
-        - if family.province.present?
-          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
-          %span= family.province.name
-        - if family.contract_date.present?
-          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
-          %span= "#{t('families.family_header.since', default: 'Since')} #{date_format(family.contract_date)}"
+        = safe_join(meta_items, content_tag(:span, ' · ', class: 'client-hub__sep', 'aria-hidden' => 'true'))
     .client-hub__actions
       - if (can? :manage, Family) || (can? :manage, CustomFieldProperty)
         .dropdown.client-hub__edit
