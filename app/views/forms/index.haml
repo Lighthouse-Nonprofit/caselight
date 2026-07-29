@@ -1,7 +1,7 @@
--# UX round 3 (A1) — the Forms partition page, Programs-page layout: a filled-forms table
--# (Form | Entries | Latest entry | Actions) with the break-glass locked rows folded in,
--# then the available-to-add forms. "View entries" -> custom_field_properties#index (the
--# dated-entries / "trackings" page). Polymorphic; the family header branch lands with B1.
+-# UX round 3 (A1) — the Forms partition page. Investor UX round (2026-07): the form NAME is
+-# now the entries link ("View entries" button retired) and the available-forms table became
+-# an "Add new form" picker in the toolbar. Break-glass locked rows unchanged. Polymorphic
+-# (Client + Family — one view serves both hubs).
 .row
   .col-12
     - if @custom_formable.is_a?(Client)
@@ -13,11 +13,22 @@
       .ibox-title
         %h5= t('.filled_forms', default: 'Forms')
         .ibox-tools
+          - if can? :manage, CustomFieldProperty
+            .dropdown.d-inline-block.forms-add
+              - if @available_forms.any?
+                %button.btn.btn-primary.btn-xs.dropdown-toggle{ type: 'button', 'data-bs-toggle' => 'dropdown', 'aria-expanded' => 'false' }
+                  = t('.add_new_form', default: 'Add new form')
+                %ul.dropdown-menu.dropdown-menu-end.forms-add__menu
+                  - @available_forms.each do |custom_field|
+                    %li= link_to custom_field.form_title, new_polymorphic_path([@custom_formable, CustomFieldProperty], custom_field_id: custom_field), class: 'dropdown-item'
+              - else
+                %button.btn.btn-primary.btn-xs{ type: 'button', disabled: true, title: t('.no_available_forms', default: 'Every available form has been started.') }
+                  = t('.add_new_form', default: 'Add new form')
           = render 'shared/ibox_collapse_link', collapsed: filled_empty
       .ibox-content
         - if @grouped_forms.any? || @breakglass_forms.any?
           .table-responsive
-            %table.table.table-bordered.table-striped.table-hover.forms-table
+            %table.table.cl-record-table.forms-table
               %thead
                 %tr
                   %th= t('.form', default: 'Form')
@@ -27,12 +38,10 @@
               %tbody
                 - @grouped_forms.each do |custom_field_id, props|
                   %tr
-                    %td= props.first.custom_field.form_title
+                    %td= link_to props.first.custom_field.form_title, polymorphic_path([@custom_formable, CustomFieldProperty], custom_field_id: custom_field_id), class: 'forms-table__name-link'
                     %td= props.size
                     %td= date_format(props.map(&:created_at).max)
                     %td
-                      = link_to polymorphic_path([@custom_formable, CustomFieldProperty], custom_field_id: custom_field_id) do
-                        .btn.btn-primary.btn-xs.btn-width= t('.view_entries', default: 'View entries')
                       - if can? :manage, CustomFieldProperty
                         = link_to new_polymorphic_path([@custom_formable, CustomFieldProperty], custom_field_id: custom_field_id) do
                           .btn.btn-outline.btn-success.btn-xs.btn-width= t('.add_entry', default: 'Add entry')
@@ -49,28 +58,5 @@
                         = t('.unlock', default: 'Request access')
         - else
           %p.text-muted= t('.no_forms', default: 'No forms filled yet.')
-    - if can? :manage, CustomFieldProperty
-      %div{ class: ibox_classes(collapsed: @available_forms.empty?) }
-        .ibox-title
-          %h5= t('.available_forms', default: 'Available forms')
-          .ibox-tools
-            = render 'shared/ibox_collapse_link', collapsed: @available_forms.empty?
-        .ibox-content
-          - if @available_forms.any?
-            .table-responsive
-              %table.table.table-bordered.table-striped.table-hover
-                %thead
-                  %tr
-                    %th= t('.form', default: 'Form')
-                    %th= t('.actions', default: 'Actions')
-                %tbody
-                  - @available_forms.each do |custom_field|
-                    %tr
-                      %td= custom_field.form_title
-                      %td
-                        = link_to new_polymorphic_path([@custom_formable, CustomFieldProperty], custom_field_id: custom_field) do
-                          .btn.btn-primary.btn-xs.btn-width= t('.add_form', default: 'Add form')
-          - else
-            %p.text-muted= t('.no_available_forms', default: 'Every available form has been started.')
 - @breakglass_forms.each do |custom_field|
   = render 'shared/break_glass_modal', formable: @custom_formable, custom_field: custom_field

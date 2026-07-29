@@ -103,3 +103,10 @@ body[id="clients-show"] {
     text-decoration: underline;
   }
 }
+
+// --- Forms tab "Add new form" picker (investor UX round, 2026-07): long form catalogs scroll
+// inside the menu instead of running off-screen.
+.forms-add__menu {
+  max-height: 320px;
+  overflow-y: auto;
+}

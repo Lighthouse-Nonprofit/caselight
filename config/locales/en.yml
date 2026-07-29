@@ -2269,10 +2269,8 @@ en:
       entries: Entries
       latest_entry: Latest entry
       actions: Actions
-      view_entries: View entries
       add_entry: Add entry
-      available_forms: Available forms
-      add_form: Add form
+      add_new_form: Add new form
       no_forms: No forms filled yet.
       no_available_forms: Every available form has been started.
       locked: "—"
