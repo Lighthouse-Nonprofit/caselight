@@ -1,4 +1,5 @@
-body[id='clients-index'],
+// D1: the clients-index scope is gone — that page renders the in-house .record-grid
+// (clients/_grid.scss), not a datagrid table, so these rules had nothing to match there.
 body[id='families-show'],
 body[id='users-show'],
 body[id='client_advanced_searches-index'] {
