@@ -4,6 +4,7 @@
 # Polymorphic like CustomFieldPropertiesController: clients now, families when their hub lands.
 class FormsController < AdminController
   include SensitiveFields # Phase 5.3/5.4 — visible form set + break-glass candidates
+  include GroupedCustomForms # investor UX round: grouping shared with clients#show
 
   before_action :find_entity
 
@@ -13,12 +14,7 @@ class FormsController < AdminController
     authorize! :read, @custom_formable
     filled_ids = @custom_formable.custom_field_properties.pluck(:custom_field_id)
     visible    = visible_custom_field_ids_for(@custom_formable) # record-aware (break-glass folds in)
-    @grouped_forms = @custom_formable.custom_field_properties
-                                     .includes(:custom_field)
-                                     .where(custom_field_id: visible.to_a)
-                                     .group_by(&:custom_field_id)
-                                     .sort_by { |_, props| props.first.custom_field.form_title.to_s }
-                                     .to_h
+    @grouped_forms = grouped_visible_forms(@custom_formable, visible)
     @available_forms  = CustomField.public_send(form_scope)
                                    .not_used_forms(filled_ids)
                                    .where(id: visible.to_a)

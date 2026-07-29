@@ -1,0 +1,26 @@
+-# Investor UX round (2026-07) — "Show additional forms as collapsible sections": each filled
+-# custom form renders on the Overview as a PRE-COLLAPSED ibox (the shared chevron pattern);
+-# the newest 3 entries render as info grids, everything older lives behind "View all entries"
+-# (custom_field_properties#index — the audited, break-glass-gated surface).
+-# SENSITIVITY: @overview_grouped_forms is built from the RECORD-LESS visible set, so
+-# emergency/break-glass forms never render inline here.
+- (@overview_grouped_forms || {}).each do |custom_field_id, props|
+  - form = props.first.custom_field
+  .row
+    .col-12
+      %div{ class: ibox_classes(collapsed: true, extra: 'overview-form-section') }
+        .ibox-title
+          %h5= form.form_title
+          %span.badge.text-bg-info= t('clients.custom_form_sections.entries', count: props.size, default: { one: '1 entry', other: '%{count} entries' })
+          .ibox-tools
+            - if can? :manage, CustomFieldProperty
+              = link_to new_client_custom_field_property_path(@client, custom_field_id: custom_field_id) do
+                .btn.btn-outline.btn-success.btn-xs= t('clients.custom_form_sections.add_entry', default: 'Add entry')
+            = link_to client_custom_field_properties_path(@client, custom_field_id: custom_field_id) do
+              .btn.btn-outline.btn-primary.btn-xs= t('clients.custom_form_sections.view_all', default: 'View all entries')
+            = render 'shared/ibox_collapse_link', collapsed: true
+        .ibox-content
+          - props.sort_by(&:created_at).reverse.first(3).each do |prop|
+            .overview-form-section__entry
+              %h6.text-muted= date_format(prop.created_at)
+              = render 'shared/info_grid', items: custom_field_info_items(form.fields, prop), variant: 'info-grid--natural-case'
