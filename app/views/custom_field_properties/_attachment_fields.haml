@@ -8,7 +8,7 @@
               %td.image-title.vert-align
                 = original_filename(attachment)
               %td.vert-align
-                = link_to preview_or_download(attachment), authorized_download_path('custom_field_property', @custom_field_property.id, 'attachments', index), class: 'btn btn-info btn-sm btn-download'
+                = link_to preview_or_download(attachment), authorized_download_path('custom_field_property', @custom_field_property.id, 'attachments', index, **inline_view_params(attachment)), class: 'btn btn-info btn-sm btn-download', target: target_blank(attachment), rel: noopener_for(attachment)
               %td.vert-align.text-center
                 .delete.fa.fa-trash.btn.btn-outline.btn-danger{ data: { url: (polymorphic_path([@custom_formable, @custom_field_property], custom_field_id: @custom_field, file_index: index)), comfirm: t('.are_you_sure') }}
 

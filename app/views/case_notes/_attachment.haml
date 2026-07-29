@@ -4,4 +4,4 @@
       %tr
         %td= original_filename(attachment)
         %td.text-center
-          = link_to preview_or_download(attachment), authorized_download_path('case_note_domain_group', cdg.id, 'attachments', index), class: 'btn btn-info btn-sm btn-download', target: target_blank(attachment)
+          = link_to preview_or_download(attachment), authorized_download_path('case_note_domain_group', cdg.id, 'attachments', index, **inline_view_params(attachment)), class: 'btn btn-info btn-sm btn-download', target: target_blank(attachment), rel: noopener_for(attachment)

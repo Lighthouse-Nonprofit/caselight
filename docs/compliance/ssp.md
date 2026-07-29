@@ -42,7 +42,7 @@ cache, and job queue are not exposed to the network.
 | Node | 24 LTS (build-time) | Terser JS compression / asset precompilation |
 | Asset pipeline | Sprockets 4.2 + dart-sass (dartsass-rails 0.5) + ES2015+ JS, haml 7.2 (POAM-017e **closed**, R6/R9–R11) | SCSS/JS compilation |
 | Browser UI | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g **closed** 2026-07-13; INSPINIA removed — see `poam-017g-verification.md`), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 6.7.2 (v4 shims) | UI (whole POAM-017 family closed a–g; eval libraries replaced R12A/B; **enforced nonce-based CSP — POAM-017f closed**) |
-| PDF engine | wkhtmltopdf 0.12.6.1-3 (official bookworm build, sha256-pinned in the Dockerfile) | Government-report PDF download (upstream sunset tracked, POAM-019) |
+| PDF engine | Chromium (distro package, baked in the image) driven by Ferrum — `PdfRenderer` | Warm render surface for per-flavor reporting; verified-PDF inline upload viewing (POAM-019 closed 2026-07-28: wkhtmltopdf/Qt-WebKit removed with the unrouted government-reports feature) |
 | App server | puma 8 (threaded; config/puma.rb), behind Dockerized Caddy (`proxy` profile) | HTTP (replaced the sparsely-maintained thin, 2026-07) |
 
 The CI service containers (`postgres:17`, `mongo:8.0`, `redis:7`) match this set. Auth is Devise

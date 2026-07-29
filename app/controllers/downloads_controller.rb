@@ -75,10 +75,20 @@ class DownloadsController < AdminController
     uploads_root = File.expand_path(Rails.root.join('public', 'uploads'))
     return not_found! unless path.start_with?(uploads_root + File::SEPARATOR)
 
+    # POAM-019 (PR B3) — verified-PDF inline viewing. `?disposition=inline` is honored ONLY when
+    # the stored file PROVES it is a PDF (allowlisted .pdf extension AND %PDF- magic bytes);
+    # anything else silently keeps the Phase-6 attachment discipline (a served-inline upload is
+    # an XSS surface — PDF in a browser-native viewer is the one carve-out, and the response
+    # carries `Content-Security-Policy: sandbox` so any active content the viewer honors runs in
+    # a fully sandboxed, origin-less browsing context). Authorization and the sensitivity gates
+    # above run IDENTICALLY on this path — inline is a serving mode, never an access mode.
+    inline_pdf = params[:disposition] == 'inline' && verified_pdf?(path)
+    response.headers['Content-Security-Policy'] = 'sandbox' if inline_pdf
+
     send_file path,
               filename: File.basename(path),
-              disposition: mount_config[:inline] ? 'inline' : 'attachment',
-              type: uploader.content_type.presence || 'application/octet-stream'
+              disposition: (mount_config[:inline] || inline_pdf) ? 'inline' : 'attachment',
+              type: inline_pdf ? 'application/pdf' : (uploader.content_type.presence || 'application/octet-stream')
   rescue StandardError => e
     Rails.logger.error("[downloads#show] failing closed: #{e.class}: #{e.message}")
     render template: 'errors/403', status: :forbidden, layout: false
@@ -175,5 +185,15 @@ class DownloadsController < AdminController
 
   def not_found!
     render plain: 'Not found', status: :not_found, layout: false
+  end
+
+  # POAM-019 (PR B3): a file may serve inline ONLY when it proves it is a PDF — allowlisted
+  # extension AND leading %PDF- magic bytes (a renamed non-PDF fails the sniff and stays an
+  # attachment download). Any read error fails closed to attachment.
+  def verified_pdf?(path)
+    File.extname(path).casecmp('.pdf').zero? &&
+      File.open(path, 'rb') { |f| f.read(5) } == '%PDF-'
+  rescue StandardError
+    false
   end
 end
