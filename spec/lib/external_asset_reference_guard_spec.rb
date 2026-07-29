@@ -6,8 +6,8 @@ require 'rails_helper'
 # fonts.googleapis.com), the 404/500 pages dropped their maxcdn bootstrap <link>, and the
 # infinite-scroll spinner left imgur. The enforced CSP (12C) pins every fetch directive to
 # 'self', so ANY external asset reference that creeps back in would be a broken resource.
-# POAM-017g P3 removed the last exemption: layouts/pdf_design now INLINES its self-hosted
-# BS 3.3.6 print stylesheet (public/pdf/), so even the wkhtmltopdf render is network-free.
+# (The pdf_design/wkhtmltopdf exemption story ended in PR B1 — the whole PDF layout +
+# public/pdf vendored stylesheet were removed with the government-reports feature.)
 RSpec.describe 'external asset reference guard (POAM-017f)' do
   ROOT = Rails.root
   EXTERNAL = /fonts\.googleapis|fonts\.gstatic|maxcdn\.bootstrapcdn|cdnjs\.cloudflare|imgur\.com/
@@ -30,19 +30,11 @@ RSpec.describe 'external asset reference guard (POAM-017f)' do
     expect(offenders).to be_empty, "external asset references found: #{offenders.join(', ')}"
   end
 
-  it 'has no external asset references in ANY view (pdf_design self-hosts since P3)' do
+  it 'has no external asset references in ANY view' do
     offenders = Dir.glob(ROOT.join('app', 'views', '**', '*.haml')).select do |f|
       File.read(f, encoding: 'UTF-8').lines.any? { |l| l.sub(/-#.*$/, '').match?(EXTERNAL) }
     end
     expect(offenders).to be_empty, "external asset references found: #{offenders.join(', ')}"
-  end
-
-  it 'ships the inlined BS 3.3.6 print stylesheet the pdf layout reads' do
-    css = ROOT.join('public/pdf/bootstrap-3.3.6.min.css')
-    expect(File.exist?(css)).to be(true), 'missing public/pdf/bootstrap-3.3.6.min.css'
-    expect(File.size(css)).to be > 100_000
-    expect(File.read(ROOT.join('app/views/layouts/pdf_design.html.haml')))
-      .to include("Rails.root.join('public/pdf/bootstrap-3.3.6.min.css').read")
   end
 
   it 'ships the self-hosted font faces the stylesheet points at (Open Sans + Manrope)' do

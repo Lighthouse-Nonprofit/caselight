@@ -120,9 +120,9 @@ gem 'kaminari', '~> 1.1'
 # by the vendored 1.13.11 (R5, jQuery-3 floor), and the gem's sass-rails dependency would pin
 # `sprockets < 4.0` in the lock even after the compiler swap.
 gem 'friendly_id',            '~> 5.7.0'
-gem 'wicked_pdf',             '~> 2.8'  # was ~> 1.0 (PR #17); render API unchanged 1->2. The wkhtmltopdf
-# binary comes from the official bookworm .deb installed in the Dockerfile — the wkhtmltopdf-binary-edge
-# gem's bundled binary needs libjpeg.so.8/OpenSSL 1.1, which Debian Trixie no longer ships (POAM-019).
+# wicked_pdf + the wkhtmltox .deb were REMOVED with the unrouted Cambodia government-reports
+# feature (POAM-019 closeout, PR B1) — the archived Qt-WebKit engine is off the box entirely.
+# PDF generation now rides the Chromium/Ferrum PdfRenderer surface (PR B2).
 gem 'browser',                '~> 6.2'  # was ~> 2.1 (PR #25); firefox?/platform.mac? unchanged, vestigial modern? spec-stub removed
 gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'

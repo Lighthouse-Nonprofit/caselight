@@ -17,20 +17,9 @@ RUN apt-get update \
 RUN curl -fsSL https://nodejs.org/dist/v24.18.0/node-v24.18.0-linux-x64.tar.xz \
       | tar -xJ -C /usr/local --strip-components=1
 
-# wkhtmltopdf for wicked_pdf (the government-report PDF download). The
-# wkhtmltopdf-binary-edge gem's bundled binary links libjpeg.so.8 and OpenSSL 1.1,
-# neither of which exists on Debian Trixie — PDF generation was silently broken in
-# every image built on this base (found at the R11 haml gate). The official bookworm
-# build links libjpeg62-turbo/libssl3, both provided on Trixie; upstream ships no
-# trixie build and the project is in maintenance sunset (tracked as POAM-019).
-# amd64-only, matching the EC2 box and dev targets. Installs to /usr/local/bin.
-RUN curl -fsSLo /tmp/wkhtmltox.deb \
-      https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb \
- && echo "98ba0d157b50d36f23bd0dedf4c0aa28c7b0c50fcdcdc54aa5b6bbba81a3941d  /tmp/wkhtmltox.deb" | sha256sum -c - \
- && apt-get update \
- && apt-get install -y --no-install-recommends /tmp/wkhtmltox.deb \
- && rm -f /tmp/wkhtmltox.deb \
- && rm -rf /var/lib/apt/lists/*
+# (The wkhtmltox .deb that lived here was REMOVED with wicked_pdf and the unrouted
+# government-reports feature — POAM-019 closeout, PR B1. The archived Qt-WebKit engine is
+# gone; the Chromium/Ferrum PdfRenderer surface (PR B2) is the PDF path now.)
 
 WORKDIR /app
 

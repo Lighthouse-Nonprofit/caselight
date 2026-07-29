@@ -8,7 +8,6 @@ describe Client, 'associations' do
   it { is_expected.to belong_to(:donor) }
 
   # Client ask to hide #147254199
-  # it { is_expected.to have_one(:government_report).dependent(:destroy) }
   # it { is_expected.to have_many(:surveys).dependent(:destroy) }
 
   it { is_expected.to have_many(:cases).dependent(:destroy) }

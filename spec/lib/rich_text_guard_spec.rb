@@ -31,13 +31,8 @@ RSpec.describe 'Rich-text / html-safety regression guard (Unit 7)' do
     # OTHER file can borrow the empty-literal idiom to smuggle .html_safe past the guard.
     ['app/helpers/rich_text_helper.rb', :html_safe,
      'render_rich_text returns "".html_safe for blank input — empty string LITERAL, no data.'],
-    # (a) .html_safe on the VENDORED print stylesheet the PDF layout inlines (POAM-017g P3).
-    # The read target is a repo-committed, sha384-verified static file under public/pdf/ —
-    # developer-controlled bytes, no model/user data on the line — and inlining is what makes
-    # the wkhtmltopdf render network-free. Pattern-anchored (VENDORED_PDF_CSS_HTML_SAFE): only
-    # a Rails.root.join('public/pdf/...').read chain qualifies, and only in this file.
-    ['app/views/layouts/pdf_design.html.haml', :html_safe,
-     'inlines the sha384-verified vendored BS 3.3.6 print stylesheet — static repo file, PDF render must be network-free.'],
+    # (the pdf_design.html.haml VENDORED-print-stylesheet entry that lived here was removed
+    # with the wkhtmltopdf/government-reports stack — POAM-019 closeout, PR B1)
     # (c) raw() in views — two legitimate, un-sanitizable classes:
     ['app/views/two_factor_settings/show.html.haml', :raw_in_view,
      'raw @qr_svg — server-generated 2FA QR SVG (RQRCode output); sanitize would strip the SVG.'],
