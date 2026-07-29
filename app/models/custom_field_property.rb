@@ -27,6 +27,11 @@ class CustomFieldProperty < ActiveRecord::Base
   attribute :properties, :json
   encrypts  :properties
 
+  # POAM-024 — deterministic search-entry sidecar (CustomFieldPropertySearchEntry, one row per
+  # field-label/value element) kept in lock-step by after_save diff-sync, so custom-form search can be
+  # indexed SQL instead of the O(n)-decrypt flagged in AdvancedSearches::PropertiesFilter.
+  include PropertiesSearchable
+
   scope :by_custom_field, -> (value) { where(custom_field:  value) }
   scope :most_recents,    ->         { order('created_at desc') }
 
