@@ -107,17 +107,10 @@ body[id='client_advanced_searches-index'] {
     }
   }
 
-  table.clients, .dataTables_scrollHeadInner, .dataTables_scrollHead, .dataTables_scrollBody {
+  table.clients {
     width: 100% !important;
   }
-
-  .dataTables_scrollHeadInner{
-    padding-right: 0 !important;
-  }
-
-  .dataTables_scrollBody {
-    max-height: 500px !important;
-  }
+  // (D2: the .dataTables_scroll* rules left with the plugin — .cl-table-scroll owns the scroll box.)
 
   .popover.fade.top.in {
     max-width: 271px;
@@ -126,10 +119,6 @@ body[id='client_advanced_searches-index'] {
   .btn-assessment {
     min-width: 100px;
     margin-bottom: 3px;
-  }
-
-  .dataTables_info {
-    padding-top: 15px;
   }
 
   .client-option {

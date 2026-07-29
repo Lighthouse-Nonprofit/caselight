@@ -20,9 +20,7 @@ body[id='partners-index'] {
   .date_filter {
     padding: 6px;
   }
-  .dataTables_scrollBody {
-    max-height: 500px !important;
-  }
+  // (D2: the .dataTables_scrollBody rule left with the plugin — .cl-table-scroll owns the scroll box.)
 
   table.partners tbody tr:hover {
     cursor: pointer;

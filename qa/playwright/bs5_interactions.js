@@ -181,16 +181,25 @@ const block = async (name, fn) => {
     }
   });
 
-  // 9. DataTable INITIALIZES on table.users (sorting is deliberately server-side datagrid —
-  // not asserted). The BS5-relevant signal is init + styling wiring, not sort behavior.
-  await block('datatable init (/admin/users)', async () => {
+  // 9. D2: jquery.dataTables is GONE — the users grid now scrolls natively inside
+  // .cl-table-scroll with a position:sticky thead (CIF.RecordTable). Assert the NEW
+  // contract: wrapper class applied, sticky header computed, rows present, and no
+  // dataTables artifact anywhere.
+  await block('native table scroll (/admin/users)', async () => {
     await goto('/admin/users');
-    const r = await page.evaluate(() => ({
-      init: !!document.querySelector('table.dataTable, .dataTables_wrapper'),
-      rows: document.querySelectorAll('table.users tbody tr, table.dataTable tbody tr').length,
-    }));
-    if (!r.init) throw new Error('DataTable did not initialize on table.users');
+    const r = await page.evaluate(() => {
+      const th = document.querySelector('.cl-table-scroll table thead th, .cl-table-scroll > table thead th');
+      return {
+        wrapper: !!document.querySelector('.users-table.cl-table-scroll'),
+        sticky: th ? getComputedStyle(th).position : 'missing',
+        rows: document.querySelectorAll('table.users tbody tr').length,
+        dtArtifact: !!document.querySelector('table.dataTable, .dataTables_wrapper, .dataTables_scrollBody'),
+      };
+    });
+    if (!r.wrapper) throw new Error('.users-table did not get .cl-table-scroll');
+    if (r.sticky !== 'sticky') throw new Error('users thead th is not position:sticky (got ' + r.sticky + ')');
     if (r.rows === 0) throw new Error('no rows in the users table');
+    if (r.dtArtifact) throw new Error('a dataTables artifact survived the D2 removal');
   });
 
   // 10. Wizard INITIALIZES (jquery.steps on assessments — P6 probe; clients/new has no

@@ -60,3 +60,24 @@
     border-color: $refresh-border;
   }
 }
+
+// ---------------------------------------------------------------------------
+//  .cl-table-scroll — the native replacement for jquery.dataTables' cosmetic
+//  fixed-header/x-scroll wrapper (D2). Applied by CIF.RecordTable (and the two
+//  surviving jQuery call sites) to the datagrid table wrappers: both-axis
+//  native overflow + a sticky header, exactly the .record-grid pattern the
+//  clients/families indexes already ship. No plugins, no cloned header table.
+// ---------------------------------------------------------------------------
+.cl-table-scroll {
+  max-height: calc(100vh - 220px); // ~ the old sScrollY:500 intent, viewport-aware
+  overflow: auto;
+
+  > table thead th,
+  table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #f6f8fa; // matches the bordered-thead tint above
+    background-clip: padding-box;
+  }
+}

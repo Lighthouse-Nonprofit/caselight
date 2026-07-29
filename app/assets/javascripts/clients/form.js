@@ -119,16 +119,11 @@ CIF.ClientsNew =
         }
       };
 
+      // D2: was a feature-disabled jquery.dataTables init (fixed header + scroll only) —
+      // the native .cl-table-scroll container (sticky thead, caselight_theme/_tables.scss)
+      // provides both without the plugin.
       var _fixedHeaderStageQuestion = () =>
-        $('#stage-question table.client-new').dataTable({
-          sScrollY: '500px',
-          sScrollX: '100%',
-          bPaginate: false,
-          bFilter: false,
-          bInfo: false,
-          bSort: false,
-          bAutoWidth: true,
-        });
+        $('#stage-question').addClass('cl-table-scroll');
 
       const _arrangeQuestionAndAnswerBlock = function () {
         const questionsAndAnswers = $('.question_and_answer');
@@ -207,22 +202,8 @@ CIF.ClientsNew =
         })();
       };
 
-      window.onload = function () {
-        const ua = navigator.userAgent;
-        if (
-          !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(
-            ua,
-          )
-        ) {
-          return $(
-            '#stage-question.table-responsive, #stage-question .dataTables_scrollBody',
-          ).niceScroll({
-            scrollspeed: 30,
-            cursorwidth: 10,
-            cursoropacitymax: 0.4,
-          });
-        }
-      };
+      // (D2: the window.onload niceScroll block that lived here left with the plugin —
+      // .cl-table-scroll's native overflow scrolls #stage-question on every device.)
 
       return { init: _init };
     })();

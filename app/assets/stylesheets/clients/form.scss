@@ -73,7 +73,9 @@ body[id='clients-edit'], body[id='clients-update']{
     }
   }
 
-  .dataTables_scrollHeadInner, .table.client-new.dataTable {
+  // (D2: the .dataTables_* width rule left with the plugin; #stage-question is a
+  // .cl-table-scroll container now.)
+  .table.client-new {
     width: 100% !important;
   }
 }
