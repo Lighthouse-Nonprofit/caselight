@@ -26,16 +26,17 @@ module AdvancedSearches
 
     def get_sql
       sql_string = 'clients.id IN (?)'
+      # POAM-024 (A3): includes() dropped (nothing instantiates the association now); client_id is
+      # plucked through the join.
       leave_programs = LeaveProgram
                        .joins(:client_enrollment)
-                       .includes(:client_enrollment)
                        .where(program_stream_id: @program_stream_id)
 
       matched = AdvancedSearches::PropertiesFilter
                 .new(field: @field, operator: @operator, value: @value, type: nil) # nil => always TEXT compare
-                .select(leave_programs)
+                .apply(leave_programs)
 
-      client_ids = matched.map { |lp| lp.client_enrollment&.client_id }.compact.uniq
+      client_ids = matched.pluck('client_enrollments.client_id').compact.uniq
       { id: sql_string, values: client_ids }
     end
   end

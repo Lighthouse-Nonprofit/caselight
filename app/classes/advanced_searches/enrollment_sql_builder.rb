@@ -19,11 +19,12 @@ module AdvancedSearches
       sql_string = 'clients.id IN (?)'
       client_enrollments = ClientEnrollment.where(program_stream_id: @program_stream_id)
 
+      # POAM-024 (A3): #apply returns the scope narrowed to matches; project with pluck.
       matched = AdvancedSearches::PropertiesFilter
                 .new(field: @field, operator: @operator, value: @value, type: @type)
-                .select(client_enrollments)
+                .apply(client_enrollments)
 
-      client_ids = matched.map(&:client_id).uniq
+      client_ids = matched.pluck(:client_id).uniq
       { id: sql_string, values: client_ids }
     end
   end

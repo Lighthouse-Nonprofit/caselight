@@ -28,11 +28,13 @@ module AdvancedSearches
       custom_field_properties = CustomFieldProperty.where(custom_formable_type: 'Client',
                                                           custom_field_id: @selected_custom_form)
 
+      # POAM-024 (A3): #apply returns the scope narrowed to matches (sidecar SQL / shadow / legacy
+      # per TIER5_SIDECAR_SEARCH), so we project client ids with a pluck — no record instantiation.
       matched = AdvancedSearches::PropertiesFilter
                 .new(field: @field, operator: @operator, value: @value, type: @type)
-                .select(custom_field_properties)
+                .apply(custom_field_properties)
 
-      client_ids = matched.map(&:custom_formable_id).uniq
+      client_ids = matched.pluck(:custom_formable_id).uniq
       { id: sql_string, values: client_ids }
     end
   end
