@@ -1,0 +1,26 @@
+-# Investor UX round (2026-07): the Reports landing page. The two charts keep the exact
+-# div-id + data-attribute contract clients/index.js used (CIF.ReportsIndex reads them);
+-# CSI domain averages arrive pre-masked for the viewer (visible_domain_levels).
+= render 'shared/page_header', title: t('.title', default: 'Reports')
+.row.mini-margin
+  .col-12
+    .ibox
+      .row
+        .col-12.col-md-6
+          .ibox-content
+            #cis-domain-score{ 'data-csi-domain' => @csi_statistics, 'data-title' => t('.csi_domain_scores'), 'data-yaxis-title' => t('.domain_score') }
+        .col-12.col-md-6
+          .ibox-content
+            #case-statistic{ 'data-case-statistic' => @cases_statistics, 'data-title' => t('.case_statistics'), 'data-yaxis-title' => t('.client_amount') }
+.row.mini-margin
+  .col-12
+    .ibox
+      .ibox-title
+        %h5= t('.data_tools', default: 'Data tools')
+      .ibox-content
+        %ul.reports-tools
+          %li.reports-tools__item
+            = link_to t('.advanced_search_card', default: 'Advanced search & Excel export'), client_advanced_searches_path
+            %p.text-muted.mb-0= t('.advanced_search_hint', default: 'Build a filtered individual list, pick columns, and export it to Excel.')
+          %li.reports-tools__item
+            %p.text-muted.mb-0= t('.legacy_note', default: 'Legacy quarterly reports live on each individual record (Actions menu).')

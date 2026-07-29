@@ -4,17 +4,15 @@ CIF.ClientsIndex = (function () {
   // (never even called) and `_getClientPath` (row click-through) all targeted the legacy
   // `table.clients` markup — the clients index renders the in-house `.record-grid` (UX round 3)
   // which ships its own navigation, so none of that code had anything to run against.
+  // Investor UX round (2026-07): the chart plumbing (_handleHideShowReport, the two chart
+  // creators, the resize + x-axis shims) moved to reports/index.js — the charts live on
+  // /reports now and the index's "Reports" header entry is a plain link.
   const _init = function () {
     _enableSelect2();
     _columnsVisibility();
     _cssClassForlabelDynamic();
     _restrictNumberFilter();
     _quantitativeCaesByQuantitativeType();
-    _clickMenuResizeChart();
-    _handleHideShowReport();
-    _formatReportxAxis();
-    _handleCreateCaseReport();
-    _handleCreateCsiDomainReport();
     return _setDefaultCheckColumnVisibilityAll();
   };
 
@@ -27,45 +25,7 @@ CIF.ClientsIndex = (function () {
     }
   };
 
-  var _handleCreateCsiDomainReport = function () {
-    const element = $('#cis-domain-score');
-    const csiData = element.data('csi-domain');
-    const csiTitle = element.data('title');
-    const csiyAxisTitle = element.data('yaxis-title');
-
-    const report = new CIF.ReportCreator(csiData, csiTitle, csiyAxisTitle, element);
-    return report.lineChart();
-  };
-
-  var _handleCreateCaseReport = function () {
-    const element = $('#case-statistic');
-    const caseData = element.data('case-statistic');
-    const caseTitle = element.data('title');
-    const caseyAxisTitle = element.data('yaxis-title');
-
-    const report = new CIF.ReportCreator(caseData, caseTitle, caseyAxisTitle, element);
-    return report.lineChart();
-  };
-
   var _enableSelect2 = () => CIF.Select.init('#clients-index select', { allowClear: true });
-
-  var _formatReportxAxis = function () {
-    // UNIT 11: was a global useUTC:false call on the former charting library. Chart.js has no
-    // such global and the line-chart x-axis is CATEGORICAL (pre-formatted string labels, never
-    // date-parsed), so no timezone normalization is needed. Kept as a no-op so the _init() call
-    // list and this module's shape stay unchanged.
-  };
-
-  var _handleHideShowReport = () =>
-    $('#client-statistic').click(function () {
-      $('#client-statistic-body').slideToggle('slow');
-      return _handleResizeWindow();
-    });
-
-  var _clickMenuResizeChart = () =>
-    $('.minimalize-styl-2').click(() => setTimeout(() => _handleResizeWindow(), 220));
-
-  var _handleResizeWindow = () => window.dispatchEvent(new Event('resize'));
 
   // D1: bound to the NATIVE change event directly. The old ifChecked/ifUnchecked binding only
   // kept working via caselight_shell.js's iCheck compat shim (verified live before this change:

@@ -1,38 +1,20 @@
+// Investor UX round (2026-07): the Reports landing page (charts moved off clients#index).
+// The old rules here targeted the pre-2020 reports controller's date-range search — dead
+// markup, dropped with the commented-out tile styles.
 body[id="reports-index"] {
-  .search-statistic {
-    margin-bottom: 20px;
+  // Chart canvases: reserve height so the page doesn't jump while Chart.js draws.
+  #cis-domain-score,
+  #case-statistic {
+    min-height: 320px;
   }
-  .statistic-btn {
-    margin-left: 0;
+
+  .reports-tools {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    &__item + &__item {
+      margin-top: 12px;
+    }
   }
-  .errors {
-    border: 1px solid red;
-  }
-  // .statistic a {
-  //   display: block;
-  //   height: 350px;
-  //   width: 100%;
-  //   text-decoration: none;
-  // }
-  // .statistic span {
-  //   display: block;
-  //   padding-top: 140px;
-  //   font-size: 30px;
-  //   color: white;
-  // }
-  // .csi-statistic a {
-  //   background: #008055;
-  // }
-  // .case-statistic a {
-  //   background: #008080;
-  // }
-  // @media (max-width: 440px) {
-  //   .statistic span{
-  //     font-size: 5vw;
-  //     padding-top: 80px;
-  //   }
-  //   .statistic a {
-  //     max-height: 200px;
-  //   }
-  // }
 }

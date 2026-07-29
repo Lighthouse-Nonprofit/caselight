@@ -3,7 +3,7 @@
   filter_target: '#client-search-form',
   search: { url: clients_url, param: 'client_grid[quick_search]', value: params.dig(:client_grid, :quick_search), label: t('.quick_search_label', default: 'Search by first or last name'), placeholder: t('.quick_search_placeholder', default: 'First or last name') },
   primary: ((can? :manage, Client) ? { label: t('.add_new_client'), url: new_client_path } : nil),
-  secondary: [((can? :manage, :all) ? { label: t('.reports'), button: true, id: 'client-statistic' } : nil),
+  secondary: [((can? :index, :report) ? { label: t('.reports'), url: reports_path } : nil),
               { label: t('.advanced_search'), url: client_advanced_searches_path },
               { label: t('.view_all_active_tasks'), url: tasks_path },
               { label: t('.export', default: 'Export to Excel'), url: current_url({format: 'xls', type: 'basic_info'}), class: 'btn-export' }]
@@ -18,17 +18,6 @@
   .col-12
     .ibox-content#client-search-form.collapse
       = datagrid_form_for @client_grid, url: clients_url, html: { class: 'grid-form' }
-.row#client-statistic-body
-  .col-12.mini-margin
-    .ibox
-      .row
-        .col-12.col-md-6
-          .ibox-content
-            #cis-domain-score{ "data-csi-domain" => @csi_statistics, "data-title" => t('.csi_domain_scores'), "data-yaxis-title" => t('.domain_score')}
-
-        .col-12.col-md-6
-          .ibox-content
-            #case-statistic{ "data-case-statistic" => @cases_statistics, "data-title" => t('.case_statistics'), "data-yaxis-title" => t('.client_amount') }
 .row.mini-margin
   .col-12
     .ibox

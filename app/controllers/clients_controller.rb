@@ -18,9 +18,8 @@ class ClientsController < AdminController
     columns_visibility
     respond_to do |f|
       f.html do
-        # Phase 5.3 — mask restricted/emergency Domain averages in the CSI chart for the viewer.
-        @csi_statistics   = CsiStatistic.new(@client_grid.assets, visible_levels: visible_domain_levels).assessment_domain_score.to_json
-        @cases_statistics = CaseStatistic.new(@client_grid.assets).statistic_data.to_json
+        # Investor UX round (2026-07): the CSI/case-statistics charts (and their two JSON ivars)
+        # moved to ReportsController#index — /reports is the reporting surface now.
         @results          = @client_grid.scope { |scope| scope.accessible_by(current_ability) }.assets.size
         # UX round 3 (C2/R12): name sorts are Ruby-side (encrypted columns) — sort the full
         # accessible set in memory, then paginate the array. @name_sort is stashed by
