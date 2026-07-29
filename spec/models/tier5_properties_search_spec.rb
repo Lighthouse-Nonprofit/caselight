@@ -165,4 +165,157 @@ RSpec.describe 'Tier 5 in-Ruby property search rewrite', type: :model do
       expect(result[:values]).to eq([c1.id])
     end
   end
+
+  # -------------------------------------------------------------------------------------------------
+  # POAM-024 (PR A3) — the sidecar read path. Every operator class runs through BOTH paths against
+  # REAL encrypted rows and must return the same client ids as the legacy in-Ruby engine (which the
+  # oracle matrix above pins to the original SQL). Plus: the equality path must never decrypt, and
+  # shadow mode must serve legacy while logging a values-free divergence event.
+  # -------------------------------------------------------------------------------------------------
+  describe 'sidecar read path (POAM-024 A3)' do
+    after { ClientHistory.delete_all }
+
+    def with_sidecar_mode(mode)
+      previous = Rails.application.config.x.tier5_sidecar_search
+      Rails.application.config.x.tier5_sidecar_search = mode
+      yield
+    ensure
+      Rails.application.config.x.tier5_sidecar_search = previous
+    end
+
+    let(:form) { create(:custom_field, form_title: 'Sidecar Parity', entity_type: 'Client') }
+
+    def cfp!(client, props)
+      CustomFieldProperty.create!(custom_field: form, custom_formable: client, properties: props)
+    end
+
+    def search(rule)
+      AdvancedSearches::ClientCustomFormSqlBuilder.new(form, rule).get_sql[:values].sort
+    end
+
+    def parity!(rule, expected_clients)
+      expected = expected_clients.map(&:id).sort
+      legacy   = with_sidecar_mode(:off) { search(rule) }
+      sidecar  = with_sidecar_mode(:on)  { search(rule) }
+      expect(legacy).to  eq(expected), "legacy path diverged for #{rule['operator']}"
+      expect(sidecar).to eq(expected), "sidecar path diverged for #{rule['operator']}"
+    end
+
+    it 'equality family: scalar equal, array membership, missing-key not_equal exclusion, is_empty/is_not_empty' do
+      c_scalar  = create(:client); c_other = create(:client); c_checkbox = create(:client)
+      c_empty   = create(:client); c_missing = create(:client)
+      cfp!(c_scalar,   'Color' => 'blue')
+      cfp!(c_other,    'Color' => 'green')
+      cfp!(c_checkbox, 'Color' => %w[blue red])
+      cfp!(c_empty,    'Color' => '')
+      cfp!(c_missing,  'Size'  => 'L') # no Color key
+
+      base = { 'field' => 'formbuilder_X_Color', 'type' => 'text' }
+      parity!(base.merge('operator' => 'equal',        'value' => 'blue'), [c_scalar, c_checkbox])
+      parity!(base.merge('operator' => 'not_equal',    'value' => 'blue'), [c_other, c_empty]) # missing-key EXCLUDED
+      parity!(base.merge('operator' => 'is_empty',     'value' => ''),     [c_empty])
+      parity!(base.merge('operator' => 'is_not_empty', 'value' => ''),     [c_scalar, c_other, c_checkbox])
+    end
+
+    it 'residual operators: contains/not_contains and integer ordered/between (presence-prefiltered Ruby)' do
+      c5 = create(:client); c10 = create(:client); c_blank = create(:client); c_missing = create(:client)
+      cfp!(c5,      'Age' => '5',  'Note' => 'blue sky')
+      cfp!(c10,     'Age' => '10', 'Note' => 'green field')
+      cfp!(c_blank, 'Age' => '',   'Note' => '')
+      cfp!(c_missing, 'Other' => 'x')
+
+      note = { 'field' => 'formbuilder_X_Note', 'type' => 'text' }
+      parity!(note.merge('operator' => 'contains',     'value' => 'BLU'), [c5])
+      parity!(note.merge('operator' => 'not_contains', 'value' => 'blu'), [c10, c_blank]) # missing-key EXCLUDED
+
+      age = { 'field' => 'formbuilder_X_Age', 'type' => 'integer' }
+      parity!(age.merge('operator' => 'greater', 'value' => '6'),        [c10])
+      parity!(age.merge('operator' => 'between', 'value' => %w[4 7]),    [c5])
+    end
+
+    it 'enrollment / tracking / exit builders return identical ids under :on (pluck-through-join swap)' do
+      program = create(:program_stream, enrollment: [{ 'label' => 'Tier', 'type' => 'text' }],
+                                        exit_program: [{ 'label' => 'Reason', 'type' => 'text' }])
+      tracking = create(:tracking, program_stream: program, fields: [{ 'label' => 'Score', 'type' => 'text' }])
+      c1 = create(:client); c2 = create(:client)
+      e1 = ClientEnrollment.create!(client: c1, program_stream: program, enrollment_date: Date.today,
+                                    status: 'Active', properties: { 'Tier' => 'A' })
+      ClientEnrollment.create!(client: c2, program_stream: program, enrollment_date: Date.today,
+                               status: 'Active', properties: { 'Tier' => 'B' })
+      ClientEnrollmentTracking.create!(client_enrollment: e1, tracking: tracking, properties: { 'Score' => '7' })
+      LeaveProgram.create!(client_enrollment: e1, program_stream: program, exit_date: Date.today,
+                           properties: { 'Reason' => 'Graduated' })
+
+      {
+        AdvancedSearches::EnrollmentSqlBuilder =>
+          [program.id, { 'field' => 'enrollment_X_Tier', 'operator' => 'equal', 'value' => 'A', 'type' => 'text' }],
+        AdvancedSearches::ExitProgramSqlBuilder =>
+          [program.id, { 'field' => 'exitprogram_X_Reason', 'operator' => 'equal', 'value' => 'Graduated' }]
+      }.each do |builder, (arg, rule)|
+        off = with_sidecar_mode(:off) { builder.new(arg, rule).get_sql[:values].sort }
+        on  = with_sidecar_mode(:on)  { builder.new(arg, rule).get_sql[:values].sort }
+        expect(on).to eq(off), "#{builder} diverged"
+        expect(on).to eq([c1.id])
+      end
+
+      # Tracking separately: e1's LeaveProgram flipped it to Exited, so re-activate for the assertion.
+      e1.update_columns(status: 'Active')
+      rule = { 'field' => 'tracking_X_Score', 'operator' => 'equal', 'value' => '7', 'type' => 'text' }
+      off = with_sidecar_mode(:off) { AdvancedSearches::TrackingSqlBuilder.new(tracking.id, rule).get_sql[:values] }
+      on  = with_sidecar_mode(:on)  { AdvancedSearches::TrackingSqlBuilder.new(tracking.id, rule).get_sql[:values] }
+      expect(on).to eq(off)
+      expect(on).to eq([c1.id])
+    end
+
+    it 'the equality path NEVER decrypts (no match? call) under :on' do
+      client = create(:client)
+      cfp!(client, 'Color' => 'blue')
+      filter = AdvancedSearches::PropertiesFilter.new(field: 'Color', operator: 'equal',
+                                                      value: 'blue', type: 'text')
+      allow(filter).to receive(:match?).and_raise('decrypt path used on an equality operator')
+
+      ids = with_sidecar_mode(:on) do
+        filter.apply(CustomFieldProperty.where(custom_field_id: form.id)).pluck(:custom_formable_id)
+      end
+      expect(ids).to eq([client.id])
+    end
+
+    it 'shadow mode serves LEGACY results and logs ONE values-free divergence event when the sidecar drifts' do
+      AccessLog.delete_all
+      client = create(:client)
+      record = cfp!(client, 'Color' => 'blue')
+      # Corrupt the sidecar so the two paths disagree (simulates a missed write, the exact case
+      # shadow exists to catch).
+      CustomFieldPropertySearchEntry.where(custom_field_property_id: record.id).delete_all
+
+      rule = { 'field' => 'formbuilder_X_Color', 'operator' => 'equal', 'value' => 'blue', 'type' => 'text' }
+      result = with_sidecar_mode(:shadow) { search(rule) }
+      expect(result).to eq([client.id]) # legacy (correct) result served
+
+      events = AccessLog.where(event_type: 'tier5_sidecar_shadow').to_a
+      expect(events.size).to eq(1)
+      meta = events.first.metadata
+      expect(meta['owner_model']).to eq('CustomFieldProperty')
+      expect(meta['operator']).to eq('equal')
+      expect(meta['legacy_count']).to eq(1)
+      expect(meta['sidecar_count']).to eq(0)
+      # VALUES-FREE: never the label, never the probed value.
+      expect(meta.values.join).not_to include('Color', 'blue')
+    ensure
+      AccessLog.delete_all
+    end
+
+    it 'shadow mode logs nothing when the paths agree' do
+      AccessLog.delete_all
+      client = create(:client)
+      cfp!(client, 'Color' => 'blue')
+
+      rule = { 'field' => 'formbuilder_X_Color', 'operator' => 'equal', 'value' => 'blue', 'type' => 'text' }
+      result = with_sidecar_mode(:shadow) { search(rule) }
+      expect(result).to eq([client.id])
+      expect(AccessLog.where(event_type: 'tier5_sidecar_shadow').count).to eq(0)
+    ensure
+      AccessLog.delete_all
+    end
+  end
 end

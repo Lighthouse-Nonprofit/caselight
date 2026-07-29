@@ -64,11 +64,124 @@ module AdvancedSearches
 
     # records : an Enumerable of model instances already scoped as the builder scopes them today
     #           (decrypted .properties available). Returns the subset whose .properties matches.
+    # This remains the LEGACY/RESIDUAL engine — #apply below is the POAM-024 read path.
     def select(records)
       records.select { |record| match?(record.properties) }
     end
 
+    # ------------------------------------------------------------------------------------------------
+    # POAM-024 (PR A3) — the sidecar read path. Takes the builder's RELATION and returns a RELATION
+    # (same scope narrowed to matching rows), so the builders keep their joins and project client ids
+    # with a pluck instead of instantiating records. Mode comes from config.x.tier5_sidecar_search
+    # (config/initializers/tier5_sidecar_search.rb): off = legacy only; shadow (default) = serve
+    # legacy, compare against the sidecar and log a VALUES-FREE tier5_sidecar_shadow AccessLog event
+    # on divergence; on = sidecar-served.
+    #
+    # Operator strategy (matches the ledger design):
+    #   * equality family (equal / not_equal / is_empty / is_not_empty) -> pure indexed SQL against
+    #     the entry table. The deterministic `where(value: ...)` probe rides
+    #     ExtendedDeterministicQueries (current + previous schemes), like the Tier-3/4 name scopes.
+    #     not_equal / is_not_empty = presence-EXISTS AND NOT value-EXISTS — reproducing the oracle's
+    #     missing-key EXCLUSION (a NOT IN over an empty subquery is TRUE, so present-key rows with no
+    #     matching element pass; missing-key rows fail the presence side).
+    #   * contains / not_contains / ordered / between -> presence-prefiltered Ruby: every residual
+    #     operator requires the key to be present (contains: !txt.nil?; ordered: the != '' guard),
+    #     so "ids with >=1 entry row for the label" is a GUARANTEED SUPERSET of the matches; the
+    #     candidates then run through the SAME oracle-verified #match? — byte-identical semantics by
+    #     construction. No candidate cap (a cap = silent wrong results); volume is logged upstream.
+    #
+    # Known accepted micro-divergence (also in PropertiesSearchable's header): member?'s degenerate
+    # whole-array `raw.to_s == value.to_s` branch (equal probing the literal Ruby rendering of an
+    # array) has no element-row representation. The shadow phase exists to prove it never fires.
+    # ------------------------------------------------------------------------------------------------
+    EQUALITY_OPERATORS = %w[equal not_equal is_empty is_not_empty].freeze
+
+    def apply(relation)
+      case sidecar_mode
+      when :on     then sidecar_apply(relation)
+      when :shadow then shadow_apply(relation)
+      else              legacy_apply(relation)
+      end
+    end
+
     private
+
+    def sidecar_mode
+      Rails.application.config.x.tier5_sidecar_search || :shadow
+    end
+
+    def legacy_apply(relation)
+      relation.where(id: select(relation).map(&:id))
+    end
+
+    def sidecar_apply(relation)
+      if EQUALITY_OPERATORS.include?(@operator)
+        equality_sql(relation)
+      else
+        residual_apply(relation)
+      end
+    end
+
+    # Serve legacy, race the sidecar, log divergence. SELF-RESCUING: a sidecar failure must never
+    # break search while shadowing (AuthorizationShadow contract) — it logs and falls through.
+    def shadow_apply(relation)
+      legacy_ids = select(relation).map(&:id)
+      begin
+        sidecar_ids = sidecar_apply(relation).pluck(:id)
+        if legacy_ids.to_set != sidecar_ids.to_set
+          AccessLog.system_event!(
+            event_type: 'tier5_sidecar_shadow',
+            metadata:   {
+              # VALUES-FREE by design: model / operator / type / counts. Never the field label,
+              # never the probed value, never matched ids.
+              owner_model:   relation.klass.name,
+              operator:      @operator,
+              field_type:    @type,
+              legacy_count:  legacy_ids.size,
+              sidecar_count: sidecar_ids.size,
+              diff_count:    (legacy_ids.to_set ^ sidecar_ids.to_set).size
+            }
+          )
+        end
+      rescue => e
+        Rails.logger.warn("[tier5_sidecar_shadow] comparison failed: #{e.class}: #{e.message}")
+      end
+      relation.where(id: legacy_ids)
+    end
+
+    def entry_class_for(relation)
+      relation.klass.properties_search_entry_class
+    end
+
+    def entry_fk_for(relation)
+      relation.klass.properties_search_entry_foreign_key
+    end
+
+    def equality_sql(relation)
+      entries  = entry_class_for(relation)
+      fk       = entry_fk_for(relation)
+      presence = entries.where(field_label: @field).select(fk)
+      probe    = ->(v) { entries.where(field_label: @field, value: v).select(fk) }
+
+      case @operator
+      when 'equal'        then relation.where(id: probe.call(@value.to_s))
+      when 'is_empty'     then relation.where(id: probe.call(''))
+      when 'not_equal'    then relation.where(id: presence).where.not(id: probe.call(@value.to_s))
+      when 'is_not_empty' then relation.where(id: presence).where.not(id: probe.call(''))
+      end
+    end
+
+    def residual_apply(relation)
+      entries    = entry_class_for(relation)
+      fk         = entry_fk_for(relation)
+      candidates = relation.where(id: entries.where(field_label: @field).select(fk))
+
+      matched_ids = []
+      candidates.find_each(batch_size: 500) do |record|
+        matched_ids << record.id if match?(record.properties)
+      end
+      relation.where(id: matched_ids)
+    end
 
     def integer?
       @type == 'integer'

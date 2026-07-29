@@ -18,19 +18,20 @@ module AdvancedSearches
 
     def get_sql
       sql_string = 'clients.id IN (?)'
-      # SAME scope as before, including the Active-enrollment filter. includes(:client_enrollment) so the
-      # join row is loaded for the client_id read below without an N+1 per matched tracking.
+      # SAME scope as before, including the Active-enrollment filter (the join stays LIVE on the
+      # relation, so enrollment-status flips after tracking writes need no denormalization).
+      # POAM-024 (A3): the includes(:client_enrollment) preload is gone — no code path instantiates
+      # the association anymore; client_id is plucked THROUGH the join below.
       client_enrollment_trackings = ClientEnrollmentTracking
                                     .joins(:client_enrollment)
-                                    .includes(:client_enrollment)
                                     .where(client_enrollments: { status: 'Active' }, tracking_id: @tracking_id)
 
       matched = AdvancedSearches::PropertiesFilter
                 .new(field: @field, operator: @operator, value: @value, type: @type)
-                .select(client_enrollment_trackings)
+                .apply(client_enrollment_trackings)
 
       # client_id comes through the join (preserves the old pluck('client_enrollments.client_id')).
-      client_ids = matched.map { |t| t.client_enrollment&.client_id }.compact.uniq
+      client_ids = matched.pluck('client_enrollments.client_id').compact.uniq
       { id: sql_string, values: client_ids }
     end
   end
