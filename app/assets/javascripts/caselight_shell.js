@@ -18,6 +18,20 @@ $(function () {
     document.cookie = 'cl_sidebar=' + state + '; path=/; max-age=31536000; SameSite=Lax';
   }
 
+  // C1 — mini-rail affordance state. Desktop-mini is the ONLY state where the rail is
+  // icon-only, so it is the only state where the nav tooltips are live (and, in C2, where
+  // the #manage flyout arms). One idempotent sync, called from boot + hamburger + resize.
+  var navTooltips = [];
+  function isDesktopMini() {
+    return $('body').hasClass('mini-navbar') && !$('body').hasClass('body-small');
+  }
+  function syncMiniAffordances() {
+    var mini = isDesktopMini();
+    navTooltips.forEach(function (t) {
+      if (mini) { t.enable(); } else { t.disable(); t.hide(); }
+    });
+  }
+
   // Responsive: collapse to an icon rail under 769px (matches the old $(window)<769 check).
   // D3 semantics trap: mini-navbar means "collapsed rail" on desktop but "overlay OPEN" on
   // small screens — strip it when ENTERING the small state so a desktop cookie can never
@@ -30,9 +44,30 @@ $(function () {
     }
     wasSmall = small;
     $('body').toggleClass('body-small', small);
+    syncMiniAffordances();
   }
   syncBodySmall();
   $(window).on('resize', syncBodySmall);
+
+  // C1 — nav tooltips for the icon-only rail. Created ONCE from each top-level link's own
+  // .nav-label text (no title=/data-bs-title in the HAML: a title attribute would double up
+  // as a native tooltip, and the declarative initializer below would double-manage a
+  // data-bs-toggle). container:body escapes the rail's overflow-x:hidden (body has no
+  // transform on desktop). Enabled only in desktop-mini via syncMiniAffordances above.
+  // The selector's `> li > a` shape naturally skips the .nav-header profile anchors.
+  $('#side-menu > li > a').each(function () {
+    var label = $(this).find('.nav-label').text().trim();
+    if (!label) { return; }
+    navTooltips.push(new bootstrap.Tooltip(this, {
+      title: label,
+      placement: 'right',
+      container: 'body',
+      customClass: 'cl-nav-tooltip',
+      trigger: 'hover focus',
+      offset: [0, 6]
+    }));
+  });
+  syncMiniAffordances();
 
   // Sidebar accordion (nested .nav-second-level / .nav-third-level).
   $('#side-menu').metisMenu();
@@ -44,6 +79,7 @@ $(function () {
     if (!$('body').hasClass('body-small')) {
       persistSidebar($('body').hasClass('mini-navbar') ? 'mini' : 'full');
     }
+    syncMiniAffordances(); // C1: arm/disarm the rail tooltips with the state change
     smoothlyMenu();
   });
 
