@@ -6,8 +6,12 @@ FROM ruby:4.0
 # ruby:4.0 base is a current Debian, apt mirrors live — normal install.
 # libpq-dev for the pg gem; postgresql-client (Trixie ships client 17, matching the server) for
 # export:tenant / db:dump — pg_dump was silently absent in-container until POAM-014.
+# chromium + fonts-liberation (POAM-019, PR B2): the PdfRenderer engine (Ferrum/CDP) AND the
+# cuprite feature-spec driver — baking it ends the "reinstall chromium after every dev rebuild"
+# chore. Trixie's distro chromium tracks upstream security releases; size cost accepted
+# (owner decision 2026-07-28, replaces the archived wkhtmltox Qt-WebKit).
 RUN apt-get update \
- && apt-get install -y --no-install-recommends libpq-dev postgresql-client \
+ && apt-get install -y --no-install-recommends libpq-dev postgresql-client chromium fonts-liberation \
  && rm -rf /var/lib/apt/lists/*
 
 # Node is needed only for execjs asset precompilation. Binary tarball keeps the

@@ -102,12 +102,16 @@ strictly local.
   `RAILS_ENV=test bundle exec rspec spec --exclude-pattern "features/**/*"` (set
   `RAILS_ENV=test` explicitly; the dev container defaults to development and the test-only
   gems won't load otherwise). The **js feature specs run on Cuprite** (Ferrum/CDP over
-  headless Chromium). Two prerequisites inside the app container before a local js run —
-  the dev image bakes no browser, and the test env serves **digested** assets (a stale
-  manifest silently runs old JS under the specs):
+  headless Chromium). Since PR B2 (POAM-019) the image **bakes chromium** — it powers both
+  the feature suite and `PdfRenderer` (`app/classes/pdf_renderer.rb`, the warm Chromium PDF
+  surface future per-flavor reporting builds on; smoke-pinned by `spec/lib/pdf_renderer_spec.rb`,
+  which self-skips where no browser exists, e.g. the CI runner). One prerequisite before a
+  local js run — the test env serves **digested** assets (a stale manifest silently runs old
+  JS under the specs):
   ```bash
-  apt-get update && apt-get install -y chromium      # re-run after a container recreate
   RAILS_ENV=test bundle exec rake assets:precompile  # re-run after ANY asset change
   RAILS_ENV=test bundle exec rspec spec/features
   ```
+  (On a container built from a pre-B2 image: `apt-get install -y chromium` still works as the
+  stopgap until the next `make dev-build`.)
 - Keep `.env` out of git. It is gitignored; confirm before any `git add`.

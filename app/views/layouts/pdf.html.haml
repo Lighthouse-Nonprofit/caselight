@@ -1,0 +1,25 @@
+-# POAM-019 (PR B2) — the print layout for the Chromium/Ferrum PdfRenderer surface.
+-# SELF-CONTAINED BY CONTRACT: inline styles only, no stylesheet/javascript includes, no app
+-# assets, no external references (the external_asset_reference_guard scans this file). Unlike
+-# the retired wkhtmltopdf/pdf_design layout this renders in a REAL Chromium, so modern CSS is
+-# fine — but keep it print-first and minimal; per-flavor reporting will grow it deliberately.
+!!!
+%html{ lang: 'en' }
+  %head
+    %meta{ charset: 'utf-8' }
+    %title= content_for?(:pdf_title) ? yield(:pdf_title) : 'CaseLight'
+    :css
+      @page { size: A4; margin: 18mm 15mm; }
+      * { box-sizing: border-box; }
+      body { font-family: -apple-system, "Segoe UI", Roboto, "Liberation Sans", Arial, sans-serif;
+             color: #1a2433; font-size: 11px; line-height: 1.45; margin: 0; }
+      h1 { font-size: 18px; color: #1F3A5F; margin: 0 0 2px; }
+      h2 { font-size: 13px; color: #1F3A5F; margin: 18px 0 6px; }
+      .pdf-meta { color: #5b6777; font-size: 10px; margin-bottom: 14px; }
+      .pdf-rule { border: 0; border-top: 2px solid #E8A33D; margin: 8px 0 16px; }
+      table { width: 100%; border-collapse: collapse; }
+      th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .04em;
+           color: #5b6777; border-bottom: 1px solid #d7dce3; padding: 4px 6px; }
+      td { border-bottom: 1px solid #eceff3; padding: 5px 6px; vertical-align: top; }
+  %body
+    = yield

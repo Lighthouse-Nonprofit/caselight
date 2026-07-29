@@ -122,7 +122,9 @@ gem 'kaminari', '~> 1.1'
 gem 'friendly_id',            '~> 5.7.0'
 # wicked_pdf + the wkhtmltox .deb were REMOVED with the unrouted Cambodia government-reports
 # feature (POAM-019 closeout, PR B1) — the archived Qt-WebKit engine is off the box entirely.
-# PDF generation now rides the Chromium/Ferrum PdfRenderer surface (PR B2).
+# PDF generation now rides the Chromium/Ferrum PdfRenderer surface (PR B2):
+gem 'ferrum',                 '~> 0.17' # headless-Chromium CDP driver (same engine cuprite runs the
+# feature suite on; test-group cuprite pins the same line, so the two resolve to one version)
 gem 'browser',                '~> 6.2'  # was ~> 2.1 (PR #25); firefox?/platform.mac? unchanged, vestigial modern? spec-stub removed
 gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
