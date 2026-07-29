@@ -93,13 +93,15 @@ RSpec.describe 'Break-glass locked rows + modal on the Forms page', type: :reque
     let!(:program)    { create(:program_stream, name: 'ModalSpec Housing') }
     let!(:enrollment) { create(:client_enrollment, client: client, program_stream: program) }
 
-    it 'renders active enrollments as links to the enrollment detail' do
+    it 'renders active enrollments as deep links to the program pane on the Programs tab' do
       sign_in_as(worker)
       get client_path(client)
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('ModalSpec Housing')
-      # unescape: the multi-param href renders with &amp; while the path helper emits &
-      expect(CGI.unescapeHTML(response.body)).to include(client_client_enrollment_path(client, enrollment, program_stream_id: program.id))
+      # Investor UX round (2026-07): Overview program links deep-link to the Programs tab
+      # (?program_stream_id= selects the pane server-side). Regex: the rendered href carries
+      # ?locale=en with alphabetized params.
+      expect(CGI.unescapeHTML(response.body)).to match(%r{client_enrollments\?[^"]*program_stream_id=#{program.id}})
     end
   end
 end
