@@ -253,18 +253,16 @@ $(function () {
     smoothlyMenu();
   });
 
-  // UX round 3 (D3/R9) — selecting a menu item collapses the sidebar again. Leaf links only
-  // (metisMenu accordion parents use href="#"). Mobile: close the overlay immediately while
-  // the page loads. Desktop: no mid-navigation jank — the cookie makes the NEXT page render
-  // as the icon rail; the hamburger re-expands (and persists) whenever the user wants it back.
+  // Investor UX round (2026-07) — the sidebar no longer auto-collapses on desktop navigation
+  // (the UX-round-3 leaf-click persistSidebar('mini') is retired: the icon rail appears only
+  // when the user collapses it via the hamburger, and the cookie still makes that stick).
+  // Mobile keeps the leaf-click behavior: close the overlay immediately while the page loads.
   $('#side-menu').on('click', 'a[href]:not([href="#"])', function () {
     if ($(this).closest('.nav-header').length) {
       return;
     }
     if ($('body').hasClass('body-small')) {
       $('body').removeClass('mini-navbar');
-    } else {
-      persistSidebar('mini');
     }
   });
 
