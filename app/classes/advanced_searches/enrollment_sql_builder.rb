@@ -2,8 +2,8 @@ module AdvancedSearches
   # Phase 4 Tier 5 (SC-28 / SOC 2 C1.1) — REWRITTEN from raw JSONB SQL to in-Ruby decrypt-and-filter.
   # ClientEnrollment.properties is now NON-DETERMINISTICALLY encrypted, so the old JSONB predicates are
   # impossible. Same scope + same { id: 'clients.id IN (?)', values: client_ids } contract; operator x
-  # type semantics reproduced in AdvancedSearches::PropertiesFilter. PERF FLAG: O(n)-decrypt over the
-  # program-stream's enrollments — fine at pilot volume, revisit before real-data scale.
+  # type semantics reproduced in AdvancedSearches::PropertiesFilter. POAM-024 CLOSED (A4): served
+  # from the deterministic search-entry sidecar via PropertiesFilter#apply.
   class EnrollmentSqlBuilder
 
     def initialize(program_stream_id, rule)

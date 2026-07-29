@@ -45,6 +45,8 @@ class AccessLog
   #   "record_destroyed" — a successful destroy of a primary record (Phase 6, AU-2; values-free)
   #   "account_disabled" — an inactive account auto-disabled by accounts:disable_inactive (Phase 6)
   #   "record_exported"  — a subject-access export written by privacy:subject_access_export (Phase 6)
+  #   "tier5_sidecar_shadow" — HISTORICAL (POAM-024 A3 shadow window, retired at the A4 cutover):
+  #                        a values-free legacy-vs-sidecar search divergence. Existing rows remain.
   field :event_type,    type: String
 
   field :user_id,       type: Integer  # nullable (unauthenticated events have no user)

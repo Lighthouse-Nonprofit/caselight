@@ -31,7 +31,7 @@ honest — when they drift, CI fails before this page lies:
 | User | pin_number | Staff identifier | **Plaintext (locked decision)** | Not an authenticator; excluded from the XLS export (Phase 6 U1); if it ever gates access: HASH it |
 | User | encrypted_password, otp_secret, otp_backup_codes, tokens, reset/unlock tokens | Credentials | bcrypt / AR-encrypted (otp_secret) / hashed | Never serialized into versions (U2 skip) or history snapshots (U3) or exports (U9) |
 | ProgressNote | response, additional_note | Narrative | **Encrypted (Tier 1)** | |
-| CustomFieldProperty / ClientEnrollment / ClientEnrollmentTracking / LeaveProgram | properties (JSON) | Custom-form values (any category the org configures — health, immigration, income…) | **Encrypted (Tier 5, non-det)** | In-Ruby search; sensitivity-classified per form (Phase 5.2) |
+| CustomFieldProperty / ClientEnrollment / ClientEnrollmentTracking / LeaveProgram | properties (JSON) | Custom-form values (any category the org configures — health, immigration, income…) | **Encrypted (Tier 5, non-det)** | Searched via the deterministic `*_search_entries` sidecar (POAM-024, closed 2026-07-28 — equality indexed in SQL, residual operators Ruby-filtered over a presence prefilter); sensitivity-classified per form (Phase 5.2) |
 | Case | exit_note | Narrative | **Encrypted (Tier 1, non-det)** | Point-in-time copy of the client's exit narrative, fanned to sibling active cases per-record via `update_columns` (POAM-012, closed 2026-07-26); paper_trail-redacted with carer_names/carer_address/support_note |
 | versions (paper_trail) | object / object_changes | Change audit | **PII-redacted at write (U2) + one-time scrub (U4)** | Who/when/event + non-PII before/after only; retention via `retention:purge_versions` |
 

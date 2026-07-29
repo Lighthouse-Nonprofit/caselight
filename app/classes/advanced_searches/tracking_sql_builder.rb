@@ -3,8 +3,8 @@ module AdvancedSearches
   # ClientEnrollmentTracking.properties is now NON-DETERMINISTICALLY encrypted. The Active-enrollment join
   # filter is PRESERVED (only trackings whose enrollment is Active are considered), and client_id is read
   # THROUGH the join (tracking rows carry no client_id). Same { id: 'clients.id IN (?)', values: client_ids }
-  # contract; operator x type semantics in AdvancedSearches::PropertiesFilter. PERF FLAG: O(n)-decrypt over
-  # the active trackings for this tracking_id — fine at pilot volume, revisit before real-data scale.
+  # contract; operator x type semantics in AdvancedSearches::PropertiesFilter. POAM-024 CLOSED (A4):
+  # served from the deterministic search-entry sidecar via PropertiesFilter#apply.
   class TrackingSqlBuilder
 
     def initialize(tracking_id, rule)
