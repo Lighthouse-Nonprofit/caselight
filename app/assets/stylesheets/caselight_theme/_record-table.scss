@@ -1,0 +1,68 @@
+// =============================================================================
+//  caselight_theme/_record-table.scss — .cl-record-table (D3)
+// =============================================================================
+// The datagrid-table variant of the .record-grid visual DNA the clients/families
+// indexes ship (clients/_grid.scss): hairline rows, uppercase micro-label header,
+// quiet hover — replacing the boxy `table-bordered table-striped` treatment on the
+// Tier-B grids (users/partners/progress-notes/quarterly-reports/trackings/
+// families#show/users#show/advanced-search). Pairs with .cl-table-scroll
+// (_tables.scss), which owns overflow + the sticky positioning; this partial owns
+// the LOOK. Imported after 'tables' so its header colors win the tie with
+// .cl-table-scroll's neutral sticky background.
+
+// Card DNA for the scroll wrapper (the .record-grid container treatment).
+.cl-table-scroll {
+  background: #fff;
+  border: 1px solid $refresh-border;
+  border-radius: $refresh-radius;
+  box-shadow: $refresh-shadow-sm;
+  -webkit-overflow-scrolling: touch;
+}
+
+table.cl-record-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+
+  thead th {
+    background: $light-blue;
+    color: $navy;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 11px 14px;
+    border-bottom: 2px solid $refresh-border;
+    white-space: nowrap;
+  }
+
+  tbody td,
+  tbody th {
+    padding: 11px 14px;
+    border-top: 1px solid $refresh-border;
+    vertical-align: middle;
+    color: #4b5563;
+    font-weight: 400;
+    text-align: left;
+  }
+
+  tbody tr:first-child td,
+  tbody tr:first-child th { border-top: 0; }
+
+  tbody tr {
+    transition: background-color .12s ease;
+
+    &:hover,
+    &:focus-within { background: #fbfcfd; }
+  }
+
+  // CIF.RecordTable navigates these — advertise it.
+  tbody tr[data-href] { cursor: pointer; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  table.cl-record-table tbody tr { transition: none; }
+}

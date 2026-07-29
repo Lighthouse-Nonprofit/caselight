@@ -8,26 +8,9 @@ body[id='users-index'] {
     text-decoration: none;
   }
 
-  table.users {
-    margin-bottom: 0;
-    th {
-      border-bottom-width: 0;
-      min-width: 170px;
-    }
-    th.id {
-      min-width: 120px;
-    }
-    th.email {
-      min-width: 320px;
-    }
-    th.manage {
-      min-width: 130px;
-    }
-  }
-
-  th.modification {
-    min-width: 100px;
-  }
+  // (D3: the per-column min-width ladder left with dataTables' auto-width quirks —
+  // .cl-record-table's nowrap headers size the columns; .cl-table-scroll x-scrolls.)
+  table.users { margin-bottom: 0; }
 
   .date_filter {
     padding: 6px;

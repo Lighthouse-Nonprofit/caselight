@@ -6,6 +6,6 @@
         .ibox-tools
           = link_to t('.back'), client_path(@case.client), { class: 'btn btn-outline-secondary button btn-back-default' }
       .ibox-content
-        = datagrid_table @quarterly_reports_grid, html: {class: 'table table-bordered table-striped table-hover pushing-top quarterly-reports'}
+        = datagrid_table @quarterly_reports_grid, html: {class: 'table cl-record-table pushing-top quarterly-reports'}
 
         = paginate @quarterly_reports_grid.assets

@@ -24,6 +24,6 @@
             %i.fa.fa-expand{"aria-hidden" => "true"}
       .ibox-content
         .users-table
-          = datagrid_table @user_grid, html: { class: 'table table-bordered table-striped table-hover users'}
+          = datagrid_table @user_grid, html: { class: 'table cl-record-table users'}
       .ibox-footer.text-center
         = paginate @user_grid.assets

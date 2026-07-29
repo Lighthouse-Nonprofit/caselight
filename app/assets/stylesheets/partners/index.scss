@@ -10,19 +10,11 @@ body[id='partners-index'] {
     text-decoration: none;
   }
 
-  table.partners {
-    margin-bottom: 0;
-    th, td {
-      min-width: 225px;
-    }
-  }
+  // (D3: min-widths left with dataTables; hover cursor now rides
+  // .cl-record-table tr[data-href]. .cl-table-scroll owns the scroll box.)
+  table.partners { margin-bottom: 0; }
 
   .date_filter {
     padding: 6px;
-  }
-  // (D2: the .dataTables_scrollBody rule left with the plugin — .cl-table-scroll owns the scroll box.)
-
-  table.partners tbody tr:hover {
-    cursor: pointer;
   }
 }
