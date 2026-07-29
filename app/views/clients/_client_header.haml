@@ -28,27 +28,15 @@
         = link_to family_family_alerts_path(household_alert.family), class: 'badge text-bg-danger client-hub__household-alert', title: t('clients.client_header.household_alert_title', default: '%{count} active household alert(s)', count: client_hub_household_alerts(client).size) do
           %i.fa.fa-exclamation-triangle{ 'aria-hidden' => 'true' }
           = t('clients.client_header.household_alert', default: 'Household alert')
+      -# Investor UX round (2026-07): record numbers (slug + code) and the geographic State left
+      -# the display — case teams think in names. The values stay searchable and on the edit form.
+      - meta_items = []
+      - meta_items << content_tag(:span, client.gender.titleize) if client.gender.present?
+      - meta_items << content_tag(:span, "#{t('clients.show.date_of_birth', default: 'DOB')} #{client.date_of_birth_format} (#{client.age})") if client.date_of_birth.present?
+      - client.families.as_non_cases.uniq.each do |fam|
+        - meta_items << (can?(:read, Family) ? link_to(family(fam), family_path(fam), class: 'client-hub__family-link') : content_tag(:span, family(fam)))
       %p.client-hub__meta
-        - if client.slug.present?
-          %span.client-hub__slug= "##{client.slug}"
-        - if client.gender.present?
-          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
-          %span= client.gender.titleize
-        - if client.date_of_birth.present?
-          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
-          %span= "#{t('clients.show.date_of_birth', default: 'DOB')} #{client.date_of_birth_format} (#{client.age})"
-        - if client.current_province.present?
-          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
-          %span= client.current_province
-        - if client.care_code.present?
-          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
-          %span= "#{t('clients.show.code', default: 'Code')} #{client.care_code}"
-        - client.families.as_non_cases.uniq.each do |fam|
-          %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
-          - if can? :read, Family
-            = link_to family(fam), family_path(fam), class: 'client-hub__family-link'
-          - else
-            %span= family(fam)
+        = safe_join(meta_items, content_tag(:span, ' · ', class: 'client-hub__sep', 'aria-hidden' => 'true'))
     .client-hub__actions
       -# UX review 1: ONE actions dropdown — edit, case open/close, notes, history, delete
       -# (the separate "Open Resettlement Case" button folded in here).

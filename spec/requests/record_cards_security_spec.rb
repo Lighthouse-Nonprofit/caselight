@@ -52,10 +52,38 @@ RSpec.describe 'Card-grid index security', type: :request do
       # (c) NO sensitivity-gated custom-field value on the card, and no dynamic form title column
       expect(body).not_to include('CARD_SENTINEL_DO_NOT_LEAK')
       expect(body).not_to include('CardSpec Restricted Immigration')
+      # (e) Investor UX round: record numbers left the cards (code + slug stay searchable/XLS-only)
+      expect(body).not_to match(/record-card__code|record-card__slug/)
       # (d) filter form + pagination + sort survive
       expect(body).to include('client-search-form')
       expect(body).to match(/grid-form/)
       expect(body).to match(/name=["']client_grid\[order\]["']/)
+    end
+  end
+
+  # Investor UX round (2026-07): the hub header meta shows gender/DOB/household links ONLY —
+  # slug ("#maria-p"), "Code X", and the geographic State (current_province) left the display.
+  # The edit form keeps the inputs; admin grid/XLS keep the columns.
+  describe 'clients#show hub header' do
+    let(:worker) { create(:user, roles: 'case worker', password: password, password_confirmation: password) }
+    let(:province) { Province.find_by(name: 'HeaderStateSentinel') || Province.create!(name: 'HeaderStateSentinel') }
+    let!(:client) do
+      create(:client, given_name: 'Heady', family_name: 'McHeadface', status: 'Referred',
+                      code: 'SLO-0042', province: province)
+    end
+
+    before { client.users << worker; sign_in_as(worker) }
+
+    it 'renders identity meta without slug, code, or geographic State' do
+      get client_path(client)
+      expect(response).to have_http_status(:ok)
+      body = response.body
+
+      expect(body).to include('Heady McHeadface')
+      expect(body).to include('Male') # meta line still renders (gender survives the restructure)
+      expect(body).not_to match(/client-hub__slug/)
+      expect(body).not_to include('Code SLO-0042')
+      expect(body).not_to include('HeaderStateSentinel')
     end
   end
 

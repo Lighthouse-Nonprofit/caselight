@@ -12,15 +12,11 @@
           -# The whole card is the click target (BS5 stretched-link); program chips stay
           -# independently clickable via the z-index guard on .record-card__tags.
           = link_to object.name.presence || t('.unknown', default: 'Unknown'), client_path(object), class: 'record-card__name-link stretched-link'
+        -# Investor UX round (2026-07): code + slug left the card — record numbers are noise to
+        -# case teams (still searchable; admin grid/XLS keep them).
         %p.record-card__meta
-          - if object.code.present?
-            %span.record-card__code= object.code
           - if object.gender.present?
-            %span.record-card__sep{ 'aria-hidden' => 'true' } ·
             %span.record-card__gender= object.gender.try(:titleize)
-          - if object.slug.present?
-            %span.record-card__sep{ 'aria-hidden' => 'true' } ·
-            %span.record-card__slug= "##{object.slug}"
       - if shown.any?
         %ul.record-card__tags{ 'aria-label' => t('.program_streams', default: 'Programs') }
           - shown.each do |program_stream|
