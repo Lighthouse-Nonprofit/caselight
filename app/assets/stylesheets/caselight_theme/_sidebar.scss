@@ -266,6 +266,47 @@
   }
 }
 
+// ---------------------------------------------------------------------------
+//  .cl-sidebar-flyout — the #manage flyout for the desktop-mini rail (C2)
+// ---------------------------------------------------------------------------
+// Built and positioned by caselight_shell.js on document.body (fixed — escapes the rail's
+// overflow-x:hidden). Carries `dropdown-menu` classes, so the BS5 surface, the
+// $dropdown-box-shadow, the permanent _compat li>a item styling, the _focus-ring keyboard
+// ring and the _motion cl-pop entrance (+ its reduced-motion kill) are ALL inherited — this
+// block adds only the flyout-specific structure.
+.cl-sidebar-flyout {
+  position: fixed;
+  z-index: 1020; // above the rail (1010), far below modals
+  min-width: 220px;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+
+  &.dropdown-menu.show { transform-origin: top left; } // cl-pop settles from the rail edge, not top-right
+
+  &__title,
+  &__subheader {
+    padding: 8px 16px 2px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: $cl-text-label;
+  }
+
+  &__subheader {
+    margin-top: 6px;
+    border-top: 1px solid var(--bs-border-color);
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__nested > a { padding-left: 1.75rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #side-menu li > a,
   #side-menu .collapsing { transition: none; }

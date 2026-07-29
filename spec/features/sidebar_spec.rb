@@ -88,4 +88,69 @@ describe 'sidebar collapse on menu select', js: true do
         .or have_link('Log out', visible: :visible)
     end
   end
+
+  # ------------------------------------------------------------------------------------------------
+  # C2 — the #manage flyout: the one submenu item gets a titled flyout panel in desktop-mini
+  # (it was a dead click — metisMenu preventDefault + force-hidden accordion). Expanded mode must
+  # keep the metisMenu accordion untouched, and common.js's SYNTHETIC open-on-load click must
+  # never pop the flyout.
+  # ------------------------------------------------------------------------------------------------
+  scenario 'mini rail: #manage opens a titled flyout and its links navigate (rail stays mini)' do
+    collapse_rail!
+    visit root_path
+    find('#manage').click
+    expect(page).to have_css('.cl-sidebar-flyout.show')
+    expect(page).to have_css('.cl-sidebar-flyout__title', text: /manage/i) # rendered uppercase
+    expect(page).to have_css('#manage[aria-expanded="true"]')
+
+    within('.cl-sidebar-flyout') { click_link 'Agencies' }
+    expect(page).to have_current_path(%r{/agencies})
+    expect(page).to have_css('body.mini-navbar')
+    expect(page).not_to have_css('.cl-sidebar-flyout.show')
+  end
+
+  scenario 'mini rail: the flyout flattens the third level under a Progress Note subheader' do
+    collapse_rail!
+    visit root_path
+    find('#manage').click
+    within('.cl-sidebar-flyout') do
+      expect(page).to have_css('.cl-sidebar-flyout__subheader', text: /progress note/i) # rendered uppercase
+      expect(page).to have_css('li.cl-sidebar-flyout__nested a', text: 'Interventions')
+    end
+  end
+
+  scenario 'mini rail: Escape closes the flyout and refocuses #manage; outside click closes too' do
+    collapse_rail!
+    visit root_path
+    find('#manage').click
+    expect(page).to have_css('.cl-sidebar-flyout.show')
+    expect(page).to have_current_path(%r{/dashboards|^/$}, url: false) # opening must NOT navigate
+    # NOT page.send_keys(:escape): cuprite routes that through the focused NODE's #type, which
+    # re-clicks the node to focus it — and the flyout auto-focuses its first LINK, so send_keys
+    # would navigate. Dispatch the keydown the way a keyboard does.
+    page.execute_script("document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))")
+    expect(page).not_to have_css('.cl-sidebar-flyout.show')
+    expect(page).to have_current_path(%r{/dashboards|^/$}, url: false) # escape must NOT navigate
+    expect(page.evaluate_script('document.activeElement.id')).to eq('manage')
+
+    find('#manage').click
+    expect(page).to have_css('.cl-sidebar-flyout.show')
+    find('#page-wrapper').click
+    expect(page).not_to have_css('.cl-sidebar-flyout.show')
+  end
+
+  scenario 'expanded mode: #manage still opens the in-rail metisMenu accordion (regression guard)' do
+    visit root_path
+    expect(page).not_to have_css('body.mini-navbar')
+    find('#manage').click
+    expect(page).to have_css('#side-menu .nav-second-level a', text: 'Agencies', visible: :visible)
+    expect(page).not_to have_css('.cl-sidebar-flyout.show')
+  end
+
+  scenario 'mini rail: the synthetic open-on-load click (nested item active) never pops the flyout' do
+    collapse_rail!
+    visit interventions_path # nested-active page -> common.js triggers #manage/#pro-nav clicks
+    expect(page).to have_css('body.mini-navbar')
+    expect(page).not_to have_css('.cl-sidebar-flyout.show', wait: 1.5)
+  end
 end
