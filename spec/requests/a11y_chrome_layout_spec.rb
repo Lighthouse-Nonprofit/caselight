@@ -32,4 +32,16 @@ RSpec.describe 'A11y: persistent chrome accessible names', type: :request do
     expect(body).to match(/fa-user[^>]*aria-hidden=["']true["']|aria-hidden=["']true["'][^>]*fa-user/)
     expect(body).to match(/fa-bars[^>]*aria-hidden=["']true["']|aria-hidden=["']true["'][^>]*fa-bars/)
   end
+
+  # C1 — every sidebar rail glyph is decorative (the accessible name is the visually-hidden
+  # .nav-label text, which survives mini mode), so each must carry aria-hidden.
+  it 'marks every sidebar nav glyph aria-hidden' do
+    get users_path
+    body = response.body
+    %w[fa-th-large fa-users fa-handshake-o fa-address-book-o fa-cogs fa-area-chart
+       fa-check-square-o fa-shield].each do |glyph|
+      expect(body).to match(/#{glyph}[^>]*aria-hidden=["']true["']|aria-hidden=["']true["'][^>]*#{glyph}/),
+                      "expected the #{glyph} sidebar glyph to be aria-hidden"
+    end
+  end
 end

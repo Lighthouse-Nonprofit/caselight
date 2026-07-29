@@ -7,7 +7,11 @@
             = link_to root_path do
               = image_tag('brand/caselight-logo-ondark.png', alt: 'CaseLight', style: 'max-width: 170px; width: 100%; height: auto;')
           %hr.line-border
-          %a.dropdown-toggle{"data-bs-toggle" => "dropdown", :href => "#"}
+          -# C1: data-bs-popper-config (BS 5.3 JSON-parses it) pins the menu with Popper's fixed
+          -# strategy so it escapes the 70px rail's overflow-x:hidden in mini mode; the glyph is
+          -# the icon-only trigger the mini rail shows (hidden expanded — see _sidebar.scss).
+          %a.dropdown-toggle{"data-bs-toggle" => "dropdown", :href => "#", "data-bs-popper-config" => '{"strategy":"fixed"}'}
+            %i.fa.fa-user.profile-element__glyph{ 'aria-hidden' => 'true' }
             %span.clear
               %span.block.m-t-xs
                 %strong.font-bold= current_user.name
@@ -30,40 +34,40 @@
       - if user_signed_in?
         %li{class: "#{active_menu('dashboards')}"}
           = link_to root_path do
-            %i.fa.fa-th-large
+            %i.fa.fa-th-large{ 'aria-hidden' => 'true' }
             %span.nav-label= t('.dashboards')
 
         %li{class: clients_menu_active}
           = link_to clients_path do
-            = fa_icon('user')
+            = fa_icon('user', 'aria-hidden': true)
             %span.nav-label= t('.clients')
             %span.badge.text-bg-primary.float-end= @client_count
         - if can? :read, Family
           %li{class: families_menu_active}
             = link_to families_path do
-              = fa_icon('users')
+              = fa_icon('users', 'aria-hidden': true)
               %span.nav-label= t('.families')
               %span.badge.text-bg-primary.float-end= @family_count
 
         - if can? :read, Partner
           %li{class: partners_menu_active}
             = link_to partners_path do
-              = fa_icon('handshake-o')
+              = fa_icon('handshake-o', 'aria-hidden': true)
               %span.nav-label= t('.partners')
               %span.badge.text-bg-primary.float-end= @partner_count
 
         - if can? :read, User
           %li{class: users_menu_active}
             = link_to users_path do
-              = fa_icon('address-book-o')
+              = fa_icon('address-book-o', 'aria-hidden': true)
               %span.nav-label= t('.users')
               %span.badge.text-bg-primary.float-end= @user_count
 
         %li
           %a#manage{href: "#"}
-            %i.fa.fa-cogs
+            %i.fa.fa-cogs{ 'aria-hidden' => 'true' }
             %span.nav-label= t('.manage')
-            %span.fa.arrow
+            %span.fa.arrow{ 'aria-hidden' => 'true' }
           %ul.nav.nav-second-level
             %li{ class: active_menu('agencies') }
               = link_to t('.agencies'), agencies_path
@@ -83,7 +87,7 @@
               %li
                 %a#pro-nav{href: "#"}
                   = t('.progress_note')
-                  %span.fa.arrow
+                  %span.fa.arrow{ 'aria-hidden' => 'true' }
                 %ul.nav.nav-third-level
                   %li{ class: active_menu('interventions') }
                     = link_to t('.interventions'), interventions_path
@@ -118,16 +122,16 @@
         - if can? :read, DataTracker
           %li{ class: active_menu('data_trackers') }
             = link_to data_trackers_path do
-              = fa_icon('area-chart')
+              = fa_icon('area-chart', 'aria-hidden': true)
               %span.nav-label= t('.changelogs')
         -# Phase 5 capstone — admin-only AC-2/AC-3 security surfaces. Both gated on the SAME :manage that the
         -# enforcement-settings controller authorizes, so only admin sees them (no new role checks needed).
         - if can? :manage, EnforcementSetting
           %li{ class: active_menu('access_reviews') }
             = link_to access_review_path do
-              = fa_icon('check-square-o')
+              = fa_icon('check-square-o', 'aria-hidden': true)
               %span.nav-label= t('.access_review')
           %li{ class: active_menu('enforcement_settings') }
             = link_to enforcement_settings_path do
-              = fa_icon('shield')
+              = fa_icon('shield', 'aria-hidden': true)
               %span.nav-label= t('.enforcement_settings')

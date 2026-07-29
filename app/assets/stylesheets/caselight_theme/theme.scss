@@ -77,4 +77,5 @@
 @import 'compat';      // INSPINIA micro-utilities kept alive + .sr-only alias + .btn-xs
 @import 'focus-ring';  // one consistent :focus-visible ring (ported from _refresh)
 @import 'motion';      // UX round 3 (D5/R14): the token-driven motion layer (reduced-motion aware)
+@import 'tooltip';     // C1: the .cl-nav-tooltip skin for the mini-rail nav tooltips
 @import 'print';       // hide chrome on print

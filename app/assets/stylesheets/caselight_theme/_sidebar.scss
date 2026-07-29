@@ -197,35 +197,73 @@
 }
 
 // ---------------------------------------------------------------------------
-//  body.mini-navbar — collapsed ~70px icon rail
+//  body.mini-navbar — collapsed ~70px icon rail  (C1 rewrite)
 // ---------------------------------------------------------------------------
-// _shell owns the 70px width + #page-wrapper margin. Here: hide labels/arrows/
-// counts, center the icons, swap the profile block for the logo, and hide the
-// nested submenus (native-overflow sidebar would clip a fly-out — keep it
-// simple and non-broken; the user re-expands the rail to navigate submenus).
-body.mini-navbar {
-  .profile-element { display: none; }
-  .logo-element { display: block; }
+// _shell owns the 70px width + #page-wrapper margin. C1 changes vs the original block:
+//   * MEDIA-SCOPED to >=769px (matches syncBodySmall's breakpoint): under 769 mini-navbar
+//     means "overlay OPEN", and the old unscoped rules rendered that overlay label-less —
+//     a pre-existing bug this scoping fixes even before JS runs.
+//   * labels + count badges are visually-hidden(), NOT display:none — the accessible name
+//     survives ("Individuals 12") for screen readers while the rail shows icons only.
+//     Only the decorative chevron is fully hidden.
+//   * the profile block is no longer display:none (which made LOG OUT unreachable in mini):
+//     it renders as an icon-only trigger of its EXISTING BS5 dropdown — same DOM, so the
+//     shell_navbar sign-out-exactly-twice pin holds; data-bs-popper-config="fixed" (in the
+//     HAML) lets the menu escape the rail's overflow.
+// The nested submenus stay display:none here — PR C2 replaces them with the #manage flyout.
+.profile-element__glyph { display: none; } // mini-only affordance (shown below)
 
-  .nav-header {
-    padding: 0;
-    background-color: $navy;
+@media (min-width: 769px) {
+  body.mini-navbar {
+    .logo-element { display: block; }
+
+    .nav-header {
+      padding: 0;
+      background-color: $navy;
+    }
+
+    .profile-element {
+      display: block;
+      padding: 2px 0 8px;
+
+      .image-wrapper,
+      hr.line-border { display: none; }
+
+      .dropdown-toggle {
+        display: block;
+        padding: 10px 0;
+        text-align: center;
+      }
+
+      .profile-element__glyph {
+        display: inline-block;
+        margin: 0;
+        font-size: 16px;
+      }
+
+      // name/role text stays in the a11y tree as the trigger's accessible name.
+      .clear { @include visually-hidden(); }
+    }
+
+    #side-menu > li > a {
+      padding: 14px 0;
+      font-size: 16px;
+      text-align: center;
+
+      > i { margin-right: 0; }
+    }
+
+    // labels + counts: VISUALLY hidden, accessibly present.
+    #side-menu li > a span.nav-label,
+    #side-menu li > a span.badge { @include visually-hidden(); }
+
+    // the chevron is pure decoration — fully hidden.
+    #side-menu li > a span.fa.arrow { display: none; }
+
+    // collapse the submenus out of the rail (C2 gives #manage a flyout instead).
+    #side-menu .nav-second-level,
+    #side-menu .nav-third-level { display: none; }
   }
-
-  #side-menu > li > a {
-    padding: 14px 0;
-    font-size: 16px;
-    text-align: center;
-
-    > i { margin-right: 0; }
-  }
-
-  // hide every in-link text span (nav-label, the arrow span, the count pill).
-  #side-menu li > a span { display: none; }
-
-  // collapse the submenus out of the rail entirely.
-  #side-menu .nav-second-level,
-  #side-menu .nav-third-level { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

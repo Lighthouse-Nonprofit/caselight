@@ -1,0 +1,28 @@
+// =============================================================================
+//  caselight_theme/_tooltip.scss — the mini-rail nav tooltip skin (C1)
+// =============================================================================
+// Scoped to `.tooltip.cl-nav-tooltip` (attached via the Tooltip constructor's customClass in
+// caselight_shell.js) so any future generic tooltip keeps stock BS5 styling. Spoken in BS5
+// CSS vars + theme tokens: navy surface matching the rail, small radius, real shadow, fast
+// fade on the motion tokens — and dead-still under prefers-reduced-motion (the _motion.scss
+// contract). No transition:all, no new libraries.
+.tooltip.cl-nav-tooltip {
+  --bs-tooltip-bg: #{$cl-nav-bg};
+  --bs-tooltip-color: #fff;
+  --bs-tooltip-border-radius: #{$border-radius-sm};
+  --bs-tooltip-opacity: 1;
+  --bs-tooltip-font-size: .75rem;
+  --bs-tooltip-padding-x: .625rem;
+  --bs-tooltip-padding-y: .375rem;
+
+  .tooltip-inner {
+    box-shadow: $box-shadow-lg;
+    font-weight: 600;
+  }
+
+  &.fade { transition: opacity var(--cl-dur-fast) var(--cl-ease); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip.cl-nav-tooltip.fade { transition: none; }
+}
