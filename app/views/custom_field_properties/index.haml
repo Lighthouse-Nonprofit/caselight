@@ -29,15 +29,12 @@
                   %span.badge.text-bg-info
                     = date_format custom_field_property.created_at
                   .ibox-tools
+                    -# Investor UX round (2026-07): the trash left the entry cards — Delete now
+                    -# lives on the EDIT page footer; the pencil became a labeled Edit button.
                     - if can? :manage, CustomFieldProperty
                       %small
                         = link_to edit_polymorphic_path([@custom_formable, custom_field_property], custom_field_id: @custom_field) do
-                          .btn.btn-outline.btn-success
-                            = fa_icon('pencil')
-                      %small
-                        = link_to polymorphic_path([@custom_formable, custom_field_property], custom_field_id: @custom_field), method: :delete, data: { confirm: t('are_you_sure') } do
-                          .btn.btn-outline.btn-danger
-                            = fa_icon('trash')
+                          .btn.btn-outline.btn-success.btn-xs= t('shared.actions.edit', default: 'Edit')
                 .ibox-content
                   -# UX round 4 (R4-4): field table -> the info grid (natural-case labels).
                   = render 'shared/info_grid', items: custom_field_info_items(custom_field_property.custom_field.fields, custom_field_property), variant: 'info-grid--natural-case'

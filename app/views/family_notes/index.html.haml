@@ -18,14 +18,11 @@
                 - if family_note.attendee.present?
                   %span.text-muted= "· #{t('.present', default: 'Present')}: #{family_note.attendee}"
                 .float-end
+                  -# Investor UX round (2026-07): trash left the note cards — Delete lives on
+                  -# the edit page footer now; the pencil became a labeled Edit button.
                   - if can? :update, family_note
-                    = link_to edit_family_family_note_path(@family, family_note), 'aria-label' => t('shared.actions.edit', default: 'Edit') do
-                      .btn.btn-outline.btn-success.btn-xs
-                        = fa_icon('pencil')
-                  - if can? :destroy, family_note
-                    = link_to family_family_note_path(@family, family_note), method: :delete, data: { confirm: t('families.show.are_you_sure', default: 'Are you sure you want to delete?') }, 'aria-label' => t('shared.actions.delete', default: 'Delete') do
-                      .btn.btn-outline.btn-danger.btn-xs
-                        = fa_icon('trash')
+                    = link_to edit_family_family_note_path(@family, family_note) do
+                      .btn.btn-outline.btn-success.btn-xs= t('shared.actions.edit', default: 'Edit')
               .card-body
                 %p.family-note__body= family_note.note
                 - if family_note.user.present?

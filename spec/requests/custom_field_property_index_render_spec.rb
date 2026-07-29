@@ -41,4 +41,20 @@ RSpec.describe 'CustomFieldProperty index render (no buffer leak)', type: :reque
   it 'does not 500 when a stored value is nil (missing key)' do
     expect { render_index_with('Other' => 'kept') }.not_to raise_error
   end
+
+  # Investor UX round (2026-07): delete moved off the entry cards onto the edit page footer
+  # (Household "remove view/edit/trash icons" + Forms "move delete from view entry to edit").
+  it 'entry cards carry a labeled Edit but no delete; the edit page carries the delete' do
+    body = render_index_with('Diagnosis' => 'stable')
+    prop = client.custom_field_properties.last
+    expect(body).to include('>Edit<')
+    # scoped to the record — the sidebar Log-out is data-method="delete" on every page
+    expect(body).not_to match(%r{data-method="delete" href="[^"]*custom_field_properties/#{prop.id}})
+    expect(body).not_to include('fa-trash')
+
+    get edit_client_custom_field_property_path(client, prop, custom_field_id: cf.id)
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to match(%r{data-method="delete" href="[^"]*custom_field_properties/#{prop.id}})
+    expect(response.body).to match(/>\s*Delete\s*</)
+  end
 end

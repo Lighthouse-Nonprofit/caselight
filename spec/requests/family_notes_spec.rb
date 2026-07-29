@@ -65,6 +65,22 @@ RSpec.describe 'Family notes', type: :request do
       expect(response).to have_http_status(:ok)
       expect(AccessLog.count).to be >= 1
     end
+
+    # Investor UX round (2026-07): trash left the note cards; Delete lives on the edit page,
+    # anchored at the opposite outer edge (docs/ui-conventions.md destructive placement).
+    it 'note cards carry a labeled Edit but no delete; the edit page carries the delete' do
+      get family_family_notes_path(family)
+      body = response.body
+      expect(body).to include('>Edit<')
+      # scoped to the note record — the sidebar Log-out is data-method="delete" on every page
+      expect(body).not_to match(%r{data-method="delete" href="[^"]*family_notes/#{note.id}})
+      expect(body).not_to include('fa-trash')
+
+      get edit_family_family_note_path(family, note)
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to match(%r{data-method="delete" href="[^"]*family_notes/#{note.id}})
+      expect(response.body).to include('>Delete<')
+    end
   end
 
   describe 'strategic overviewer (no household-narrative need-to-know)' do
