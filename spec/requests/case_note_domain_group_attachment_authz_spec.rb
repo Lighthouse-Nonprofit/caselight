@@ -159,7 +159,9 @@ RSpec.describe 'Case-note domain-group attachment download gate (POAM-013)', typ
       get client_case_notes_path(client)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include(download_path(cndg, 0))
+      # The fixture is a PDF, so since PR B3 the rendered link carries ?disposition=inline
+      # (the verified-PDF inline-view hint) — match the path itself, not the exact query.
+      expect(response.body).to include("/downloads/case_note_domain_group/#{cndg.id}/attachments/0")
       expect(response.body).not_to include('Restricted — not authorized to view')
     end
   end
