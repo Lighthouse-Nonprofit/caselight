@@ -81,11 +81,37 @@
             %strong.badge.text-bg-light
               = user case_worker
         - items << info_item(t('.case_worker_or_staff'), case_workers_html.presence)
+        -# Investor UX round (2026-07): cross-record links — agencies/donor/referral source
+        -# values link to their (index) pages when the viewer can read them (no show routes
+        -# exist for these reference records). Donor + Referral Source rows are NEW: they were
+        -# invisible outside the edit form.
         - agencies_html = capture do
           - @client.agencies.each do |agency|
             %strong.badge.text-bg-light.agency
-              = agency.name
+              - if can? :read, Agency
+                = link_to agency.name, agencies_path
+              - else
+                = agency.name
         - items << info_item(t('.agencies_involved'), agencies_html.presence)
+        - donor_html = capture do
+          - if @client.donor.present?
+            %strong.badge.text-bg-light.donor
+              - if can? :read, Donor
+                = link_to @client.donor.name, donors_path
+              - else
+                = @client.donor.name
+        - items << info_item(t('.donor'), donor_html.presence)
+        -# @client is decorated and ClientDecorator#referral_source returns the NAME string —
+        -# go through .object for the association.
+        - referral_record = @client.object.referral_source
+        - referral_source_html = capture do
+          - if referral_record.present?
+            %strong.badge.text-bg-light.referral-source
+              - if can? :read, ReferralSource
+                = link_to referral_record.name, referral_sources_path
+              - else
+                = referral_record.name
+        - items << info_item(t('.referral_source'), referral_source_html.presence)
         = render 'state', items: items
         -# UX round 3 (A2): the Resettlement Case facts (item-appender since R4-3).
         = render 'about_case_rows', client: @client, items: items

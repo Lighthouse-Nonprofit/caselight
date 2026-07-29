@@ -29,7 +29,10 @@
                   %td= donor.code
                   %td= donor.description
                   %td
-                    - donor.clients.each do |client|
+                    -# Investor UX round (2026-07): accessible_by-scoped for consistency with the
+                    -# agencies/referral-sources columns (only admin + strategic overviewer can
+                    -# reach this page today, and both hold org-wide client read — no live leak).
+                    - donor.clients.accessible_by(current_ability).each do |client|
                       %strong.badge.text-bg-light.client
                         = link_to entity_name(client), client_path(client)
                   - if can? :manage, Donor
