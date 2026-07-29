@@ -668,9 +668,6 @@ GEM
     websocket-extensions (0.1.5)
     whenever (1.1.2)
       chronic (>= 0.6.3)
-    wicked_pdf (2.8.2)
-      activesupport
-      ostruct
     xpath (3.2.0)
       nokogiri (~> 1.8)
     zeitwerk (2.8.2)
@@ -758,7 +755,6 @@ DEPENDENCIES
   typhoeus
   webauthn (~> 3.4)
   whenever (~> 1.1.2)
-  wicked_pdf (~> 2.8)
 
 BUNDLED WITH
    2.5.22

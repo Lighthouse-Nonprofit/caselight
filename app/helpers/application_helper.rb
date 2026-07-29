@@ -74,7 +74,7 @@ module ApplicationHelper
   end
 
   def clients_menu_active
-    names = %w(clients tasks assessments case_notes cases government_reports leave_programs client_enrollments client_enrollment_trackings client_advanced_searches)
+    names = %w(clients tasks assessments case_notes cases leave_programs client_enrollments client_enrollment_trackings client_advanced_searches)
     'active' if names.include?(controller_name) && params[:family_id].nil?
   end
 

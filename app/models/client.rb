@@ -30,7 +30,6 @@ class Client < ActiveRecord::Base
   belongs_to :followed_up_by,   class_name: 'User',     foreign_key: 'followed_up_by_id', counter_cache: true
   belongs_to :birth_province,   class_name: 'Province', foreign_key: 'birth_province_id', counter_cache: true
 
-  # has_one  :government_report, dependent: :destroy
   has_many :answers, dependent: :destroy
   has_many :able_screening_questions, through: :answers
   has_many :tasks,          dependent: :destroy

@@ -7,17 +7,16 @@ require 'rails_helper'
 # view class vocabulary and JS API surface, and asserts the BS5 replacements are wired.
 #
 # NB deliberate survivors (NOT banned): the `.ibox` family classnames (restyled on card DNA),
-# footable's `data-toggle="true"`, `.label-margin`/`.label-lg` utilities, the `.dropdown-menu
+# footable's `data-toggle="true"`, `.label-margin`/`.label-lg` utilities, and the `.dropdown-menu
 # li > a` compat styling (Q2 decision: dropdown items are partly decorator/helper-emitted,
-# so the shim is the permanent supported styling), and the PDF templates (`*.pdf.haml` +
-# layouts/pdf_design.html.haml) which stay permanently on Bootstrap 3.3.6.
+# so the shim is the permanent supported styling). (The BS3-pinned PDF templates exemption
+# ended in PR B1 — pdf_design + the *.pdf.haml templates left with the wkhtmltopdf stack.)
 RSpec.describe 'Bootstrap 3 / INSPINIA removal guard (POAM-017g THE FLIP)' do
   ROOT = Rails.root
 
   def haml_views
-    Dir.glob(ROOT.join('app', 'views', '**', '*.haml')).reject do |f|
-      f.end_with?('.pdf.haml') || f.end_with?(File.join('layouts', 'pdf_design.html.haml'))
-    end
+    # No exemptions since PR B1: the BS3-pinned PDF templates are gone, so EVERY haml view scans.
+    Dir.glob(ROOT.join('app', 'views', '**', '*.haml'))
   end
 
   def app_js
