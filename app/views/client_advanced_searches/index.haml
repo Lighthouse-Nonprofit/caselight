@@ -43,7 +43,7 @@
           %span.badge.text-bg-info= t('.results')
         .ibox-content
           .clients-table
-            %table.table.table-bordered.table-striped.table-hover.clients
+            %table.table.cl-record-table.clients
               %caption.visually-hidden= t('.grid_caption', default: 'Client search results')
               %thead
                 = datagrid_header(@client_grid)

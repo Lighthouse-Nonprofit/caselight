@@ -19,6 +19,6 @@
         %span.badge.text-bg-info= t('.results')
       .ibox-content
         .partners-table
-          = datagrid_table @partner_grid, html: { class: 'table table-bordered table-striped table-hover partners'}
+          = datagrid_table @partner_grid, html: { class: 'table cl-record-table partners'}
       .ibox-footer.text-center
         = paginate @partner_grid.assets

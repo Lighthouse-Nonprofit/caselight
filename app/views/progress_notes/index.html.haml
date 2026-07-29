@@ -24,7 +24,7 @@
             = t('.back')
       .ibox-content
         .progress_notes-table
-          = datagrid_table @progress_note_grid, html: {class: 'table table-bordered table-striped table-hover progress-notes'}
+          = datagrid_table @progress_note_grid, html: {class: 'table cl-record-table progress-notes'}
 .row
   .col-12.text-center
     = paginate @progress_note_grid.assets

@@ -53,6 +53,6 @@
         - else
           %p.household-members__empty= t('.no_members', default: 'No household members on record.')
         .clients-table
-          = datagrid_table @client_grid, html: { class: 'table table-bordered table-striped table-hover clients'}
+          = datagrid_table @client_grid, html: { class: 'table cl-record-table clients'}
       .ibox-footer.text-center
         = paginate @client_grid.assets
