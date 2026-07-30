@@ -57,6 +57,8 @@ RSpec.configure do |config|
   config.include JsonSpec::Helpers
   config.include FeatureHelper
   config.include TomSelect
+  # Data-task batch (2026-07): travel_to for zone-aware task-scope specs.
+  config.include ActiveSupport::Testing::TimeHelpers
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

@@ -38,9 +38,8 @@
               %input#task-completion-date.form-control.date-picker{ type: 'text', 'aria-required' => 'true' }
               %span.input-group-text
                 %i.fa.fa-calendar-check-o
-          .mb-3
-            %label.form-label{ for: 'task-remind-at' }= t('calendars.task_modal.remind_at')
-            %input#task-remind-at.form-control.date-picker{ type: 'text' }
+          -# Data-task batch (2026-07): remind_at (dead column) replaced by optional
+          -# time-of-day scheduling — native inputs, CSP-safe, zero JS. (Wired in C2.)
         .modal-footer
           %button.btn.btn-outline-secondary{ type: 'button', 'data-bs-dismiss' => 'modal' }= t('calendars.task_modal.cancel')
           %button#task-submit.btn.btn-primary{ type: 'submit', 'data-label-create' => t('calendars.task_modal.create'), 'data-label-creating' => t('calendars.task_modal.creating') }= t('calendars.task_modal.create')
