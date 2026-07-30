@@ -173,8 +173,10 @@ export the result to XLS. If a search returns nothing you expected to find, chec
 chips first: an over-narrow rule (two mutually exclusive conditions joined with AND) returns
 zero rows.
 
-Administrators also get a **Reports** button on the Individuals page — charts of assessment
-domain scores and case statistics across the organization.
+**The Reports page.** Administrators and directors get a **Reports** entry in the left menu
+(also linked from the Individuals page header). It gathers the organization-wide charts —
+assessment domain scores and case statistics — plus the data tools: Advanced Search with its
+Excel export. Per-vertical reporting will grow here.
 
 ## 7. The household record
 
@@ -184,8 +186,9 @@ Households have a full record of their own — the shared context that individua
 The page keeps a persistent header — household name, type, status, and counts — with an
 **Actions** menu (edit, add form, new household note, new alert, delete) and four tabs:
 
-- **Overview** — an About grid (address, contact, type, status…), the **household members**
-  list (each member links to their individual record), and any custom-form panes.
+- **Overview** — an About grid (case history, address, member count, income…), the
+  **household members** list (each member links to their individual record) above a compact
+  members table, and any custom-form panes.
 - **Forms** — the household's filled custom forms, same layout as an individual's Forms tab
   ([§8](#8-the-individual-record)).
 - **Notes** — **household notes**: the shared narrative that belongs to the whole household
@@ -214,20 +217,21 @@ its alerts, and add household notes for the families you serve.
 <p align="center"><img src="screenshots/client-detail.jpg" alt="An individual's record" width="900"></p>
 
 An individual's page brings the whole picture together under a persistent header — the person's
-name, status, date of birth, code, household, and (when relevant) a red **Household alert** badge
+name, status, date of birth, household, and (when relevant) a red **Household alert** badge
 — with an **Actions** menu and tabs that follow you across every sub-page:
 
 - **Overview** — the **About** section first: one label-over-value grid holding the person's
   details *and* the case facts (intake date, case household, case status), with
   **Edit Case** and **Exit From Case** close to hand. Below it: **Programs** and
-  **recent program activity** panes, then any screening answers.
-- **Programs** — enrolled programs (with exit/tracking actions) above the programs available
-  to enroll.
-- **Forms** — every filled custom form in one table: form name, entry count, latest entry, and
-  **View entries / Add entry** actions, with the forms still available to add listed below.
-  Forms marked **emergency-only** appear as locked rows: staff who qualify can **Request
-  access** — a 1-hour, reason-required break-glass grant (the header shows a countdown chip
-  while access is active).
+  **recent program activity** panes, then **each filled custom form as its own collapsible
+  section** — expand one to read the latest entries without leaving the page.
+- **Programs** — one tab per program the person has ever been in, each holding that program's
+  dates, check-ins, and actions, plus an **Add Program** picker ([§9](#9-programs--enrollments)).
+- **Forms** — every filled custom form in one table: the **form name opens its entries**, with
+  entry count, latest-entry date, and an **Add entry** action beside it; the **Add new form**
+  menu holds the forms not yet started. Forms marked **emergency-only** appear as locked rows:
+  staff who qualify can **Request access** — a 1-hour, reason-required break-glass grant (the
+  header shows a countdown chip while access is active).
 - **Case Notes / Assessments / Tasks** — each one click away, with counts on the tabs.
 
 <p align="center"><img src="screenshots/client-forms.jpg" alt="The Forms tab" width="900"></p>
@@ -238,9 +242,9 @@ active EC/FC/KC case), New Case Note, Add Form, New Assessment, New Task, progre
 history, and (for authorized roles) Delete.
 
 Two small conveniences worth knowing: sections with nothing in them start **collapsed** — the
-chevron in a section's corner expands it; and after you pick a destination from the left menu,
-the sidebar folds itself away to give the record the full width. Click the menu icon to pin it
-back open.
+chevron in a section's corner expands it; and the left menu collapses to an icon rail from the
+menu icon whenever you want the record at full width — your choice sticks, in both directions,
+until you toggle it again.
 
 ## 9. Programs & enrollments
 
@@ -250,14 +254,19 @@ actually runs.
 
 <p align="center"><img src="screenshots/programs.jpg" alt="Programs" width="900"></p>
 
-Enroll an individual in one or more programs, then log dated trackings against each enrollment
-as the work progresses. The history of the case is captured as it happens.
+On a person's **Programs** tab, every program they have ever been in gets **its own tab**:
+the enrollment date (and exit date, once exited), an **Add Tracking** action for the program's
+check-in forms, and the running timeline — enrollment, every check-in, and the exit, newest
+first, each with a **View** link into the full entry. **Add Program** opens the picker of
+programs with space available; programs that are full say so. Coming from a person's Overview,
+clicking a program name lands you directly on that program's tab.
 
-<p align="center"><img src="screenshots/client-programs.jpg" alt="A person's enrolled programs" width="900"></p>
+<p align="center"><img src="screenshots/client-programs.jpg" alt="A person's programs, one tab per program" width="900"></p>
 
-**Leaving a program.** When someone completes (or exits) a program, use the program's exit
-action — it captures the program's exit form with the leave date. Exited enrollments stay
-visible on the Programs tab below the active ones, and every tracking entry remains exportable
+**Leaving a program.** When someone completes (or exits) a program, use the tab's
+**Exit Program** action — it captures the program's exit form with the leave date. Exited
+programs keep their tabs (with a **Re-enroll** action when the program allows it), and every
+tracking entry remains exportable
 per enrollment, so the record of the work survives the exit.
 
 **Tracking form or custom form?** If the data belongs to a *program* — a recurring check-in
