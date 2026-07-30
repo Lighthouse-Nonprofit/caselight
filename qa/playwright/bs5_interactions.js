@@ -127,21 +127,27 @@ const block = async (name, fn) => {
     await switchAndAssert('a[href="#all-custom-form"]', '#all-custom-form', '#custom-form');
   });
 
-  // 6. Popover (family SHOW member count — not the index)
-  await block('popover (family show)', async () => {
-    await goto('/families');
-    const famPath = await firstPath('/families/', '/families/\\d+$');
-    if (!famPath) throw new Error('no family link on /families');
-    await goto(famPath);
-    const pop = await page.$('a#client-count, [data-toggle="popover"], [data-bs-toggle="popover"]');
-    if (!pop) throw new Error('no popover trigger on family show');
-    await pop.click();
-    await page.waitForTimeout(1200);
-    if (!(await visible('.popover'))) {
-      await pop.focus();
-      await page.waitForTimeout(800);
-      if (!(await visible('.popover'))) throw new Error('popover did not open (click+focus)');
-    }
+  // 6. Popover — RE-BASELINED (investor UX round): the family-show member grid went LEAN and
+  // no longer renders popover columns; the full ClientGrid (form-title "Total : N" popover)
+  // lives on the advanced-search surface now.
+  // RE-BASELINED (investor UX round): the popover COLUMNS left the default pages (family-show
+  // members + users-caseload grids went lean; the full grid renders only on a submitted
+  // advanced search). SYNTHETIC check (toastr pattern): the BS5 popover API itself stays
+  // covered without depending on a redesigned surface.
+  await block('popover (synthetic, BS5 API)', async () => {
+    await goto('/');
+    const shown = await page.evaluate(async () => {
+      const btn = document.createElement('button');
+      btn.setAttribute('data-bs-toggle', 'popover');
+      btn.setAttribute('data-bs-content', 'qa-popover-body');
+      btn.textContent = 'qa-popover';
+      document.body.appendChild(btn);
+      const pop = new window.bootstrap.Popover(btn);
+      pop.show();
+      await new Promise((r) => setTimeout(r, 600));
+      return !!document.querySelector('.popover');
+    });
+    if (!shown) throw new Error('synthetic BS5 popover did not open');
   });
 
   // 7. Datepicker opens + picks. FORMAT PIN: the app configures format 'yyyy-mm-dd' at every
