@@ -37,14 +37,11 @@ describe 'Client' do
   feature 'Reports' do
     before do
       login_as(admin)
-      visit clients_path
+      # Investor UX round (2026-07): the charts live on the Reports landing page now.
+      visit reports_path
     end
     scenario 'Domain Score Statistic and Case Type Statistic', js: true do
-      # UX rung 3: the Reports toggle lives in the page-header overflow dropdown
-      find('.page-header__more').click
-      page.find("#client-statistic").click
-      wait_for_ajax
-      expect(page).to have_css("#cis-domain-score[data-title='#{I18n.t('clients.index.csi_domain_scores')}']")
+      expect(page).to have_css("#cis-domain-score[data-title='#{I18n.t('reports.index.csi_domain_scores')}']")
       expect(page).to have_css("#cis-domain-score[data-yaxis-title='Domain Scores']")
       expect(page).to have_css("#case-statistic[data-title='Case Statistics']")
       expect(page).to have_css("#case-statistic[data-yaxis-title='Client Amounts']")

@@ -28,14 +28,16 @@ describe 'ibox section collapse', js: true do
   end
 
   scenario 'a populated section starts expanded and collapses on click' do
+    # Investor UX round (2026-07): the Available-forms section became the Add-new-form picker,
+    # so the POPULATED section under test is the filled-forms table.
+    client.custom_field_properties.create!(custom_field: free_cf, properties: { 'Anything' => 'x' })
     visit client_forms_path(client)
 
-    available = find('.ibox', text: 'Available forms')
-    expect(available).not_to match_css('.collapsed')
-    expect(available).to have_content('Collapse Spec Form')
+    filled = find('.ibox', text: 'Collapse Spec Form')
+    expect(filled).not_to match_css('.collapsed')
 
-    available.find('.collapse-link').click
-    expect(available).to match_css('.collapsed')
-    expect(available).to have_css('.ibox-content', visible: :hidden)
+    filled.find('.collapse-link').click
+    expect(filled).to match_css('.collapsed')
+    expect(filled).to have_css('.ibox-content', visible: :hidden)
   end
 end

@@ -115,7 +115,8 @@ feature 'Case' do
       click_button 'Save'
 
       sleep 1
-      expect(page).to have_content(/resettlement case/i) # About-row label renders uppercased (CSS text-transform)
+      # Investor UX round (2026-07): vertical-neutral About-row label
+      expect(page).to have_css('dt', text: /\ACase\z/i)
       expect(active_case.reload.carer_names).to eq('Carer Name')
     end
 
