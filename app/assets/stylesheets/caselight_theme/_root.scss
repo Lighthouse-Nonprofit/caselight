@@ -123,6 +123,15 @@ h6, .h6 {
 a { color: $lazur; transition: color 0.12s ease-in-out; }
 a:hover, a:active, a:focus { color: shade-color($lazur, 12%); }
 
+// Investor UX round (2026-07): CONTENT links reveal an underline on hover — one consistent
+// "this navigates" signal ("Links vs buttons", docs/ui-conventions.md). Exclusion-scoped:
+// buttons, nav surfaces, chips/cards (they own their hover treatments), icon controls, and
+// the grandfathered .btn-div-inside-anchor sites (:has guards — text-decoration would
+// propagate into the button face).
+#page-wrapper a:hover:not(.btn):not(.nav-link):not(.dropdown-item):not(.badge):not(.dashboard-tile-link):not(.collapse-link):not(.close-link):not(.fullscreen-link):not(.btn-close):not(.page-header__more):not([class*='record-card']):not([class*='record-grid__tag']):not([class*='household-members']):not([class*='client-hub__']):not(:has(.btn)):not(:has(.badge)):not(:has(img)) {
+  text-decoration: underline;
+}
+
 @media (prefers-reduced-motion: reduce) {
   a { transition: none; }
 }

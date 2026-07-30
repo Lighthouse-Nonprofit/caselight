@@ -1,4 +1,4 @@
 .tooltip-demo
   = link_to '#', {id: 'client-count', "data-bs-container" => "body", "data-bs-content" => "<div>#{family_clients_list(object)}</div>", "data-bs-placement" => "top", "data-bs-toggle" => "popover", :title => "#{I18n.t('datagrid.columns.families.clients')}", :type => "button", 'data-bs-html': "true"} do
-    %span.btn.btn-info.btn-xs
+    %span.badge.text-bg-info
       = "#{I18n.t('datagrid.columns.families.total')} : #{object.cases.non_emergency.active.count}"

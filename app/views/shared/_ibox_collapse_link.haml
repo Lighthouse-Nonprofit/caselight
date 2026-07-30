@@ -4,6 +4,9 @@
 -# always ship fa-chevron-up here).
 -# locals: collapsed: (default false)
 - collapsed = local_assigns.fetch(:collapsed, false)
+-# Investor UX round (2026-07): a QUIET icon control, not button chrome — .btn is reserved
+-# for real actions (docs/ui-conventions.md "Links vs buttons"). The CSS glyph swap keys off
+-# .ibox.collapsed, so the wrapper change is invisible to the collapse contract.
 %a.collapse-link{ role: 'button', tabindex: 0, 'aria-expanded' => (!collapsed).to_s, 'aria-label' => t('shared.ibox_collapse_link.toggle', default: 'Toggle section') }
-  .btn.btn-outline.btn-primary
+  %span.ibox-collapse-glyph
     %i.fa.fa-chevron-up{ 'aria-hidden' => 'true' }

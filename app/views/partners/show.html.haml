@@ -20,9 +20,7 @@
           = "#{t('.general_info')} #{@partner.name}"
           = "(#{@partner.organisation_type})" if @partner.organisation_type.present?
         .ibox-tools
-          %a.collapse-link
-            .btn.btn-outline.btn-primary
-              %i.fa.fa-chevron-up
+          = render 'shared/ibox_collapse_link'
           - if can? :manage, Partner
             %small
               = link_to edit_partner_path(@partner) do
