@@ -129,6 +129,8 @@
 -# and recent activity follow.
 - if @client.state == 'accepted'
   = render 'clients/overview_panes'
+  -# Investor UX round (2026-07): filled custom forms as collapsed sections, below the panes.
+  = render 'clients/custom_form_sections'
   .row
     .col-12
       = render('client_answers')

@@ -63,12 +63,13 @@ RSpec.describe 'Client hub header', type: :request do
       # Edit dropdown carries edit + delete (one canonical spot)
       expect(body).to include(edit_client_path(client))
       expect(body).to match(/data-method=["']delete["']/)
-      # A1: form titles moved off the show page with the Forms card
-      expect(body).not_to include('HubSpec Intake')
-      expect(body).not_to include('HubSpec Emergency Whereabouts')
+      # Investor UX round (2026-07): standard filled forms render as collapsed Overview
+      # sections again (the round-3 "card gone" contract inverted, owner-approved).
+      expect(body).to include('HubSpec Intake')
+      expect(body).to include('overview-form-section')
     end
 
-    it 'shows no form titles or values on show for a non-elevated worker (card gone)' do
+    it 'shows standard sections but never emergency titles/values for a non-elevated worker' do
       sign_in_as(worker)
       get client_path(client)
       expect(response).to have_http_status(:ok)
@@ -76,7 +77,9 @@ RSpec.describe 'Client hub header', type: :request do
 
       expect(body).to include('client-hub__tabs')
       expect(body).to include(client_forms_path(client))
-      expect(body).not_to include('HubSpec Intake')
+      # standard form: a collapsed Overview section now (investor UX round)
+      expect(body).to include('HubSpec Intake')
+      # emergency form: RECORD-LESS visible set — never inline on the Overview
       expect(body).not_to include('HubSpec Emergency Whereabouts')
       # and the sentinel VALUE never reaches this viewer's page
       expect(body).not_to include('EMERGENCY_HUB_SENTINEL')

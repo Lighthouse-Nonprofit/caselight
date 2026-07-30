@@ -1,6 +1,7 @@
 class ClientsController < AdminController
   include AccessAudit   # AU-2/AU-12: audit successful Client show/index reads
   include SensitiveFields  # Phase 5.3 — visible custom_field_id set, visible_domain_levels, denied logging
+  include GroupedCustomForms # investor UX round: Overview form sections (grouping shared with FormsController)
   include ClientGridOptions
 
   load_and_authorize_resource find_by: :slug, except: :quantitative_case
@@ -53,6 +54,10 @@ class ClientsController < AdminController
                                                            .where(client_enrollments: { client_id: @client.id })
                                                            .includes(:tracking, client_enrollment: :program_stream)
                                                            .order(created_at: :desc).limit(5)
+    # Investor UX round (2026-07): filled custom forms render as collapsed Overview sections.
+    # RECORD-LESS visible set on purpose — emergency/break-glass grants never render inline
+    # here (the Forms tab + entries pages stay the audited break-glass surfaces).
+    @overview_grouped_forms      = grouped_visible_forms(@client, visible_custom_field_ids)
     initial_visit_client
   end
 
