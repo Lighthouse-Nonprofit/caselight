@@ -168,10 +168,9 @@ Rails.application.routes.draw do
     end
 
     resources :client_enrollments do
+      # kept as a 301 to the Programs tab's pane deep link (investor UX round, 2026-07)
       get :report, on: :collection
-      resources :client_enrollment_trackings do
-        get :report, on: :collection
-      end
+      resources :client_enrollment_trackings
       resources :leave_programs
     end
 

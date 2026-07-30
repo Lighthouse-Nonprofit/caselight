@@ -1,0 +1,65 @@
+-# One program's pane on the consolidated Programs tab (investor UX round, 2026-07).
+-# Meta line (enrolled/exited dates) + actions row + the report timeline (Forms FIRST, then
+-# the creation date, then Actions — owner-specified order; rows ported from the retired
+-# report.haml: exit -> trackings (newest first) -> enrollment, per enrollment, newest first).
+-# Action classes are pinned: `.btn-primary.btn-xs.btn-width` leads, destructive Exit trails
+-# `.btn-outline-danger…action-gap-start` (docs/ui-conventions.md rule 1 + its canary spec).
+-#
+-# locals: program_stream: (decorated), enrollments: (this stream's enrollments, newest first)
+- latest = enrollments.first
+- active = program_stream.enrollment_status_value(@client) == 'Active'
+.program-pane
+  .program-pane__meta
+    %p.text-muted.mb-0
+      - if latest
+        %span
+          = t('.enrolled_on', default: 'Enrolled')
+          = date_format(latest.enrollment_date.presence || latest.created_at)
+        - if latest.leave_program.present?
+          %span.action-gap-start
+            = t('.exited_on', default: 'Exited')
+            = date_format(latest.leave_program.exit_date.presence || latest.leave_program.created_at)
+    .program-pane__actions
+      - if active && latest && (can? :manage, ClientEnrollmentTracking) && !program_stream.tracking_required? && program_stream.trackings.any?
+        - if program_stream.trackings.size == 1
+          = link_to new_client_client_enrollment_client_enrollment_tracking_path(@client, latest, tracking_id: program_stream.trackings.first.id) do
+            .btn.btn-primary.btn-xs.btn-width= t('.add_tracking', default: 'Add Tracking')
+        - else
+          .dropdown.d-inline-block
+            %button.btn.btn-primary.btn-xs.dropdown-toggle{ type: 'button', 'data-bs-toggle' => 'dropdown', 'aria-expanded' => 'false' }
+              = t('.add_tracking', default: 'Add Tracking')
+            %ul.dropdown-menu
+              - program_stream.trackings.each do |tracking|
+                %li= link_to tracking.name, new_client_client_enrollment_client_enrollment_tracking_path(@client, latest, tracking_id: tracking.id), class: 'dropdown-item'
+      - if !active && (can? :manage, ClientEnrollment) && program_stream.enroll?(@client)
+        - if program_stream.maximum_client?
+          .badge.text-bg-info= t('client_enrollments.manage.full_program', default: 'This Program is full')
+        - else
+          = link_to new_client_client_enrollment_path(@client, program_stream_id: program_stream.id) do
+            .btn.btn-primary.btn-xs.btn-width= t('.re_enroll', default: 'Re-enroll')
+      - if active && latest && (can? :manage, ClientEnrollment)
+        = link_to new_client_client_enrollment_leave_program_path(@client, latest) do
+          .btn.btn-outline-danger.btn-xs.btn-width.action-gap-start= t('.exit_program', default: 'Exit Program')
+  .cl-table-scroll
+    %table.table.cl-record-table.program-pane__timeline
+      %thead
+        %tr
+          %th= t('.forms', default: 'Forms')
+          %th= t('.date', default: 'Date')
+          %th= t('.actions', default: 'Actions')
+      %tbody
+        - enrollments.each do |enrollment|
+          - if enrollment.leave_program.present?
+            %tr
+              %td= t('.exit_row', default: 'Exit')
+              %td= enrollment.leave_program.exit_date? ? date_format(enrollment.leave_program.exit_date) : date_format(enrollment.leave_program.created_at)
+              %td= link_to t('.view', default: 'View'), client_client_enrollment_leave_program_path(@client, enrollment, enrollment.leave_program)
+          - enrollment.client_enrollment_trackings.sort_by(&:created_at).reverse.each do |enrollment_tracking|
+            %tr
+              %td= "#{t('.tracking', default: 'Tracking')} (#{enrollment_tracking.tracking.try(:name)})"
+              %td= date_format(enrollment_tracking.created_at)
+              %td= link_to t('.view', default: 'View'), client_client_enrollment_client_enrollment_tracking_path(@client, enrollment, enrollment_tracking)
+          %tr
+            %td= t('.enrollment', default: 'Enrollment')
+            %td= enrollment.enrollment_date? ? date_format(enrollment.enrollment_date) : date_format(enrollment.created_at)
+            %td= link_to t('.view', default: 'View'), client_client_enrollment_path(@client, enrollment, program_stream_id: program_stream.id)

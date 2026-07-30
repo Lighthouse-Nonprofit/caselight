@@ -719,8 +719,6 @@ en:
       results: Results
       search: Search
   client_enrollment_trackings:
-    action:
-      new_tracking: New Tracking
     create:
       successfully_created: Tracking Program has been successfully created.
     destroy:
@@ -730,22 +728,15 @@ en:
       edit_tracking: Edit Tracking
     form:
       allow_file_size: Allowed file types
+      are_you_sure: Are you sure you want to delete?
       cancel: Cancel
+      delete: Delete
       save: Save
       max_file_size: "*Maximum file size: 5MB/file and 30MB/upload."
-    index:
-      programs_list: Programs List
-      tracking_lists: Trackings List
     new:
-      new_tracking: New Tracking
-    report:
-      are_you_sure: Are you sure you want to delete?
-      back: Back
-      created_at: Created Date
       new_tracking: New Tracking
     show:
       back: Back
-      trackings_list: Client Trackings List
     update:
       successfully_updated: Tracking Program has been successfully updated.
   leave_enrolled_programs:
@@ -837,6 +828,14 @@ en:
     update:
       successfully_updated: Enrollment has been successfully updated.
   client_enrollments:
+    add_program_modal:
+      actions: Actions
+      close: Close
+      domain: Domain
+      enroll: Enroll
+      name: Program Name
+      places: Places left
+      title: Add Program
     create:
       successfully_created: Enrollment has been successfully created.
     destroy:
@@ -847,36 +846,31 @@ en:
     form:
       allow_file_size: Allowed file types
       cancel: Cancel
+      delete: Delete
       enrollment_date: Enrollment Date
       not_an_email: not an email
       save: Save
       max_file_size: "*Maximum file size: 5MB/file and 30MB/upload."
     index:
-      actions: Actions
-      back: Back
-      domain: Domain
-      name: Program Name
-      program_lists: Programs List
-      quantity: Number of Place Available
-      report: Report
-      status: Status
-      view: View
+      add_program: Add Program
+      no_programs: Not yet enrolled in a program.
+      title: Programs
     manage:
-      enroll: Enroll
-      exit: Exit
       full_program: This Program is full
-      tracking: Trackings
     new:
       client_not_valid: Client doesn't match with this program rules.
       new_enrollment: New Enrollment
-    report:
+    program_pane:
       actions: Actions
+      add_tracking: Add Tracking
       date: Date
+      enrolled_on: Enrolled
       enrollment: Enrollment
-      exit: Exit
+      exit_program: Exit Program
+      exit_row: Exit
+      exited_on: Exited
       forms: Forms
-      programs_list: Programs List
-      report: Reports
+      re_enroll: Re-enroll
       tracking: Tracking
       view: View
     show:

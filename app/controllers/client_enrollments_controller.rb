@@ -6,12 +6,21 @@ class ClientEnrollmentsController < AdminController
   include FormBuilderAttachments
 
   def index
-    # UX rung 4 — merged "Programs" entry point: this page now leads with the client's ACTIVE
-    # enrollments (the client_enrolled_programs scope; that controller keeps its report/exit/
-    # tracking routes) above the enrollable/exited list below.
-    @enrolled_program_streams = ProgramStreamDecorator.decorate_collection(ProgramStream.active_enrollments(@client).complete)
-    program_streams = ProgramStreamDecorator.decorate_collection(ordered_program)
-    @program_streams = Kaminari.paginate_array(program_streams).page(params[:page]).per(20)
+    # Investor UX round (2026-07): one sub-tab per ever-enrolled program — active first, then
+    # exited (`.complete` deliberately dropped on the pane scopes so Overview deep links always
+    # resolve, even for incompletely-configured streams) — plus an Add Program picker modal
+    # holding the never-enrolled list (exited programs re-enroll from their own pane).
+    @active_streams  = ProgramStreamDecorator.decorate_collection(ProgramStream.active_enrollments(@client))
+    @exited_streams  = ProgramStreamDecorator.decorate_collection(ProgramStream.inactive_enrollments(@client))
+    @pane_streams    = @active_streams + @exited_streams
+    @enrollable_streams = ProgramStreamDecorator.decorate_collection(ProgramStream.without_status_by(@client).complete)
+    @enrollments_by_stream = @client.client_enrollments
+                                    .where(program_stream_id: @pane_streams.map(&:id))
+                                    .includes(:leave_program, client_enrollment_trackings: :tracking)
+                                    .order(created_at: :desc)
+                                    .group_by(&:program_stream_id)
+    requested = params[:program_stream_id].presence&.to_i
+    @selected_stream_id = @pane_streams.map(&:id).include?(requested) ? requested : @pane_streams.first&.id
   end
 
   def new
@@ -48,7 +57,9 @@ class ClientEnrollmentsController < AdminController
     @client_enrollment = @client.client_enrollments.new(client_enrollment_params)
     authorize @client_enrollment
     if @client_enrollment.save
-      redirect_to client_client_enrolled_program_path(@client, @client_enrollment, program_stream_id: @program_stream), notice: t('.successfully_created')
+      # Investor UX round (2026-07): land on the new program's pane (this used to cross-wire
+      # into the legacy client_enrolled_programs family).
+      redirect_to client_client_enrollments_path(@client, program_stream_id: @program_stream.id), notice: t('.successfully_created')
     else
       render :new
     end
@@ -63,20 +74,13 @@ class ClientEnrollmentsController < AdminController
       redirect_to request.referer, notice: t('.delete_attachment_successfully')
     else
       @client_enrollment.destroy
-      redirect_to report_client_client_enrollments_path(@client, program_stream_id: @program_stream), notice: t('.successfully_deleted')
+      redirect_to client_client_enrollments_path(@client, program_stream_id: @program_stream.id), notice: t('.successfully_deleted')
     end
   end
 
   def report
-    @enrollments = @program_stream.client_enrollments.enrollments_by(@client).order(created_at: :DESC)
-  end
-
-  private
-
-  def program_stream_order_by_enrollment
-    program_streams = []
-    client_enrollments_exited     = ProgramStream.inactive_enrollments(@client).complete
-    client_enrollments_inactive   = ProgramStream.without_status_by(@client).complete
-    program_streams               = client_enrollments_exited + client_enrollments_inactive
+    # Investor UX round (2026-07): the standalone report page folded into the Programs tab's
+    # per-program pane — permanent redirect keeps old bookmarks and back-links working.
+    redirect_to client_client_enrollments_path(@client, program_stream_id: params[:program_stream_id]), status: :moved_permanently
   end
 end

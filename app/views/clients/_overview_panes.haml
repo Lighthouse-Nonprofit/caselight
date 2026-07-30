@@ -16,14 +16,16 @@
             %ul.client-overview__list
               - @active_client_enrollments.each do |client_enrollment|
                 %li
-                  = link_to client_enrollment.program_stream.name, client_client_enrollment_path(@client, client_enrollment, program_stream_id: client_enrollment.program_stream_id)
+                  -# Investor UX round (2026-07): deep-link to the program's PANE on the
+                  -# Programs tab (?program_stream_id= selects the sub-tab server-side).
+                  = link_to client_enrollment.program_stream.name, client_client_enrollments_path(@client, program_stream_id: client_enrollment.program_stream_id)
                   %span.text-muted= "· #{date_format(client_enrollment.enrollment_date)}"
           - if @inactive_client_enrollments.present?
             %h5.client-overview__subhead= t('clients.overview.exited_programs', default: 'Exited')
             %ul.client-overview__list
               - @inactive_client_enrollments.each do |client_enrollment|
                 %li.text-muted
-                  = link_to client_enrollment.program_stream.name, client_client_enrollment_path(@client, client_enrollment, program_stream_id: client_enrollment.program_stream_id)
+                  = link_to client_enrollment.program_stream.name, client_client_enrollments_path(@client, program_stream_id: client_enrollment.program_stream_id)
                   - if client_enrollment.leave_program
                     %span= "· #{t('clients.overview.exited', default: 'exited')} #{date_format(client_enrollment.leave_program.exit_date)}"
           - if @active_client_enrollments.blank? && @inactive_client_enrollments.blank?

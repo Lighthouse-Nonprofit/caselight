@@ -1,17 +1,17 @@
+= render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
 .row
   .col-12
     .ibox
       .ibox-title
         %h5= "#{@client.en_and_local_name} - #{t('.enrollment_date')} #{date_format(@client_enrollment.enrollment_date)}"
         .ibox-tools
+          -# Investor UX round (2026-07): the trash moved to the EDIT page footer (deleting an
+          -# enrollment cascades its trackings + exit record — it deserves the extra step).
           - if can? :manage, ClientEnrollment
             = link_to edit_client_client_enrollment_path(@client, @client_enrollment, program_stream_id: @program_stream) do
               .btn.btn-success.btn-outline
                 = fa_icon('pencil')
-            = link_to client_client_enrollment_path(@client, @client_enrollment, program_stream_id: @program_stream), method: 'delete', data: { confirm: t('.are_you_sure') } do
-              .btn.btn-outline.btn-danger
-                %i.fa.fa-trash
-            = link_to t('.back'), report_client_client_enrollments_path(@client, program_stream_id: @program_stream), class: 'btn btn-back-default btn-outline-secondary form-btn margin-btn'
+            = link_to t('.back'), client_client_enrollments_path(@client, program_stream_id: @program_stream), class: 'btn btn-back-default btn-outline-secondary form-btn margin-btn'
       .ibox-content
         -# UX round 4 (R4-4): field table -> the info grid (user-authored labels = natural case).
         = render 'shared/info_grid', items: custom_field_info_items(@program_stream.enrollment, @client_enrollment), variant: 'info-grid--natural-case'

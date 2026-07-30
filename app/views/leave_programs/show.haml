@@ -1,3 +1,4 @@
+= render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
 .row
   .col-12
     .ibox
@@ -8,7 +9,7 @@
             = link_to edit_client_client_enrollment_leave_program_path(@client, @enrollment, @leave_program, program_stream_id: @program_stream) do
               .btn.btn-success.btn-outline
                 = fa_icon('pencil')
-          = link_to report_client_client_enrollments_path(@client, program_stream_id: @program_stream) do
+          = link_to client_client_enrollments_path(@client, program_stream_id: @program_stream) do
             .btn.btn-outline-secondary.btn-back-default
               = t('.back')
       .ibox-content

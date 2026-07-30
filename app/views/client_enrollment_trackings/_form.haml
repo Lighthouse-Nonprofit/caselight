@@ -17,4 +17,9 @@
   .ibox-footer
     = hidden_field_tag :tracking_id, @tracking.id
     = f.submit t('.save'), class: 'btn btn-primary form-btn'
-    = link_to t('.cancel'), report_client_client_enrollment_client_enrollment_trackings_path(@client, @enrollment, tracking_id: @tracking), class: 'btn btn-outline-secondary form-btn'
+    = link_to t('.cancel'), client_client_enrollments_path(@client, program_stream_id: @program_stream.id), class: 'btn btn-outline-secondary form-btn'
+    -# Investor UX round (2026-07): delete lives on the EDIT page now (the list rows lost
+    -# their trash icons) — destructive control last/outermost per docs/ui-conventions.md.
+    - if @client_enrollment_tracking.persisted? && (can? :destroy, @client_enrollment_tracking)
+      = link_to client_client_enrollment_client_enrollment_tracking_path(@client, @enrollment, @client_enrollment_tracking), method: 'delete', data: { confirm: t('client_enrollment_trackings.form.are_you_sure', default: 'Are you sure you want to delete?') }, class: 'btn btn-outline-danger form-btn action-gap-start' do
+        = t('.delete', default: 'Delete')
