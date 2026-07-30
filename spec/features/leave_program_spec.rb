@@ -8,13 +8,15 @@ describe LeaveProgram, 'Leave Program' do
     login_as admin
   end
 
+  # Investor UX round (2026-07, P1/P2): the exit flow starts from the program pane's
+  # Exit Program action on the consolidated Programs tab.
   feature 'Create', js: true do
     before do
       program_stream.reload
       program_stream.update_columns(completed: true)
 
-      visit client_client_enrolled_programs_path(client)
-      click_link('Exit')
+      visit client_client_enrollments_path(client)
+      click_link('Exit Program')
     end
 
     scenario 'Valid' do
@@ -49,7 +51,7 @@ describe LeaveProgram, 'Leave Program' do
     let!(:leave_program) { create(:leave_program, client_enrollment: client_enrollment, program_stream: program_stream) }
 
     before do
-      visit client_client_enrolled_program_leave_enrolled_program_path(client, client_enrollment, leave_program)
+      visit client_client_enrollment_leave_program_path(client, client_enrollment, leave_program)
     end
 
     scenario 'Age' do
@@ -73,7 +75,7 @@ describe LeaveProgram, 'Leave Program' do
     let!(:leave_program) { create(:leave_program, client_enrollment: client_enrollment, program_stream: program_stream) }
 
     before do
-      visit edit_client_client_enrolled_program_leave_enrolled_program_path(client, client_enrollment, leave_program, program_stream_id: program_stream.id)
+      visit edit_client_client_enrollment_leave_program_path(client, client_enrollment, leave_program, program_stream_id: program_stream.id)
     end
 
     scenario 'success' do

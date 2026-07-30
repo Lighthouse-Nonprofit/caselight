@@ -5,11 +5,8 @@ module ClientHubHelper
   HUB_TABS = {
     'clients'                          => :overview,
     'client_enrollments'               => :programs,
-    'client_enrolled_programs'         => :programs,
     'leave_programs'                   => :programs,
-    'leave_enrolled_programs'          => :programs,
     'client_enrollment_trackings'      => :programs,
-    'client_enrolled_program_trackings' => :programs,
     'forms'                            => :forms,
     'custom_field_properties'          => :forms,
     'case_notes'                       => :case_notes,

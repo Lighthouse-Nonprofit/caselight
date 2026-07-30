@@ -10,16 +10,18 @@ describe ClientEnrollmentTracking, 'Client Enrollment Tracking' do
     login_as admin
   end
 
+  # Investor UX round (2026-07, P1/P2): tracking creation starts from the program pane's
+  # Add Tracking action; the legacy trackings grid + report pages are gone (entries live on
+  # the pane timeline, values on show, delete on the edit page).
   feature 'Create', js: true do
     before do
       program_stream.reload
       program_stream.update_columns(completed: true)
-      visit client_client_enrolled_programs_path(client)
-      click_link('Trackings')
+      visit client_client_enrollments_path(client)
+      click_link('Add Tracking')
     end
 
     scenario 'Valid', js: true do
-      click_link('New Tracking')
       expect(page).to have_content('Adam Eve (Romeo Juliet) - Soccer - Fitness')
       within('#new_client_enrollment_tracking') do
         find('.numeric').set(4)
@@ -28,12 +30,11 @@ describe ClientEnrollmentTracking, 'Client Enrollment Tracking' do
 
         click_button 'Save'
       end
-      expect(page).to have_content('Good client')
-      expect(page).to have_content('test@example.com')
+      expect(page).to have_content('Tracking Program has been successfully created.')
+      expect(page).to have_content('Tracking (Soccer)')
     end
 
     scenario 'Invalid' do
-      click_link('New Tracking')
       expect(page).to have_content('Adam Eve (Romeo Juliet) - Soccer - Fitness')
       within('#new_client_enrollment_tracking') do
         find('.numeric').set(6)
@@ -43,62 +44,6 @@ describe ClientEnrollmentTracking, 'Client Enrollment Tracking' do
         click_button 'Save'
       end
       expect(page).to have_css('div.has-error')
-    end
-  end
-
-  feature 'Lists' do
-    before do
-      visit client_client_enrolled_program_client_enrolled_program_trackings_path(client, client_enrollment)
-    end
-
-    scenario 'Name' do
-      expect(page).to have_content(tracking.name)
-    end
-
-    scenario 'Program lists link' do
-      expect(page).to have_link('Programs List')
-    end
-
-    scenario 'Report link' do
-      expect(page).to have_link('View')
-    end
-
-    scenario 'New tracking link' do
-      expect(page).to have_link('New Tracking')
-    end
-  end
-
-  feature 'Report' do
-    before do
-      visit report_client_client_enrolled_program_client_enrolled_program_trackings_path(client, client_enrollment, tracking_id: tracking.id)
-    end
-
-    scenario 'Age' do
-      expect(page).to have_content('3')
-    end
-
-    scenario 'E-mail' do
-      expect(page).to have_content('test@example.com')
-    end
-
-    scenario 'Description' do
-      expect(page).to have_content('this is testing')
-    end
-
-    scenario 'Back Link' do
-      expect(page).to have_link('Back')
-    end
-
-    scenario 'New Tracking Link' do
-      expect(page).to have_link('New Tracking')
-    end
-
-    scenario 'Edit Link' do
-      expect(page).to have_link(nil)
-    end
-
-    scenario 'Destroy Link' do
-      expect(page).to have_css("a[href='#{client_client_enrolled_program_client_enrolled_program_tracking_path(client, client_enrollment, client_enrollment_tracking, tracking_id: tracking.id)}'][data-method='delete']")
     end
   end
 
@@ -122,22 +67,24 @@ describe ClientEnrollmentTracking, 'Client Enrollment Tracking' do
     scenario 'Back Link' do
       expect(page).to have_link('Back')
     end
-
-    scenario 'Client Tracking Link' do
-
-      expect(page).to have_link('Client Trackings List')
-    end
   end
 
   feature 'Update', js: true do
     before do
-      visit edit_client_client_enrolled_program_client_enrolled_program_tracking_path(client, client_enrollment, client_enrollment_tracking, tracking_id: tracking.id)
+      visit edit_client_client_enrollment_client_enrollment_tracking_path(client, client_enrollment, client_enrollment_tracking, tracking_id: tracking.id)
+    end
+
+    scenario 'Delete lives on the edit page (investor UX round)' do
+      expect(page).to have_css(".ibox-footer a[data-method='delete']")
     end
 
     scenario 'success' do
       expect(page).to have_content('Adam Eve (Romeo Juliet) - Soccer - Fitness')
       find('input[type="text"]').set('this is editing')
       find('input[type="submit"]').click
+      # P2: update lands on the program pane; the edited value lives behind the timeline View
+      expect(page).to have_content('Tracking Program has been successfully updated.')
+      first(:link, 'View').click
       expect(page).to have_content('this is editing')
     end
 
