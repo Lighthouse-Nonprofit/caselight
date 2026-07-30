@@ -116,9 +116,12 @@ Rails.application.routes.draw do
     get 'version' => 'donors#version'
   end
 
-  resources :program_streams do
+  # Investor UX round (2026-07): the URL says /programs (the UI has said "Programs" since the
+  # round-3 vocabulary sweep; ProgramStream stays the internal name — helpers unchanged).
+  resources :program_streams, path: 'programs' do
     get :preview, on: :collection
   end
+  get '/program_streams', to: redirect('/programs')
 
   resources :changelogs do
     get 'version' => 'changelogs#version'

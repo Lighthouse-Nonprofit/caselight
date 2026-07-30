@@ -121,7 +121,7 @@ const block = async (name, fn) => {
       const linkActive = await page.$eval(clickSel, (a) => a.classList.contains('active') || a.parentElement.classList.contains('active'));
       if (!linkActive) throw new Error(`trigger ${clickSel} did not take the active highlight`);
     };
-    await goto('/program_streams');
+    await goto('/programs');
     await switchAndAssert('a[href="#ngos-program-streams"]', '#ngos-program-streams', '#current-program-streams');
     await goto('/custom_fields');
     await switchAndAssert('a[href="#all-custom-form"]', '#all-custom-form', '#custom-form');
