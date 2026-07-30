@@ -13,7 +13,7 @@
       -# Investor UX round (2026-07): the "#code" record number left the display (still the h1
       -# fallback for unnamed households, still searchable via the drawer filter).
       - meta_items = [content_tag(:span, t('families.family_header.members', default: '%{count} member(s)', count: family.member_count.to_i))]
-      - meta_items << content_tag(:span, family.province.name) if family.province.present?
+      -# (Investor UX round follow-up: State left every household display — filter-only.)
       - meta_items << content_tag(:span, "#{t('families.family_header.since', default: 'Since')} #{date_format(family.contract_date)}") if family.contract_date.present?
       %p.client-hub__meta
         = safe_join(meta_items, content_tag(:span, ' · ', class: 'client-hub__sep', 'aria-hidden' => 'true'))
