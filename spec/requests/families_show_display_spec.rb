@@ -14,10 +14,12 @@ RSpec.describe 'families#show display contract', type: :request do
 
   let(:password) { 'SecurePass123!' }
   let(:admin) { create(:user, roles: 'admin', password: password, password_confirmation: password) }
+  let(:province) { Province.find_by(name: 'HouseholdStateSentinel') || Province.create!(name: 'HouseholdStateSentinel') }
   let!(:family) do
     create(:family, name: 'Harbor House', code: 'HH-9', family_type: 'foster',
                     male_adult_count: 1, female_adult_count: 1,
-                    male_children_count: 0, female_children_count: 0)
+                    male_children_count: 0, female_children_count: 0,
+                    province: province)
   end
   let!(:member)      { create(:client, given_name: 'Membery', family_name: 'McMember', state: 'accepted') }
   let!(:member_case) { create(:case, case_type: 'FC', client: member, family: family) }
@@ -41,6 +43,8 @@ RSpec.describe 'families#show display contract', type: :request do
     expect(body).not_to include('Household Size')
     expect(body).not_to include("##{family.code}")
     expect(body).not_to match(/>State</)
+    # follow-up: the geographic value itself left EVERY household display (header meta too)
+    expect(body).not_to include('HouseholdStateSentinel')
     expect(body).not_to include('translation_missing')
 
     # lean members table: case-manager column in, full-grid columns out, member row renders
