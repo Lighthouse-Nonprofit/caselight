@@ -24,8 +24,7 @@ module ClientEnrollmentTrackingsConcern
   end
 
   def find_enrollment
-    emrollment_id = params[:client_enrollment_id] || params[:client_enrolled_program_id]
-    @enrollment = @client.client_enrollments.find emrollment_id
+    @enrollment = @client.client_enrollments.find params[:client_enrollment_id]
   end
 
   def find_program_stream

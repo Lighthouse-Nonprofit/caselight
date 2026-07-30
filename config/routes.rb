@@ -174,14 +174,6 @@ Rails.application.routes.draw do
       resources :leave_programs
     end
 
-    resources :client_enrolled_programs do
-      get :report, on: :collection
-      resources :client_enrolled_program_trackings do
-        get :report, on: :collection
-      end
-      resources :leave_enrolled_programs
-    end
-
     resources :custom_field_properties
     # UX round 3 (A1) — the merged Forms partition page (filled + available custom forms).
     resources :forms, only: [:index]

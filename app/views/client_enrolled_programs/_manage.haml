@@ -1,8 +1,0 @@
--# UX round 3 (D4/R6): destructive control LAST at the OUTER edge, separated — Tracking (the
--# routine action) leads, Exit trails with a gap; outline-danger per the row-level convention
--# (docs/ui-conventions.md).
-- unless program_stream.tracking_required?
-  = link_to client_client_enrolled_program_client_enrolled_program_trackings_path(@client, program_stream.client_enrollments.enrollments_by(@client).order(:created_at).last) do
-    .btn.btn-primary.btn-xs.btn-width= t('.tracking')
-= link_to new_client_client_enrolled_program_leave_enrolled_program_path(@client, program_stream.client_enrollments.enrollments_by(@client).order(:created_at).last) do
-  .btn.btn-outline-danger.btn-xs.btn-width.action-gap-start= t('.exit')
