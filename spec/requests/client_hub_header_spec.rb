@@ -146,7 +146,7 @@ RSpec.describe 'Client hub header', type: :request do
       expect(body).to include('Add Form')
       expect(body).to include('New Assessment')
       expect(body).to include('New Task')
-      expect(body).to include('Edit Resettlement Case')
+      expect(body).to include('Edit Case')
       expect(body.scan(/id="exit-from-case"/).size).to eq(1)
     end
 

@@ -7,7 +7,7 @@
 -# locals: client:, items:
 - current_case = client.cases.exclude_referred.current
 - if current_case.present?
-  - items << info_item(t('clients.show.resettlement_case', default: 'Resettlement case'), t('clients.show.case_active', default: 'Active'))
+  - items << info_item(t('clients.show.resettlement_case', default: 'Case'), t('clients.show.case_active', default: 'Active'))
   - items << info_item(t('clients.show.intake_date', default: 'Intake date'), (date_format(current_case.start_date) if current_case.start_date))
   - if current_case.family.present?
     - household_html = capture do
@@ -17,6 +17,6 @@
         = family(current_case.family)
     - items << info_item(t('clients.show.case_household', default: 'Case household'), household_html.presence)
 - elsif (last_case = client.cases.exclude_referred.inactive.order(:exit_date).last).present?
-  - items << info_item(t('clients.show.resettlement_case', default: 'Resettlement case'), t('clients.show.case_exited', default: 'Closed'))
+  - items << info_item(t('clients.show.resettlement_case', default: 'Case'), t('clients.show.case_exited', default: 'Closed'))
   - if last_case.exit_date.present?
     - items << info_item(t('clients.show.case_exit_date', default: 'Case closed on'), date_format(last_case.exit_date))

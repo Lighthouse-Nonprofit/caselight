@@ -31,7 +31,7 @@ RSpec.describe 'clients#show About case rows', type: :request do
       expect(response).to have_http_status(:ok)
       body = response.body
 
-      expect(body).to include('Resettlement case')
+      expect(body).to match(%r{>Case</dt>})
       expect(body).to include('Intake date')
       expect(body).to include(client_case.start_date.strftime('%d %B, %Y'))
       expect(body).to include('Case household')
@@ -44,16 +44,16 @@ RSpec.describe 'clients#show About case rows', type: :request do
       sign_in_as(admin)
       get client_path(client)
       expect(CGI.unescapeHTML(response.body)).to include(edit_client_case_path(client, client_case))
-      expect(response.body).to include('Edit Resettlement Case')
+      expect(response.body).to include('Edit Case')
     end
 
     it 'hides Edit Resettlement Case from a read-only strategic overviewer' do
       sign_in_as(overviewer)
       get client_path(client)
       expect(response).to have_http_status(:ok)
-      expect(response.body).not_to include('Edit Resettlement Case')
+      expect(response.body).not_to include('Edit Case')
       # but the About facts are still visible (read access)
-      expect(response.body).to include('Resettlement case')
+      expect(response.body).to match(%r{>Case</dt>})
     end
   end
 
@@ -69,7 +69,7 @@ RSpec.describe 'clients#show About case rows', type: :request do
       expect(response).to have_http_status(:ok)
       body = response.body
 
-      expect(body).to include('Resettlement case')
+      expect(body).to match(%r{>Case</dt>})
       expect(body).to include('Closed')
       expect(body).to include('Case closed on')
       expect(body).to include('05 March, 2026')

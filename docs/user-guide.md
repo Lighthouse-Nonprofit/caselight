@@ -7,7 +7,7 @@
 
 # CaseLight — User Guide
 
-CaseLight is a case-management system for refugee resettlement and other frontline nonprofits.
+CaseLight is a case-management system for frontline human-services nonprofits.
 It tracks the people you serve, the households they belong to, the programs they move through,
 and the assessments and notes that record how the work is going — with security controls usually
 reserved for far more expensive software.
@@ -123,7 +123,7 @@ reassess**. Every tool in this guide serves one leg of that loop.
 
 ## 5. The dashboard
 
-<p align="center"><img src="screenshots/dashboard.jpg" alt="The resettlement dashboard" width="900"></p>
+<p align="center"><img src="screenshots/dashboard.jpg" alt="The dashboard" width="900"></p>
 
 The dashboard is the landing page after sign-in. It summarizes the organization at a glance:
 
@@ -218,8 +218,8 @@ name, status, date of birth, code, household, and (when relevant) a red **Househ
 — with an **Actions** menu and tabs that follow you across every sub-page:
 
 - **Overview** — the **About** section first: one label-over-value grid holding the person's
-  details *and* the resettlement-case facts (intake date, case household, case status), with
-  **Edit Resettlement Case** and **Exit From Case** close to hand. Below it: **Programs** and
+  details *and* the case facts (intake date, case household, case status), with
+  **Edit Case** and **Exit From Case** close to hand. Below it: **Programs** and
   **recent program activity** panes, then any screening answers.
 - **Programs** — enrolled programs (with exit/tracking actions) above the programs available
   to enroll.
@@ -233,7 +233,7 @@ name, status, date of birth, code, household, and (when relevant) a red **Househ
 <p align="center"><img src="screenshots/client-forms.jpg" alt="The Forms tab" width="900"></p>
 
 The **Actions** menu is the same everywhere in the record — you never have to hunt for the right
-tab to act. It gathers: Edit, the case actions (edit / exit the resettlement case, or open the
+tab to act. It gathers: Edit, the case actions (edit / exit the case, or open the
 active EC/FC/KC case), New Case Note, Add Form, New Assessment, New Task, progress notes, case
 history, and (for authorized roles) Delete.
 

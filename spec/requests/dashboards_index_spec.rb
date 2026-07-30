@@ -6,7 +6,7 @@ RSpec.describe 'GET /dashboards', type: :request do
   let(:admin) { create(:user, :admin) }
   before { sign_in admin }
 
-  it 'renders the resettlement dashboard with no chart containers for the JS to bind to' do
+  it 'renders the dashboard with no chart containers for the JS to bind to' do
     get '/dashboards'
     expect(response).to have_http_status(:ok)
     # HAML renders attributes single-quoted (id='home-index'); match either quote style.

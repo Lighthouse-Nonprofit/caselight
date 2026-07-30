@@ -81,7 +81,8 @@ feature 'Case' do
       fill_in 'Carer Name', with: 'Carer Name'
       fill_in 'Start Date', with: FFaker::Time.date
       click_button 'Save'
-      expect(page).to have_content(/resettlement case/i) # About-row label renders uppercased (CSS text-transform)
+      # Investor UX round (2026-07): vertical-neutral label — the About row reads "Case"
+      expect(page).to have_css('dt', text: /\ACase\z/i)
       expect(client.cases.last.carer_names).to eq('Carer Name')
     end
 

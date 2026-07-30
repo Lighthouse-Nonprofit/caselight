@@ -65,7 +65,7 @@
                   -# UX round 3 (A2): the case card's Edit button moved here with the fold-in.
                   -# Instance-level can? reproduces the per-type manager gating (EC/FC/KC rules).
                   - if can? :update, current_case
-                    %li= link_to t('clients.client_header.edit_case', default: 'Edit Resettlement Case'), edit_client_case_path(client, current_case), class: 'dropdown-item'
+                    %li= link_to t('clients.client_header.edit_case', default: 'Edit Case'), edit_client_case_path(client, current_case), class: 'dropdown-item'
                   %li
                     %a{ 'data-bs-target' => '#exit-from-case', 'data-bs-toggle' => 'modal' }
                       .text-warning.exit-case-warning= t("clients.show.exit_from_#{current_case.case_type.downcase}")

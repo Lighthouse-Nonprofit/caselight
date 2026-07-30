@@ -846,9 +846,9 @@ en:
     exit_case_form:
       exit_btn: Exit
       exit_date: Exit Date
-      exit_ec: Close Resettlement Case
-      exit_fc: Close Resettlement Case
-      exit_kc: Close Resettlement Case
+      exit_ec: Close Case
+      exit_fc: Close Case
+      exit_kc: Close Case
       exit_ngo: Exit Organization
       exit_note: Exit Note
       exit_status: Status
@@ -978,7 +978,7 @@ en:
       able_state: Able State
       accept: Accept
       accepted_date: Organization Accept Date
-      add_client_to_case: Open Resettlement Case
+      add_client_to_case: Open Case
       add_ec_btn: Priority Intake Case
       add_fc_btn: Sponsor Care Case
       add_form: Add Form
@@ -1006,10 +1006,10 @@ en:
       district: County
       donor: Donor
       exit_date: Organization Exit Date
-      exit_from_ec: Close Resettlement Case
-      exit_from_fc: Close Resettlement Case
-      exit_from_kc: Close Resettlement Case
-      resettlement_case: Resettlement case
+      exit_from_ec: Close Case
+      exit_from_fc: Close Case
+      exit_from_kc: Close Case
+      resettlement_case: Case
       intake_date: Intake date
       case_household: Case household
       case_active: Active
@@ -1121,6 +1121,9 @@ en:
     update:
       successfully_updated: Custom Field Property has been successfully updated.
   dashboards:
+    index:
+      subtitle: Households and individuals across your active programs.
+      title: Dashboard
     client:
       ables: Ables
       clients: Active Clients
@@ -1962,7 +1965,7 @@ en:
       actions: Actions
       add_form: Add Form
       alerts: Alerts
-      delete_blocked: Households with resettlement-case history cannot be deleted
+      delete_blocked: Households with case history cannot be deleted
       forms: Forms
       members: "%{count} member(s)"
       new_alert: New Alert
