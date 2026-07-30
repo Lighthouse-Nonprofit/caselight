@@ -230,7 +230,7 @@ describe 'Client' do
       # (Resettlement case / Intake date / Case household). Only the CURRENT case (the most
       # recent active one) is summarized — the per-type card stack is gone.
       scenario 'All Panel' do
-        expect(page).to have_content('Resettlement case')
+        expect(page).to have_css('dt', text: /\ACase\z/)
       end
 
       scenario 'Current case info' do
@@ -249,7 +249,7 @@ describe 'Client' do
       end
 
       scenario 'Emergency Case panel' do
-        expect(page).to have_content('Resettlement case')
+        expect(page).to have_css('dt', text: /\ACase\z/)
       end
 
       # (the case-type labels are unified now — "exactly one case panel" replaces the
@@ -267,7 +267,7 @@ describe 'Client' do
       end
 
       scenario 'Foster Case panel' do
-        expect(page).to have_content('Resettlement case')
+        expect(page).to have_css('dt', text: /\ACase\z/)
       end
 
       scenario 'No Kinship and Emergency case panel' do
@@ -283,7 +283,7 @@ describe 'Client' do
       end
 
       scenario 'Kinship Case panel' do
-        expect(page).to have_content('Resettlement case')
+        expect(page).to have_css('dt', text: /\ACase\z/)
       end
 
       scenario 'No Foster and Emergency case panel' do
@@ -441,7 +441,7 @@ describe 'Client' do
     # hub header's Actions dropdown item ("Close Resettlement Case").
     scenario 'Exit item in the Actions dropdown' do
       item = find("a[data-bs-target='#exit-from-case']")
-      expect(item).to have_content('Close Resettlement Case')
+      expect(item).to have_content('Close Case')
     end
     scenario 'Note', js: true do
       find('.client-hub__edit .dropdown-toggle').click
@@ -475,7 +475,7 @@ describe 'Client' do
       # BS5-Q3: the streamlined SLO4HOME show page no longer prints time-in-care;
       # keep the calculation covered (the page renders without it).
       expect(accepted_client.time_in_care).to eq(1.0)
-      expect(page).to have_content('Resettlement case')
+      expect(page).to have_css('dt', text: /\ACase\z/)
     end
   end
 

@@ -13,7 +13,7 @@ outside of elements, rather than inward").
 2. **Form and modal footers**: the primary action sits at the right edge; a destructive
    action that is *not* the primary is anchored at the **opposite outer edge** (far left),
    never adjacent to Save. (Confirmation modals whose whole purpose is the destructive act —
-   Exit From Organization, Close Resettlement Case, break-glass — keep the destructive as
+   Exit From Organization, Close Case, break-glass — keep the destructive as
    the right-edge primary.)
 3. **Dropdown menus**: Delete stays **last, after a divider** (`%hr.dropdown-divider`),
    styled `text-danger` — the long-standing convention.

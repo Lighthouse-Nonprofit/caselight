@@ -1,8 +1,10 @@
 #home-index
   .row
     .col-lg-12
-      %h2.m-t-none.m-b-xs Resettlement Dashboard
-      %p.text-muted Households and individuals across active resettlement programs.
+      -# Investor UX round (2026-07): vertical-neutral + i18n (was hardcoded "Resettlement
+      -# Dashboard" — flavors override these keys in their locale overlay).
+      %h2.m-t-none.m-b-xs= t('.title', default: 'Dashboard')
+      %p.text-muted= t('.subtitle', default: 'Households and individuals across your active programs.')
   -# UX rung 6: stat tiles are links now (can?-gated — a case worker cannot :read Family).
   .row
     .col-lg-3.col-sm-6

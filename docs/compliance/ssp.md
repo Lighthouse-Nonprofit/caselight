@@ -23,7 +23,7 @@ Companion artifacts (the detail behind each row): `control-matrix.md` (SOC 2 vie
 
 ## 1. System description
 
-CaseLight is an AGPL-3.0 case-management system for refugee-resettlement and human-services
+CaseLight is an AGPL-3.0 case-management system for human-services (refugee-resettlement, housing, and similar frontline)
 nonprofits — a modernized, security-hardened fork of OSCaR (Open Source Case-management and
 Record-keeping). It is multi-tenant by **subdomain**, isolating each org's relational data in its own
 PostgreSQL schema (the `ros-apartment` gem). Deployment target: a **single self-hosted instance**
