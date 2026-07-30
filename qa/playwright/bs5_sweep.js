@@ -142,17 +142,17 @@ const CONSOLE_ALLOWLIST = [
   await go('/custom_fields', 'custom-fields-index');
   await go('/custom_fields/new', 'form-builder-new', { form: true });
   await go('/client_advanced_searches', 'advanced-search');
-  await go('/program_streams', 'program-streams-index');
+  await go('/programs', 'program-streams-index');
   // tab second states hide broken panes — shoot both
   try {
     const tab2 = await page.$('a[href="#ngos-program-streams"]');
     if (tab2) { await tab2.click(); await page.waitForTimeout(500); await shoot('program-streams-index-tab2'); }
   } catch (e) {}
-  await go('/program_streams/new', 'program-stream-new', { form: true });
+  await go('/programs/new', 'program-stream-new', { form: true });
   const psShow = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('a[href*="/program_streams/"]'))
+    Array.from(document.querySelectorAll('a[href*="/programs/"]'))
       .map((a) => (a.getAttribute('href') || '').split('?')[0])
-      .find((h) => /\/program_streams\/\d+$/.test(h)));
+      .find((h) => /\/programs\/\d+$/.test(h)));
   await go('/domains', 'domains');
   await go('/admin/users', 'users-index');
   await go('/admin/users/new', 'user-new', { form: true });
