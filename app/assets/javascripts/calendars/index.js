@@ -112,8 +112,10 @@ CIF.CalendarsIndex = (function () {
 
   // ---- Date-click task modal -------------------------------------------------
 
-  const _resetClientSelect = function (placeholderKey) {
-    const select = $('#task-client');
+  // Owner flip (2026-07-31): Person first, then Program — the program select is the
+  // dependent one now.
+  const _resetProgramSelect = function (placeholderKey) {
+    const select = $('#task-program');
     if (!select.length) {
       return;
     }
@@ -126,11 +128,11 @@ CIF.CalendarsIndex = (function () {
     if (!modal.length) {
       return;
     }
-    $('#task-program').val('');
+    $('#task-client').val('');
     $('#task-domain').val('');
     $('#task-name').val('');
-    $('#task-client').prop('disabled', true);
-    _resetClientSelect('placeholder-empty');
+    $('#task-program').prop('disabled', true);
+    _resetProgramSelect('placeholder-empty');
     // FC6 dateClick info.dateStr is ISO (date-only in dayGrid, datetime in timeGrid) —
     // first 10 chars = the YYYY-MM-DD the old moment .format() produced
     $('#task-completion-date').val(info && info.dateStr ? info.dateStr.slice(0, 10) : '');
@@ -142,46 +144,51 @@ CIF.CalendarsIndex = (function () {
     return bootstrap.Modal.getOrCreateInstance(modal[0]).show();
   };
 
-  const _loadProgramClients = function () {
-    const select = $('#task-client');
-    const programId = $('#task-program').val();
-    if (!programId) {
+  const _loadClientPrograms = function () {
+    const select = $('#task-program');
+    const clientId = $('#task-client').val();
+    if (!clientId) {
       select.prop('disabled', true);
-      _resetClientSelect('placeholder-empty');
+      _resetProgramSelect('placeholder-empty');
       return;
     }
     select.prop('disabled', true);
-    _resetClientSelect('placeholder-loading');
+    _resetProgramSelect('placeholder-loading');
     return $.ajax({
       type: 'GET',
-      url: '/api/calendars/program_clients',
-      data: { program_id: programId },
+      url: '/api/calendars/client_programs',
+      data: { client_id: clientId },
       dataType: 'JSON',
     })
-      .done(function (clients) {
-        const list = clients || [];
+      .done(function (programs) {
+        const list = programs || [];
         if (list.length === 0) {
           select.prop('disabled', true);
-          _resetClientSelect('placeholder-none');
+          _resetProgramSelect('placeholder-none');
           return;
         }
         const opts = [
           '<option value="">' + _escape(select.data('placeholder-select')) + '</option>',
         ];
-        for (var client of list) {
+        for (var program of list) {
           opts.push(
             '<option value="' +
-              _escape(String(client.id)) +
+              _escape(String(program.id)) +
               '">' +
-              _escape(client.name) +
+              _escape(program.name) +
               '</option>',
           );
         }
-        return select.html(opts.join('')).prop('disabled', false);
+        select.html(opts.join('')).prop('disabled', false);
+        // one active program: pre-select it — the common pilot case
+        if (list.length === 1) {
+          select.val(String(list[0].id));
+        }
+        return select;
       })
       .fail(function () {
         select.prop('disabled', true);
-        return _resetClientSelect('placeholder-error');
+        return _resetProgramSelect('placeholder-error');
       });
   };
 
@@ -229,7 +236,7 @@ CIF.CalendarsIndex = (function () {
     if (!$('#taskModal').length) {
       return;
     }
-    $('#task-program').on('change', _loadProgramClients);
+    $('#task-client').on('change', _loadClientPrograms);
     return $('#new-task-form').on('submit', _submitTask);
   };
 
