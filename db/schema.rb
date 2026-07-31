@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_000004) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_30_000006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -256,6 +256,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000004) do
     t.datetime "created_at", precision: nil
     t.integer "quantitative_case_id"
     t.datetime "updated_at", precision: nil
+    t.index ["client_id", "quantitative_case_id"], name: "idx_client_quantitative_cases_pair", unique: true
+    t.index ["quantitative_case_id"], name: "idx_client_quantitative_cases_case"
   end
 
   create_table "clients", id: :serial, force: :cascade do |t|
@@ -278,7 +280,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000004) do
     t.text "family_name", default: ""
     t.date "follow_up_date"
     t.integer "followed_up_by_id"
-    t.string "gender", default: "Male"
+    t.string "gender"
     t.text "given_name", default: ""
     t.integer "grade", default: 0
     t.boolean "has_been_in_government_care", default: false
@@ -707,9 +709,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000004) do
     t.integer "quantitative_type_id"
     t.datetime "updated_at", precision: nil
     t.string "value", default: ""
+    t.index ["quantitative_type_id"], name: "idx_quantitative_cases_type"
   end
 
   create_table "quantitative_types", id: :serial, force: :cascade do |t|
+    t.boolean "allow_multiple", default: true, null: false
     t.datetime "created_at", precision: nil
     t.text "description", default: ""
     t.string "name", default: ""
@@ -1133,6 +1137,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000004) do
   add_foreign_key "client_enrollment_trackings", "client_enrollments"
   add_foreign_key "client_enrollments", "clients"
   add_foreign_key "client_enrollments", "program_streams"
+  add_foreign_key "client_quantitative_cases", "clients", on_delete: :cascade
+  add_foreign_key "client_quantitative_cases", "quantitative_cases", on_delete: :cascade
   add_foreign_key "clients", "donors"
   add_foreign_key "custom_field_properties", "custom_fields"
   add_foreign_key "custom_field_property_search_entries", "custom_field_properties", on_delete: :cascade
@@ -1153,6 +1159,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000004) do
   add_foreign_key "progress_notes", "materials"
   add_foreign_key "progress_notes", "progress_note_types"
   add_foreign_key "progress_notes", "users"
+  add_foreign_key "quantitative_cases", "quantitative_types", on_delete: :cascade
   add_foreign_key "quarterly_reports", "cases"
   add_foreign_key "surveys", "clients"
   add_foreign_key "tasks", "clients"

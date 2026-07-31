@@ -48,7 +48,7 @@ module AdvancedSearches
 
     def drop_down_type_list
       [
-        ['gender', { female: 'Female', male: 'Male' }],
+        ['gender', gender_options], # D4: one source (Client::GENDER_OPTIONS)
         ['status', client_status],
         ['case_type', { EC: 'EC', FC: 'FC',  KC: 'KC' }],
         ['agency_name', agencies_options],
@@ -72,6 +72,11 @@ module AdvancedSearches
 
     def client_status
       Client::CLIENT_STATUSES.sort.map { |s| { s => s } }
+    end
+
+    # D4: token => i18n label, same hash shape the old inline { female: 'Female' } had
+    def gender_options
+      Client::GENDER_OPTIONS.map { |g| [g.to_sym, I18n.t("clients.gender_options.#{g}", default: g.titleize)] }.to_h
     end
 
     def client_able_state

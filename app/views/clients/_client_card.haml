@@ -16,7 +16,7 @@
         -# case teams (still searchable; admin grid/XLS keep them).
         %p.record-card__meta
           - if object.gender.present?
-            %span.record-card__gender= object.gender.try(:titleize)
+            %span.record-card__gender= object.gender_label
       - if shown.any?
         %ul.record-card__tags{ 'aria-label' => t('.program_streams', default: 'Programs') }
           - shown.each do |program_stream|

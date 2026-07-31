@@ -31,7 +31,7 @@
       -# Investor UX round (2026-07): record numbers (slug + code) and the geographic State left
       -# the display — case teams think in names. The values stay searchable and on the edit form.
       - meta_items = []
-      - meta_items << content_tag(:span, client.gender.titleize) if client.gender.present?
+      - meta_items << content_tag(:span, client.gender_label) if client.gender.present?
       - meta_items << content_tag(:span, "#{t('clients.show.date_of_birth', default: 'DOB')} #{client.date_of_birth_format} (#{client.age})") if client.date_of_birth.present?
       - client.families.as_non_cases.uniq.each do |fam|
         - meta_items << (can?(:read, Family) ? link_to(family(fam), family_path(fam), class: 'client-hub__family-link') : content_tag(:span, family(fam)))

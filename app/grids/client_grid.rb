@@ -53,8 +53,12 @@ class ClientGrid
 
 
 
-  filter(:gender, :enum, select: %w(Male Female), header: -> { I18n.t('datagrid.columns.clients.gender') }) do |value, scope|
-    value == 'Male' ? scope.male : scope.female
+  # D4: full SOGI list, one source (Client::GENDER_OPTIONS). Straight where() — the old
+  # block bucketed every non-'Male' value (including the capitalized default) as female.
+  filter(:gender, :enum,
+         select: -> { Client::GENDER_OPTIONS.map { |g| [I18n.t("clients.gender_options.#{g}", default: g.titleize), g] } },
+         header: -> { I18n.t('datagrid.columns.clients.gender') }) do |value, scope|
+    scope.where(gender: value)
   end
 
   filter(:slug, :string, header: -> { I18n.t('datagrid.columns.clients.id')})  { |value, scope| scope.slug_like(value) }
@@ -428,7 +432,7 @@ class ClientGrid
 
 
   column(:gender, header: -> { I18n.t('datagrid.columns.clients.gender') }) do |object|
-    object.gender.try(:titleize)
+    object.gender_label
   end
 
   column(:status, header: -> { I18n.t('datagrid.columns.clients.status') }) do |object|
