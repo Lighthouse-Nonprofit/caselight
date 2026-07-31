@@ -74,7 +74,10 @@ describe 'Staff Monthly Report' do
 
         total_duration = client_1_duration + client_3_duration
         client_count = user_1.clients.count
-        expect(StaffMonthlyReport.average_length_of_time_completing_csi_for_each_client(user_1)).to eq((total_duration / client_count).round)
+        # .to_f mirrors the model (duration.to_f / count).round — integer division here made
+        # the expectation date-PARITY dependent: months.ago clamping on month-end run dates
+        # (e.g. Jul 31) yields an odd total, 182.5 rounds to 183, int-div said 182.
+        expect(StaffMonthlyReport.average_length_of_time_completing_csi_for_each_client(user_1)).to eq((total_duration.to_f / client_count).round)
       end
       scenario 'user_5' do
         client_5_second_most_recent_assessment = client_5.assessments.order(:created_at).first.created_at.to_date
@@ -82,7 +85,7 @@ describe 'Staff Monthly Report' do
         client_5_duration = (client_5_most_recent_assessment - client_5_second_most_recent_assessment).to_i
         total_duration = client_5_duration
         client_count = user_5.clients.count
-        expect(StaffMonthlyReport.average_length_of_time_completing_csi_for_each_client(user_5)).to eq((total_duration / client_count).round)
+        expect(StaffMonthlyReport.average_length_of_time_completing_csi_for_each_client(user_5)).to eq((total_duration.to_f / client_count).round)
       end
     end
 
