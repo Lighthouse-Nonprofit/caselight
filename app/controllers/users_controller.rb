@@ -92,7 +92,7 @@ class UsersController < AdminController
 
   def user_params
     params.require(:user).permit(:first_name, :last_name, :roles, :start_date,
-                                :job_title, :department_id, :mobile, :date_of_birth,
+                                :job_title, :mobile, :date_of_birth,
                                 :province_id, :email, :password,:password_confirmation,
                                 :manager_id, :calendar_integration, :pin_number, custom_field_ids: [])
   end
@@ -102,7 +102,7 @@ class UsersController < AdminController
   end
 
   def find_association
-    @department = Department.order(:name)
+    # D2: @department dropped — Departments hidden for the pilot (form input removed)
     @province   = Province.order(:name)
     @managers   = User.managers.order(:first_name, :last_name)
     @managers   = @managers.where.not(id: params[:id]) if params[:action] == 'edit' || params[:action] == 'update'

@@ -105,7 +105,7 @@ class ApplicationController < ActionController::Base
     # Devise 4 (Rails 5) replaced the `.for(scope) << :attr` sanitizer API with
     # `.permit(scope, keys: [...])`. Same allow-list, current idiom.
     devise_parameter_sanitizer.permit(:account_update, keys: [
-      :first_name, :last_name, :date_of_birth, :job_title, :department_id,
+      :first_name, :last_name, :date_of_birth, :job_title,
       :start_date, :province_id, :mobile, :task_notify, :calendar_integration,
       :pin_number, :program_warning, :staff_performance_notification
     ])
@@ -148,8 +148,8 @@ class ApplicationController < ActionController::Base
   end
 
   def find_association
-    @department = Department.order(:name)
-    @province   = Province.order(:name)
+    # D2: @department dropped — Departments hidden for the pilot (registration input removed)
+    @province = Province.order(:name)
   end
 
   def set_locale

@@ -11,7 +11,6 @@
             = f.input :last_name, label: "#{I18n.t('users.fields.last_name')}"
             = f.input :date_of_birth, start_year: 1990, end_year: Date.today.year, label: "#{I18n.t('users.fields.date_of_birth')}"
             = f.input :job_title, label: "#{I18n.t('users.fields.job_title')}"
-            = f.input :department, label: "#{I18n.t('users.fields.department')}"
             = f.input :start_date, start_year: 1990, end_year: Date.today.year, label: "#{I18n.t('users.fields.start_date')}"
             = f.association :province, collection: @province, label: "#{I18n.t('users.fields.province')}"
             = f.input :mobile, label: "#{I18n.t('users.fields.mobile')}"

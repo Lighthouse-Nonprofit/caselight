@@ -72,8 +72,8 @@
             %li{ class: active_menu('agencies') }
               = link_to t('.agencies'), agencies_path
             - if can? :read, :all
-              %li{ class: active_menu('departments') }
-                = link_to t('.departments'), departments_path
+              -# D2: Departments hidden for the pilot (owner: possible ERP/org-chart
+              -# build-out for larger nonprofits later). Model/table stay dormant.
               %li{ class: active_menu('domains') }
                 = link_to t('.domains'), domains_path
               %li{ class: active_menu('domain_groups') }

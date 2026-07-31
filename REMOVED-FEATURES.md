@@ -1,5 +1,16 @@
 # Removed features
 
+## 2026-07-30 — Departments HIDDEN for the pilot (data-task batch, D2)
+
+Not removed — hidden. The `Department` model, table, `users.department_id` column and
+counter cache all stay dormant; what went away is every UI surface: the Manage-menu
+entry, the users/_form + devise registration inputs (including the long-broken
+`f.input :department` on registrations/new), the users#show row, the UserGrid
+filter/column, and the `department_id` permits. The `/departments` CRUD routes still
+exist for an admin who types the URL. Owner: "This could be used as an ERP build-in
+later for larger nonprofits, but I would say let's hide it for the pilot." To revive:
+re-add the inputs/column/menu entry and the two permit-list keys.
+
 ## 2026-07-30 — legacy Google Calendar push + the materialized `calendars` table (data-task batch, C2)
 
 The FullCalendar feed is task-native now (`Api::CalendarsController#find_event` serves

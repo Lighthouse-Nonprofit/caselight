@@ -5,7 +5,7 @@ class UserGrid
   # would sort by opaque ciphertext. Order by :id (stable, non-PII); name-alphabetical display ordering of
   # the small staff list is a deferred limitation (mirrors Tier 2 dropping grid ORDER BY on encrypted cols).
   scope do
-    User.includes(:department, :province).order(:id)
+    User.includes(:province).order(:id)
   end
 
   filter(:first_name, :string, header: -> { I18n.t('datagrid.columns.users.first_name') }) do |value, scope|
@@ -36,11 +36,7 @@ class UserGrid
 
   filter(:start_date, :date, range: true,  header: -> { I18n.t('datagrid.columns.users.start_date') })
 
-  filter(:department, :enum, select: :department_options, header: -> { I18n.t('datagrid.columns.users.department') })
-  def department_options
-    User.department_are
-  end
-
+  # D2 removed the department filter/column: Departments are hidden for the pilot
   filter(:roles, :enum, select: User::ROLES.map{|val| [val.titleize, val]},  header: -> { I18n.t('datagrid.columns.users.roles') })
 
   filter(:province_id, :enum, select: :province_options,  header: -> { I18n.t('datagrid.columns.users.province') })
@@ -74,10 +70,6 @@ class UserGrid
   end
 
   column(:job_title, header: -> { I18n.t('datagrid.columns.users.job_title') })
-
-  column(:department, order: 'departments.name', header: -> { I18n.t('datagrid.columns.users.department') }) do |object|
-    object.department.try(:name)
-  end
 
   column(:start_date, header: -> { I18n.t('datagrid.columns.users.start_date') })
 
