@@ -1,0 +1,159 @@
+// The personal dashboard (data-task batch C4, agenda reworked to the server-rendered
+// 7-day schedule). The tile treatments mirror the org dashboard's — those live scoped
+// under #home-index in home/index.scss and never reached this page (C4 styling miss).
+#personal-dashboard {
+  .dashboard-flash h2 { margin: 0; }
+  .dashboard-flash--alert {
+    box-shadow: inset 0 0 0 2px rgba($amber, .55);
+    border-radius: $border-radius;
+
+    h2 { color: shade-color($amber, 18%); }
+  }
+
+  .dashboard-tile-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+
+    h1, h2 { color: inherit; }
+
+    &:hover,
+    &:focus {
+      color: inherit;
+      text-decoration: none;
+
+      h1, h2 { color: $lazur; }
+    }
+  }
+
+  .ibox-content h1,
+  .ibox-content h2 {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .ibox-content small.text-muted {
+    display: inline-block;
+    margin-top: 2px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: $cl-text-label;
+  }
+
+  // ---- the 7-day agenda: one row per day, populated or not ---------------------
+  .agenda-week { padding: 6px 8px; }
+
+  .agenda-day {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 12px 10px;
+    border-radius: 10px;
+
+    + .agenda-day { border-top: 1px solid var(--bs-border-color-translucent); }
+
+    &--today {
+      background: rgba($lazur, .07);
+      border-top-color: transparent;
+
+      + .agenda-day { border-top-color: transparent; }
+
+      .agenda-day__dow { color: $lazur; }
+    }
+  }
+
+  .agenda-day__rail {
+    flex: 0 0 64px;
+    text-align: center;
+    padding-top: 2px;
+  }
+
+  .agenda-day__dow {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: $cl-text-label;
+  }
+
+  .agenda-day__date {
+    font-family: $font-family-display;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .agenda-day__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .agenda-task {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: var(--bs-secondary-bg);
+    border-left: 3px solid var(--bs-success);
+    color: inherit;
+    text-decoration: none;
+    min-width: 0;
+
+    &:hover,
+    &:focus {
+      background: var(--bs-tertiary-bg, var(--bs-secondary-bg));
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+
+  .agenda-day--today .agenda-task { border-left-color: $lazur; }
+
+  .agenda-task__time {
+    flex: 0 0 72px;
+    font-size: .78rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: $cl-text-label;
+    white-space: nowrap;
+  }
+
+  .agenda-task__title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .agenda-task__person {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+  }
+
+  // The structured none-state: an empty day keeps its row — a calm dashed pill
+  // instead of a collapsed gap, so the week always scans as seven days.
+  .agenda-empty {
+    display: flex;
+    align-items: center;
+    padding: 7px 12px;
+    border: 1px dashed var(--bs-border-color);
+    border-radius: 8px;
+  }
+
+  .agenda-empty__text {
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: $cl-text-label;
+    opacity: .75;
+  }
+}

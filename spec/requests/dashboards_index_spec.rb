@@ -50,17 +50,40 @@ RSpec.describe 'GET /dashboards', type: :request do
     let!(:overdue) do
       create(:task, client: client, domain: domain, completion_date: Time.zone.today - 2)
     end
+    let!(:timed_today) do
+      create(:task, client: client, domain: domain, name: 'Morning check-in',
+                    completion_date: Time.zone.today, start_time: '09:30', duration_minutes: 60)
+    end
+    let!(:all_day_tomorrow) do
+      create(:task, client: client, domain: domain, name: 'Submit paperwork',
+                    completion_date: Time.zone.today + 1)
+    end
     before { sign_in worker }
 
-    it 'renders the personal dashboard: tiles + the 10-day agenda container, no org markup' do
+    it 'renders the personal dashboard: tiles + the server-rendered 7-day schedule, no org markup' do
       get '/dashboards'
       expect(response).to have_http_status(:ok)
       expect(response.body).to match(/id=['"]personal-dashboard['"]/)
-      expect(response.body).to match(/id=['"]dashboard-agenda['"]/)
       expect(response.body).to include('MY OVERDUE TASKS')
       expect(response.body).to include('MY CASELOAD')
       expect(response.body).not_to match(/id=['"]home-index['"]/)
       expect(response.body).not_to include('PROGRAMS OFFERED') # org tile stays org-only
+      expect(response.body).not_to include('dashboard-agenda') # the FC list view is gone
+    end
+
+    it 'renders one row per day — populated days with tasks, empty days with the structured none-state' do
+      get '/dashboards'
+      expect(response.body.scan('agenda-day__rail').size).to eq(7)
+      expect(response.body).to include('agenda-day--today')
+      # timed task: clock time + name; all-day task: the All day chip
+      expect(response.body).to include('9:30 AM')
+      expect(response.body).to include('Morning check-in')
+      expect(response.body).to include('All day')
+      expect(response.body).to include('Submit paperwork')
+      # 7 days minus the two populated ones still render, as calm empty rows
+      expect(response.body.scan('Nothing scheduled').size).to eq(5)
+      # the overdue task (yesterday) belongs to the tile, not the week schedule
+      expect(response.body.scan('agenda-task').size).to be >= 2
     end
 
     it 'flags the overdue tile when the worker has overdue work' do
