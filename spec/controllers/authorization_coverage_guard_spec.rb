@@ -26,7 +26,8 @@ RSpec.describe 'Phase 5.6 authorization coverage guard', type: :request do
     'notifications'                => %w[index],          # 5.6: authorize! :read, Notification
     'enforcement_settings'         => %w[show update],    # Phase 5 capstone: authorize! :manage, EnforcementSetting (in-body before_action + explicit)
     'downloads'                    => %w[show],           # Phase 6 U7: authorize! :read on the readable PARENT in a before_action (authorize_record!) + sensitivity gate; proven by spec/requests/authorized_downloads_spec.rb
-    'forms'                        => %w[index]           # UX round 3 A1: authorize! :read, @custom_formable (polymorphic Client/Family) in-body; titles additionally masked by the Phase-5.3 visible set; proven by spec/requests/client_forms_page_spec.rb
+    'forms'                        => %w[index],          # UX round 3 A1: authorize! :read, @custom_formable (polymorphic Client/Family) in-body; titles additionally masked by the Phase-5.3 visible set; proven by spec/requests/client_forms_page_spec.rb
+    'calendars'                    => %w[google_auth google_callback google_disconnect] # C5 rebuilt Google push: authorize! :update, Task in-body (task-managing roles only); actions touch current_user ONLY; state anti-CSRF on the callback; proven by spec/requests/calendar_google_oauth_spec.rb
   }.freeze
 
   KNOWN_ORPHAN_CONTROLLERS = %w[able_screens/answer_submissions/clients].freeze

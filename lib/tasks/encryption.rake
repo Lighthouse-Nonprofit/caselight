@@ -115,6 +115,14 @@ namespace :encryption do
       'ClientEnrollmentSearchEntry'         => %i[value],
       'ClientEnrollmentTrackingSearchEntry' => %i[value],
       'LeaveProgramSearchEntry'             => %i[value]
+    },
+    # Tier 6 — NON-DETERMINISTIC credentials (data-task batch C5). Born-encrypted: the Google
+    # refresh token is written ONLY through the OAuth callback's `encrypts` write, so no
+    # plaintext rows ever exist — backfill is a structural no-op (NULL = "not connected", the
+    # blank/NULL rule). Registered so encryption:verify covers the column and the registry
+    # drift guard stays green (FamilyNote / *SearchEntry precedent).
+    '6' => {
+      'User' => %i[google_refresh_token]
     }
   }.freeze
 

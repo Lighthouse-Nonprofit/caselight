@@ -5,6 +5,7 @@ class Task < ActiveRecord::Base
 
   has_many :case_worker_tasks, dependent: :destroy
   has_many :users, through: :case_worker_tasks
+  has_many :google_task_events # C5 push state; rows cascade via DB FK (kept for before_destroy capture)
 
   has_paper_trail
 
@@ -32,6 +33,14 @@ class Task < ActiveRecord::Base
   scope :overdue_incomplete_ordered, -> { overdue_incomplete.order('completion_date ASC') }
 
   after_save :set_users, :create_task_history
+
+  # Data-task batch C5 — the rebuilt Google push. after_commit (never in-request network):
+  # deltas go to Sidekiq for every opted-in assigned user. set_users fans CaseWorkerTask
+  # in after_save (same transaction), so `users` is complete by commit time. Removals are
+  # captured BEFORE destroy — the FK cascade has deleted the state rows by after_commit.
+  after_commit :push_google_calendar, on: %i[create update]
+  before_destroy :capture_google_push_removals, prepend: true
+  after_commit :push_google_calendar_removals, on: :destroy
 
   # Data-task batch (2026-07): the timed-task lens. completion_date owns the DAY;
   # start_time is wall-clock; the pair composes in the app zone.
@@ -93,5 +102,30 @@ class Task < ActiveRecord::Base
 
   def create_task_history
     TaskHistory.initial(self)
+  end
+
+  private
+
+  def push_google_calendar
+    return unless GoogleCalendarPush.enabled?
+    tenant = Apartment::Tenant.current
+    # reload: on CREATE the through-association was cached empty on the new record before
+    # set_users fanned the CaseWorkerTask rows (after_save) — a stale read pushes to no one.
+    users.reload.each do |user|
+      next unless user.calendar_integration? && user.google_refresh_token.present?
+      GoogleCalendarPushWorker.perform_async('upsert', tenant, id, user.id, nil)
+    end
+  end
+
+  def capture_google_push_removals
+    @google_push_removals = google_task_events.pluck(:user_id, :google_event_id)
+  end
+
+  def push_google_calendar_removals
+    return unless GoogleCalendarPush.enabled?
+    tenant = Apartment::Tenant.current
+    (@google_push_removals || []).each do |user_id, event_id|
+      GoogleCalendarPushWorker.perform_async('delete', tenant, nil, user_id, event_id)
+    end
   end
 end
