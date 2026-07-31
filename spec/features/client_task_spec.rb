@@ -2,9 +2,9 @@ describe 'Task' do
   let!(:user){ create(:user, calendar_integration: true) }
   let!(:client){ create(:client, users: [user]) }
   let!(:domain){ create(:domain) }
-  let!(:overdue_task){ create(:task, client: client, completion_date: Date.today - 6.month) }
-  let!(:today_task){ create(:task, client: client, completion_date: Date.today) }
-  let!(:upcoming_task){ create(:task, client: client, completion_date: Date.today + 6.month) }
+  let!(:overdue_task){ create(:task, client: client, completion_date: Time.zone.today - 6.month) }
+  let!(:today_task){ create(:task, client: client, completion_date: Time.zone.today) }
+  let!(:upcoming_task){ create(:task, client: client, completion_date: Time.zone.today + 6.month) }
   let!(:incomplete_task){ create(:task, completed: false) }
   before do
     login_as(user)
@@ -63,16 +63,11 @@ describe 'Task' do
       expect(page).to have_content('My Task')
       expect(page).to have_content('August 01, 2017')
 
-      task       = client.tasks.find_by(name: 'My Task')
-      task_name  = task.name
-      domain     = Domain.find(task.domain_id)
-      title      = "#{domain.name} - #{task_name}"
-      start_date = task.completion_date
-      end_date   = (start_date + 1.day).to_s
-      calendar   = Calendar.where(title: title, start_date: start_date, end_date: end_date)
-
-      expect(calendar.size).to eq(2)
-      expect(calendar.pluck(:user_id)).to include(task.users.first.id)
+      # Data-task batch (2026-07): the materialized calendars table is gone — the calendar
+      # feed reads tasks directly, so creating the task IS the calendar entry.
+      task = client.tasks.find_by(name: 'My Task')
+      expect(task).to be_present
+      expect(task.users.size).to eq(2)
     end
     scenario 'invalid' do
       click_button 'Save'

@@ -431,8 +431,6 @@ en:
         successfully_deleted: Attachment has been successfully deleted.
   back: Back
   calendars:
-    index:
-      sync_with_google: Sync with Google Calendar
     task_modal:
       title: New task
       subtitle: Create a task for someone in a program you manage.
@@ -451,6 +449,8 @@ en:
       completion_date: Date
       start_time: Start time (optional)
       duration: Duration
+      duration_all_day: All day
+      duration_minutes: "%{count} min"
       close: Close
       cancel: Cancel
       create: Create task

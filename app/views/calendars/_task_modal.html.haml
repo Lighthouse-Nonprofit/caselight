@@ -38,8 +38,18 @@
               %input#task-completion-date.form-control.date-picker{ type: 'text', 'aria-required' => 'true' }
               %span.input-group-text
                 %i.fa.fa-calendar-check-o
-          -# Data-task batch (2026-07): remind_at (dead column) replaced by optional
-          -# time-of-day scheduling — native inputs, CSP-safe, zero JS. (Wired in C2.)
+          -# Data-task batch (2026-07): optional time-of-day scheduling — native inputs,
+          -# CSP-safe, zero JS. Blank start time = an all-day task (today's behavior).
+          .row
+            .col-6.mb-3
+              %label.form-label{ for: 'task-start-time' }= t('calendars.task_modal.start_time', default: 'Start time (optional)')
+              %input#task-start-time.form-control{ type: 'time', step: 900 }
+            .col-6.mb-3
+              %label.form-label{ for: 'task-duration' }= t('calendars.task_modal.duration', default: 'Duration')
+              %select#task-duration.form-select
+                %option{ value: '' }= t('calendars.task_modal.duration_all_day', default: 'All day')
+                - [15, 30, 45, 60, 90, 120, 180, 240].each do |minutes|
+                  %option{ value: minutes }= t('calendars.task_modal.duration_minutes', default: '%{count} min', count: minutes)
         .modal-footer
           %button.btn.btn-outline-secondary{ type: 'button', 'data-bs-dismiss' => 'modal' }= t('calendars.task_modal.cancel')
           %button#task-submit.btn.btn-primary{ type: 'submit', 'data-label-create' => t('calendars.task_modal.create'), 'data-label-creating' => t('calendars.task_modal.creating') }= t('calendars.task_modal.create')
