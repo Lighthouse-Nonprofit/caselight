@@ -126,10 +126,12 @@ reassess**. Every tool in this guide serves one leg of that loop.
 Your landing page depends on your role.
 
 **Case workers and managers get a personal dashboard**: a greeting, four tiles that are
-yours alone — **My overdue tasks** (red when there's anything in it), **Due today**,
-**Next 7 days**, and **My caseload** — and a **10-day agenda** of your upcoming tasks,
-color-coded by urgency. Every tile and agenda line links straight to the work it counts.
-If your day starts anywhere, it starts here.
+yours alone — **My overdue tasks** (flagged when there's anything in it), **Due today**,
+**Next 7 days**, and **My caseload** — and a **7-day schedule** of the week ahead. Every
+day gets its own row — today is highlighted, timed tasks show their times, and a day
+with nothing scheduled says so, calmly — so the week always scans at a glance. Every
+tile and schedule line links straight to the work it names. If your day starts anywhere,
+it starts here.
 
 <p align="center"><img src="screenshots/dashboard-personal.jpg" alt="The personal dashboard with the 10-day agenda" width="900"></p>
 

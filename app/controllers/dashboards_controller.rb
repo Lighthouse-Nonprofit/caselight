@@ -14,6 +14,15 @@ class DashboardsController < AdminController
     @today_count    = my_tasks.today.count
     @week_count     = my_tasks.where(completion_date: (Time.zone.today + 1)..(Time.zone.today + 7)).count
     @caseload_count = Client.accessible_by(current_ability).count
+
+    # The 7-day agenda (server-rendered — no FullCalendar on the dashboard): every day
+    # gets a row, populated or not, so an empty week still reads as a structured schedule.
+    # All-day tasks lead each day; timed ones follow in clock order.
+    @week_days     = (Time.zone.today..(Time.zone.today + 6)).to_a
+    @agenda_by_day = my_tasks.where(completion_date: @week_days.first..@week_days.last)
+                             .includes(:client, :domain)
+                             .sort_by { |t| [t.timed? ? 1 : 0, t.start_time.to_s] }
+                             .group_by(&:completion_date)
     render :personal
   end
 end

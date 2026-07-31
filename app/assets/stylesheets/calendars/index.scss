@@ -15,7 +15,8 @@ body[id=calendars-index]{
 }
 
 // Task bucket colors — classNames set by Api::CalendarsController#find_event.
-// Scoped to any FullCalendar surface (calendar page now, dashboard agenda in C4).
+// Scoped to any FullCalendar surface (the calendar page; the dashboard agenda is
+// server-rendered and styles itself in dashboards/personal.scss).
 .fc-event.task-overdue {
   background-color: #dc3545;
   border-color: #b02a37;
@@ -41,9 +42,3 @@ body[id=calendars-index]{
   text-decoration: line-through;
   opacity: 0.75;
 }
-
-// List view (dashboard agenda) renders a dot instead of a filled block.
-.fc-list-event.task-overdue .fc-list-event-dot { border-color: #dc3545; }
-.fc-list-event.task-today .fc-list-event-dot { border-color: #0d6efd; }
-.fc-list-event.task-upcoming .fc-list-event-dot { border-color: #198754; }
-.fc-list-event.task-completed .fc-list-event-dot { border-color: #6c757d; }

@@ -128,7 +128,7 @@ a:hover, a:active, a:focus { color: shade-color($lazur, 12%); }
 // buttons, nav surfaces, chips/cards (they own their hover treatments), icon controls, and
 // the grandfathered .btn-div-inside-anchor sites (:has guards — text-decoration would
 // propagate into the button face).
-#page-wrapper a:hover:not(.btn):not(.nav-link):not(.dropdown-item):not(.badge):not(.dashboard-tile-link):not(.collapse-link):not(.close-link):not(.fullscreen-link):not(.btn-close):not(.page-header__more):not([class*='record-card']):not([class*='record-grid__tag']):not([class*='household-members']):not([class*='client-hub__']):not(:has(.btn)):not(:has(.badge)):not(:has(img)) {
+#page-wrapper a:hover:not(.btn):not(.nav-link):not(.dropdown-item):not(.badge):not(.dashboard-tile-link):not(.collapse-link):not(.close-link):not(.fullscreen-link):not(.btn-close):not(.page-header__more):not([class*='record-card']):not([class*='record-grid__tag']):not([class*='household-members']):not([class*='client-hub__']):not([class*='agenda-task']):not(:has(.btn)):not(:has(.badge)):not(:has(img)) {
   text-decoration: underline;
 }
 
