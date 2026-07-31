@@ -4,7 +4,7 @@ class RegistrationsController < Devise::RegistrationsController
   # No CanCan resource to authorize.
   skip_authorization_check
 
-  before_action :notify_user, :set_sidebar_basic_info, only: [:edit, :update]
+  before_action :notify_user, only: [:edit, :update]
   before_action :set_paper_trail_whodunnit
 
   def new
@@ -38,9 +38,5 @@ class RegistrationsController < Devise::RegistrationsController
 
   def notify_user
     @notification = UserNotification.new(current_user)
-  end
-
-  def set_sidebar_basic_info
-    @dashboard = Dashboard.new(current_user)
   end
 end
