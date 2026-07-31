@@ -1,13 +1,15 @@
+-# D5: the preview page renders the REAL data-entry form (same shared/fields partials
+-# production uses) instead of the old pointer-events-none disabled builder stage.
 .row
   .col-12
     .ibox
       .ibox-title
         %h4= @custom_field.form_title
-      .hide-custom-field
-        .ibox-content
-          .row
-            .col-12.col-md-8
-              .build-wrap{ 'data-fields': @custom_field.fields }
+        %p.text-muted.m-b-none= t('.preview_note', default: 'Preview — exactly what staff see when filling this form.')
+      .ibox-content
+        .row
+          .col-12.col-md-8
+            = render 'preview_fields', fields: (@custom_field.fields || [])
       .ibox-footer
         - if current_organization.full_name != params[:ngo_name] && params[:ngo_name].present?
           = link_to t('.copy'), new_custom_field_path(custom_field_id: @custom_field.id, ngo_name: @custom_field.ngo_name), class: 'btn btn-primary form-btn'

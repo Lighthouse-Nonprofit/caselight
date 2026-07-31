@@ -21,8 +21,11 @@ class CustomField < ActiveRecord::Base
   validates :form_title, uniqueness: { case_sensitive: false, scope: :entity_type }
   validates :time_of_frequency, presence: true,
                                 numericality: { only_integer: true, greater_than_or_equal_to: 1 }, if: -> { frequency.present? }
+  include FormBuilderFieldTypes # D5: server-side type allowlist
+
   validates :fields, presence: true
   validate  :uniq_fields, :field_label, if: -> { fields.present? }
+  validate  -> { validate_field_types_of(:fields, fields) }, if: -> { fields.present? }
 
   # Rails 5 jsonb no longer auto-parses a JSON String on assign (Rails 4.2 did). The form
   # builder submits `fields` as a JSON string, so parse it before validations run -- every

@@ -6,10 +6,13 @@ class Tracking < ActiveRecord::Base
 
   has_paper_trail
 
+  include FormBuilderFieldTypes # D5: server-side type allowlist
+
   validates :name, uniqueness: { scope: :program_stream_id }
 
   validate :form_builder_field_uniqueness
   validate :validate_remove_field, if: -> { id.present? }
+  validate -> { validate_field_types_of(:fields, fields) }, if: -> { fields.present? }
 
   default_scope { order(:created_at) }
 

@@ -1,34 +1,51 @@
+-# D5: two-pane builder — settings rail on the left, builder stage + REAL preview on
+-# the right. The sensitivity picker stays a SELECT (the Phase-5.2b contract spec pins
+-# it); the preview pane is filled by custom_fields/form.js POSTing the draft JSON to
+-# preview_draft (server-rendered shared/fields partials — never client-composed HTML).
 = simple_form_for(@custom_field, html: {id: 'custom_field'}) do |f|
-  .ibox-content
-    .row
-      .col-12.col-sm-6
-        = f.input :entity_type, collection: CustomField::ENTITY_TYPES, label: t('.type'), disabled: used_custom_form?(@custom_field), include_blank: false
-      .col-12.col-sm-6
-        = f.input :form_title, label: t('.form_title'), disabled: used_custom_form?(@custom_field), input_html: { list: 'livesearch', autocomplete: 'off' }
-        %ul.nav
-          #livesearch{ data: { 'preview-translation': t('.preview'), 'copy-translation': t('.copy') }}
-      .col-12.col-sm-6
-        = f.input :frequency, collection: CustomField::FREQUENCIES, label: t('.frequency')
-        %p.frequency-note.d-none
-          %i
-            %span.main This needs to be done once every
-            %span.frequency
-      .col-12.col-sm-6
-        = f.input :time_of_frequency, label: t('.time_of_frequency')
-      .col-12
-        / Phase 5.2b (NIST AC-6) — per-FORM sensitivity. Top-level custom_fields column, so it lives
-        / OUTSIDE the .build-wrap jQuery widget below (which only composes the `fields` JSONB). Explicit
-        / as: :select — sensitivity is a :string column NOT in simple_form input_mappings, so a bare
-        / f.input would be a free-text box; include_blank: false + the selected fallback keeps a new form on "standard".
-        = f.input :sensitivity, as: :select, collection: CustomField::SENSITIVITY_LEVELS.map { |level| [t(".sensitivity_levels.#{level}"), level] }, label: t('.sensitivity'), include_blank: false, selected: (@custom_field.sensitivity.presence || CustomField::DEFAULT_SENSITIVITY), hint: t('.sensitivity_hint')
-    = f.input :fields, as: :hidden
-    = hidden_field_tag :custom_field_id, @custom_field.id
-    .build-wrap{ 'data-fields': @custom_field.fields || ''}
-    - if f.object.errors[:fields].any?
-      %span.form-text= f.object.errors[:fields].first
-  .ibox-footer
-    = f.submit t('save'), class: 'btn btn-primary form-btn', id: 'custom-field-submit'
-    - if @custom_field.persisted?
-      = link_to t('cancel'), custom_field_path(@custom_field), class: 'btn btn-outline-secondary form-btn'
-    - else
-      = link_to t('cancel'), custom_fields_path(), class: 'btn btn-outline-secondary form-btn'
+  .row
+    .col-12.col-lg-4
+      .ibox
+        .ibox-title
+          %h5= t('.details', default: 'Form details')
+        .ibox-content
+          = f.input :entity_type, collection: CustomField::ENTITY_TYPES, label: t('.type'), disabled: used_custom_form?(@custom_field), include_blank: false
+          = f.input :form_title, label: t('.form_title'), disabled: used_custom_form?(@custom_field), input_html: { list: 'livesearch', autocomplete: 'off' }
+          %ul.nav
+            #livesearch{ data: { 'preview-translation': t('.preview'), 'copy-translation': t('.copy') }}
+          = f.input :frequency, collection: CustomField::FREQUENCIES, label: t('.frequency')
+          %p.frequency-note.d-none
+            %i
+              %span.main This needs to be done once every
+              %span.frequency
+          = f.input :time_of_frequency, label: t('.time_of_frequency')
+          / Phase 5.2b (NIST AC-6) — per-FORM sensitivity. Top-level custom_fields column, so it lives
+          / OUTSIDE the .build-wrap jQuery widget (which only composes the `fields` JSONB). Explicit
+          / as: :select — sensitivity is a :string column NOT in simple_form input_mappings, so a bare
+          / f.input would be a free-text box; include_blank: false + the selected fallback keeps a new form on "standard".
+          = f.input :sensitivity, as: :select, collection: CustomField::SENSITIVITY_LEVELS.map { |level| [t(".sensitivity_levels.#{level}"), level] }, label: t('.sensitivity'), include_blank: false, selected: (@custom_field.sensitivity.presence || CustomField::DEFAULT_SENSITIVITY), hint: t('.sensitivity_hint')
+      .ibox
+        .ibox-content
+          = f.submit t('save'), class: 'btn btn-primary form-btn', id: 'custom-field-submit'
+          - if @custom_field.persisted?
+            = link_to t('cancel'), custom_field_path(@custom_field), class: 'btn btn-outline-secondary form-btn'
+          - else
+            = link_to t('cancel'), custom_fields_path(), class: 'btn btn-outline-secondary form-btn'
+    .col-12.col-lg-8
+      .ibox
+        .ibox-title
+          %h5= t('.builder', default: 'Fields')
+        .ibox-content
+          = f.input :fields, as: :hidden
+          = hidden_field_tag :custom_field_id, @custom_field.id
+          .build-wrap{ 'data-fields': @custom_field.fields || ''}
+          - if f.object.errors[:fields].any?
+            %span.form-text.text-danger= f.object.errors[:fields].first
+      .ibox
+        .ibox-title
+          %h5= t('.preview_title', default: 'Preview — what staff will see')
+          .ibox-tools
+            %button.btn.btn-outline-primary.btn-sm{ id: 'preview-refresh', type: 'button' }= t('.refresh_preview', default: 'Refresh preview')
+        .ibox-content
+          #form-preview-pane{ data: { url: preview_draft_custom_fields_path, error: t('.preview_error', default: "Couldn't build the preview — check the fields and try again.") } }
+            %p.text-muted= t('.preview_hint', default: 'Add fields, then refresh to see the real data-entry form.')
