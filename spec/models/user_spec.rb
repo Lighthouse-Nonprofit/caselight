@@ -272,7 +272,7 @@ describe User, 'methods' do
   let!(:kc_manager){ create(:user, roles: 'kc manager') }
   let!(:able_manager){ create(:user, roles: 'able manager') }
   let!(:client) { create(:client, users: [case_worker]) }
-  let!(:assessment) { create(:assessment, client: client, created_at: Date.today) }
+  let!(:assessment) { create(:assessment, client: client, created_at: Time.zone.today) }
 
   let!(:ec_case_worker){ create(:user, roles: 'case worker', first_name: FFaker::Name.name, last_name: FFaker::Name.name) }
   let!(:second_client) { create(:client, users: [ec_case_worker], status: 'Active EC') }
@@ -280,7 +280,7 @@ describe User, 'methods' do
 
   let!(:fc_case_worker){ create(:user, roles: 'case worker', first_name: FFaker::Name.name, last_name: FFaker::Name.name) }
   let!(:third_client) { create(:client, users: [fc_case_worker], status: 'Active FC') }
-  let!(:third_assessment) { create(:assessment, client: third_client, created_at: Date.today << 6) }
+  let!(:third_assessment) { create(:assessment, client: third_client, created_at: Time.zone.today << 6) }
 
   let!(:used_user) { create(:user) }
   let!(:other_clent) { create(:client, users: [used_user]) }
@@ -291,11 +291,11 @@ describe User, 'methods' do
 
   let!(:kc_case_worker){ create(:user, roles: 'case worker', first_name: FFaker::Name.name, last_name: FFaker::Name.name) }
   let!(:fourth_client) { create(:client, users: [kc_case_worker], status: 'Active KC') }
-  let!(:fourth_assessment) { create(:assessment, client: fourth_client, created_at: Date.today << 6) }
+  let!(:fourth_assessment) { create(:assessment, client: fourth_client, created_at: Time.zone.today << 6) }
 
   let!(:fifth_case_worker){ create(:user, roles: 'case worker', first_name: FFaker::Name.name, last_name: FFaker::Name.name) }
   let!(:fifth_client) { create(:client, users: [fifth_case_worker], status: 'Referred') }
-  let!(:fifth_assessment) { create(:assessment, client: fifth_client, created_at: Date.today << 6) }
+  let!(:fifth_assessment) { create(:assessment, client: fifth_client, created_at: Time.zone.today << 6) }
 
   let!(:manager){ create(:user, roles: 'manager') }
   let!(:subordinate){ create(:user, roles: 'case worker', manager_id: manager.id) }

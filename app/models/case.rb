@@ -46,7 +46,7 @@ class Case < ActiveRecord::Base
     return unless family
     if family.inactive? || family.birth_family?
       self.exited    = true
-      self.exit_date = Date.today
+      self.exit_date = Time.zone.today
       self.exit_note = family.family_type
     end
     self.case_type =  case family.family_type
@@ -55,7 +55,7 @@ class Case < ActiveRecord::Base
                       when 'kinship' then 'KC'
                       when 'inactive', 'birth_family' then 'Referred'
                       end
-    self.start_date = Date.today
+    self.start_date = Time.zone.today
   end
 
   def short_start_date

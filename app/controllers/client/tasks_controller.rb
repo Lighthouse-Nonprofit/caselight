@@ -63,7 +63,7 @@ class Client::TasksController < AdminController
   end
 
   def task_params
-    params.require(:task).permit(:domain_id, :name, :completion_date, :remind_at)
+    params.require(:task).permit(:domain_id, :name, :completion_date, :start_time, :duration_minutes)
   end
 
   def encode32hex(str)
@@ -97,7 +97,10 @@ class Client::TasksController < AdminController
     domain     = Domain.find(task.domain_id)
     title      = "#{domain.name} - #{task_name}"
     start_date = task.completion_date
-    end_date   = (start_date + 1.day).to_s
-    @calendars = Calendar.where(title: title, start_date: start_date, end_date: end_date)
+    # C1 (TZ flip): Date-in-WHERE binds as UTC midnight while assignment casts Time.zone —
+    # query with explicit zone times. (This lookup retires with the calendars table in C2.)
+    @calendars = Calendar.where(title: title,
+                                start_date: start_date.in_time_zone,
+                                end_date: (start_date + 1.day).in_time_zone)
   end
 end

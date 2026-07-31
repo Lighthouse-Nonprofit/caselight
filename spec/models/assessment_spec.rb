@@ -46,7 +46,7 @@ describe Assessment, 'validations' do
 end
 
 describe Assessment, 'methods' do
-  let(:last_assessment_date) { Time.now - 6.month - 1.day }
+  let(:last_assessment_date) { Time.zone.now - 6.month - 1.day }
   let!(:client) { create(:client) }
   let!(:assessment) { create(:assessment, created_at: last_assessment_date, client: client) }
   let!(:domain) { create(:domain) }
@@ -125,7 +125,7 @@ describe Assessment, 'callbacks' do
   context 'set previous score' do
     let!(:client) { create(:client) }
     let!(:domain) { create(:domain) }
-    let!(:assessment) { create(:assessment, created_at: Time.now - 6.month - 1.day, client: client) }
+    let!(:assessment) { create(:assessment, created_at: Time.zone.now - 6.month - 1.day, client: client) }
     let!(:assessment_domain) { create(:assessment_domain, assessment: assessment, domain: domain) }
     let!(:last_assessment) { client.assessments.new }
 

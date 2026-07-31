@@ -145,7 +145,8 @@ module ApplicationHelper
   end
 
   def date_time_format(date_time)
-    date_time.in_time_zone('Bangkok').strftime('%d %B, %Y %H:%M:%S')
+    # Data-task batch (2026-07): app time zone (was a Cambodia-era 'Bangkok' hardcode).
+    date_time.in_time_zone.strftime('%d %B, %Y %H:%M:%S')
   end
 
   def ability_to_write(object)

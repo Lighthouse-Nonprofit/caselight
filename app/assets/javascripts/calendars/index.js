@@ -111,7 +111,6 @@ CIF.CalendarsIndex = (function () {
     $('#task-program').val('');
     $('#task-domain').val('');
     $('#task-name').val('');
-    $('#task-remind-at').val('');
     $('#task-client').prop('disabled', true);
     _resetClientSelect('placeholder-empty');
     // FC6 dateClick info.dateStr is ISO (date-only in dayGrid, datetime in timeGrid) —
@@ -170,7 +169,6 @@ CIF.CalendarsIndex = (function () {
     const domainId = $('#task-domain').val();
     const name = ($('#task-name').val() || '').trim(); // $.trim removed in jQuery 4
     const completionDate = $('#task-completion-date').val();
-    const remindAt = $('#task-remind-at').val();
     const form = $('#new-task-form');
     if (!clientId || !domainId || !name || !completionDate) {
       _showTaskError(form.data('error-required'));
@@ -185,7 +183,7 @@ CIF.CalendarsIndex = (function () {
       dataType: 'JSON',
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
       data: {
-        task: { domain_id: domainId, name, completion_date: completionDate, remind_at: remindAt },
+        task: { domain_id: domainId, name, completion_date: completionDate },
       },
     })
       .done(function () {

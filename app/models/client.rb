@@ -258,12 +258,12 @@ class Client < ActiveRecord::Base
   end
 
   def next_assessment_date
-    return Date.today if assessments.count.zero?
+    return Time.zone.today if assessments.count.zero?
     (assessments.latest_record.created_at + 6.months).to_date
   end
 
   def next_appointment_date
-    return Date.today if assessments.count.zero?
+    return Time.zone.today if assessments.count.zero?
 
     last_assessment  = assessments.most_recents.first
     last_case_note   = case_notes.most_recents.first
@@ -273,7 +273,7 @@ class Client < ActiveRecord::Base
   end
 
   def can_create_assessment?
-    Date.today >= next_assessment_date
+    Time.zone.today >= next_assessment_date
   end
 
   def self.able_managed_by(user)
@@ -332,11 +332,11 @@ class Client < ActiveRecord::Base
     cases.active.latest_kinship.presence || cases.active.latest_foster.presence
   end
 
-  def age_as_years(date = Date.today)
+  def age_as_years(date = Time.zone.today)
     ((date - date_of_birth) / 365).to_i
   end
 
-  def age_extra_months(date = Date.today)
+  def age_extra_months(date = Time.zone.today)
     ((date - date_of_birth) % 365 / 31).to_i
   end
 
@@ -402,7 +402,7 @@ class Client < ActiveRecord::Base
     first_active_case = active_cases.first
 
     start_date        = first_active_case.start_date.to_date
-    current_date      = Date.today.to_date
+    current_date      = Time.zone.today.to_date
     (current_date - start_date).to_f
   end
 

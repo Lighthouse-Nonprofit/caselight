@@ -12,12 +12,18 @@ class Task < ActiveRecord::Base
   validates :domain, presence: true
   validates :completion_date, presence: true
   # validates :user_ids, presence: true
+  # Data-task batch (2026-07): timed tasks. duration only makes sense on a timed task;
+  # 12h is the sane ceiling for a single work-day block.
+  validates :duration_minutes, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 720 }, allow_nil: true
+  validates :start_time, presence: { message: 'is required when a duration is set' }, if: -> { duration_minutes.present? }
 
+  # Data-task batch (2026-07): Time.zone (America/Los_Angeles), not Date.today — the
+  # server runs UTC, so bare Date flipped tasks overdue at ~5pm local.
   scope :completed,  -> { where(completed: true) }
   scope :incomplete, -> { where(completed: false) }
-  scope :overdue,    -> { where('completion_date < ?', Date.today) }
-  scope :today,      -> { where('completion_date = ?', Date.today) }
-  scope :upcoming,   -> { where('completion_date > ?', Date.today) }
+  scope :overdue,    -> { where('completion_date < ?', Time.zone.today) }
+  scope :today,      -> { where('completion_date = ?', Time.zone.today) }
+  scope :upcoming,   -> { where('completion_date > ?', Time.zone.today) }
 
   scope :overdue_incomplete, -> { incomplete.overdue }
   scope :today_incomplete,   -> { incomplete.today }
@@ -26,6 +32,23 @@ class Task < ActiveRecord::Base
   scope :overdue_incomplete_ordered, -> { overdue_incomplete.order('completion_date ASC') }
 
   after_save :set_users, :create_task_history
+
+  # Data-task batch (2026-07): the timed-task lens. completion_date owns the DAY;
+  # start_time is wall-clock; the pair composes in the app zone.
+  def timed?
+    start_time.present?
+  end
+
+  def starts_at
+    return nil unless timed?
+    Time.zone.local(completion_date.year, completion_date.month, completion_date.day,
+                    start_time.hour, start_time.min)
+  end
+
+  def ends_at
+    return nil unless timed?
+    starts_at + (duration_minutes || 60).minutes
+  end
 
   def set_users
     client.users.map { |user| CaseWorkerTask.find_or_create_by(task_id: id, user_id: user.id) }
@@ -53,7 +76,7 @@ class Task < ActiveRecord::Base
   def self.upcoming_incomplete_tasks
     Organization.all.each do |org|
       Organization.switch_to org.short_name
-      user_ids = incomplete.where(completion_date: Date.tomorrow).map(&:user_ids).flatten.uniq
+      user_ids = incomplete.where(completion_date: Time.zone.tomorrow).map(&:user_ids).flatten.uniq
       users    = User.where(id: user_ids)
       users.each do |user|
         CaseWorkerMailer.tasks_due_tomorrow_of(user).deliver_now

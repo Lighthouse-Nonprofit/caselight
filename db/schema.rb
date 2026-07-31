@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_28_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_30_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -783,11 +783,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_28_000001) do
     t.date "completion_date"
     t.datetime "created_at", precision: nil
     t.integer "domain_id"
+    t.integer "duration_minutes"
     t.string "name", default: ""
-    t.datetime "remind_at", precision: nil
+    t.time "start_time"
     t.datetime "updated_at", precision: nil
     t.integer "user_id"
     t.index ["client_id"], name: "index_tasks_on_client_id"
+    t.index ["completion_date"], name: "idx_tasks_completion_date"
   end
 
   create_table "thredded_categories", id: :serial, force: :cascade do |t|

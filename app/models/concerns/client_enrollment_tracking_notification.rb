@@ -9,9 +9,9 @@ module ClientEnrollmentTrackingNotification
         trackings.each do |tracking|
           if tracking.frequency.present?
             last_client_enrollment_tracking = client_active_enrollment.client_enrollment_trackings.last
-            if client.next_client_enrollment_tracking_date(tracking, last_client_enrollment_tracking) < Date.today
+            if client.next_client_enrollment_tracking_date(tracking, last_client_enrollment_tracking) < Time.zone.today
               clients_overdue << client
-            elsif client.next_client_enrollment_tracking_date(tracking, last_client_enrollment_tracking) == Date.today
+            elsif client.next_client_enrollment_tracking_date(tracking, last_client_enrollment_tracking) == Time.zone.today
               clients_due_today << client
             end
           end

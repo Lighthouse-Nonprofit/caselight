@@ -449,7 +449,8 @@ en:
       task_name: Task
       task_name_placeholder: e.g. Home visit, submit paperwork
       completion_date: Date
-      remind_at: Remind me (optional)
+      start_time: Start time (optional)
+      duration: Duration
       close: Close
       cancel: Cancel
       create: Create task
