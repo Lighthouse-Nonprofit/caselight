@@ -36,6 +36,14 @@ RSpec.describe 'Client gender (CA SOGI list, D4)', type: :request do
     expect(response.body).not_to include("/clients/#{nb.slug}")
   end
 
+  it 'renders version history for a freshly created client (nil -> token transitions are nil-safe)' do
+    # Regression: gender's default went "Male" -> nil, so create changesets carry
+    # [nil, 'male'] and version_value_format's titleizeText branch 500'd on nil.
+    client = create(:client, state: 'accepted', gender: 'male', users: [admin])
+    get client_version_path(client)
+    expect(response).to have_http_status(:ok)
+  end
+
   it 'exposes the SOGI map to both advanced-search field builders' do
     expect(AdvancedSearches::ClientFields.new(user: admin).send(:gender_options).keys.map(&:to_s))
       .to match_array(Client::GENDER_OPTIONS)
