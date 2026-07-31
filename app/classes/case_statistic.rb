@@ -40,7 +40,7 @@ class CaseStatistic
   private
 
   def one_year_cases
-    @cases.where(start_date: 12.months.ago..Date.today).order('start_date')
+    @cases.where(start_date: 12.months.ago..Time.zone.today).order('start_date')
   end
 
   def cases_count_by(fields = {})

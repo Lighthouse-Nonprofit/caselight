@@ -24,8 +24,12 @@ describe Calendar do
 
         title      = "#{task_1.domain.name} - #{task_1.name}"
         start_date = task_1.completion_date
-        end_date   = (start_date + 1.day).to_s
-        calendars   = Calendar.where(title: title, start_date: start_date, end_date: end_date)
+        # C1 (TZ flip): ASSIGNING a Date to a datetime column casts to Time.zone midnight,
+        # but a Date in a WHERE bind serializes as UTC midnight — 7h apart under LA time.
+        # Query with explicit zone times.
+        calendars = Calendar.where(title: title,
+                                   start_date: start_date.in_time_zone,
+                                   end_date: (start_date + 1.day).in_time_zone)
 
         @task_params = { name: 'My Task Updated', completion_date: Date.tomorrow, domain_id: task_1.domain_id }
 

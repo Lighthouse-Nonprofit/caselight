@@ -19,9 +19,9 @@ describe Task, 'scopes' do
   let!(:task_other){ create(:task)}
   let!(:completed_task){ create(:task, completed: true) }
   let!(:incomplete_task){ create(:task, completed: false) }
-  let!(:overdue_task){ create(:task, completion_date: Date.today - 1.month) }
-  let!(:today_task){ create(:task, completion_date: Date.today) }
-  let!(:upcoming_task){ create(:task, completion_date: Date.today + 1.month) }
+  let!(:overdue_task){ create(:task, completion_date: Time.zone.today - 1.month) }
+  let!(:today_task){ create(:task, completion_date: Time.zone.today) }
+  let!(:upcoming_task){ create(:task, completion_date: Time.zone.today + 1.month) }
 
   context 'by_domain_id' do
     subject{ Task.by_domain_id(domain.id) }
@@ -238,7 +238,7 @@ describe Task, 'timed tasks' do
   end
 
   describe 'zone-aware scopes (the UTC-evening bug)' do
-    # 2026-08-03 19:00 PDT == 2026-08-04 02:00 UTC: bare Date.today would already call
+    # 2026-08-03 19:00 PDT == 2026-08-04 02:00 UTC: bare Time.zone.today would already call
     # a task due today overdue-tomorrow; Time.zone.today must not.
     it 'a task due today stays in .today at 7pm Pacific' do
       travel_to Time.zone.local(2026, 8, 3, 19, 0) do

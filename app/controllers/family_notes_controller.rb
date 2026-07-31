@@ -13,7 +13,7 @@ class FamilyNotesController < AdminController
   end
 
   def new
-    @family_note.meeting_date ||= Date.today
+    @family_note.meeting_date ||= Time.zone.today
   end
 
   def create

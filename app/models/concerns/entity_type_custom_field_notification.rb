@@ -5,9 +5,9 @@ module EntityTypeCustomFieldNotification
     entities.each do |entity|
       entity.custom_fields.distinct.each do |custom_field|
         if custom_field.frequency.present?
-          if entity.next_custom_field_date(entity, custom_field) < Date.today
+          if entity.next_custom_field_date(entity, custom_field) < Time.zone.today
             entity_overdue << entity
-          elsif entity.next_custom_field_date(entity, custom_field) == Date.today
+          elsif entity.next_custom_field_date(entity, custom_field) == Time.zone.today
             entity_due_today << entity
           end
         end
