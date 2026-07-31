@@ -162,7 +162,11 @@ Rails.application.routes.draw do
     get 'version' => 'interventions#version'
   end
 
-  resources :tasks, only: :index
+  resources :tasks, only: :index do
+    member do
+      patch :reschedule # calendar drag/drop + resize (JSON only)
+    end
+  end
 
   resources :clients do
     collection do

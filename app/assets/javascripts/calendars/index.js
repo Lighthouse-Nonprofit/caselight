@@ -56,6 +56,15 @@ CIF.CalendarsIndex = (function () {
       businessHours: { daysOfWeek: [1, 2, 3, 4, 5], startTime: '08:00', endTime: '17:00' },
       height: 'auto',
       events: _eventsFeed,
+      // Drag/drop + resize reschedule. durationEditable comes per-event from the feed
+      // (timed tasks only), so all-day events can move but not stretch.
+      editable: true,
+      eventDrop(info) {
+        return _reschedule(info);
+      },
+      eventResize(info) {
+        return _reschedule(info);
+      },
       dateClick(info) {
         return _openTaskModal(info);
       },
@@ -71,6 +80,34 @@ CIF.CalendarsIndex = (function () {
       },
     });
     return calendar.render();
+  };
+
+  // ---- Drag/drop reschedule ----------------------------------------------------
+
+  // PATCH the new slot to the server; revert the pixels if it refuses. A drop into the
+  // all-day lane sends a blank start_time (jQuery serializes null as ""), which the server
+  // treats as "clear the time AND the duration". Success refetches so the overdue/today/
+  // upcoming bucket colors follow the event to its new date.
+  const _reschedule = function (info) {
+    const event = info.event;
+    const payload = {
+      completion_date: event.startStr.slice(0, 10),
+      start_time: event.allDay ? null : event.startStr.slice(11, 16),
+      duration_minutes:
+        !event.allDay && event.end ? Math.round((event.end - event.start) / 60000) : null,
+    };
+    return $.ajax({
+      type: 'PATCH',
+      url: '/tasks/' + encodeURIComponent(event.id) + '/reschedule',
+      // head :ok has an empty body — asking jQuery for JSON would parse-fail and revert good saves
+      dataType: 'text',
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      data: { task: payload },
+    })
+      .done(() => calendar && calendar.refetchEvents())
+      .fail(function () {
+        return info.revert();
+      });
   };
 
   // ---- Date-click task modal -------------------------------------------------
