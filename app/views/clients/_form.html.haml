@@ -8,7 +8,8 @@
         .col-12.col-sm-6.col-md-4= f.input :family_name, label: t('.family_name')
         .col-12.col-sm-6.col-md-4= f.input :local_given_name, label: t('.local_given_name')
         .col-12.col-sm-6.col-md-4= f.input :local_family_name, label: t('.local_family_name')
-        .col-12.col-sm-6.col-md-4= f.input :gender, collection: [['Male', 'male'], ['Female', 'female']], label: t('.gender')
+        -# D4: CA SOGI list — ONE source (Client::GENDER_OPTIONS + i18n labels)
+        .col-12.col-sm-6.col-md-4= f.input :gender, collection: Client::GENDER_OPTIONS.map { |g| [t("clients.gender_options.#{g}", default: g.titleize), g] }, label: t('.gender')
         .col-12.col-sm-6.col-md-4.mb-3.date.optional.client_date_of_birth
           %label.date.optional.form-label{ for: 'client_date_of_birth' }= t('.date_of_birth')
           #client-birthdate.input-group.date
@@ -65,6 +66,21 @@
         .col-12.col-md-8
           = f.input :relevant_referral_information, input_html: { rows: '5' }, label: t('.relevant_referral_information')
 
+      -# D3: the quantitative editor — the config layer's reference lists finally get a UI.
+      -# One select per type (multi when the type allows it); every select posts into the
+      -# same client[quantitative_case_ids][] array. The hidden field clears the set when
+      -# everything is deselected (unchecked multi-selects post nothing).
+      - if @quantitative_types.present?
+        %hr
+        %h4.m-b-sm= t('.quantitative_data', default: 'Quantitative data')
+        = hidden_field_tag 'client[quantitative_case_ids][]', ''
+        .row
+          - @quantitative_types.each do |qtype|
+            .col-12.col-sm-6.col-md-4.mb-3
+              %label.form-label{ for: "client_quantitative_type_#{qtype.id}" }= qtype.name
+              = select_tag 'client[quantitative_case_ids][]', options_for_select(qtype.quantitative_cases.map { |qc| [qc.value, qc.id] }, @client.quantitative_case_ids), multiple: qtype.allow_multiple?, include_blank: (qtype.allow_multiple? ? false : ''), class: 'form-select', id: "client_quantitative_type_#{qtype.id}"
+              - if qtype.description.present?
+                %small.text-muted= qtype.description
 
   .ibox-footer
     %button.btn.btn-primary.form-btn#submit-button{ type: 'button' }

@@ -428,11 +428,27 @@ describe Client, 'scopes' do
   end
 
   context 'gender' do
-    it 'male' do
-      expect(Client.male).to include(other_client)
+    # D4: the .male/.female scopes died with the grid-filter rewrite; the closed
+    # SOGI list + inclusion validation are the contract now.
+    it 'filters by token' do
+      expect(Client.where(gender: 'male')).to include(other_client)
+      expect(Client.where(gender: 'female')).to include(client)
     end
-    it 'female' do
-      expect(Client.female).to include(client)
+
+    it 'accepts every SOGI token and blank, rejects unknown values' do
+      # the factory only attaches users before(:create); user_ids presence needs them on build
+      validation_user = create(:user)
+      Client::GENDER_OPTIONS.each do |token|
+        expect(build(:client, gender: token, users: [validation_user])).to be_valid, "expected #{token} to be valid"
+      end
+      expect(build(:client, gender: '', users: [validation_user])).to be_valid
+      expect(build(:client, gender: 'Male', users: [validation_user])).not_to be_valid # capitalized legacy default
+      expect(build(:client, gender: 'other', users: [validation_user])).not_to be_valid
+    end
+
+    it 'labels tokens through i18n with a titleized fallback' do
+      expect(build(:client, gender: 'non_binary').gender_label).to be_present
+      expect(build(:client, gender: nil).gender_label).to eq('')
     end
   end
 

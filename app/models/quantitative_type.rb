@@ -1,7 +1,7 @@
 class QuantitativeType < ActiveRecord::Base
   validates :name, presence: true, uniqueness: { case_sensitive: false }
 
-  has_many :quantitative_cases
+  has_many :quantitative_cases, dependent: :destroy # D3: values die with their type (DB FK cascades too)
 
   has_paper_trail
 

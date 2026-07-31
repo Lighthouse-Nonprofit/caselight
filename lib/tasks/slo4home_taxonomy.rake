@@ -782,6 +782,43 @@ namespace :slo4home do
     end
   end
 
-  desc 'Run seed_taxonomy, seed_programs, seed_domains, then seed_demo_family.'
-  task seed_all: %i[seed_taxonomy seed_programs seed_domains seed_demo_family]
+  # D3 (data-task batch): flavor-appropriate quantitative reference lists — the single/multi
+  # knob (allow_multiple) drives the client-form editor. Idempotent: upsert keyed on name;
+  # existing values are kept, missing ones added, nothing is deleted (orgs may add their own).
+  desc 'Seed resettlement quantitative types (English proficiency, income range, benefits). Idempotent.'
+  task seed_quantitative: :environment do
+    tenant = ENV['TENANT'] || 'cases'
+
+    types = [
+      { name: 'English Proficiency',
+        description: 'Current spoken-English level (update after each assessment).',
+        allow_multiple: false,
+        values: ['Pre-literate', 'Beginner', 'Low intermediate', 'High intermediate', 'Advanced', 'Fluent'] },
+      { name: 'Monthly Household Income Range',
+        description: 'Gross household income, all sources combined.',
+        allow_multiple: false,
+        values: ['No income', 'Under $1,000', '$1,000–$1,999', '$2,000–$2,999', '$3,000–$3,999', '$4,000 or more'] },
+      { name: 'Public Benefits Enrolled',
+        description: 'Every benefit program the household currently receives.',
+        allow_multiple: true,
+        values: ['CalFresh (SNAP)', 'Medi-Cal', 'CalWORKs', 'Refugee Cash Assistance', 'SSI/SSDI', 'WIC'] }
+    ]
+
+    Apartment::Tenant.switch(tenant) do
+      created = updated = 0
+      types.each do |t|
+        qt = QuantitativeType.find_or_initialize_by(name: t[:name])
+        was_new = qt.new_record?
+        qt.description    = t[:description]
+        qt.allow_multiple = t[:allow_multiple]
+        qt.save!
+        was_new ? created += 1 : updated += 1
+        t[:values].each { |v| qt.quantitative_cases.find_or_create_by!(value: v) }
+      end
+      puts "slo4home:seed_quantitative [tenant=#{tenant}]: #{created} created, #{updated} updated (of #{types.size})."
+    end
+  end
+
+  desc 'Run seed_taxonomy, seed_programs, seed_domains, seed_demo_family, then seed_quantitative.'
+  task seed_all: %i[seed_taxonomy seed_programs seed_domains seed_demo_family seed_quantitative]
 end

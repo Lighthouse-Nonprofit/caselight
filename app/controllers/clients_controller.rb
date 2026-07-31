@@ -173,6 +173,8 @@ class ClientsController < AdminController
     @province        = Province.order(:name)
     @referral_source = ReferralSource.order(:name)
     @users           = User.non_strategic_overviewers.order(:first_name, :last_name)
+    # D3: the quantitative editor — one select per type on the client form
+    @quantitative_types = QuantitativeType.includes(:quantitative_cases)
   end
 
   def initial_visit_client

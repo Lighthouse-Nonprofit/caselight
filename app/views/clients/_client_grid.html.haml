@@ -26,7 +26,7 @@
             = link_to object.name.presence || t('.unknown', default: 'Unknown'), client_path(object), class: 'record-grid__name-link'
           %td.record-grid__demo
             - if object.gender.present?
-              %span.record-grid__gender= object.gender.try(:titleize)
+              %span.record-grid__gender= object.gender_label
             - if object.gender.present? && age_str.present?
               %span.record-grid__sep{ 'aria-hidden' => 'true' } ·
             - if age_str.present?

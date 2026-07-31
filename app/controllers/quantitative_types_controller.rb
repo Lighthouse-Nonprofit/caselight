@@ -44,7 +44,7 @@ class QuantitativeTypesController < AdminController
 
   def quantitative_type_params
     params.require(:quantitative_type)
-          .permit(:name, :description, quantitative_cases_attributes: [:id, :value, :_destroy])
+          .permit(:name, :description, :allow_multiple, quantitative_cases_attributes: [:id, :value, :_destroy])
   end
 
   def find_quantitative_type

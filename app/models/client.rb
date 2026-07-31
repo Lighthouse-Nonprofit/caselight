@@ -19,6 +19,14 @@ class Client < ActiveRecord::Base
   CLIENT_ACTIVE_STATUS = ['Active EC', 'Active FC', 'Active KC'].freeze
   ABLE_STATES = %w(Accepted Rejected Discharged).freeze
 
+  # Data-task batch D4 — the CA SOGI-style list (owner call: "more genders in the picker
+  # since we're in California now"). Lowercase tokens are the ONE source feeding the form
+  # collection, the grid filter, and both advanced-search field maps; display goes through
+  # #gender_label (i18n clients.gender_options.*). The old column default "Male" (matched
+  # no filter) is nil'd + legacy values lowercased in 20260730000006.
+  GENDER_OPTIONS = %w[female male non_binary transgender_woman transgender_man
+                      questioning another_gender_identity declined_to_state].freeze
+
   EXIT_STATUSES = CLIENT_STATUSES.select { |status| status if status.include?('Exited') || status.include?('Independent - Monitored')  }
 
   delegate :name, to: :donor, prefix: true, allow_nil: true
@@ -155,6 +163,8 @@ class Client < ActiveRecord::Base
   validates :exit_note, presence: true, on: :update, if: :exit_ngo?
   validates :kid_id, uniqueness: { case_sensitive: false }, if: -> { kid_id.present? }
   validates :user_ids, presence: true
+  # D4: closed list (lowercase tokens); blank = not stated/asked
+  validates :gender, inclusion: { in: GENDER_OPTIONS }, allow_blank: true
 
   after_update :reset_tasks_of_users
 
@@ -191,8 +201,8 @@ class Client < ActiveRecord::Base
   scope :province_is,                 ->        { joins(:province).pluck('provinces.name', 'provinces.id').uniq }
   scope :accepted,                    ->        { where(state: 'accepted') }
   scope :rejected,                    ->        { where(state: 'rejected') }
-  scope :male,                        ->        { where(gender: 'male') }
-  scope :female,                      ->        { where(gender: 'female') }
+  # (D4: the .male/.female scopes died — last caller was the grid filter's
+  # everything-else-is-female fallthrough, now a straight where(gender: value).)
   scope :active_ec,                   ->        { where(status: 'Active EC') }
   scope :active_kc,                   ->        { where(status: 'Active KC') }
   scope :active_fc,                   ->        { where(status: 'Active FC') }
@@ -244,6 +254,14 @@ class Client < ActiveRecord::Base
     name       = "#{given_name} #{family_name}"
     local_name = "#{local_given_name} #{local_family_name}"
     name.present? ? name : local_name
+  end
+
+  # D4: the one display path for gender (header/cards/grid/XLS) — replaces .titleize,
+  # which mangled multi-word tokens ("non_binary" -> "Non Binary" is fine, but the
+  # i18n label is authoritative and flavors can override it).
+  def gender_label
+    return '' if gender.blank?
+    I18n.t("clients.gender_options.#{gender}", default: gender.titleize)
   end
 
   def en_and_local_name

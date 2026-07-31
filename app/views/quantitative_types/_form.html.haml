@@ -9,6 +9,10 @@
           = error_notification(f)
           .form-inputs
             = f.input :name, label: t('.name')
+            -# D3: description (column + permit always existed; the input never did) doubles
+            -# as the help text under the client-form select. allow_multiple = single vs multi.
+            = f.input :description, input_html: { rows: '4' }, label: t('.description', default: 'Description (shown as help text on the individual form)')
+            = f.input :allow_multiple, as: :boolean, label: t('.allow_multiple', default: 'Allow selecting more than one value per person')
             = f.simple_fields_for :quantitative_cases do |quantitative_case|
               = render 'quantitative_case_fields', f: quantitative_case
           .links

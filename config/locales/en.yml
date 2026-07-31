@@ -795,6 +795,16 @@ en:
   clients:
     actions:
       are_you_sure: Are you sure you want to delete?
+    # D4: CA SOGI-style list. Keys = Client::GENDER_OPTIONS tokens; flavors may override.
+    gender_options:
+      female: Female
+      male: Male
+      non_binary: Non-binary
+      transgender_woman: Transgender woman
+      transgender_man: Transgender man
+      questioning: Questioning
+      another_gender_identity: Another gender identity
+      declined_to_state: Declined to state
     answer_fields:
       answer: Answer
       yes_no: Yes/No
@@ -2705,7 +2715,7 @@ en:
       title: Edit Quantitative Data
     form:
       cancel: Cancel
-      quantitative_type: Qantitative Type
+      quantitative_type: Quantitative Type
       save: Save
       value: Value
     new:

@@ -94,7 +94,9 @@ Rails.application.routes.draw do
     get 'version' => 'quantitative_types#version'
   end
 
-  resources :quantitative_cases do
+  # D3: the CRUD half of quantitative_cases was dead (controller has only #version —
+  # values are managed inline through the type modal); changelog links survive.
+  resources :quantitative_cases, only: [] do
     get 'version' => 'quantitative_cases#version'
   end
 
