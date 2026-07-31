@@ -1,5 +1,13 @@
--# (Data-task batch 2026-07: the Google sync button retired with the legacy push; C5's
--# rebuilt push brings its own affordance.)
+-# Data-task batch C5: the rebuilt Google push's affordance. Hidden entirely unless the
+-# installation has Google credentials (GoogleCalendarPush.enabled?), the user opted in
+-# (calendar_integration, users/_form), and the role can manage tasks.
+- if GoogleCalendarPush.enabled? && current_user.calendar_integration? && (can? :update, Task)
+  .d-flex.justify-content-end.mb-3
+    - if current_user.google_refresh_token.present?
+      = button_to t('.google_disconnect', default: 'Disconnect Google Calendar'), google_disconnect_calendars_path, method: :delete, class: 'btn btn-outline-secondary btn-sm'
+    - else
+      = link_to t('.google_connect', default: 'Connect Google Calendar'), google_auth_calendars_path, class: 'btn btn-outline-primary btn-sm'
+
 .loader.text-center
 #calendar
 

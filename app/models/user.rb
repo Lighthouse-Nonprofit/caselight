@@ -87,7 +87,7 @@ class User < ActiveRecord::Base
   # drift-guarded by paper_trail_redaction_spec.
   has_paper_trail skip: %i[email uid first_name last_name mobile
                            encrypted_password otp_secret otp_backup_codes tokens
-                           reset_password_token unlock_token]
+                           reset_password_token unlock_token google_refresh_token]
   include RedactedUpdateVersions  # skipped-only edits still write a values-free who/when version
 
   belongs_to :province,   counter_cache: true
@@ -106,6 +106,7 @@ class User < ActiveRecord::Base
   has_many :custom_fields, through: :custom_field_properties, as: :custom_formable
   # WebAuthn passkeys (FedRAMP IA-2). ADDITIVE login factor; see WebauthnCredential + SessionsController.
   has_many :webauthn_credentials, dependent: :destroy
+  has_many :google_task_events # C5 push state; DB FK cascades on user delete
 
   validates :roles, presence: true, inclusion: { in: ROLES }
   # Tier 3 encrypts :email deterministically + downcase, so the ciphertext is case-folded + stable.
@@ -130,6 +131,11 @@ class User < ActiveRecord::Base
   encrypts :first_name, deterministic: true
   encrypts :last_name,  deterministic: true
   encrypts :mobile,     deterministic: true
+
+  # Data-task batch C5 — the Google Calendar offline-access credential. NON-deterministic
+  # (never queried by equality) and born-encrypted: written only by the OAuth callback,
+  # so no plaintext rows ever exist. ENCRYPTION_TIERS tier 6 covers it for verify/drift.
+  encrypts :google_refresh_token
 
   # Tier 3: these 4 columns are DETERMINISTICALLY encrypted — iLIKE substring matching over ciphertext is
   # impossible; exact equality still works. Rewritten to exact where(col: value) (names kept so UserGrid

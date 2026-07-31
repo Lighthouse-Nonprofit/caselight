@@ -69,7 +69,14 @@ Rails.application.routes.draw do
   # Data-task batch (2026-07): the calendar page (task-native feed lives under /api).
   # The legacy Google push routes (redirect/callback/sync) retired with the calendars
   # table — see REMOVED-FEATURES.md; C5 rebuilds push with its own routes.
-  resources :calendars, only: [:index]
+  resources :calendars, only: [:index] do
+    # C5 rebuilt Google push — connect/callback/disconnect for current_user only
+    collection do
+      get :google_auth
+      get :google_callback
+      delete :google_disconnect
+    end
+  end
 
   resources :agencies, except: [:show] do
     get 'version' => 'agencies#version'

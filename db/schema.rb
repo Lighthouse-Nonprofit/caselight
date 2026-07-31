@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_30_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -488,6 +488,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000002) do
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id"
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
+  end
+
+  create_table "google_task_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "google_event_id", null: false
+    t.integer "task_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["task_id", "user_id"], name: "idx_google_task_events_task_user", unique: true
+    t.index ["user_id"], name: "idx_google_task_events_user"
   end
 
   create_table "government_reports", id: :serial, force: :cascade do |t|
@@ -1010,6 +1020,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000002) do
     t.datetime "expires_at", precision: nil
     t.integer "failed_attempts", default: 0, null: false
     t.text "first_name", default: ""
+    t.text "google_refresh_token"
     t.string "job_title", default: ""
     t.text "last_name", default: ""
     t.datetime "last_sign_in_at", precision: nil
@@ -1127,6 +1138,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000002) do
   add_foreign_key "family_alerts", "users", column: "resolved_by_id"
   add_foreign_key "family_notes", "families"
   add_foreign_key "family_notes", "users"
+  add_foreign_key "google_task_events", "tasks", on_delete: :cascade
+  add_foreign_key "google_task_events", "users", on_delete: :cascade
   add_foreign_key "interventions_progress_notes", "interventions"
   add_foreign_key "interventions_progress_notes", "progress_notes"
   add_foreign_key "leave_program_search_entries", "leave_programs", on_delete: :cascade

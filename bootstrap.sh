@@ -133,9 +133,10 @@ fi
 #     user out — backfilling before `up` means the app never serves an un-backfilled row (no login-broken
 #     window). `verify` then gates each tier (non-zero exit on any plaintext straggler -> set -e halts the
 #     deploy so you investigate before relying on login/search). Tiers: 1 narratives, 2 address/location,
-#     3 user/staff PII, 4 client names, 5 custom-form JSONB. See docs/compliance/encryption-at-rest.md.
+#     3 user/staff PII, 4 client names, 5 custom-form JSONB, 6 credentials (born-encrypted; backfill is a
+#     structural no-op). See docs/compliance/encryption-at-rest.md.
 echo "==> encrypting existing rows at rest (backfill + verify, all tiers)"
-for TIER in 1 2 3 4 5; do
+for TIER in 1 2 3 4 5 6; do
   docker compose run --rm app bundle exec rake encryption:backfill TIER="$TIER" CONFIRM=1
   docker compose run --rm app bundle exec rake encryption:verify   TIER="$TIER"
 done
