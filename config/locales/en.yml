@@ -434,14 +434,14 @@ en:
     task_modal:
       title: New task
       subtitle: Create a task for someone in a program you manage.
+      person: Person
+      select_person: Select a person
       program: Program
       select_program: Select a program
-      person: Person
-      select_program_first: Choose a program first
-      select_person: Select a person
+      select_person_first: Choose a person first
       loading: Loading…
-      no_people: No people you manage are enrolled in this program
-      load_error: Couldn't load people — please try again
+      no_programs: No active programs for this person
+      load_error: Couldn't load programs — please try again
       domain: Domain
       select_domain: Select a domain
       task_name: Task

@@ -251,7 +251,8 @@ Rails.application.routes.draw do
 
     resources :calendars, only: [] do
       get :find_event, on: :collection
-      get :program_clients, on: :collection
+      # owner flip (2026-07-31): person first, then their programs (was program -> people)
+      get :client_programs, on: :collection
     end
 
     resources :clients do

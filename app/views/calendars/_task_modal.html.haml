@@ -1,8 +1,9 @@
--# Date-click task-creation modal for the calendar (SLO4HOME revision, Workstream B2).
--# Program -> Person (AJAX-filtered to clients the current user can see + is active-enrolled in that program)
--# -> Domain (required) -> Task -> date (prefilled from the click). Behavior lives in calendars/index.coffee
--# (no inline JS -- CSP-safe). Program + Domain are small static lists rendered server-side; Person is loaded
--# from /api/calendars/program_clients, whose accessible_by scope is the security boundary.
+-# Date-click task-creation modal for the calendar (SLO4HOME revision, Workstream B2;
+-# FLIPPED per the owner 2026-07-31: Person -> Program, not Program -> Person).
+-# Person (server-rendered: accessible_by + active-enrolled — the security boundary) ->
+-# Program (AJAX from /api/calendars/client_programs, that person's active programs;
+-# contextual — the task itself attaches to the person) -> Domain (required) -> Task ->
+-# date (prefilled from the click). Behavior lives in calendars/index.js (no inline JS — CSP-safe).
 #taskModal.modal.fade{ tabindex: '-1', role: 'dialog', 'aria-labelledby' => 'taskModalLabel', 'aria-hidden' => 'true' }
   .modal-dialog{ role: 'document' }
     .modal-content
@@ -14,15 +15,16 @@
         .modal-body
           .alert.alert-danger.task-modal-error.d-none{ role: 'alert', 'aria-live' => 'assertive' }
           .mb-3
-            %label.form-label{ for: 'task-program' }= t('calendars.task_modal.program')
-            %select#task-program.form-select{ 'aria-required' => 'true' }
-              %option{ value: '' }= t('calendars.task_modal.select_program')
-              - ProgramStream.ordered.each do |program_stream|
-                %option{ value: program_stream.id }= program_stream.name
-          .mb-3
             %label.form-label{ for: 'task-client' }= t('calendars.task_modal.person')
-            %select#task-client.form-select{ disabled: true, 'aria-required' => 'true', 'data-placeholder-empty' => t('calendars.task_modal.select_program_first'), 'data-placeholder-loading' => t('calendars.task_modal.loading'), 'data-placeholder-select' => t('calendars.task_modal.select_person'), 'data-placeholder-none' => t('calendars.task_modal.no_people'), 'data-placeholder-error' => t('calendars.task_modal.load_error') }
-              %option{ value: '' }= t('calendars.task_modal.select_program_first')
+            %select#task-client.form-select{ 'aria-required' => 'true' }
+              %option{ value: '' }= t('calendars.task_modal.select_person')
+              - people = Client.accessible_by(current_ability).joins(:client_enrollments).where(client_enrollments: { status: 'Active' }).distinct
+              - people.sort_by { |c| c.name.to_s.downcase }.each do |client|
+                %option{ value: client.id }= client.name
+          .mb-3
+            %label.form-label{ for: 'task-program' }= t('calendars.task_modal.program')
+            %select#task-program.form-select{ disabled: true, 'data-placeholder-empty' => t('calendars.task_modal.select_person_first', default: 'Choose a person first'), 'data-placeholder-loading' => t('calendars.task_modal.loading'), 'data-placeholder-select' => t('calendars.task_modal.select_program'), 'data-placeholder-none' => t('calendars.task_modal.no_programs', default: 'No active programs for this person'), 'data-placeholder-error' => t('calendars.task_modal.load_error') }
+              %option{ value: '' }= t('calendars.task_modal.select_person_first', default: 'Choose a person first')
           .mb-3
             %label.form-label{ for: 'task-domain' }= t('calendars.task_modal.domain')
             %select#task-domain.form-select{ 'aria-required' => 'true' }
