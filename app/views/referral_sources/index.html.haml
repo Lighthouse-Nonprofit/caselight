@@ -25,7 +25,9 @@
             %tbody
               - @referral_sources.each do |referral_source|
                 %tr
-                  %td= referral_source.name
+                  %td
+                    -# D1: the name filters the individuals grid to people referred by this source
+                    = link_to referral_source.name, clients_path(client_grid: { referral_source_id: referral_source.id })
                   %td= referral_source.description
                   %td
                     -# Investor UX round (2026-07): linked individuals, mirroring donors#index.

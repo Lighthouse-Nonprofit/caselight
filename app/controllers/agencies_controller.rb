@@ -43,7 +43,7 @@ class AgenciesController < AdminController
   private
 
   def agency_params
-    params.require(:agency).permit(:name, :description)
+    params.require(:agency).permit(:name, :description, program_stream_ids: [])
   end
 
   def find_agency

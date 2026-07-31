@@ -16,6 +16,7 @@
               %tr
                 %th.custom_column_name= t('.agency_names')
                 %th.custom_column_description= t('.description')
+                %th.custom_column_programs= t('.programs', default: 'Programs')
                 %th.custom_column_clients= t('.clients', default: 'Individuals')
                 - if can? :manage, Agency
                   %th.text-center.custom_column_manage{ colspan: '2' }= t('.manage')
@@ -24,8 +25,15 @@
             %tbody
               - @agencies.each do |agency|
                 %tr
-                  %td= agency.name
+                  %td
+                    -# D1: the name filters the individuals grid to this agency's people
+                    = link_to agency.name, clients_path(client_grid: { agencies_name: [agency.name] })
                   %td= agency.description
+                  %td
+                    -# D1: programs this agency partners on
+                    - agency.program_streams.order(:name).each do |program_stream|
+                      %span.badge.text-bg-light
+                        = link_to program_stream.name, program_stream_path(program_stream)
                   %td
                     -# Investor UX round (2026-07): linked individuals, mirroring donors#index.
                     -# accessible_by-SCOPED: this index is reachable by every role, so a

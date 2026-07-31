@@ -115,6 +115,7 @@
 //= require users/form
 //= require partners/index
 //= require partners/form
+//= require agencies/index
 //= require stages/form
 //= require able_screening_questions/form
 //= require able_screening_answers/form

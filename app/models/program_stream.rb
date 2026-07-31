@@ -3,6 +3,8 @@ class ProgramStream < ActiveRecord::Base
 
   has_many   :domain_program_streams, dependent: :destroy
   has_many   :domains, through: :domain_program_streams
+  has_many   :agency_program_streams, dependent: :destroy # D1: partner agencies
+  has_many   :agencies, through: :agency_program_streams
   has_many   :client_enrollments, dependent: :restrict_with_error
   has_many   :clients, through: :client_enrollments
   has_many   :trackings, dependent: :destroy
