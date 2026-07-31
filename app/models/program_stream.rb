@@ -18,9 +18,13 @@ class ProgramStream < ActiveRecord::Base
   accepts_nested_attributes_for :trackings, allow_destroy: true,
                                 reject_if: proc { |attrs| attrs['name'].blank? && attrs['id'].blank? }
 
+  include FormBuilderFieldTypes # D5: server-side type allowlist
+
   validates :name, presence: true
   validates :name, uniqueness: true
   validate  :form_builder_field_uniqueness
+  validate  -> { validate_field_types_of(:enrollment, enrollment) }, if: -> { enrollment.present? }
+  validate  -> { validate_field_types_of(:exit_program, exit_program) }, if: -> { exit_program.present? }
 
   # validate  :validate_remove_enrollment_field, :validate_remove_exit_program_field, if: -> { id.present? }
 

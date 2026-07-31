@@ -1,0 +1,21 @@
+-# D5: the REAL form preview — the same shared/fields data-entry partials production
+-# renders (custom_field_properties/_form contract: f = a properties fields-builder,
+-# field_props = the field hash, errors = {}), driven by draft JSON the controller has
+-# already allowlist-checked. Labels escape here exactly as they will on the live form.
+-# No submit: this fragment is display-only (injected into #form-preview-pane).
+- if fields.blank?
+  %p.text-muted= t('.empty', default: 'No fields yet — add some in the builder and refresh.')
+- else
+  = simple_form_for(:custom_field_property, url: '#', html: { class: 'form-preview-fields' }) do |f|
+    = f.simple_fields_for :properties, OpenStruct.new do |prop_f|
+      - fields.each_slice(2) do |n_field|
+        .row
+          - n_field.each do |field|
+            .col-12.col-md-6
+              - if field['type'] == 'file'
+                .mb-3
+                  %label.form-label= field['label']
+                  %input.form-control{ type: 'file', disabled: true }
+                  %span.form-text= t('.file_note', default: 'File uploads work on the saved form.')
+              - else
+                = render "/shared/fields/#{field['type'].underscore}", f: prop_f, field_props: field, errors: {}

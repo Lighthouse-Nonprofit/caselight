@@ -289,6 +289,9 @@ Rails.application.routes.draw do
       collection do
         get 'search' => 'custom_fields#search', as: :search
         get 'preview' => 'custom_fields#show', as: 'preview'
+        # D5: REAL preview — renders the actual shared/fields data-entry partials from
+        # the builder's draft JSON (POST: the draft is too big for a query string)
+        post 'preview_draft' => 'custom_fields#preview_draft', as: 'preview_draft'
       end
     end
   end

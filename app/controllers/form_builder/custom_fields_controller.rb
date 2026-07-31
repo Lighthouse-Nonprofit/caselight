@@ -11,8 +11,13 @@ class FormBuilder::CustomFieldsController < AdminController
   def new
     ngo_name = params[:ngo_name]
     if ngo_name.present?
-       original_custom_field = get_custom_field(params[:custom_field_id], ngo_name)
-       @custom_field = CustomField.new(original_custom_field.attributes.merge(id: nil))
+      original_custom_field = get_custom_field(params[:custom_field_id], ngo_name)
+      @custom_field = CustomField.new(original_custom_field.attributes.merge(id: nil))
+    elsif params[:duplicate_from].present?
+      # D5: same-org Duplicate (the cross-org copy pattern above, minus the tenant switch).
+      # form_title is unique per entity_type, so suffix it.
+      source = CustomField.find(params[:duplicate_from])
+      @custom_field = CustomField.new(source.attributes.merge(id: nil, form_title: "#{source.form_title} (copy)"))
     else
       @custom_field = CustomField.new
     end
@@ -51,6 +56,25 @@ class FormBuilder::CustomFieldsController < AdminController
     else
       redirect_to custom_fields_path, alert: t('.failed_to_delete')
     end
+  end
+
+  # D5: the REAL preview — renders the actual shared/fields data-entry partials from the
+  # builder's DRAFT JSON (fetched by custom_fields/form.js). Types outside the server
+  # allowlist 422 before any partial path is interpolated; labels escape exactly as the
+  # production render does (same partials, Haml escaping).
+  def preview_draft
+    fields = begin
+      JSON.parse(params[:fields].to_s)
+    rescue JSON::ParserError
+      nil
+    end
+    return head :unprocessable_entity unless fields.is_a?(Array)
+
+    bad = fields.map { |f| f.is_a?(Hash) ? f['type'] : nil }
+                .reject { |t| FormBuilderFieldTypes::ALLOWED_FIELD_TYPES.include?(t) }
+    return head :unprocessable_entity if bad.any?
+
+    render partial: 'form_builder/custom_fields/preview_fields', locals: { fields: fields }
   end
 
   def search

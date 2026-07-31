@@ -1,14 +1,5 @@
-CIF.Custom_fieldsShow = CIF.Custom_fieldsPreview = (function () {
-  const _init = () => _initFormBuilder();
-
-  var _initFormBuilder = function () {
-    const builderOption = new CIF.CustomFormBuilder();
-    const fields = `${$('.build-wrap').data('fields')}` || '';
-    // formBuilder 3.x returns the instance directly; shared options from builderOptions
-    return $('.build-wrap').formBuilder(
-      builderOption.builderOptions({ formData: fields.replace(/=>/g, ':'), sticky: true }),
-    );
-  };
-
-  return { init: _init };
-})();
+// D5: the preview page is server-rendered now (real shared/fields partials) — no builder
+// stage to initialize. The module stays registered so the dispatcher lookup is a no-op.
+CIF.Custom_fieldsShow = CIF.Custom_fieldsPreview = {
+  init() {},
+};

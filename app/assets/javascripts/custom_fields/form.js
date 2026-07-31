@@ -8,6 +8,7 @@ CIF.Custom_fieldsNew =
       const CUSTOM_FIELDS_URL = '/api/custom_fields/fetch_custom_fields';
       const _init = function () {
         const formBuilder = _initFormBuilder();
+        _bindPreview(formBuilder);
         if ($('#custom_field_id').val() !== '') {
           // formBuilder 3.x initializes ASYNC — _preventRemoveFields walks the rendered
           // stage (label.field-label), so it must wait for the instance promise
@@ -104,6 +105,29 @@ CIF.Custom_fieldsNew =
       var _select2 = function () {
         CIF.Select.init('#custom_field_entity_type');
         return CIF.Select.init('#custom_field_frequency', { allowClear: true });
+      };
+
+      // D5: the REAL preview — POST the draft JSON to preview_draft and inject the
+      // server-rendered shared/fields fragment (trusted server HTML, same trust level
+      // as any AJAX partial; no client-composed markup reaches the DOM).
+      var _bindPreview = function (formBuilder) {
+        const pane = $('#form-preview-pane');
+        if (!pane.length) {
+          return;
+        }
+        const refresh = () =>
+          $.ajax({
+            method: 'POST',
+            url: pane.data('url'),
+            headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+            data: { fields: formBuilder.formData },
+            dataType: 'html',
+          })
+            .done((html) => pane.html(html))
+            .fail(() => pane.text(pane.data('error')));
+        $('#preview-refresh').on('click', refresh);
+        // first paint once the async builder has loaded any existing fields
+        return formBuilder.promise.then(refresh);
       };
 
       var _retrieveData = (url) =>

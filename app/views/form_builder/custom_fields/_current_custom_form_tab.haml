@@ -21,6 +21,9 @@
                   = fa_icon('eye')
                 = link_to edit_custom_field_path(custom_field), class: 'btn btn-outline btn-success btn-xs' do
                   = fa_icon('pencil')
+                -# D5: same-org duplicate (new form pre-filled from this one, "(copy)" title)
+                = link_to new_custom_field_path(duplicate_from: custom_field.id), class: 'btn btn-outline btn-primary btn-xs', title: t('.duplicate', default: 'Duplicate') do
+                  = fa_icon('clone')
                 = link_to custom_field, class: "btn btn-outline btn-danger btn-xs margin-btn #{disable_action_on_custom_form(custom_field)}", method: :delete, data: { confirm: t('.are_you_sure') } do
                   = fa_icon('trash')
   .text-center
