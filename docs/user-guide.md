@@ -123,9 +123,20 @@ reassess**. Every tool in this guide serves one leg of that loop.
 
 ## 5. The dashboard
 
-<p align="center"><img src="screenshots/dashboard.jpg" alt="The dashboard" width="900"></p>
+Your landing page depends on your role.
 
-The dashboard is the landing page after sign-in. It summarizes the organization at a glance:
+**Case workers and managers get a personal dashboard**: a greeting, four tiles that are
+yours alone — **My overdue tasks** (red when there's anything in it), **Due today**,
+**Next 7 days**, and **My caseload** — and a **10-day agenda** of your upcoming tasks,
+color-coded by urgency. Every tile and agenda line links straight to the work it counts.
+If your day starts anywhere, it starts here.
+
+<p align="center"><img src="screenshots/dashboard-personal.jpg" alt="The personal dashboard with the 10-day agenda" width="900"></p>
+
+**Administrators and strategic overviewers get the organization dashboard**, which
+summarizes the organization at a glance:
+
+<p align="center"><img src="screenshots/dashboard.jpg" alt="The organization dashboard" width="900"></p>
 
 - **Headline counts** — households, individuals, active program enrollments, and programs offered.
 - **Flash metrics** — overdue tasks, tasks due today, new individuals this month, and check-ins
@@ -222,7 +233,14 @@ name, status, date of birth, household, and (when relevant) a red **Household al
 
 - **Overview** — the **About** section first: one label-over-value grid holding the person's
   details *and* the case facts (intake date, case household, case status), with
-  **Edit Case** and **Exit From Case** close to hand. Below it: **Programs** and
+  **Edit Case** and **Exit From Case** close to hand. The edit form's **gender picker offers
+  the full California SOGI-style list** (including non-binary, transgender, questioning,
+  another gender identity, and declined to state — blank simply means "not asked"), a
+  **Quantitative data** section for the organization's reference lists (English proficiency,
+  income range, benefits enrolled — single- or multi-select as each list allows), and an
+  optional **contact email with a reminder-consent checkbox** — with consent recorded and the
+  installation's email configured, the person gets a short appointment reminder the day before
+  their tasks (never any case content — just a count and times). Below it: **Programs** and
   **recent program activity** panes, then **each filled custom form as its own collapsible
   section** — expand one to read the latest entries without leaving the page.
 - **Programs** — one tab per program the person has ever been in, each holding that program's
@@ -322,8 +340,13 @@ Tasks are how follow-ups survive a busy week. There are three ways to create one
 produce the same thing — a dated task attached to a person (and optionally a program and domain):
 
 1. From a person's **Tasks tab** (or **Actions → New Task**).
-2. By **clicking a day on the calendar** ([§13](#13-the-calendar)).
+2. By **clicking a day — or an hour slot — on the calendar** ([§13](#13-the-calendar)).
 3. **Inside a case note**, as the follow-up to the visit you're writing up ([§10](#10-case-notes)).
+
+A task can be **all-day** (just a date — the default) or **timed**: give it a start time
+and a duration and it becomes an hour block on the calendar's week and day views. Use
+timed tasks for anything that occupies part of a day — a home visit at 2:00, a benefits
+appointment at 9:30 — and all-day tasks for deadlines.
 
 **View All Active Tasks** (in the Individuals "⋯" menu) shows your whole task load grouped by
 urgency — overdue, due today, upcoming — person by person. Managers can filter it by case worker,
@@ -336,14 +359,25 @@ number, that's the day's real to-do list.
 
 ## 13. The calendar
 
-<p align="center"><img src="screenshots/calendar.jpg" alt="The shared monthly calendar" width="900"></p>
+<p align="center"><img src="screenshots/calendar.jpg" alt="The week view with timed tasks as hour blocks" width="900"></p>
 
-Appointments, recertification dates, and program milestones appear on a shared calendar with
-month / week / day views. Each user sees the events for the caseloads they're allowed to see.
-Clicking a day lets you schedule a task against a program, person, and domain.
+The calendar is your caseload's tasks, live — it opens on the **week view**, with day,
+4-day, and month views a click away. Timed tasks render as **hour blocks** at their
+scheduled time; all-day tasks sit in the all-day lane. Colors follow urgency: red =
+overdue, blue = today, green = upcoming.
 
-If your account has **Google Calendar sync** enabled (a per-user opt-in an administrator sets on
-your user record), your CaseLight calendar can sync to Google; without it the calendar works
+- **Click an empty slot** to schedule a task in it — the time is pre-filled from where
+  you clicked; pick a program, person, and domain and save without leaving the page.
+- **Drag a task** to a new day or time to reschedule it; **drag its bottom edge** to
+  change the duration. Dropping a timed task into the all-day lane clears its time.
+  Changes save immediately (and snap back if the save fails).
+- You see exactly the tasks for the caseloads you're allowed to see — the same personal
+  lens as the dashboard agenda.
+
+If the installation has Google credentials configured, a **Connect Google Calendar**
+button appears for users whose account has the calendar opt-in: your tasks then push to
+your Google calendar (timed ones at their real times) and stay in step as they're
+edited or deleted. Disconnect any time; without the connection the calendar works
 exactly the same, just inside CaseLight.
 
 ## 14. Custom forms — the form builder (administrators)
@@ -361,10 +395,16 @@ Choose the record **type**, an optional **frequency**, and — importantly — t
 - **Emergency only** — hidden unless a **break-glass** grant is active (see below).
 
 Then drag fields (text, number, date, select, checkbox/radio groups, file upload, text area) into the
-form. When the organization needs to capture something new, an administrator designs it here — no
-developer and no database migration required. Household forms appear on the household's **Forms**
-tab; individual forms on the person's. The **[Administrator Guide](pdf/CaseLight-Administrator-Guide.pdf)**
-covers field-design judgment (which widget for which question) in more depth.
+form. The builder is a **two-pane workspace**: form details on the left, the field stage on the
+right — and beneath it a **live preview** that renders the *actual* data-entry form staff will
+see (hit **Refresh preview** as you work; the Preview action on the index shows the same thing
+for saved forms). A **Duplicate** action clones any of your forms as a "(copy)" starting point.
+The server accepts only the supported field types, whatever a request claims — the type list
+above is a contract, not a suggestion. When the organization needs to capture something new, an
+administrator designs it here — no developer and no database migration required. Household forms
+appear on the household's **Forms** tab; individual forms on the person's. The
+**[Administrator Guide](pdf/CaseLight-Administrator-Guide.pdf)** covers field-design judgment
+(which widget for which question) in more depth.
 
 ## 15. Security & administration (administrators)
 
@@ -464,12 +504,11 @@ One account per staff member, each with a role. Add users, disable accounts when
 
 | Manage item | What it's for |
 |---|---|
-| **Agencies** | Partner and referring organizations |
-| **Departments** | Internal structure for staff |
+| **Agencies** | Partner and referring organizations — link each to the programs it works with; the agency's name filters the individuals list to its people |
 | **Domain Groups** | Grouping for assessment domains |
 | **Donors** | Funding sources, for reporting |
 | **Referral Sources** | How clients reach you |
-| **Quantitative Types** | Countable service categories |
+| **Quantitative Types** | Reference lists (e.g. English proficiency, income range, benefits enrolled) staff pick from on the individual form — each type is single- or multi-select, with a description shown as help text |
 | **Types of Note** | Categories for progress notes |
 
 <p align="center">

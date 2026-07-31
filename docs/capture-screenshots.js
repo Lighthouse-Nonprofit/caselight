@@ -20,6 +20,8 @@ const SHOTS = [
   // [file, role (null = logged out), path ('@client' = first data-bearing client), width, height, opts]
   ['login.jpg', null, '/users/sign_in', 1200, 750, {}],
   ['dashboard.jpg', 'admin', '/', 1680, 1050, {}],
+  // data-task batch C4: non-admin roles land on the personal dashboard (tiles + 10-day agenda)
+  ['dashboard-personal.jpg', 'worker', '/', 1680, 1050, {}],
   ['families.jpg', 'admin', '/families', 1500, 938, {}],
   ['clients-grid.jpg', 'admin', '/clients', 1560, 975, {}],
   ['clients-grid-director.jpg', 'director', '/clients', 1500, 938, {}],
@@ -37,14 +39,15 @@ const SHOTS = [
   ['case-note-form.jpg', 'admin', '@client/case_notes/new', 1500, 1100, {}],
   ['tasks.jpg', 'admin', '/tasks', 1560, 975, {}],
   ['domains.jpg', 'admin', '/domains', 1500, 938, {}],
-  ['calendar.jpg', 'admin', '/calendars', 1560, 975, {}],
+  // data-task batch C2: the feed is the PERSONAL lens (Task.of_user) — capture as the
+  // worker who owns the seeded timed tasks, or the grid renders empty
+  ['calendar.jpg', 'worker', '/calendars', 1560, 975, {}],
   ['form-builder.jpg', 'admin', '/custom_fields/new', 1400, 1032, {}],
   ['reports.jpg', 'admin', '/reports', 1500, 938, {}],
   ['access-review.jpg', 'admin', '/admin/access_review', 1680, 1050, {}],
   ['enforcement.jpg', 'admin', '/admin/enforcement_settings', 1300, 900, { fullPage: true }],
   ['manage-users.jpg', 'admin', '/admin/users', 1360, 595, {}],
   ['manage-agencies.jpg', 'admin', '/agencies', 1360, 595, {}],
-  ['manage-departments.jpg', 'admin', '/departments', 1360, 595, {}],
   ['manage-domain-groups.jpg', 'admin', '/domain_groups', 1360, 595, {}],
   ['manage-donors.jpg', 'admin', '/donors', 1360, 595, {}],
   ['manage-progress-note-types.jpg', 'admin', '/progress_note_types', 1360, 595, {}],

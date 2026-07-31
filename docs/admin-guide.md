@@ -105,10 +105,11 @@ The lists that populate dropdowns and organize your work — all editable under 
 Keep them tidy and every record downstream stays consistent.
 
 <p align="center">
-  <img src="screenshots/manage-agencies.jpg" width="49%" alt="Agencies">
-  <img src="screenshots/manage-departments.jpg" width="49%" alt="Departments">
+  <img src="screenshots/manage-agencies.jpg" width="98%" alt="Agencies">
 </p>
-<p align="center"><em>Agencies — partner and referring organizations. · Departments — internal structure for staff.</em></p>
+<p align="center"><em>Agencies — partner and referring organizations. Link each agency to the programs it
+works with (the Programs column links to each program's page), and click the agency's name to see
+its individuals, pre-filtered. (Departments are hidden for the pilot.)</em></p>
 
 <p align="center">
   <img src="screenshots/manage-referral-sources.jpg" width="49%" alt="Referral sources">
@@ -120,7 +121,9 @@ Keep them tidy and every record downstream stays consistent.
   <img src="screenshots/manage-quantitative-types.jpg" width="49%" alt="Quantitative types">
   <img src="screenshots/manage-progress-note-types.jpg" width="49%" alt="Types of Note">
 </p>
-<p align="center"><em>Quantitative types — countable service categories. · Types of Note — categories for progress notes.</em></p>
+<p align="center"><em>Quantitative types — reference lists staff pick from on the individual form
+(each type carries a description shown as help text, and a single- vs multi-select setting).
+· Types of Note — categories for progress notes.</em></p>
 
 ### Partners
 
