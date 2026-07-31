@@ -18,7 +18,6 @@
                     %i.fa.fa-calendar-check-o
             .row
               .col-12.col-md-4= f.input :job_title, label: t('.job_title')
-              .col-12.col-md-4= f.association :department, collection: @department, include_blank: false, label: t('.department')
               .col-12.col-md-4.mb-3.date.optional.user_start_date
                 %label.date.optional.form-label{ for: 'user_start_date' }= t('.start_date')
 

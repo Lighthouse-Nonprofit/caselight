@@ -21,7 +21,6 @@
         .col-12.col-sm-6.col-md-4= f.input :manager_id, collection: @managers.map{ |u| [u.name, u.id] }
         .col-12.col-sm-6.col-md-4= f.input :job_title, label: t('.job_title')
         .col-12.col-sm-6.col-md-4= f.association :province, collection: @province, label: t('.province')
-        .col-12.col-sm-6.col-md-4= f.association :department, collection: @department, label: t('.department')
         .col-12.col-sm-6.col-md-4.mb-3.date.optional.user_start_date
           %label.date.optional.form-label{ for: 'user_start_date' }= t('.start_date')
           .input-group.date

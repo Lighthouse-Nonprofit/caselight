@@ -31,7 +31,6 @@
         .user-summary
           - items = []
           - items << info_item(t('.job_title'), @user.job_title)
-          - items << info_item(t('.department'), @user.department.try(:name))
           - items << info_item(t('.manager'), @user.manager.try(:name))
           - items << info_item(t('.mobile'), (@user.mobile.phony_formatted(normalize: :KH, format: :international) if @user.mobile))
           - emails_html = capture do
