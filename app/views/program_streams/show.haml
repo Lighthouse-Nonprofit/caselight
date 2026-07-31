@@ -43,6 +43,12 @@
                         - @program_stream.domains.pluck(:identity).each do |identity|
                           %span.badge.label-margin= identity
                     %tr
+                      %td.agencies= t('.partner_agencies', default: 'Partner agencies')
+                      %td
+                        -# D1: agencies linked to this program (agencies index manages the link)
+                        - @program_stream.agencies.order(:name).each do |agency|
+                          %span.badge.label-margin= agency.name
+                    %tr
                       %td.enrolled= t('.enrolled')
                       %td= @program_stream.enrolled
 

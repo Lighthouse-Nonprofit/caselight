@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_30_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -36,18 +36,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000003) do
     t.datetime "updated_at", precision: nil
   end
 
-  create_table "agencies_clients", id: :serial, force: :cascade do |t|
+  create_table "agency_clients", id: :serial, force: :cascade do |t|
     t.integer "agency_id"
     t.integer "client_id"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
   end
 
-  create_table "agency_clients", id: :serial, force: :cascade do |t|
-    t.integer "agency_id"
-    t.integer "client_id"
-    t.datetime "created_at", precision: nil
-    t.datetime "updated_at", precision: nil
+  create_table "agency_program_streams", force: :cascade do |t|
+    t.integer "agency_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "program_stream_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agency_id", "program_stream_id"], name: "idx_agency_program_streams_pair", unique: true
+    t.index ["program_stream_id"], name: "idx_agency_program_streams_ps"
   end
 
   create_table "answers", id: :serial, force: :cascade do |t|
@@ -1109,6 +1111,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000003) do
 
   add_foreign_key "able_screening_questions", "question_groups"
   add_foreign_key "able_screening_questions", "stages"
+  add_foreign_key "agency_program_streams", "agencies", on_delete: :cascade
+  add_foreign_key "agency_program_streams", "program_streams", on_delete: :cascade
   add_foreign_key "answers", "able_screening_questions"
   add_foreign_key "answers", "clients"
   add_foreign_key "assessment_domains_progress_notes", "assessment_domains"

@@ -10,6 +10,8 @@
           .form-inputs
             = f.input :name, label: t('.name')
             = f.input :description, input_html: { rows: '10' }, label: t('.description')
+            -# D1: which programs this agency partners on (multi-select; CIF.Select enhances)
+            = f.association :program_streams, collection: ProgramStream.order(:name), label: t('.programs', default: 'Programs'), input_html: { multiple: true }
         .modal-footer
           .float-start
             = f.submit t('.save') , class: 'btn btn-primary form-btn'
