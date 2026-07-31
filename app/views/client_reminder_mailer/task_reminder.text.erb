@@ -1,0 +1,9 @@
+Hello <%= @client_name %>,
+
+This is a friendly reminder from <%= @org_name %>: you have <%= @task_count == 1 ? 'an appointment' : "#{@task_count} appointments" %> scheduled for tomorrow.
+<% if @timed_times.any? %>
+Scheduled <%= @timed_times.size == 1 ? 'time' : 'times' %>: <%= @timed_times.join(', ') %>
+<% end %>
+If you have questions or need to reschedule, please contact your case worker.
+
+— <%= @org_name %>

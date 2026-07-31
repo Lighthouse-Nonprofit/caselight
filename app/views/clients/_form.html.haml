@@ -46,6 +46,12 @@
 
         .col-12.col-sm-6.col-md-4
           = f.input :referral_phone, label: t('.referral_phone')
+        -# D6: contact email + reminder consent (sends only happen when BOTH are set AND
+        -# the installation's SMTP feature flip is on — ClientMessaging.enabled?)
+        .col-12.col-sm-6.col-md-4
+          = f.input :email, label: t('.email', default: 'Email'), input_html: { type: 'email', autocomplete: 'off' }
+        .col-12.col-sm-6.col-md-4
+          = f.input :notify_consent, as: :boolean, label: t('.notify_consent', default: 'May we send appointment reminders to this email?')
         .col-12.col-sm-6.col-md-4
           = f.input :live_with, label: t('.live_with')
         - if @client.exit_date_was.present?

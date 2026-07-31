@@ -73,7 +73,10 @@ RAILS_SERVE_STATIC_FILES=true
 # APP_HOST=
 
 # --- Mail / Google Calendar OAuth (optional; nil = feature dormant) ---
-SENDER_EMAIL=nil
+# D6: empty = unset (the old literal "nil" string leaked into from-headers; the app
+# treats 'nil'/blank as unconfigured either way). Set a real verified SES sender +
+# AWS_SES_USER_NAME/PASSWORD to flip on staff mail AND client-direct reminders.
+SENDER_EMAIL=
 DEV_EMAIL=nil
 ABLE_MANAGER_EMAIL=nil
 GOOGLE_CLIENT_ID=nil

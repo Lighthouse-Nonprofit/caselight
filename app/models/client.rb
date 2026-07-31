@@ -76,7 +76,8 @@ class Client < ActiveRecord::Base
                            original_local_given_name original_local_family_name
                            reason_for_referral background exit_note rejected_note
                            relevant_referral_information current_address school_name
-                           house_number street_number village commune district live_with]
+                           house_number street_number village commune district live_with
+                           email]
   include RedactedUpdateVersions  # skipped-only edits still write a values-free who/when version
 
   # Phase 4 Tier 1 — field-level encryption at rest for sensitive narrative PII (FedRAMP SC-28,
@@ -109,6 +110,10 @@ class Client < ActiveRecord::Base
   encrypts :commune
   encrypts :district
   encrypts :live_with
+  # D6: client contact email (appointment reminders, ClientMessaging feature flip).
+  # Non-deterministic like the rest of Tier 2 — never queried by equality; reminder
+  # sends read the decrypted attribute per record. notify_consent gates every send.
+  encrypts :email
 
   # Phase 4 Tier 4 — field-level encryption at rest for CLIENT NAME PII (FedRAMP SC-28, SOC 2 C1.1).
   # DETERMINISTIC (mirrors the Tier 3 staff-name approach): same plaintext => same ciphertext, so exact
@@ -165,6 +170,8 @@ class Client < ActiveRecord::Base
   validates :user_ids, presence: true
   # D4: closed list (lowercase tokens); blank = not stated/asked
   validates :gender, inclusion: { in: GENDER_OPTIONS }, allow_blank: true
+  # D6: contact email for reminders (optional; consent is separate and defaults false)
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
   after_update :reset_tasks_of_users
 
