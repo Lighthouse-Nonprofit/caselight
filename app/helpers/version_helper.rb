@@ -29,10 +29,14 @@ module VersionHelper
     if k == 'family_type'
       val = val.present? ? Family.type_label(val) : val
     elsif version_values[:titleizeTexts].include?(k)
+      # D4 fallout: gender's column default went "Male" -> nil, so create-event changesets
+      # now carry [nil, value] — the old bare .casecmp/.titleize 500'd the whole version
+      # page on any nil transition (latent for every titleizeText key; the stamped default
+      # had been masking it). to_s keeps the legacy display behavior, nil-safely.
       val = if val == both_val[0]
-              both_val[0].casecmp(both_val[1]) ? '' : val.titleize
+              both_val[0].to_s.casecmp(both_val[1].to_s) ? '' : val.to_s.titleize
             else
-              val.titleize
+              val.to_s.titleize
             end
 
     elsif val.class == Date

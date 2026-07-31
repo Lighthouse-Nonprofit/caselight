@@ -31,6 +31,15 @@ RSpec.describe FormBuilderFieldTypes do
                            fields: [good_field.merge('type' => 'autocomplete')])
       expect(cf).not_to be_valid
     end
+
+    it 'accepts the underscored spellings older stored forms carry (renderer underscores anyway)' do
+      fields = [
+        { 'type' => 'radio_group',    'label' => 'Status', 'values' => [{ 'label' => 'Open' }] },
+        { 'type' => 'checkbox_group', 'label' => 'Needs',  'values' => [{ 'label' => 'Housing' }] }
+      ]
+      cf = CustomField.new(entity_type: 'Client', form_title: 'Legacy spellings', fields: fields)
+      expect(cf).to be_valid
+    end
   end
 
   describe 'ProgramStream#enrollment / #exit_program' do

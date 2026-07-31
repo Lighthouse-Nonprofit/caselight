@@ -71,7 +71,7 @@ class FormBuilder::CustomFieldsController < AdminController
     return head :unprocessable_entity unless fields.is_a?(Array)
 
     bad = fields.map { |f| f.is_a?(Hash) ? f['type'] : nil }
-                .reject { |t| FormBuilderFieldTypes::ALLOWED_FIELD_TYPES.include?(t) }
+                .reject { |t| FormBuilderFieldTypes.allowed_type?(t) }
     return head :unprocessable_entity if bad.any?
 
     render partial: 'form_builder/custom_fields/preview_fields', locals: { fields: fields }

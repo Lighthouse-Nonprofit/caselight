@@ -9,9 +9,17 @@ module FormBuilderFieldTypes
   extend ActiveSupport::Concern
 
   # The renderer's whole vocabulary: app/views/shared/fields/_*.haml ('file' is
-  # special-cased to the attachment partial at the render sites). Tokens are stored in
-  # formBuilder's hyphenated form; .underscore maps them onto the partial names.
+  # special-cased to the attachment partial at the render sites). Stored data carries
+  # BOTH spellings — formBuilder emits hyphenated ('checkbox-group') while older
+  # seeds/specs stored underscored ('checkbox_group') — and the renderer underscores
+  # before resolving the partial, so both are the SAME partial. Normalize before
+  # comparing (post-merge CI caught the hyphen-only list rejecting legitimate forms).
   ALLOWED_FIELD_TYPES = %w[text textarea number date select checkbox-group radio-group file].freeze
+  ALLOWED_NORMALIZED  = ALLOWED_FIELD_TYPES.map { |t| t.tr('-', '_') }.freeze
+
+  def self.allowed_type?(type)
+    ALLOWED_NORMALIZED.include?(type.to_s.tr('-', '_'))
+  end
 
   private
 
@@ -23,7 +31,7 @@ module FormBuilderFieldTypes
     value.each do |field|
       next unless field.is_a?(Hash)
       type = field['type'] || field[:type]
-      next if ALLOWED_FIELD_TYPES.include?(type)
+      next if FormBuilderFieldTypes.allowed_type?(type)
 
       errors.add(attr_name, "contains an unsupported field type: #{type.to_s.truncate(30).inspect}")
     end
