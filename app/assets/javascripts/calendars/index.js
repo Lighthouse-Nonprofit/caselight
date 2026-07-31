@@ -1,8 +1,9 @@
 CIF.CalendarsIndex = (function () {
-  // POAM-017d: FullCalendar 6 (vendored standard bundle, jQuery/moment-free) replaced the
-  // fullcalendar-rails 3.9 + momentjs-rails gems. Module-level instance so the task modal
-  // can refetchEvents() after a create. The /api/calendars/find_event FEED CONTRACT and the
-  // all-day heuristic are deliberately unchanged.
+  // POAM-017d: FullCalendar 6 (vendored standard bundle, jQuery/moment-free).
+  // Data-task batch (2026-07): the feed is TASK-NATIVE and FC6-ready — the server emits
+  // explicit allDay + offset-less LOCAL wall times for the requested visible range, so the
+  // old 24h-allDay heuristic and the offset-stripping shim are gone. timeGrid views are
+  // first-class now (slot config below); week is the planning default.
   let calendar = null;
 
   const _init = function () {
@@ -10,17 +11,17 @@ CIF.CalendarsIndex = (function () {
     return _bindTaskModal();
   };
 
-  // FC6 events-as-function: (fetchInfo, success, failure). The feed still returns the whole
-  // set (it never used the visible range). On failure render an empty calendar and never
-  // leave the spinner hanging — same behavior as before.
+  // FC6 events-as-function: pass the visible range through; the server scopes to it.
+  // On failure render an empty calendar and never leave the spinner hanging.
   const _eventsFeed = (fetchInfo, success, failure) =>
     $.ajax({
       type: 'GET',
       url: '/api/calendars/find_event',
       dataType: 'JSON',
+      data: { start: fetchInfo.startStr, end: fetchInfo.endStr },
     })
-      .done(function (json) {
-        success(_fillFullCalendarArray((json && json.calendars) || []));
+      .done(function (events) {
+        success(events || []);
         return $('.loader').hide();
       })
       .fail(function () {
@@ -37,7 +38,6 @@ CIF.CalendarsIndex = (function () {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        // FC3 agendaDay/agendaWeek/month -> FC6 timeGrid/dayGrid names
         right: 'timeGridDay,timeGridWeek,dayGridMonth,timeGridFourDay',
       },
       views: {
@@ -47,6 +47,14 @@ CIF.CalendarsIndex = (function () {
           buttonText: '4 days',
         },
       },
+      initialView: 'timeGridWeek',
+      nowIndicator: true,
+      scrollTime: '08:00:00',
+      slotDuration: '00:30:00',
+      slotMinTime: '06:00:00',
+      slotMaxTime: '20:00:00',
+      businessHours: { daysOfWeek: [1, 2, 3, 4, 5], startTime: '08:00', endTime: '17:00' },
+      height: 'auto',
       events: _eventsFeed,
       dateClick(info) {
         return _openTaskModal(info);
@@ -64,33 +72,6 @@ CIF.CalendarsIndex = (function () {
     });
     return calendar.render();
   };
-
-  var _fillFullCalendarArray = function (eventLists) {
-    const events = [];
-    for (var eventList of eventLists) {
-      var summary = eventList.title;
-      var startDate = eventList.start_date;
-      var endDate = eventList.end_date;
-      var fullDate = null;
-      if (Date.parse(startDate) + 86400000 === Date.parse(endDate)) {
-        fullDate = true;
-      }
-      events.push({
-        title: summary,
-        // moment.parseZone displayed the timestamp's OWN wall clock; FC6's default 'local'
-        // timezone would shift Z-suffixed feed times into the browser zone (a task dated
-        // the 15th at 00:00Z rendered on the evening of the 14th — caught in QA). Strip
-        // the offset so FC6 renders the feed's wall time as-is, matching the old widget.
-        start: _wallTime(startDate),
-        end: _wallTime(endDate),
-        allDay: fullDate,
-      });
-    }
-    return events;
-  };
-
-  var _wallTime = (value) =>
-    String(value != null ? value : '').replace(/(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/, '');
 
   // ---- Date-click task modal -------------------------------------------------
 
@@ -116,6 +97,10 @@ CIF.CalendarsIndex = (function () {
     // FC6 dateClick info.dateStr is ISO (date-only in dayGrid, datetime in timeGrid) —
     // first 10 chars = the YYYY-MM-DD the old moment .format() produced
     $('#task-completion-date').val(info && info.dateStr ? info.dateStr.slice(0, 10) : '');
+    // timeGrid clicks carry a time — prefill the slot the case manager clicked
+    const clickedTime = info && info.dateStr && info.dateStr.length > 10 ? info.dateStr.slice(11, 16) : '';
+    $('#task-start-time').val(clickedTime);
+    $('#task-duration').val(clickedTime ? '60' : '');
     _hideTaskError();
     return bootstrap.Modal.getOrCreateInstance(modal[0]).show();
   };
@@ -169,6 +154,8 @@ CIF.CalendarsIndex = (function () {
     const domainId = $('#task-domain').val();
     const name = ($('#task-name').val() || '').trim(); // $.trim removed in jQuery 4
     const completionDate = $('#task-completion-date').val();
+    const startTime = $('#task-start-time').val();
+    const duration = $('#task-duration').val();
     const form = $('#new-task-form');
     if (!clientId || !domainId || !name || !completionDate) {
       _showTaskError(form.data('error-required'));
@@ -183,7 +170,13 @@ CIF.CalendarsIndex = (function () {
       dataType: 'JSON',
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
       data: {
-        task: { domain_id: domainId, name, completion_date: completionDate },
+        task: {
+          domain_id: domainId,
+          name,
+          completion_date: completionDate,
+          start_time: startTime || null,
+          duration_minutes: startTime && duration ? duration : null,
+        },
       },
     })
       .done(function () {

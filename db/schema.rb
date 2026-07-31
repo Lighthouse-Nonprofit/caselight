@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_30_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -112,17 +112,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000001) do
     t.integer "user_id", null: false
     t.index ["expires_at"], name: "idx_bgg_expires_at"
     t.index ["user_id", "custom_formable_type", "custom_formable_id", "expires_at"], name: "idx_bgg_user_record_active"
-  end
-
-  create_table "calendars", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "end_date", precision: nil
-    t.datetime "start_date", precision: nil
-    t.boolean "sync_status", default: false
-    t.string "title"
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "user_id"
-    t.index ["user_id"], name: "index_calendars_on_user_id"
   end
 
   create_table "case_contracts", id: :serial, force: :cascade do |t|
@@ -1116,7 +1105,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000001) do
   add_foreign_key "assessments", "clients"
   add_foreign_key "attachments", "able_screening_questions"
   add_foreign_key "attachments", "progress_notes"
-  add_foreign_key "calendars", "users"
   add_foreign_key "case_contracts", "cases"
   add_foreign_key "case_notes", "clients"
   add_foreign_key "case_worker_clients", "clients"

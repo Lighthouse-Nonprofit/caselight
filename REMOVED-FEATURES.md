@@ -1,5 +1,28 @@
 # Removed features
 
+## 2026-07-30 — legacy Google Calendar push + the materialized `calendars` table (data-task batch, C2)
+
+The FullCalendar feed is task-native now (`Api::CalendarsController#find_event` serves
+`Task.of_user` for the visible range, with explicit all-day/timed shapes). That deleted
+the materialized `calendars` table — one row per task per user, populated only on create,
+`end = start + 1 day` always — and its drift-bug class (rows went stale on every task
+edit/delete for non-Google users, were matched by title+dates string equality across
+users, and forced every event to render all-day).
+
+The table was also the state store for the legacy ONE-WAY Google Calendar push
+(session-token OAuth in `CalendarsController` redirect/callback/sync, all-day
+`EventDateTime(date:)` events only, `sync_status` per row). Retired with it, per the
+owner: "retire and rebuild, now — rather than adapt something that is broken, that
+allows us to ensure secure calls."
+
+**Rebuild recipe (lands as C5 in the same batch):** a `google_task_events`
+(task_id, user_id, google_event_id) state table with FKs + unique pair; a
+`GoogleCalendarPush` service doing create/update/delete with
+`EventDateTime.new(date_time:)` for timed tasks and `date:` for all-day; OAuth with
+proper authorization on the controller actions, a `state` anti-CSRF param on the
+callback, and the refresh token stored encrypted; dormant behind
+GOOGLE_CLIENT_ID/SECRET env presence + the per-user `calendar_integration` flag.
+
 The running ledger of upstream-OSCaR features CaseLight has removed (or removed and
 re-added), for anyone chasing a dangling reference. The original REMOVED-FEATURES.md from
 the 2026-06 modernization was documented in the project memory but never landed in the

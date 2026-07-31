@@ -1,6 +1,5 @@
-.text-right
-  - if current_user.calendar_integration?
-    = link_to t('.sync_with_google'), calendar_sync_path, class: 'btn btn-primary google-calendar-margin-bottom'
+-# (Data-task batch 2026-07: the Google sync button retired with the legacy push; C5's
+-# rebuilt push brings its own affordance.)
 .loader.text-center
 #calendar
 

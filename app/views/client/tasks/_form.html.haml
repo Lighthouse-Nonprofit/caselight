@@ -14,5 +14,14 @@
         %i.fa.fa-calendar-check-o
     = f.error :completion_date
 
+  -# Data-task batch (2026-07): optional time-of-day — blank = all-day (native inputs, no JS).
+  .row
+    .col-12.col-md-6.mb-3
+      %label.form-label{ for: 'task_start_time' }= t('.start_time', default: 'Start time (optional)')
+      = f.text_field :start_time, type: 'time', step: 900, class: 'form-control', id: 'task_start_time', value: (@task.start_time&.strftime('%H:%M'))
+    .col-12.col-md-6.mb-3
+      %label.form-label{ for: 'task_duration_minutes' }= t('.duration', default: 'Duration')
+      = f.select :duration_minutes, options_for_select([[t('.duration_all_day', default: 'All day'), '']] + [15, 30, 45, 60, 90, 120, 180, 240].map { |m| ["#{m} min", m] }, @task.duration_minutes), {}, class: 'form-select', id: 'task_duration_minutes'
+
   = f.submit t('.save'), class: 'btn btn-primary form-btn'
   = link_to t('.back'), client_tasks_path(@task.client), class: 'btn btn-outline-secondary form-btn'

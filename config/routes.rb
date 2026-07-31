@@ -66,11 +66,10 @@ Rails.application.routes.draw do
 
   get '/quantitative_data' => 'clients#quantitative_case'
 
-  # Google Calendar sync (re-added on upgrade/rails-7.1; see REMOVED-FEATURES.md).
-  get '/redirect'      => 'calendars#redirect', as: 'redirect'
-  get '/callback'      => 'calendars#callback', as: 'callback'
-  get '/calendar/sync' => 'calendars#sync'
-  resources :calendars
+  # Data-task batch (2026-07): the calendar page (task-native feed lives under /api).
+  # The legacy Google push routes (redirect/callback/sync) retired with the calendars
+  # table — see REMOVED-FEATURES.md; C5 rebuilds push with its own routes.
+  resources :calendars, only: [:index]
 
   resources :agencies, except: [:show] do
     get 'version' => 'agencies#version'
@@ -237,7 +236,7 @@ Rails.application.routes.draw do
   namespace :api do
     resources :form_builder_attachments, only: :destroy
 
-    resources :calendars do
+    resources :calendars, only: [] do
       get :find_event, on: :collection
       get :program_clients, on: :collection
     end

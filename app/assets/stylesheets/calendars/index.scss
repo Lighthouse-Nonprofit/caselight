@@ -12,8 +12,38 @@ body[id=calendars-index]{
   .popover {
     z-index: 2060 !important;
   }
-
-  .google-calendar-margin-bottom {
-    margin-bottom: 15px;
-  }
 }
+
+// Task bucket colors — classNames set by Api::CalendarsController#find_event.
+// Scoped to any FullCalendar surface (calendar page now, dashboard agenda in C4).
+.fc-event.task-overdue {
+  background-color: #dc3545;
+  border-color: #b02a37;
+  color: #fff;
+}
+
+.fc-event.task-today {
+  background-color: #0d6efd;
+  border-color: #0a58ca;
+  color: #fff;
+}
+
+.fc-event.task-upcoming {
+  background-color: #198754;
+  border-color: #146c43;
+  color: #fff;
+}
+
+.fc-event.task-completed {
+  background-color: #6c757d;
+  border-color: #565e64;
+  color: #fff;
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+// List view (dashboard agenda) renders a dot instead of a filled block.
+.fc-list-event.task-overdue .fc-list-event-dot { border-color: #dc3545; }
+.fc-list-event.task-today .fc-list-event-dot { border-color: #0d6efd; }
+.fc-list-event.task-upcoming .fc-list-event-dot { border-color: #198754; }
+.fc-list-event.task-completed .fc-list-event-dot { border-color: #6c757d; }
