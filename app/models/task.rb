@@ -85,10 +85,20 @@ class Task < ActiveRecord::Base
   def self.upcoming_incomplete_tasks
     Organization.all.each do |org|
       Organization.switch_to org.short_name
-      user_ids = incomplete.where(completion_date: Time.zone.tomorrow).map(&:user_ids).flatten.uniq
+      tomorrow_tasks = incomplete.where(completion_date: Time.zone.tomorrow)
+      user_ids = tomorrow_tasks.map(&:user_ids).flatten.uniq
       users    = User.where(id: user_ids)
       users.each do |user|
         CaseWorkerMailer.tasks_due_tomorrow_of(user).deliver_now
+      end
+
+      # D6: client-direct reminders ride the same daily cron — feature-flipped on SMTP
+      # config (ClientMessaging.enabled?), consent-gated per client, values-lean body.
+      # Flag off (the default) => today's staff-only behavior exactly.
+      next unless ClientMessaging.enabled?
+      tomorrow_tasks.includes(:client).group_by(&:client).each do |client, tasks|
+        next unless client&.notify_consent? && client.email.present?
+        ClientReminderMailer.task_reminder(client, tasks).deliver_now
       end
     end
   end

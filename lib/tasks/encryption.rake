@@ -68,8 +68,10 @@ namespace :encryption do
       'ProgressNote' => %i[response additional_note]
     },
     '2' => {
+      # D6: + email (client contact PII, born via the encrypted attribute — reminder
+      # sends read per-record; never queried by equality)
       'Client'  => %i[current_address school_name house_number street_number
-                      village commune district live_with],
+                      village commune district live_with email],
       'Family'  => %i[address],
       'Partner' => %i[address]
     },

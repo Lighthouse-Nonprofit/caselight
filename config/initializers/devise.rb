@@ -12,7 +12,10 @@ Devise.setup do |config|
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
-  config.mailer_sender = ENV['SENDER_EMAIL']
+  # D6: the pilot box shipped SENDER_EMAIL as the literal string "nil" — treat 'nil'/blank
+  # as unset (inline: initializers run before app services autoload).
+  _sender = ENV['SENDER_EMAIL']
+  config.mailer_sender = (_sender.present? && _sender.strip.downcase != 'nil') ? _sender : 'caselight@localhost'
 
   # Configure the class responsible to send e-mails.
   # config.mailer = 'Devise::Mailer'

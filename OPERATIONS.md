@@ -118,6 +118,25 @@ Archives + `manifest.json` live on the persisted `archives` Docker volume (`/app
 `ARCHIVE_DIR`) — on the encrypted EBS root, covered by snapshots; copying them to the WORM tier
 remains the infra hand-off (`docs/compliance/audit-retention.md` §3).
 
+## Email (SMTP) and the client-direct reminder flip
+
+Outbound mail is AWS SES over SMTP (`config/environments/production.rb`), driven by three
+`.env` values on the box: `SENDER_EMAIL` (must be an SES-verified sender; empty/`nil` =
+unconfigured), `AWS_SES_USER_NAME`, `AWS_SES_PASSWORD`. Until all three are real:
+
+- **Staff reminder crons** (`Task.upcoming_incomplete_tasks`, overdue notifies) run and
+  fail visibly at SMTP connect — unchanged, known state since go-live.
+- **Client-direct reminders (data-task batch D6) stay OFF** — `ClientMessaging.enabled?`
+  is the feature flip, and it is false unless a real sender AND both SES creds exist.
+  There is no separate toggle: configuring SMTP IS the flip. Once flipped, the daily
+  due-tomorrow cron also emails each **consented** client (`clients.notify_consent`,
+  default false, set with the client's email on the individual form). Bodies are
+  values-lean: appointment count + times only — no task names, no case content.
+
+To flip: set the three values in `~/oscar/.env`, `docker compose up -d` (env re-read),
+then verify `ClientMessaging.enabled?` via the runner and send yourself a test:
+`docker compose exec app bundle exec rails runner "puts ClientMessaging.enabled?"`.
+
 ## Enforcement flags (the flip runbook)
 
 The three Phase-5 flags — `enforce_authorization` (AC-3), `enforce_least_privilege` (AC-6),

@@ -27,6 +27,7 @@ honest — when they drift, CI fails before this page lies:
 | FamilyNote | note | Narrative (household context) | **Encrypted (Tier 1, non-det)** | Added UX round 3; paper_trail-redacted; reads access-audited |
 | FamilyAlert | title, body | Narrative (safety/operational warnings) | **Encrypted (Tier 1, non-det)** | Added UX round 3; resolved-not-deleted; paper_trail-redacted; reads access-audited |
 | Partner | address | Address | **Encrypted (Tier 2)** | contact_person_* remain plaintext-searchable (staff-entered org contacts) |
+| Client | email | Contact (appointment reminders — data-task batch D6) | **Encrypted (Tier 2, non-det)** | notify_consent (default false) gates every send; sends also require the SMTP feature flip (ClientMessaging.enabled?); paper_trail-skipped; values-lean reminder body (counts/times only) |
 | User | email, uid, first_name, last_name, mobile | Staff identity/contact | **Encrypted (Tier 3, deterministic; email/uid downcase)** | email is the login key |
 | User | pin_number | Staff identifier | **Plaintext (locked decision)** | Not an authenticator; excluded from the XLS export (Phase 6 U1); if it ever gates access: HASH it |
 | User | encrypted_password, otp_secret, otp_backup_codes, tokens, reset/unlock tokens | Credentials | bcrypt / AR-encrypted (otp_secret) / hashed | Never serialized into versions (U2 skip) or history snapshots (U3) or exports (U9) |

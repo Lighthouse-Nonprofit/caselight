@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_000006) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_30_000007) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -275,6 +275,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000006) do
     t.date "date_of_birth"
     t.text "district", default: ""
     t.integer "donor_id"
+    t.text "email"
     t.date "exit_date"
     t.text "exit_note", default: ""
     t.text "family_name", default: ""
@@ -293,6 +294,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_000006) do
     t.text "live_with", default: ""
     t.text "local_family_name", default: ""
     t.text "local_given_name", default: ""
+    t.boolean "notify_consent", default: false, null: false
     t.text "original_family_name"
     t.text "original_given_name"
     t.text "original_local_family_name"
