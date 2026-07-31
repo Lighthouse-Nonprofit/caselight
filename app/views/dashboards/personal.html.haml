@@ -1,0 +1,33 @@
+-# Data-task batch C4: the personal landing dashboard (every role except admin +
+-# strategic overviewer, who keep the org index). Counts come scoped from the
+-# controller (Task.of_user / accessible_by); the agenda is the SAME task-native
+-# feed the calendar uses, rendered as a 10-day list.
+#personal-dashboard
+  .row
+    .col-lg-12
+      %h2.m-t-none.m-b-xs= t('.greeting', name: (current_user.first_name.presence || current_user.email), default: 'Welcome back, %{name}')
+      %p.text-muted= t('.subtitle', default: 'Your tasks and caseload for the next ten days.')
+  .row
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center.dashboard-flash{ class: (@overdue_count.positive? ? 'dashboard-flash--alert' : nil) }
+          = link_to content_tag(:h2, @overdue_count, class: 'font-bold m-b-none') + content_tag(:small, t('.overdue', default: 'MY OVERDUE TASKS'), class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center.dashboard-flash
+          = link_to content_tag(:h2, @today_count, class: 'font-bold m-b-none') + content_tag(:small, t('.today', default: 'DUE TODAY'), class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center.dashboard-flash
+          = link_to content_tag(:h2, @week_count, class: 'font-bold m-b-none') + content_tag(:small, t('.week', default: 'NEXT 7 DAYS'), class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
+    .col-lg-3.col-sm-6
+      .ibox
+        .ibox-content.text-center
+          = link_to content_tag(:h1, @caseload_count, class: 'font-bold m-b-none') + content_tag(:small, t('.caseload', default: 'MY CASELOAD'), class: 'text-muted'), clients_path, class: 'dashboard-tile-link'
+  .row
+    .col-lg-12
+      .ibox
+        .ibox-title
+          %h5= t('.agenda_title', default: 'Next 10 days')
+        .ibox-content
+          #dashboard-agenda

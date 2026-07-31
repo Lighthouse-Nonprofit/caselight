@@ -1,44 +1,31 @@
 CIF.DashboardsIndex = (function () {
-  const _init = function () {
-    _clientGenderChart();
-    _clientStatusChart();
-    _familyType();
-    return _resizeChart();
-  };
+  // Data-task batch C4: the org charts died with the orphaned @dashboard partials — this
+  // page's only JS is the personal 10-day agenda. The org dashboard (admin + strategic
+  // overviewer) renders no #dashboard-agenda container, so this is a no-op there.
+  const _init = () => _agenda();
 
-  var _resizeChart = () =>
-    $('.minimalize-styl-2').click(() =>
-      setTimeout(() => window.dispatchEvent(new Event('resize')), 220),
-    );
-
-  var _clientGenderChart = function () {
-    const element = $('#client-by-gender');
-    const data = $(element).data('content-count');
-    if (!element.length || data == null) {
+  const _agenda = function () {
+    const el = document.getElementById('dashboard-agenda');
+    if (!el) {
       return;
     }
-    const report = new CIF.ReportCreator(data, '', '', element);
-    return report.donutChart();
-  };
-
-  var _clientStatusChart = function () {
-    const element = $('#client-by-status');
-    const data = $(element).data('content-count');
-    if (!element.length || data == null) {
-      return;
-    }
-    const report = new CIF.ReportCreator(data, '', '', element);
-    return report.pieChart();
-  };
-
-  var _familyType = function () {
-    const element = $('#family-type');
-    const data = $(element).data('content-count');
-    if (!element.length || data == null) {
-      return;
-    }
-    const report = new CIF.ReportCreator(data, '', '', element);
-    return report.pieChart();
+    const calendar = new FullCalendar.Calendar(el, {
+      initialView: 'listTenDay',
+      views: { listTenDay: { type: 'list', duration: { days: 10 } } },
+      headerToolbar: false,
+      height: 'auto',
+      // Same task-native feed as the calendar page — bucket colors + client-page urls come free.
+      events: (fetchInfo, success, failure) =>
+        $.ajax({
+          type: 'GET',
+          url: '/api/calendars/find_event',
+          dataType: 'JSON',
+          data: { start: fetchInfo.startStr, end: fetchInfo.endStr },
+        })
+          .done((events) => success(events || []))
+          .fail(() => success([])),
+    });
+    return calendar.render();
   };
 
   return { init: _init };
