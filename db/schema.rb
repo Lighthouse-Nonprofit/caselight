@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_01_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -32,8 +32,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_01_000001) do
     t.integer "agencies_clients_count", default: 0
     t.datetime "created_at", precision: nil
     t.text "description", default: ""
+    t.string "kind", default: "partner", null: false
     t.string "name", default: ""
     t.datetime "updated_at", precision: nil
+    t.index ["kind"], name: "index_agencies_on_kind"
   end
 
   create_table "agency_clients", id: :serial, force: :cascade do |t|

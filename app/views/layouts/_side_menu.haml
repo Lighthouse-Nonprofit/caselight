@@ -42,6 +42,14 @@
             = fa_icon('user', 'aria-hidden': true)
             %span.nav-label= t('.clients')
             %span.badge.text-bg-primary.float-end= @client_count
+        -# Schools batch SCH1 — the youth flavor promotes Schools to the main
+        -# sidebar (owner: "as important as households"). First structural flavor
+        -# branch; other flavors see no entry (and would have no kind=school rows).
+        - if Rails.application.config.x.flavor == 'youth' && (can? :read, Agency)
+          %li{class: "#{active_menu('schools')}"}
+            = link_to schools_path do
+              = fa_icon('graduation-cap', 'aria-hidden': true)
+              %span.nav-label= t('.schools', default: 'Schools')
         - if can? :read, Family
           %li{class: families_menu_active}
             = link_to families_path do

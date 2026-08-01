@@ -42,7 +42,8 @@ namespace :flavor do
                  'Susto y Limpia', 'Mi Palabra'],
       forms: [['Client', 'Guardian & Emergency Contacts'], ['Client', 'Youth Safety Plan'],
               ['Client', 'Consents & Releases'], ['Client', 'Referral & Intake'],
-              ['Client', 'Hate Incident Record'], ['Family', 'Household & Family Context']],
+              ['Client', 'Hate Incident Record'], ['Family', 'Household & Family Context'],
+              ['Family', 'Family Engagement Log'], ['Family', 'Custody & Pickup Authorization']],
       quantitative: ['Preferred Language', 'School Site', 'Grade Level', 'Race',
                      'Ethnicity', 'Poverty Level'],
       active_domain_reconcile: 'slo4home:seed_domains'
@@ -105,6 +106,16 @@ namespace :flavor do
         qt.quantitative_cases.each(&:destroy)
         qt.destroy
         removed['quantitative types'] += 1
+      end
+
+      # SCH1 — kind=school agencies belong to the YOUTH flavor only; they leave
+      # with it (links first: the join has no dependent declaration).
+      Agency.where(kind: 'school').find_each do |agency|
+        next unless manifest[:flavor] == 'youth'
+        AgencyClient.where(agency_id: agency.id).delete_all
+        AgencyProgramStream.where(agency_id: agency.id).delete_all
+        agency.destroy or abort "[unseed] ABORT: school agency #{agency.id} refused destroy"
+        removed['school agencies'] += 1
       end
 
       puts "[unseed] #{manifest[:flavor]} removed from tenant=#{tenant}: " +

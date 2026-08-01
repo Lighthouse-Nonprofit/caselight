@@ -1,0 +1,32 @@
+-# Schools batch SCH1 — one school's roster (ability-scoped) + active enrollments.
+= render 'shared/page_header', title: @school.name
+.row.mini-margin
+  .col-12.col-md-7
+    .ibox
+      .ibox-title
+        %h5= t('.roster', default: 'Youth roster')
+      .ibox-content
+        - if @youths.empty?
+          %p.text-muted.mb-0= t('.no_youth', default: 'No youth on your caseload are linked to this school.')
+        - else
+          .table-responsive
+            %table.table.table-striped.m-b-none
+              %tbody
+                - @youths.sort_by { |c| c.name.to_s }.each do |youth|
+                  %tr
+                    %td= link_to youth.name, client_path(youth)
+  .col-12.col-md-5
+    .ibox
+      .ibox-title
+        %h5= t('.enrollments', default: 'Active enrollments')
+      .ibox-content
+        - if @active_enrollments.empty?
+          %p.text-muted.mb-0= t('reports.show.no_data')
+        - else
+          %table.table.m-b-none
+            %tbody
+              - @active_enrollments.sort.each do |program, count|
+                %tr
+                  %td= program
+                  %td.text-right
+                    %span.badge.text-bg-primary= count

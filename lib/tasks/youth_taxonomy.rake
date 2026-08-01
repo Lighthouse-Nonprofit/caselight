@@ -100,6 +100,24 @@ namespace :youth do
           mk.call('select', 'Parent/Guardian Program Participation', values: ['Cara y Corazón', 'Family workshops', 'None yet']),
           mk.call('radio-group', 'Bereaved Family (lost a loved one to violence)', values: %w[Yes No]),
           mk.call('textarea', 'Family Strengths & Notes')
+        ] },
+      # Schools batch SCH1 — the household level needs more than one form: with a
+      # single Family form filled, the Add-new-form picker renders EMPTY (the
+      # owner hit this on the demo box and read it as "no household forms").
+      { entity_type: 'Family', form_title: 'Family Engagement Log', sensitivity: 'standard',
+        fields: [
+          mk.call('date', 'Contact Date'),
+          mk.call('select', 'Engagement Type', values: ['Parent workshop', 'Home visit', 'Phone check-in', 'School meeting attended', 'Cara y Corazón session', 'Other']),
+          mk.call('select', 'Language Used', values: ['English', 'Spanish', 'Mixteco', 'Zapoteco', 'Triqui', 'Purépecha', 'Other']),
+          mk.call('textarea', 'Notes')
+        ] },
+      { entity_type: 'Family', form_title: 'Custody & Pickup Authorization', sensitivity: 'restricted',
+        fields: [
+          mk.call('textarea', 'Custody Arrangement / Court Orders on File'),
+          mk.call('text', 'Authorized Pickup 1: Name & Relationship'),
+          mk.call('text', 'Authorized Pickup 2: Name & Relationship'),
+          mk.call('text', 'NOT Authorized (do not release to)'),
+          mk.call('date', 'Last Reviewed')
         ] }
     ]
 
@@ -502,6 +520,24 @@ namespace :youth do
     end
   end
 
-  desc 'Run all Youth Development seeds (taxonomy, programs, quantitative, domains).'
-  task seed_all: %i[seed_taxonomy seed_programs seed_quantitative seed_domains]
+  desc 'Seed the SMJUHSD school sites as kind=school agencies (SCH1). Idempotent.'
+  task seed_schools: :environment do
+    tenant = ENV['TENANT'] || 'cases'
+    schools = ['Santa Maria HS', 'Ernest Righetti HS', 'Pioneer Valley HS',
+               'Delta HS', 'Fitzgerald Community School']
+    Apartment::Tenant.switch(tenant) do
+      created = 0
+      schools.each do |name|
+        agency = Agency.where('lower(name) = ?', name.downcase).first_or_initialize(name: name)
+        agency.kind = 'school'
+        agency.description = 'SMJUHSD partner school site' if agency.description.blank?
+        created += 1 if agency.new_record?
+        agency.save!
+      end
+      puts "youth:seed_schools [tenant=#{tenant}]: #{created} created, #{schools.size - created} existing (kind=school)."
+    end
+  end
+
+  desc 'Run all Youth Development seeds (taxonomy, programs, quantitative, domains, schools).'
+  task seed_all: %i[seed_taxonomy seed_programs seed_quantitative seed_domains seed_schools]
 end
