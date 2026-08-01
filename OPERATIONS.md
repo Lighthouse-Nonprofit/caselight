@@ -118,6 +118,34 @@ Archives + `manifest.json` live on the persisted `archives` Docker volume (`/app
 `ARCHIVE_DIR`) — on the encrypted EBS root, covered by snapshots; copying them to the WORM tier
 remains the infra hand-off (`docs/compliance/audit-retention.md` §3).
 
+## Flavors (one server = one vertical)
+
+Each server runs ONE flavor — `FLAVOR=resettlement | youth` in `.env` — which selects
+the locale overlay (`config/flavors/<FLAVOR>/*.yml`, labels/vocabulary) and which
+taxonomy `rake flavor:seed` plants (programs, forms, lists, assessment domains). The
+value is whitelisted at boot: a typo stops the app with a clear error instead of
+silently rendering base labels.
+
+**Flipping the demo box** (the supported iteration workflow):
+1. Edit `~/oscar/.env`: set `FLAVOR=youth` (and `SEED_DEMO=true` if you want the
+   flavor's synthetic demo records — demo boxes ONLY, never production).
+2. Rerun `bootstrap.sh`. The new flavor's seed stamp (`.flavor_seeded.youth`) is
+   absent, so its taxonomy seeds; labels change at the restart.
+3. Flip back the same way. Note: a flip does NOT remove the other flavor's seeded
+   rows from the tenant — labels and *new* seeds change; a truly clean flip means a
+   fresh tenant.
+
+**Seed stamps.** `flavor:seed` is gated by `.flavor_seeded.<FLAVOR>` (and demo data by
+`.flavor_demo_seeded.<FLAVOR>`) because seeding is NOT operator-safe to rerun blindly:
+`seed_domains` destructively reconciles assessment domains against its keep-list, and
+`seed_taxonomy` reverts any hand-edits made to seeded forms in the admin UI. To
+deliberately re-apply an updated taxonomy: `rm .flavor_seeded.<FLAVOR>` and rerun
+bootstrap (or `docker compose run --rm -e TENANT=<tenant> app bundle exec rake
+flavor:seed`) — review what changed in the flavor's rake first.
+
+Youth boxes should also set `ASSESSMENT_MIN_INTERVAL_DAYS=84` (12-week SEL pre/post
+cadence; default 180 preserves the resettlement 6-month rule).
+
 ## Email (SMTP) and the client-direct reminder flip
 
 Outbound mail is AWS SES over SMTP (`config/environments/production.rb`), driven by three

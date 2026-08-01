@@ -1,0 +1,12 @@
+# Resettlement flavor overlay (youth-flavor batch Y1).
+#
+# Contract: this file loads AFTER everything under config/locales/, so any key here
+# OVERRIDES the vertical-neutral base en.yml for servers running FLAVOR=resettlement
+# (the default). Root key must be `en:` (available_locales = [:en]). Keep entries
+# minimal and deletable — the base app is deliberately vertical-neutral; a flavor
+# should only reclaim vocabulary where the neutral wording underserves the vertical.
+# NOTE: files here are NOT watched by the i18n reloader — restart the server after
+# editing in dev.
+en:
+  flavor:
+    name: Resettlement

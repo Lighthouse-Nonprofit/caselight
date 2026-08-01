@@ -29,6 +29,21 @@ RSpec.describe 'GET /dashboards', type: :request do
       expect(response.body).not_to match(/id=['"]dashboard-agenda['"]/)
       expect(response.body).not_to match(/id=['"]personal-dashboard['"]/)
     end
+
+    it 'renders the exact base labels with no flavor overlay active (Y1 byte-identical pin)' do
+      # The Y1 t()-conversion of the org dashboard must not change a character when
+      # FLAVOR is unset (test/CI posture = resettlement, whose overlay is minimal).
+      get '/dashboards'
+      %w[HOUSEHOLDS INDIVIDUALS PROGRAMS\ OFFERED OVERDUE\ TASKS].each do |label|
+        expect(response.body).to include(label)
+      end
+      expect(response.body).to include('ACTIVE PROGRAM ENROLLMENTS')
+      expect(response.body).to include('TASKS DUE TODAY')
+      expect(response.body).to include('NEW INDIVIDUALS THIS MONTH')
+      expect(response.body).to include('CHECK-INS THIS MONTH')
+      expect(response.body).to include('Active enrollments by program')
+      expect(response.body).to include('Recent program activity')
+    end
   end
 
   context 'as a strategic overviewer' do

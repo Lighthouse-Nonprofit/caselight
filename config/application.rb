@@ -77,6 +77,20 @@ module CifWeb
     config.i18n.available_locales = [:en]
     config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '**', '*.{rb,yml}')]
 
+    # FLAVOR (youth-flavor batch Y1): one repo, one server per vertical. The flavor's
+    # locale overlay is appended AFTER the config/locales glob above, so its keys win
+    # the i18n deep-merge (overlays live OUTSIDE config/locales — the railtie glob
+    # would load everything in there unconditionally). Whitelist is fail-loud: a
+    # typo'd FLAVOR must stop the boot, not silently render base labels. Overlay
+    # files are not watched in dev — restart after editing one.
+    FLAVORS = %w[resettlement youth].freeze
+    flavor = ENV['FLAVOR'].presence || 'resettlement'
+    unless FLAVORS.include?(flavor)
+      raise "Unknown FLAVOR #{flavor.inspect} — expected one of: #{FLAVORS.join(', ')}"
+    end
+    config.x.flavor = flavor
+    config.i18n.load_path += Dir[Rails.root.join('config', 'flavors', flavor, '*.yml')]
+
     # Rails 7 (zeitwerk) auto-registers every app/* dir as an autoload root, so app/classes is
     # managed automatically (advanced_searches/ -> AdvancedSearches namespace). The old explicit
     # paths are gone: lib has no .rb files, and the `app/classes/**` glob is invalid under zeitwerk

@@ -51,6 +51,8 @@ services:
       # POAM-015: retention archives + manifest land on a persisted volume (tmp/ is baked into
       # the image and dies with the container). Same EBS-snapshot posture as uploads.
       ARCHIVE_DIR: /app/archives
+      # Y1: one server = one flavor; .env overrides this default per box.
+      FLAVOR: ${FLAVOR:-resettlement}
     depends_on: [db, mongo, redis]
     ports: ["127.0.0.1:3000:3000"]
     # Persist locally-stored documents (CarrierWave :file -> public/uploads) across
@@ -67,6 +69,7 @@ services:
     env_file: .env
     environment:
       ARCHIVE_DIR: /app/archives
+      FLAVOR: ${FLAVOR:-resettlement}
     depends_on: [db, mongo, redis]
     command: bundle exec sidekiq -e production
     volumes:

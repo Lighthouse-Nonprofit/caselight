@@ -1,0 +1,6 @@
+# Youth Development flavor overlay (youth-flavor batch Y1 — stub; real vocabulary
+# lands in Y4). Same contract as the resettlement overlay: loads last, wins the
+# merge, root key `en:`, restart-only reload in dev.
+en:
+  flavor:
+    name: Youth Development
