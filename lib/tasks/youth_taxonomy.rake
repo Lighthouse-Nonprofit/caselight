@@ -77,7 +77,10 @@ namespace :youth do
           mk.call('select', 'Referred By', values: ['School staff', 'Self', 'Family', 'Peer', 'Probation', 'Community org', 'Other']),
           mk.call('textarea', 'Presenting Needs / Reason for Referral'),
           mk.call('checkbox-group', 'Immediate Needs Flagged', values: ['Food', 'Housing', 'Clothing', 'Healthcare', 'Mental health', 'Legal', 'Transportation']),
-          mk.call('select', 'Intake Completed By Site', values: SCHOOL_SITES)
+          mk.call('select', 'Intake Completed By Site', values: SCHOOL_SITES),
+          # SCH3 — Aeries matching key; school-data use rides the enrollment
+          # packet consent (FERPA release) + the SMJUHSD DSA before any sync runs.
+          mk.call('text', 'Student ID (Aeries)')
         ] },
       { entity_type: 'Client', form_title: 'Hate Incident Record', sensitivity: 'restricted',
         fields: [
