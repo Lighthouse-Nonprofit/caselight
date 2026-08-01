@@ -11,7 +11,9 @@ module ClientEnrollmentTrackingsConcern
   def client_enrollment_tracking_params
     properties_params.values.map{ |v| v.delete('') if (v.is_a?Array) && v.size > 1 } if properties_params.present?
 
-    default_params = params.require(:client_enrollment_tracking).permit({}).merge!(tracking_id: params[:tracking_id])
+    # Y2(a): entry_date is a real column (the service date), permitted alongside the
+    # dynamic properties blob.
+    default_params = params.require(:client_enrollment_tracking).permit(:entry_date).merge!(tracking_id: params[:tracking_id])
     default_params = default_params.merge!(properties: properties_params) if properties_params.present?
     default_params = default_params.merge!(form_builder_attachments_attributes: params[:client_enrollment_tracking][:form_builder_attachments_attributes]) if action_name == 'create' && attachment_params.present?
     default_params

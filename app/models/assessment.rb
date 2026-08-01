@@ -69,7 +69,13 @@ class Assessment < ActiveRecord::Base
   private
 
   def must_be_six_month_period
-    errors.add(:base, 'Assessment cannot be created before 6 months') if new_record? && client.present? && !client.can_create_assessment?
+    # Y2(c): the interval is per-box config now; the message follows it (legacy text
+    # verbatim when unset — the default posture is byte-identical).
+    return unless new_record? && client.present? && !client.can_create_assessment?
+    days = Rails.application.config.x.assessment_min_interval_days
+    message = days ? "Assessment cannot be created before #{days} days have passed since the last one"
+                   : 'Assessment cannot be created before 6 months'
+    errors.add(:base, message)
   end
 
   def only_latest_record_can_be_updated

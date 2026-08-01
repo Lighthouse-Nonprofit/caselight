@@ -35,9 +35,16 @@ describe Assessment, 'validations' do
     it { expect(valid_assessment).to be_valid }
     it { expect(invalid_assessment).not_to be_valid }
 
-    it 'should have message Assessment cannot be created before 6 months' do
+    it 'keeps the legacy too-soon message when the interval is unset' do
       invalid_assessment.save
       expect(invalid_assessment.errors.full_messages).to include('Assessment cannot be created before 6 months')
+    end
+
+    it 'names the configured day interval when one is set (Y2c)' do
+      allow(Rails.application.config.x).to receive(:assessment_min_interval_days).and_return(84)
+      invalid_assessment.save
+      expect(invalid_assessment.errors.full_messages)
+        .to include('Assessment cannot be created before 84 days have passed since the last one')
     end
 
     it { is_expected.to validate_presence_of(:client) }

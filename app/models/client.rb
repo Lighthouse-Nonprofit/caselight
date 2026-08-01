@@ -284,7 +284,12 @@ class Client < ActiveRecord::Base
 
   def next_assessment_date
     return Time.zone.today if assessments.count.zero?
-    (assessments.latest_record.created_at + 6.months).to_date
+    # Y2(c): unset = the legacy 6 CALENDAR months (not 180.days — units differ by ±3
+    # days); an explicit ASSESSMENT_MIN_INTERVAL_DAYS means precise day arithmetic
+    # (youth SEL pre/post = 84).
+    interval_days = Rails.application.config.x.assessment_min_interval_days
+    step = interval_days ? interval_days.days : 6.months
+    (assessments.latest_record.created_at + step).to_date
   end
 
   def next_appointment_date

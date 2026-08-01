@@ -1,6 +1,12 @@
 = simple_form_for([@client, @enrollment, @client_enrollment_tracking], html: { class: 'client-enrollment-tracking' }) do |f|
   .ibox-content
     %h3= "#{@client.en_and_local_name} - #{@tracking.name} - #{@program_stream.name}"
+    -# Y2(a): the SERVICE date — a real column, backdatable (late data entry, session
+    -# logs after the fact). Defaults to today; NOT part of the properties JSON.
+    .row
+      .col-12.col-md-6.mb-3
+        %label.form-label{ for: 'client_enrollment_tracking_entry_date' }= t('.entry_date', default: 'Date of service / session')
+        = f.text_field :entry_date, type: 'date', class: 'form-control', id: 'client_enrollment_tracking_entry_date', value: (@client_enrollment_tracking.entry_date || Time.zone.today).iso8601
     = f.simple_fields_for :properties, OpenStruct.new(@client_enrollment_tracking.properties) do |prop_f|
       - @tracking.fields.each_slice(2) do |n_field|
         .row

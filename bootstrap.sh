@@ -69,6 +69,9 @@ RAILS_SERVE_STATIC_FILES=true
 # on a production box). Youth boxes should also set ASSESSMENT_MIN_INTERVAL_DAYS=84.
 FLAVOR=resettlement
 SEED_DEMO=false
+# Minimum days between a client's assessments (Y2c). Unset = legacy 6 calendar
+# months; youth boxes set 84 (12-week SEL pre/post cadence).
+# ASSESSMENT_MIN_INTERVAL_DAYS=84
 # CSP kill switch (POAM-017f): the Content-Security-Policy is ENFORCED by default.
 # Uncomment to fall back to report-only shadow mode (violations logged via /csp_reports,
 # nothing blocked) — e.g. for a post-redeploy observation window. Restart required.

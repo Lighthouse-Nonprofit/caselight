@@ -193,8 +193,13 @@ describe Client, 'methods' do
 
   context 'next assessment date' do
     let!(:latest_assessment){ create(:assessment, client: client) }
-    it 'should be latest assessment + 6 months' do
-      expect(client.next_assessment_date).to eq((latest_assessment.created_at + 6.month).to_date)
+    it 'defaults to the legacy 6 calendar months (unset = byte-identical)' do
+      expect(client.next_assessment_date).to eq((latest_assessment.created_at + 6.months).to_date)
+    end
+
+    it 'honors a per-box day interval (Y2c — youth SEL pre/post cadence)' do
+      allow(Rails.application.config.x).to receive(:assessment_min_interval_days).and_return(84)
+      expect(client.next_assessment_date).to eq((latest_assessment.created_at + 84.days).to_date)
     end
     it 'should be today' do
       expect(other_client.next_assessment_date.start).to eq(Time.zone.today.start)
