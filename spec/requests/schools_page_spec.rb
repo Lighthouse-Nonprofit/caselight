@@ -124,6 +124,27 @@ RSpec.describe 'Schools surface', type: :request do
     end
   end
 
+  it 'link_schools_from_sites bridges School Site values to rosters, idempotently (SCH4)' do
+    run_task('youth:seed_schools')
+    school = Agency.find_by(kind: 'school', name: 'Pioneer Valley HS')
+    # source 1: quantitative selection
+    qt = QuantitativeType.create!(name: 'School Site')
+    qc = qt.quantitative_cases.create!(value: 'Pioneer Valley HS')
+    quant_youth = create(:client, state: 'accepted')
+    ClientQuantitativeCase.create!(client_id: quant_youth.id, quantitative_case_id: qc.id)
+    # source 2: cohort enrollment field via sidecar
+    cohort = create(:program_stream, name: 'Girasol')
+    sidecar_youth = create(:client, state: 'accepted')
+    create(:client_enrollment, client: sidecar_youth, program_stream: cohort,
+                               enrollment_date: Time.zone.today - 10,
+                               properties: { 'e-mail' => 't@e.st', 'age' => '3', 'description' => 'ok',
+                                             'School Site' => 'Pioneer Valley HS' })
+
+    2.times { run_task('youth:link_schools_from_sites') }
+    linked = AgencyClient.where(agency_id: school.id).pluck(:client_id)
+    expect(linked).to contain_exactly(quant_youth.id, sidecar_youth.id)
+  end
+
   it 'keeps the sidebar entry off the resettlement flavor (test posture)' do
     admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
     sign_in_as(admin)
