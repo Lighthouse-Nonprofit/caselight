@@ -40,9 +40,10 @@ RSpec.describe Reports::Registry do
       admin = Ability.new(create(:user, :admin))
       worker = Ability.new(create(:user, roles: 'case worker'))
       expect(described_class.visible_to(admin, flavor: 'resettlement').map(&:slug))
-        .to include('served-summary')
-      # PR1 registers only leadership reports — the worker's list is empty for now.
-      expect(described_class.visible_to(worker, flavor: 'resettlement')).to be_empty
+        .to include('served-summary', 'my-caseload-progress')
+      worker_slugs = described_class.visible_to(worker, flavor: 'resettlement').map(&:slug)
+      expect(worker_slugs).to include('my-caseload-progress', 'my-follow-up-compliance')
+      expect(worker_slugs).not_to include('served-summary')
     end
   end
 end

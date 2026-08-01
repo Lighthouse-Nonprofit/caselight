@@ -327,7 +327,7 @@ namespace :slo4home do
       }, { 'Housing Status' => 'Stable', 'Rent Paid This Month' => 'Yes', 'Notes' => 'On time; settling in well.' })
       enroll.call(y, 'Employment', Date.new(2024, 11, 1), {
         'Work Authorization' => 'EAD', 'Job-Readiness Stage' => 'Placed', 'Target Sector' => 'Warehouse / Logistics'
-      }, { 'Status' => 'Employed', 'Employer' => 'Central Coast Logistics', 'Hours per Week' => '32', 'Hourly Wage (USD)' => '19', 'Notes' => 'Part-time; seeking full-time.' })
+      }, { 'Status' => 'Employed', 'Employer' => 'Central Coast Logistics', 'Hours per Week' => '32', 'Hourly Wage (USD)' => '19', 'Employment Type' => 'Part-time (<35 hrs/wk)', 'Health Benefits Offered' => 'No', 'Job Start Date' => (Time.zone.today - 120).iso8601, 'Notes' => 'Part-time; seeking full-time.' })
       enroll.call(y, 'Immigration / Legal', Date.new(2024, 9, 20), {
         'Current Status' => 'Asylee', 'Attorney or Representative' => 'CARECEN (pro bono)', 'Application Type' => 'Adjustment (I-485)'
       }, { 'Milestone' => 'Biometrics', 'Milestone Date' => '2025-02-10', 'Notes' => 'Biometrics complete; awaiting interview.' })
@@ -493,6 +493,11 @@ namespace :slo4home do
           pf.call('text', 'Employer'),
           pf.call('number', 'Hours per Week'),
           pf.call('number', 'Hourly Wage (USD)'),
+          # Reports batch R6 — the AOGP employment-outcome fields (additive only;
+          # Tracking#validate_remove_field allows re-runs against existing entries).
+          pf.call('select', 'Employment Type', values: ['Full-time (35+ hrs/wk)', 'Part-time (<35 hrs/wk)']),
+          pf.call('select', 'Health Benefits Offered', values: %w[Yes No Unknown]),
+          pf.call('date', 'Job Start Date'),
           pf.call('textarea', 'Notes')
         ] } },
       { name: 'Adult Education / ESL',

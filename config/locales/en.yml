@@ -2813,6 +2813,8 @@ en:
       case_statistics: Case Statistics
       client_amount: Client Amounts
       csi_domain_scores: CSI Domain Scores
+      enrollment_statistics: Active enrollments by program (12 months)
+      enrollment_amount: Active enrollments
       data_tools: Data tools
       domain_score: Domain Scores
       legacy_note: Legacy quarterly reports live on each individual record (Actions menu).
@@ -2843,6 +2845,124 @@ en:
       custom: Custom range
       custom_label: '%{from} to %{to}'
     registry:
+      my_caseload_progress:
+        title: My caseload progress
+        description: Outcomes and progress for every individual on your caseload — programs, last contact, and assessment movement.
+        summary: '%{improved} of %{assessed} assessed individuals improved (%{percent}%%).'
+        sections:
+          caseload: Caseload
+        columns:
+          client: Individual
+          programs: Active programs
+          last_contact: Last contact
+          assessments: Assessments
+          first_avg: First avg score
+          latest_avg: Latest avg score
+          change: Change
+      my_follow_up_compliance:
+        title: My follow-up compliance
+        description: Overdue check-ins, individuals with no recent contact, and your open tasks.
+        overdue: Overdue
+        due_today: Due today
+        sections:
+          overdue_checkins: Overdue check-ins
+          no_contact: No contact in 30+ days
+          tasks: Open tasks
+        columns:
+          client: Individual
+          program: Program
+          tracking: Check-in
+          last_entry: Last entry
+          days_overdue: Days overdue
+          last_contact: Last contact
+          days_since: Days since contact
+          task: Task
+          due: Due
+          status: Status
+      my_youth_dosage:
+        title: My youth engagement
+        description: Service contacts and cohort session attendance for the youth on your caseload.
+        sections:
+          contacts: Service contacts this period
+          cohorts: Cohort session attendance
+        columns:
+          youth: Youth
+          contacts: Contacts
+          detail: By service type
+          cohort: Cohort
+          present: Present
+          sessions: Sessions logged
+          attendance_pct: Attendance
+      worker_caseloads:
+        title: Worker caseloads
+        description: Caseload size, activity, and assessment volume per case worker.
+        disabled_flag: Account disabled
+        footnote: Workers are derived from case assignments on the individuals in your view; counts are unduplicated per worker.
+        sections:
+          caseloads: Caseload distribution
+        columns:
+          worker: Worker
+          clients: Assigned individuals
+          active_enrollments: Active enrollments
+          contacts: Contacts this period
+          assessments: Assessments this period
+          flags: Flags
+      follow_up_compliance:
+        title: Follow-up compliance
+        description: Overdue check-ins by program and worker, and individuals without recent contact.
+        unassigned: Unassigned
+        no_contact_30: No contact in 30+ days
+        no_contact_60: No contact in 60+ days
+        sections:
+          overdue_matrix: Overdue check-ins by program and worker
+          no_contact: No recent contact
+        columns:
+          program: Program
+          worker: Worker
+          overdue: Overdue check-ins
+          bucket: Bucket
+          individuals: Individuals
+          households: Households
+      caseload_movement:
+        title: Caseload movement
+        description: Active at start, new enrollments, exits, and active at end — per program, as individuals and households.
+        footnote: 'Active at a date: enrolled on or before it and not yet exited. Individuals and households are unduplicated per program.'
+        sections:
+          movement: Movement by program
+        columns:
+          program: Program
+          start_individuals: Active at start
+          start_households: Households at start
+          new: New enrollments
+          exits: Exits
+          end_individuals: Active at end
+          end_households: Households at end
+      service_activity:
+        title: Service activity
+        description: Service contacts by month and program, and the contact rate per active household.
+        contacts_per_household: Contacts per active household
+        sections:
+          monthly: Service units by month
+          rate: Contact rate
+        columns:
+          program: Program
+          metric: Metric
+          service_units: Service units
+          households: Active households
+          rate: Rate
+      enrollment_dosage:
+        title: Enrollment & dosage
+        description: Youth served, service contacts by type, and cohort completer rates per program.
+        footnote: Completers are enrollments with at least 75% of logged sessions attended (Present).
+        sections:
+          dosage: Dosage by program
+        columns:
+          program: Program
+          youth: Youth (unduplicated)
+          service_units: Service units
+          mean_contacts: Mean contacts per youth
+          detail: By service type
+          completers: Completers
       served_summary:
         title: Unduplicated served summary
         description: Unduplicated individuals and households served per program, paired with duplicated service-unit counts.
@@ -2854,6 +2974,129 @@ en:
           individuals: Individuals (unduplicated)
           households: Households (unduplicated)
           service_units: Service units
+      demographics:
+        title: Demographics profile
+        description: Country of origin, age bands, gender, household size, and program-relevant characteristics of individuals served.
+        age_prefix: 'Age %{band}'
+        gender_prefix: 'Gender: %{gender}'
+        sections:
+          country: Country of origin
+          age_gender: Age and gender
+          household_size: Household size
+        columns:
+          country: Country
+          individuals: Individuals
+          group: Group
+          household_size: Household size
+          households: Households
+      self_sufficiency:
+        title: Self-sufficiency progress
+        description: Movement across the self-sufficiency domains — first vs latest assessment for every individual assessed twice — plus current income and benefits distributions.
+        footnote: '%{assessed} individuals assessed; %{pairs} matched first/latest pairs feed the movement math. Unmatched assessments count toward coverage only.'
+        point_in_time: Point-in-time distribution (the lists carry no history).
+        sections:
+          movement: Domain movement (matched pairs)
+        columns:
+          domain: Domain
+          pairs: Pairs
+          avg_first: Avg first score
+          avg_latest: Avg latest score
+          improved: Improved
+          individuals: Individuals
+      employment_outcomes:
+        title: Employment outcomes
+        description: Entered employment, wages, benefits, and 90-day retention — the standard refugee-employment metric set.
+        footnote: 'Full-time = 35+ hours/week. Health benefits count when OFFERED within the placement, regardless of uptake. 90-day retention counts ANY employment on or after day 90; its denominator is placements whose day-90 falls inside the period.'
+        sections:
+          outcomes: Outcomes
+        columns:
+          metric: Metric
+          value: Value
+        rows:
+          entered_employment: Entered employment (unduplicated)
+          full_time: Full-time placements
+          part_time: Part-time placements
+          avg_wage_ft: Average hourly wage (full-time)
+          benefits_offered: Health benefits offered
+          retention_denominator: Placements reaching day 90 this period
+          retention_90: Retained at 90 days
+      cohort_completion:
+        title: Cohort completion
+        description: Roster, attendance, and completion rate per cultura curriculum cohort.
+        completer: Completer
+        footnote: '%{program} — %{term}: completer = %{threshold} of %{total} sessions attended. Cohort completion rate: %{rate}.'
+        columns:
+          youth: Youth
+          present: Sessions attended
+          total: Curriculum sessions
+          completer: Completion
+      sel_outcomes:
+        title: SEL pre/post outcomes
+        description: Matched pre/post movement per SEL competency; unmatched assessments count toward coverage only.
+        footnote: Outcome math uses matched first/latest pairs only (the CASEL/DESSA convention).
+        sections:
+          coverage: Coverage
+          movement: Movement by competency (matched pairs)
+        rows:
+          youth_in_scope: Youth in scope
+          assessed: Youth assessed
+          matched_pairs: Matched pre/post pairs
+        columns:
+          metric: Metric
+          value: Value
+          competency: Competency
+          pairs: Pairs
+          mean_change: Mean change
+          improving: Improving
+      stop_the_hate_quarterly:
+        title: Stop The Hate quarterly
+        description: Unduplicated individuals served by service type, incidents by statutory bias category, and priority-population demographics.
+        incident_footnote: Bias categories per Penal Code 422.55; an incident may carry multiple categories.
+        sections:
+          services: Individuals served by service type
+          incidents: Incidents by bias category
+          demographics: Priority populations served
+        columns:
+          service: Service
+          individuals: Individuals (unduplicated)
+          occurrences: Occurrences
+          bias_category: Bias category
+          incidents: Incidents
+          population: Population
+      academic_partner:
+        title: Academic partner report
+        description: Aeries academic indicators vs baseline for school-district partners, in GPRA vocabulary.
+        footnote: 'GPA improvement measured among youth with a baseline GPA under 3.0 (stored x100); attendance improvement among those at or below 90%; discipline reduction among those with baseline incidents.'
+        sections:
+          roster: Youth roster (baseline vs current)
+          gpra: GPRA-style measures
+        rows:
+          gpa_improved: GPA improved (baseline < 3.0)
+          attendance_improved: Attendance improved (baseline ≤ 90%)
+          discipline_reduced: Discipline incidents reduced
+        columns:
+          youth: Youth
+          gpa: GPA (x100)
+          attendance: Attendance %
+          credits: Credits
+          a_g: A-G status
+          discipline: Discipline
+          measure: Measure
+          result: Result
+      funder_attribution:
+        title: Funder attribution
+        description: Which individuals and service units are countable under each funder, with the multi-funder overlap.
+        footnote: 'v1: a funder is a partner agency mapped to the programs it funds (Manage → Agencies). Per-service-unit grant attribution is a later rung.'
+        covered_by: 'Covered by %{count} funder(s)'
+        sections:
+          attribution: Counts per funder
+          overlap: Funding overlap
+        columns:
+          funder: Funder
+          programs: Funded programs
+          individuals: Individuals (unduplicated)
+          service_units: Service units
+          bucket: Coverage
       youth_served:
         title: Unduplicated youth served
         description: Unduplicated youth per program and school site, split new vs returning.

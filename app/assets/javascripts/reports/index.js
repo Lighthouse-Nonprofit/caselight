@@ -19,13 +19,15 @@ CIF.ReportsIndex = (function () {
     return report.lineChart();
   };
 
+  // R8: enrollments-by-program replaced the EC/FC/KC case chart (flavor-correct
+  // in both verticals — program names come from the tenant's own seeds).
   var _handleCreateCaseReport = function () {
-    const element = $('#case-statistic');
-    const caseData = element.data('case-statistic');
-    const caseTitle = element.data('title');
-    const caseyAxisTitle = element.data('yaxis-title');
+    const element = $('#enrollment-statistic');
+    const data = element.data('enrollment-statistic');
+    const title = element.data('title');
+    const yAxisTitle = element.data('yaxis-title');
 
-    const report = new CIF.ReportCreator(caseData, caseTitle, caseyAxisTitle, element);
+    const report = new CIF.ReportCreator(data, title, yAxisTitle, element);
     return report.lineChart();
   };
 

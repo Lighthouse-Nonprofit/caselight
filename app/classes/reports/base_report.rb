@@ -104,6 +104,17 @@ module Reports
         (ids - in_households.distinct.pluck(:client_id)).size
     end
 
+    # Roster policy (plan default D12): strategic overviewer reads leadership
+    # AGGREGATES but per-person rosters render as anonymous ids — the
+    # leadership-read-only role stays values-lean in exports.
+    def roster_names_allowed?
+      viewer.nil? || !viewer.strategic_overviewer?
+    end
+
+    def client_label(client)
+      roster_names_allowed? ? client.name : "##{client.id}"
+    end
+
     AGE_BANDS = ['0-4', '5-17', '18-24', '25-44', '45-59', '60+'].freeze
 
     def age_band(dob, as_of = period.end_date)
