@@ -42,7 +42,8 @@
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center.dashboard-flash
-          %h2.font-bold.m-b-none= ClientEnrollmentTracking.where(created_at: Time.zone.now.beginning_of_month..).count
+          -# Y2(a): count check-ins by SERVICE date (a backdated entry belongs to its month)
+          %h2.font-bold.m-b-none= ClientEnrollmentTracking.where(entry_date: Time.zone.today.beginning_of_month..).count
           %small.text-muted= t('.tile_check_ins', default: 'CHECK-INS THIS MONTH')
   .row
     .col-lg-6
@@ -85,7 +86,7 @@
                   %th= t('.col_update', default: 'Update')
                   %th.text-right= t('.col_logged', default: 'Logged')
               %tbody
-                - ClientEnrollmentTracking.order(created_at: :desc).limit(8).each do |cet|
+                - ClientEnrollmentTracking.order(entry_date: :desc, created_at: :desc).limit(8).each do |cet|
                   - ce = cet.client_enrollment
                   - next if ce.nil?
                   %tr
@@ -94,4 +95,4 @@
                       = link_to_if (ce.client && (can? :read, Client)), name, (ce.client ? client_path(ce.client) : '#')
                     %td= ce.program_stream.try(:name)
                     %td= cet.tracking.try(:name)
-                    %td.text-right= cet.created_at.strftime('%b %d, %Y')
+                    %td.text-right= cet.entry_date.strftime('%b %d, %Y')

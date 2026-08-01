@@ -54,10 +54,11 @@
               %td= t('.exit_row', default: 'Exit')
               %td= enrollment.leave_program.exit_date? ? date_format(enrollment.leave_program.exit_date) : date_format(enrollment.leave_program.created_at)
               %td= link_to t('.view', default: 'View'), client_client_enrollment_leave_program_path(@client, enrollment, enrollment.leave_program)
-          - enrollment.client_enrollment_trackings.sort_by(&:created_at).reverse.each do |enrollment_tracking|
+          -# Y2(a): the timeline shows the SERVICE date (entry_date), not when it was typed
+          - enrollment.client_enrollment_trackings.sort_by { |et| [et.entry_date, et.created_at] }.reverse.each do |enrollment_tracking|
             %tr
               %td= "#{t('.tracking', default: 'Tracking')} (#{enrollment_tracking.tracking.try(:name)})"
-              %td= date_format(enrollment_tracking.created_at)
+              %td= date_format(enrollment_tracking.entry_date)
               %td= link_to t('.view', default: 'View'), client_client_enrollment_client_enrollment_tracking_path(@client, enrollment, enrollment_tracking)
           %tr
             %td= t('.enrollment', default: 'Enrollment')

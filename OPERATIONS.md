@@ -144,7 +144,9 @@ bootstrap (or `docker compose run --rm -e TENANT=<tenant> app bundle exec rake
 flavor:seed`) — review what changed in the flavor's rake first.
 
 Youth boxes should also set `ASSESSMENT_MIN_INTERVAL_DAYS=84` (12-week SEL pre/post
-cadence; default 180 preserves the resettlement 6-month rule).
+cadence). Unset preserves the legacy 6-calendar-month rule exactly — note that
+6 months ≠ 180 days, so leave it unset on resettlement boxes rather than "equivalent"
+day counts.
 
 ## Email (SMTP) and the client-direct reminder flip
 

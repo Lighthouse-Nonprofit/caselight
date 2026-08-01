@@ -12,18 +12,16 @@
                 %th{"data-hide" => "all"}= t('.form')
                 - @client_enrollment_tracking_notification.each do |client|
                   - client.client_enrollments.active.each do |client_active_enrollment|
-                    - last_client_enrollment_tracking = client_active_enrollment.client_enrollment_trackings.last
-                    - client_active_enrollment.trackings.each do |tracking|
+                    - client_active_enrollment.program_stream.trackings.each do |tracking|
                       - if tracking.frequency.present?
-                        - if client.next_client_enrollment_tracking_date(tracking, last_client_enrollment_tracking) == Date.today
+                        - if client.next_client_enrollment_tracking_date(tracking, client_active_enrollment) == Time.zone.today
                           %th{"data-hide" => "all"}
             %tbody
               - @client_enrollment_tracking_notification.each do |client|
                 %tr
                   %td= entity_name(client)
                   - client.client_enrollments.active.each do |client_active_enrollment|
-                    - last_client_enrollment_tracking = client_active_enrollment.client_enrollment_trackings.last
-                    - client_active_enrollment.trackings.each do |tracking|
+                    - client_active_enrollment.program_stream.trackings.each do |tracking|
                       - if tracking.frequency.present?
-                        - if client.next_client_enrollment_tracking_date(tracking, last_client_enrollment_tracking) == Date.today
+                        - if client.next_client_enrollment_tracking_date(tracking, client_active_enrollment) == Time.zone.today
                           %td= link_to tracking.name, new_client_client_enrollment_client_enrollment_tracking_path(client, client_active_enrollment, tracking_id: tracking.id)

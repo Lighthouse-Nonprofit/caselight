@@ -24,7 +24,12 @@ class ClientEnrollmentTracking < ActiveRecord::Base
   has_paper_trail skip: %i[properties]
   include RedactedUpdateVersions  # properties-only saves still write a values-free who/when version
 
-  scope :ordered, -> { order(:created_at) }
+  # Y2(a): entry_date = the SERVICE date (backdatable; defaults to today). created_at
+  # stays the audit timestamp; everything user-facing sorts and reasons on entry_date.
+  validates :entry_date, presence: true
+  before_validation { self.entry_date ||= Time.zone.today }
+
+  scope :ordered, -> { order(:entry_date, :created_at) }
   scope :enrollment_trackings_by, -> (tracking) { where(tracking_id: tracking) }
 
   validate do |obj|
