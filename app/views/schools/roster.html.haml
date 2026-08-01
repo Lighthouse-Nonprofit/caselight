@@ -32,3 +32,10 @@
                     %td.text-right
                       - if row.overdue
                         = cl_badge(t('schools.roster.overdue', default: 'Check-in overdue'), :warning)
+                      - if (can? :create, ClientEnrollmentTracking) && row.programs.include?(Schools::Roster::AERIES_PROGRAM)
+                        %button.btn.btn-outline-primary.btn-xs{ type: 'button', 'data-bs-toggle' => 'modal', 'data-bs-target' => "#quick-entry-#{row.client.id}" }
+                          = t('schools.roster.quick_entry', default: 'Quick entry')
+          - if can? :create, ClientEnrollmentTracking
+            - @rows.select { |r| r.programs.include?(Schools::Roster::AERIES_PROGRAM) }.each do |row|
+              - prefill = { 'GPA (x100, e.g. 275 = 2.75)' => row.gpa, 'School-Day Attendance % (this period)' => row.attendance_pct }.compact
+              = render 'schools/quick_entry_modal', school: @school, client: row.client, prefill: prefill

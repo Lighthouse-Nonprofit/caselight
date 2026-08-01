@@ -17,8 +17,11 @@ module NextClientEnrollmentTracking
   private
 
   def tracking_frequency(tracking)
-    frequency         = tracking.frequency
-    time_of_frequency = tracking.time_of_frequency
+    frequency = tracking.frequency
+    # HUB2 hardening: a frequency-bearing tracking with NO time_of_frequency
+    # (hand-created or minimally seeded) crashed every page for assigned
+    # workers via the notification bell (nil.week). Default to every 1 period.
+    time_of_frequency = tracking.time_of_frequency.presence || 1
     case frequency
     when 'Daily'   then time_of_frequency.day
     when 'Weekly'  then time_of_frequency.week

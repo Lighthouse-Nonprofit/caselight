@@ -86,6 +86,8 @@ Rails.application.routes.draw do
       get 'cohorts'
       get 'report_cards'
       post 'report_cards' => 'schools#create_report_cards'
+      get 'roll_call'
+      post 'roll_call' => 'schools#create_roll_call'
     end
   end
   resources :agencies, except: [:show] do

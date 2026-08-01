@@ -40,9 +40,63 @@ class SchoolsController < AdminController
   end
 
   # HUB2 (SCH2 origin) — bulk report-card entry; POST semantics unchanged.
+  # GET gains prefill PLACEHOLDERS from each enrollment's latest Aeries entry
+  # (placeholder never value — blank row still means "save nothing").
   def report_cards
     authorize! :create, ClientEnrollmentTracking
     @rows = aeries_enrollments(@school)
+    @prefills = latest_aeries_props_by_client(@rows)
+  end
+
+  # HUB2 — cohort roll call: one session date + number, one tap per youth.
+  def roll_call
+    authorize! :create, ClientEnrollmentTracking
+    @program = Cohorts.programs.find(params.require(:program_stream_id))
+    @tracking = @program.trackings.find_by!(name: Cohorts::SESSION_TRACKING)
+    @rows = @hub_cards.roster_for(@program)
+    @total_sessions = Cohorts.total_sessions(@program.name)
+  end
+
+  def create_roll_call
+    authorize! :create, ClientEnrollmentTracking
+    program = Cohorts.programs.find(params.require(:program_stream_id))
+    tracking = program.trackings.find_by!(name: Cohorts::SESSION_TRACKING)
+    session_date = begin
+      Date.iso8601(params.require(:session_date))
+    rescue ArgumentError, Date::Error
+      return redirect_to roll_call_school_path(@school, program_stream_id: program.id),
+                         alert: t('schools.roll_call.bad_date')
+    end
+    session_number = params[:session_number].to_s
+    unless (1..Cohorts.total_sessions(program.name)).cover?(session_number.to_i)
+      return redirect_to roll_call_school_path(@school, program_stream_id: program.id),
+                         alert: t('schools.roll_call.bad_session')
+    end
+
+    enrollments = @hub_cards.roster_for(program).index_by { |e| e.client_id.to_s }
+    taken = ClientEnrollmentTracking.where(client_enrollment_id: enrollments.values.map(&:id),
+                                           tracking_id: tracking.id, entry_date: session_date)
+                                    .pluck(:client_enrollment_id).to_set
+    created = skipped = 0
+    params.fetch(:roll, {}).each do |client_id, row|
+      enrollment = enrollments[client_id.to_s] or next # foreign ids ignored
+      attendance = row[:attendance].to_s
+      next unless %w[Present Absent Excused].include?(attendance) # unset row = no entry
+      if taken.include?(enrollment.id) # DEDUPE (read-then-write; pilot-scale ok)
+        skipped += 1
+        next
+      end
+      values = { 'Session Number' => session_number, 'Attendance' => attendance,
+                 'Session Notes' => row[:notes] }
+               .transform_values { |v| v.to_s.strip }.reject { |_k, v| v.blank? }
+      entry = ClientEnrollmentTracking.new(client_enrollment_id: enrollment.id,
+                                           tracking_id: tracking.id,
+                                           entry_date: session_date, properties: values)
+      created += 1 if entry.save
+    end
+    notice = t('schools.roll_call.saved', count: created)
+    notice += " #{t('schools.roll_call.skipped', count: skipped)}" if skipped.positive?
+    redirect_to cohorts_school_path(@school), notice: notice
   end
 
   def create_report_cards
@@ -110,6 +164,19 @@ class SchoolsController < AdminController
     ClientEnrollmentTracking
       .joins(:client_enrollment)
       .where(client_enrollments: { client_id: youth_ids })
+  end
+
+  # Latest Aeries properties per client for placeholder prefill — the bounded
+  # HUB1 pattern: DISTINCT ON id-list first, one DecryptedScan pass.
+  def latest_aeries_props_by_client(enrollments)
+    ids = Schools::Roster.latest_aeries_ids(enrollments.map(&:id))
+    client_by_enrollment = enrollments.to_h { |e| [e.id, e.client_id] }
+    prefills = {}
+    Reports::DecryptedScan.each(ClientEnrollmentTracking.where(id: ids)) do |record, props|
+      client_id = client_by_enrollment[record.client_enrollment_id] or next
+      prefills[client_id] = props
+    end
+    prefills
   end
 
   # Active ¡Por Vida! enrollments (the program carrying the Aeries tracking)

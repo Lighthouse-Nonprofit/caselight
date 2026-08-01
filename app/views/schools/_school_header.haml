@@ -19,6 +19,8 @@
             = t('schools.header.actions', default: 'Actions')
           %ul.dropdown-menu.dropdown-menu-end
             %li= link_to t('schools.report_cards.title', default: 'Report card entry'), report_cards_school_path(school), class: 'dropdown-item'
+            - @hub_cards.cards.each do |card|
+              %li= link_to t('schools.header.roll_call', program: card.program.name, default: "Roll call — #{card.program.name}"), roll_call_school_path(school, program_stream_id: card.program.id), class: 'dropdown-item'
   %ul.nav.nav-pills.client-hub__tabs
     %li.nav-item
       = link_to school_path(school), class: "nav-link #{'active' if active_tab == :overview}" do

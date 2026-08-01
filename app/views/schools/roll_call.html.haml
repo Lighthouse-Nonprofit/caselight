@@ -1,0 +1,49 @@
+-# HUB2 — cohort roll call: pick the session date + number once, then one tap
+-# per youth (no checked defaults — attendance is asserted, never assumed).
+-# Zero page JS: the date field auto-binds via .input-group.date.
+= render 'schools/school_header', school: @school, active_tab: nil
+= render 'shared/page_header', title: "#{t('schools.roll_call.title', default: 'Roll call')} — #{@program.name}"
+.row.mini-margin
+  .col-12
+    .ibox
+      .ibox-content
+        - if @rows.empty?
+          %p.text-muted.mb-0= t('schools.roll_call.no_rows', default: 'No cohort youth on your caseload at this school.')
+        - else
+          = form_with url: roll_call_school_path(@school), method: :post, local: true do
+            %input{ type: 'hidden', name: 'program_stream_id', value: @program.id }
+            .row.gy-2.gx-3.align-items-end.m-b-sm
+              .col-auto
+                .mb-3
+                  %label.form-label{ for: 'session-date' }= t('schools.roll_call.session_date', default: 'Session date')
+                  .input-group.date
+                    %input#session-date.form-control{ type: 'text', name: 'session_date', value: Time.zone.today.iso8601, required: true, autocomplete: 'off' }
+                    %span.input-group-text
+                      %i.fa.fa-calendar-check-o{ 'aria-hidden' => 'true' }
+              .col-auto
+                .mb-3
+                  %label.form-label{ for: 'session-number' }= t('schools.roll_call.session_number', default: 'Session number')
+                  %select#session-number.form-select{ name: 'session_number' }
+                    - (1..@total_sessions).each do |n|
+                      %option{ value: n }= n
+            .cl-table-scroll.schools-entry-grid
+              %table.table.cl-record-table
+                %thead
+                  %tr
+                    %th= t('schools.roll_call.col_youth', default: 'Youth')
+                    %th= t('schools.roll_call.col_attendance', default: 'Attendance')
+                    %th= t('schools.roll_call.col_note', default: 'Note (optional)')
+                %tbody
+                  - @rows.each do |enrollment|
+                    - key = "roll[#{enrollment.client_id}]"
+                    %tr
+                      %td= enrollment.client.name
+                      %td
+                        - %w[Present Absent Excused].each do |value|
+                          .form-check.form-check-inline
+                            %input.form-check-input{ type: 'radio', name: "#{key}[attendance]", value: value, id: "roll-#{enrollment.client_id}-#{value.downcase}" }
+                            %label.form-check-label{ for: "roll-#{enrollment.client_id}-#{value.downcase}" }= t("schools.roll_call.#{value.downcase}", default: value)
+                      %td
+                        %input.form-control.form-control-sm{ type: 'text', name: "#{key}[notes]" }
+            %p.text-muted.small= t('schools.roll_call.skip_hint', default: 'Rows without a selection are skipped; youths already logged for this date are not duplicated.')
+            %button.btn.btn-primary{ type: 'submit' }= t('schools.roll_call.save', default: 'Save attendance')
