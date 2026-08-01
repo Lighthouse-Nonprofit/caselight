@@ -148,6 +148,10 @@ cadence). Unset preserves the legacy 6-calendar-month rule exactly — note that
 6 months ≠ 180 days, so leave it unset on resettlement boxes rather than "equivalent"
 day counts.
 
+What the youth flavor contains and why: `docs/YOUTH-FLAVOR.md`. The Casebook
+migration for the youth production box (audit → dry run → triple-gated import):
+`docs/casebook-mapping.md`.
+
 ## Email (SMTP) and the client-direct reminder flip
 
 Outbound mail is AWS SES over SMTP (`config/environments/production.rb`), driven by three
