@@ -13,6 +13,7 @@ RSpec.describe 'FLAVOR mechanism' do
     Rake.application.rake_require('tasks/flavor', [Rails.root.join('lib').to_s])
     Rake.application.rake_require('tasks/slo4home_taxonomy', [Rails.root.join('lib').to_s])
     Rake.application.rake_require('tasks/sensitivity_classification', [Rails.root.join('lib').to_s])
+    Rake.application.rake_require('tasks/youth_taxonomy', [Rails.root.join('lib').to_s])
     Rake::Task.define_task(:environment)
   end
 

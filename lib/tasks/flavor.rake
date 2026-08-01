@@ -13,11 +13,11 @@ namespace :flavor do
                slo4home:seed_quantitative slo4home:seed_countries sensitivity:classify],
       demo: %w[slo4home:seed_demo_family]
     },
-    # Filled in Y3 (youth_taxonomy.rake) — the empty lists make the flavor flippable
-    # from Y1 without seeding anything yet.
+    # Y3: sensitivity is set inline in the youth seeds (homogeneous forms), so no
+    # separate classify pass.
     'youth' => {
-      seed: [],
-      demo: []
+      seed: %w[youth:seed_taxonomy youth:seed_programs youth:seed_quantitative youth:seed_domains],
+      demo: %w[youth:seed_demo_youth]
     }
   }.freeze
 
