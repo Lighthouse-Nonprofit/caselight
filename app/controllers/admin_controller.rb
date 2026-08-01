@@ -17,7 +17,9 @@ class AdminController < ApplicationController
     @family_count  = Family.accessible_by(current_ability).distinct.count
     @user_count    = User.accessible_by(current_ability).count
     @partner_count = Partner.count
-    @agency_count  = Agency.count
+    # Schools are their own first-class surface (kind=school) — the Manage →
+    # Agencies count covers partners only.
+    @agency_count  = Agency.where.not(kind: 'school').count
     @referral_source_count = ReferralSource.count
   end
 end
