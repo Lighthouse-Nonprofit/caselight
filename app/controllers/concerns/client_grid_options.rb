@@ -20,8 +20,15 @@ module ClientGridOptions
   def client_grid_params
     grid_params = params.fetch(:client_grid, {})
     order = grid_params[:order].to_s
-    return grid_params unless ClientGrid::NAME_ORDERS.key?(order)
-    @name_sort = ClientGrid::NAME_ORDERS[order]
+    if ClientGrid::NAME_ORDERS.key?(order)
+      @name_sort = ClientGrid::NAME_ORDERS[order]
+      return grid_params.except(:order, :descending)
+    end
+    # Pre-production polish: an order naming a column the grid no longer has (the
+    # province/State column left 2026-07-31) must degrade to unordered, not 500 —
+    # stale bookmarks carry it. Class-level check: dynamic formbuilder columns are
+    # not SQL-orderable anyway, so stripping them here is the same safe degradation.
+    return grid_params if order.blank? || ClientGrid.column_by_name(order).present?
     grid_params.except(:order, :descending)
   end
 

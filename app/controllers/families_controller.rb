@@ -6,7 +6,7 @@ class FamiliesController < AdminController
   before_action :find_family, only: [:show, :edit, :update, :destroy]
 
   def index
-    @family_grid = FamilyGrid.new(params[:family_grid])
+    @family_grid = FamilyGrid.new(sanitized_grid_order(FamilyGrid, params[:family_grid]))
     respond_to do |f|
       f.html do
         # UX round 3 (B4/R10 — closes POAM-022): the HTML branch is ability-scoped like the

@@ -6,7 +6,7 @@ class UsersController < AdminController
   before_action :find_association, except: [:index, :destroy]
 
   def index
-    @user_grid = UserGrid.new(params[:user_grid])
+    @user_grid = UserGrid.new(sanitized_grid_order(UserGrid, params[:user_grid]))
     respond_to do |f|
       f.html do
         @results = @user_grid.scope { |scope| scope.accessible_by(current_ability) }.assets.size

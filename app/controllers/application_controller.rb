@@ -152,6 +152,17 @@ class ApplicationController < ActionController::Base
     @province = Province.order(:name)
   end
 
+  # Pre-production polish: an order param naming a column a grid no longer has must degrade
+  # to unordered, not 500 (datagrid raises) — stale bookmarks carry removed columns (the
+  # province/State columns left 2026-07-31). Shared by users/partners/families grids;
+  # ClientGrid has its own richer version in ClientGridOptions#client_grid_params.
+  def sanitized_grid_order(grid_class, grid_params)
+    return grid_params unless grid_params.present? && grid_params[:order].present?
+    return grid_params if grid_class.column_by_name(grid_params[:order]).present?
+    grid_params.except(:order, :descending)
+  end
+  helper_method :sanitized_grid_order
+
   def set_locale
     locale = I18n.available_locales.include?(params[:locale].to_sym) ? params[:locale] : I18n.locale if params[:locale].present?
     if detect_browser.present?
