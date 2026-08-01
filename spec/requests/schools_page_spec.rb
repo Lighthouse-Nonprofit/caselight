@@ -67,6 +67,10 @@ RSpec.describe 'Schools surface', type: :request do
     get schools_path
     expect(response).to have_http_status(:ok)
     expect(response.body).to include('Santa Maria HS')
+    # HUB follow-up: the landing page is the record-card grid, not a list
+    expect(response.body).to include('record-cards')
+    expect(response.body).to include('record-card__avatar')
+    expect(response.body).not_to include('reports-tools__item')
   end
 
   describe 'report-card bulk entry (SCH2)' do

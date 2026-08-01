@@ -1,9 +1,11 @@
 // Card-grid redesign: shared .record-cards / .record-card styling for the individuals +
 // families index. Brand: navy avatar + amber ring; _refresh tokens for radius/shadow/focus.
-// CSP-safe (no external assets). Scoped to the two index bodies (clients-index/families-index).
+// CSP-safe (no external assets). Scoped to the index bodies that render record
+// cards (clients/families/schools).
 
 body[id='clients-index'],
-body[id='families-index'] {
+body[id='families-index'],
+body[id='schools-index'] {
   .record-cards {
     list-style: none;
     margin: 0;

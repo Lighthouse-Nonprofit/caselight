@@ -15,6 +15,25 @@ class SchoolsController < AdminController
     @youth_counts = AgencyClient.where(agency_id: @schools.select(:id),
                                        client_id: scope.select(:id))
                                 .group(:agency_id).distinct.count(:client_id)
+    # Card meta — batched COUNT/pluck only (no decrypts on the landing page).
+    program = ProgramStream.find_by(name: AERIES_PROGRAM)
+    @pv_counts = if program
+                   ClientEnrollment.where(status: 'Active', program_stream_id: program.id,
+                                          client_id: scope.select(:id))
+                                   .joins(client: :agency_clients)
+                                   .where(agency_clients: { agency_id: @schools.select(:id) })
+                                   .group('agency_clients.agency_id').distinct.count(:client_id)
+                 else
+                   {}
+                 end
+    @cohort_tags = ClientEnrollment
+                   .joins(:program_stream, client: :agency_clients)
+                   .where(program_streams: { id: Cohorts.programs.reorder(nil).select(:id) },
+                          agency_clients: { agency_id: @schools.select(:id) },
+                          client_id: scope.select(:id))
+                   .distinct.pluck('agency_clients.agency_id', 'program_streams.name')
+                   .group_by(&:first)
+                   .transform_values { |pairs| pairs.map(&:last).uniq.sort }
   end
 
   # Overview tab: stat tiles + info grid + recent activity.
