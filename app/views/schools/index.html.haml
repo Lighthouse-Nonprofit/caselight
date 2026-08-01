@@ -1,17 +1,30 @@
--# Schools batch SCH1 — the school list (kind=school agencies). Youth counts are
--# ability-scoped: each viewer sees only the youths they may read.
+-# HUB follow-up — the schools landing page as the house record-card grid
+-# (clients/families precedent; _cards.scss scope includes schools-index).
+-# Counts are ability-scoped; cohort tags link into each school's Cohorts tab.
 = render 'shared/page_header', title: t('.title', default: 'Schools')
-.row.mini-margin
-  .col-12
-    .ibox
-      .ibox-content
-        - if @schools.empty?
+- if @schools.empty?
+  .row.mini-margin
+    .col-12
+      .ibox
+        .ibox-content
           %p.text-muted.mb-0= t('.none', default: 'No schools configured. Seed them with rake youth:seed_schools.')
-        - else
-          %ul.reports-tools
-            - @schools.each do |school|
-              %li.reports-tools__item
-                = link_to school.name, school_path(school)
-                %p.text-muted.mb-0
-                  = t('.youth_linked', default: 'Youth linked:')
-                  = @youth_counts.fetch(school.id, 0)
+- else
+  %ul.record-cards{ role: 'list' }
+    - @schools.each do |school|
+      - initials = school.name.split.first(2).map { |word| word[0] }.join.upcase
+      %li.record-card-item
+        %article.record-card
+          .record-card__body
+            .record-card__avatar{ 'aria-hidden' => 'true' }= initials
+            .record-card__ident
+              %h3.record-card__name
+                = link_to school.name, school_path(school), class: 'record-card__name-link stretched-link'
+              %p.record-card__meta
+                = t('.youth_linked', count: @youth_counts.fetch(school.id, 0), default: "#{@youth_counts.fetch(school.id, 0)} youth")
+                - if @pv_counts.fetch(school.id, 0).positive?
+                  = "· #{t('.active_pv', count: @pv_counts.fetch(school.id, 0), default: "#{@pv_counts.fetch(school.id, 0)} active ¡Por Vida!")}"
+            - if @cohort_tags.key?(school.id)
+              %ul.record-card__tags
+                - @cohort_tags[school.id].each do |cohort_name|
+                  %li.record-card__tag
+                    = link_to cohort_name, cohorts_school_path(school), class: 'record-card__tag-link'
