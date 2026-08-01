@@ -55,10 +55,14 @@ RSpec.describe 'Schools surface', type: :request do
     [mine, other].each { |c| AgencyClient.create!(agency_id: school.id, client_id: c.id) }
 
     sign_in_as(worker)
-    get school_path(school)
+    # HUB1: the roster moved to its own tab page; the overview still 200s.
+    get roster_school_path(school)
     expect(response).to have_http_status(:ok)
     expect(response.body).to include('Mine Kid')
     expect(response.body).not_to include('Other Kid')
+
+    get school_path(school)
+    expect(response).to have_http_status(:ok)
 
     get schools_path
     expect(response).to have_http_status(:ok)

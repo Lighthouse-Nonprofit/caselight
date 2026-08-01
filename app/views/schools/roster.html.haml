@@ -1,0 +1,34 @@
+-# HUB1 — the school Roster tab: one row per (ability-scoped) youth with an
+-# academic glance from their LATEST Aeries check-in. Row-click navigates
+-# (tr[data-href] via CIF.RecordTable; button/input clicks are skipped).
+= render 'schools/school_header', school: @school, active_tab: :roster
+.row.mini-margin
+  .col-12
+    .ibox
+      .ibox-content
+        - if @rows.empty?
+          %p.text-muted.mb-0= t('schools.roster.no_youth', default: 'No youth on your caseload are linked to this school.')
+        - else
+          .cl-table-scroll.school-roster-table
+            %table.table.cl-record-table.school-roster
+              %thead
+                %tr
+                  %th= t('schools.roster.col_youth', default: 'Youth')
+                  %th= t('schools.roster.col_programs', default: 'Programs')
+                  %th= t('schools.roster.col_last_contact', default: 'Last contact')
+                  %th= t('schools.roster.col_gpa', default: 'GPA')
+                  %th= t('schools.roster.col_attendance', default: 'Attendance %')
+                  %th
+              %tbody
+                - @rows.each do |row|
+                  %tr{ data: { href: client_path(row.client) } }
+                    %td= link_to row.client.name, client_path(row.client)
+                    %td
+                      - row.programs.each do |program|
+                        = cl_badge(program, :light)
+                    %td= row.last_contact&.strftime('%b %d, %Y') || '—'
+                    %td= row.gpa.present? ? format('%.2f', row.gpa.to_f / 100) : '—'
+                    %td= row.attendance_pct.present? ? "#{row.attendance_pct}%" : '—'
+                    %td.text-right
+                      - if row.overdue
+                        = cl_badge(t('schools.roster.overdue', default: 'Check-in overdue'), :warning)
