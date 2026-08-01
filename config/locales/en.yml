@@ -2807,6 +2807,11 @@ en:
     version:
       back: Back
       modification_of: Changelog of
+  schools:
+    report_cards:
+      title: Report card entry
+      created: 'Saved %{count} report card entries.'
+      bad_date: Enter a valid report date.
   reports:
     index:
       advanced_search_card: Advanced search & Excel export

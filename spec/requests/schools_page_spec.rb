@@ -65,6 +65,65 @@ RSpec.describe 'Schools surface', type: :request do
     expect(response.body).to include('Santa Maria HS')
   end
 
+  describe 'report-card bulk entry (SCH2)' do
+    let(:worker) { create(:user, roles: 'case worker', password: password, password_confirmation: password) }
+    let(:pv) { create(:program_stream, name: '¡Por Vida!') }
+    let!(:aeries) do
+      # real (non-required) Aeries field defs — the factory default fields carry
+      # required e-mail/age/description, which would reject report-card rows
+      fields = ['GPA (x100, e.g. 275 = 2.75)', 'Credits Earned (cumulative)', 'A-G On Track',
+                'School-Day Attendance % (this period)', 'Discipline Incidents (this period)',
+                'Concerns / IEP-SST Notes'].each_with_index.map do |label, i|
+        { 'name' => "aeries_#{i}", 'type' => 'text', 'label' => label, 'className' => 'form-control' }
+      end
+      create(:tracking, name: 'Academic Check-in (Aeries)', program_stream: pv, fields: fields)
+    end
+    let(:school) { run_task('youth:seed_schools'); Agency.find_by(kind: 'school', name: 'Delta HS') }
+    let(:youth) { create(:client, given_name: 'Card', family_name: 'Kid', state: 'accepted', users: [worker]) }
+    let!(:enrollment) do
+      AgencyClient.create!(agency_id: school.id, client_id: youth.id)
+      create(:client_enrollment, client: youth, program_stream: pv,
+                                 enrollment_date: Time.zone.today - 30, status: 'Active')
+    end
+
+    it 'creates one backdated Aeries entry per filled row, skipping blanks' do
+      blank_youth = create(:client, state: 'accepted', users: [worker])
+      AgencyClient.create!(agency_id: school.id, client_id: blank_youth.id)
+      create(:client_enrollment, client: blank_youth, program_stream: pv,
+                                 enrollment_date: Time.zone.today - 30, status: 'Active')
+
+      sign_in_as(worker)
+      get report_cards_school_path(school)
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('Card Kid')
+
+      expect do
+        post report_cards_school_path(school), params: {
+          report_date: (Time.zone.today - 10).iso8601,
+          report_cards: {
+            youth.id.to_s => { gpa: '285', attendance: '93', ag: 'On track' },
+            blank_youth.id.to_s => { gpa: '', attendance: '', ag: '' }
+          }
+        }
+      end.to change(ClientEnrollmentTracking, :count).by(1)
+
+      entry = ClientEnrollmentTracking.order(:created_at).last
+      expect(entry.entry_date).to eq(Time.zone.today - 10)
+      expect(entry.tracking.name).to eq('Academic Check-in (Aeries)')
+      expect(entry.properties['GPA (x100, e.g. 275 = 2.75)']).to eq('285')
+      expect(entry.properties).not_to have_key('Credits Earned (cumulative)')
+    end
+
+    it 'rejects a bad report date without writing' do
+      sign_in_as(worker)
+      expect do
+        post report_cards_school_path(school), params: { report_date: 'nope',
+                                                         report_cards: { youth.id.to_s => { gpa: '300' } } }
+      end.not_to change(ClientEnrollmentTracking, :count)
+      expect(response.location).to include("/schools/#{school.id}/report_cards") # redirects carry ?locale=en
+    end
+  end
+
   it 'keeps the sidebar entry off the resettlement flavor (test posture)' do
     admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
     sign_in_as(admin)
