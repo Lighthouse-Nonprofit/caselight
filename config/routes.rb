@@ -137,9 +137,10 @@ Rails.application.routes.draw do
 
   get '/data_trackers' => 'data_trackers#index'
 
-  # Investor UX round (2026-07): the Reports landing page (charts moved off clients#index;
-  # per-flavor reporting mounts here).
-  resources :reports, only: [:index]
+  # Investor UX round (2026-07): the Reports landing page (charts moved off clients#index).
+  # Reports batch (2026-08): :show runs a registry report — the :id is the flavor
+  # registry slug, not a record id.
+  resources :reports, only: [:index, :show], constraints: { id: /[a-z0-9\-]+/ }
 
   namespace :able_screens, path: '/' do
     namespace :question_submissions, path: '/' do

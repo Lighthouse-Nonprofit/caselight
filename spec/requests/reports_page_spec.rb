@@ -5,8 +5,9 @@ require 'rails_helper'
 # - hosts the CSI-domain + case-statistics charts that used to hide behind an admin-only
 #   toggle on clients#index (same div-id + data-attribute contract, CIF.ReportsIndex draws)
 # - links the data tools (advanced search + Excel export)
-# - authz: authorize_resource class: false — admin (manage :all) + strategic overviewer
-#   (read :all) pass; every other role is AccessDenied (audited redirect)
+# - authz: authorize_resource class: false — since the reports batch EVERY role opens
+#   the page (owner's three-tier decision); the library shows only the viewer's tiers
+#   and the show action re-enforces tiers server-side (reports_show_spec)
 # - clients#index no longer renders the chart block; its header "Reports" entry is a plain
 #   link, shown only to roles that can open the page
 RSpec.describe 'Reports landing page', type: :request do
@@ -56,13 +57,13 @@ RSpec.describe 'Reports landing page', type: :request do
     let(:worker) { create(:user, roles: 'case worker', password: password, password_confirmation: password) }
     before { sign_in_as(worker) }
 
-    it 'is denied the page and never sees the menu/header entries' do
+    it 'opens the page (worker tier) but sees no manager/leadership library groups' do
       get reports_path
-      expect(response).to have_http_status(:redirect)
-
-      get clients_path
       expect(response).to have_http_status(:ok)
-      expect(response.body).not_to include("href=\"#{reports_path}")
+      # PR1 registers leadership-tier reports only, so the worker's library is empty:
+      # no tier headings and no report links — but the page itself renders.
+      expect(response.body).not_to include(I18n.t('reports.index.tier_leadership'))
+      expect(response.body).not_to include('served-summary')
     end
   end
 end

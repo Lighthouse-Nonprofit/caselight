@@ -2,6 +2,25 @@
 -# div-id + data-attribute contract clients/index.js used (CIF.ReportsIndex reads them);
 -# CSI domain averages arrive pre-masked for the viewer (visible_domain_levels).
 = render 'shared/page_header', title: t('.title', default: 'Reports')
+-# Reports batch: the per-flavor report library, grouped by audience tier. Only
+-# tiers the viewer's ability admits are present (Registry.visible_to); the show
+-# action re-enforces the tier server-side.
+- if @definitions_by_tier.present?
+  .row.mini-margin
+    .col-12
+      .ibox
+        .ibox-title
+          %h5= t('reports.index.library')
+        .ibox-content
+          - Reports::Registry::TIER_ORDER.each do |tier|
+            - definitions = @definitions_by_tier[tier]
+            - next if definitions.blank?
+            %h4.report-library__tier= t("reports.index.tier_#{tier}")
+            %ul.reports-tools
+              - definitions.each do |definition|
+                %li.reports-tools__item
+                  = link_to definition.title, report_path(definition.slug)
+                  %p.text-muted.mb-0= definition.description
 .row.mini-margin
   .col-12
     .ibox
