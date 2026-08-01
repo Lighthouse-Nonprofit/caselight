@@ -131,9 +131,16 @@ silently rendering base labels.
    flavor's synthetic demo records — demo boxes ONLY, never production).
 2. Rerun `bootstrap.sh`. The new flavor's seed stamp (`.flavor_seeded.youth`) is
    absent, so its taxonomy seeds; labels change at the restart.
-3. Flip back the same way. Note: a flip does NOT remove the other flavor's seeded
-   rows from the tenant — labels and *new* seeds change; a truly clean flip means a
-   fresh tenant.
+3. Flip back the same way. Programs, forms and quantitative lists COEXIST across
+   flips (a flip does not remove the other flavor's rows) — but **assessment
+   domains do not**: when the incoming flavor's seeds run, `seed_domains`
+   destructively reconciles domains to that flavor's set (unreferenced
+   other-flavor domains are removed, referenced ones survive — 2026-07-31 drill:
+   flipping the demo box to youth removed 7 unreferenced resettlement domains +
+   2 empty groups). The seed stamp then PREVENTS the removed set from
+   auto-restoring on a flip back; restoring means `rm` that flavor's stamp and
+   re-seeding — which reconciles domains the other way. One flavor's domain set
+   at a time; a truly clean flip means a fresh tenant.
 
 **Seed stamps.** `flavor:seed` is gated by `.flavor_seeded.<FLAVOR>` (and demo data by
 `.flavor_demo_seeded.<FLAVOR>`) because seeding is NOT operator-safe to rerun blindly:
@@ -147,6 +154,10 @@ Youth boxes should also set `ASSESSMENT_MIN_INTERVAL_DAYS=84` (12-week SEL pre/p
 cadence). Unset preserves the legacy 6-calendar-month rule exactly — note that
 6 months ≠ 180 days, so leave it unset on resettlement boxes rather than "equivalent"
 day counts.
+
+What the youth flavor contains and why: `docs/YOUTH-FLAVOR.md`. The Casebook
+migration for the youth production box (audit → dry run → triple-gated import):
+`docs/casebook-mapping.md`.
 
 ## Email (SMTP) and the client-direct reminder flip
 
