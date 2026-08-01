@@ -1,10 +1,13 @@
-# Schools batch SCH1 — schools as a first-class surface (owner: "as important as
-# households" for the youth flavor). A school IS a partner agency (kind=school,
-# seeded by youth:seed_schools); this controller is the browsable front for them.
-# Rosters are ALWAYS ability-scoped: a case worker sees only their own caseload's
-# youths at a school, managers their team, leadership the org.
+# Schools batch SCH1 + HUB1 — schools as a first-class youth surface, now a
+# real hub: Overview / Roster / Cohorts tabs (server-rendered pages, the client
+# hub pattern) plus the entry surfaces (report cards; roll call in HUB2).
+# Rosters are ALWAYS ability-scoped: a case worker sees only their own
+# caseload's youths at a school, managers their team, leadership the org.
 class SchoolsController < AdminController
   authorize_resource class: 'Agency'
+
+  before_action :set_school, except: [:index]
+  before_action :set_hub, except: [:index]
 
   def index
     @schools = Agency.where(kind: 'school').order(:name)
@@ -14,25 +17,35 @@ class SchoolsController < AdminController
                                 .group(:agency_id).distinct.count(:client_id)
   end
 
+  # Overview tab: stat tiles + info grid + recent activity.
   def show
-    @school = Agency.where(kind: 'school').find(params[:id])
-    @youths = school_youths(@school)
-    @active_enrollments = ClientEnrollment.where(client_id: @youths.select(:id), status: 'Active')
+    youth_ids = school_youths(@school).ids
+    @active_enrollments = ClientEnrollment.where(client_id: youth_ids, status: 'Active')
                                           .joins(:program_stream)
                                           .group('program_streams.name').count
+    @entries_this_month = school_entries(youth_ids)
+                          .where(entry_date: Time.zone.today.beginning_of_month..).count
+    @cohort_youth_count = @hub_cards.cards.sum(&:enrolled)
+    @recent_entries = school_entries(youth_ids)
+                      .includes(:tracking, client_enrollment: %i[client program_stream])
+                      .order(entry_date: :desc, created_at: :desc).limit(8)
   end
 
-  # SCH2 — bulk report-card entry: one row per PV-enrolled youth at this school,
-  # each non-blank row becomes an Academic Check-in tracking entry with
-  # entry_date = the report date (backdatable — the Y2 service-date column).
+  def roster
+    @rows = Schools::Roster.new(youths: school_youths(@school)).rows
+  end
+
+  def cohorts
+    @cards = @hub_cards.cards
+  end
+
+  # HUB2 (SCH2 origin) — bulk report-card entry; POST semantics unchanged.
   def report_cards
-    @school = Agency.where(kind: 'school').find(params[:id])
     authorize! :create, ClientEnrollmentTracking
     @rows = aeries_enrollments(@school)
   end
 
   def create_report_cards
-    @school = Agency.where(kind: 'school').find(params[:id])
     authorize! :create, ClientEnrollmentTracking
     report_date = begin
       Date.iso8601(params.require(:report_date))
@@ -66,8 +79,25 @@ class SchoolsController < AdminController
 
   private
 
-  AERIES_TRACKING = 'Academic Check-in (Aeries)'
-  AERIES_PROGRAM = '¡Por Vida!'
+  AERIES_TRACKING = Schools::Roster::AERIES_TRACKING
+  AERIES_PROGRAM = Schools::Roster::AERIES_PROGRAM
+
+  def set_school
+    @school = Agency.where(kind: 'school').find(params[:id])
+  end
+
+  # Header meta + tab chips — COUNT/sidecar-only, no decrypts (entry pages
+  # must stay snappy).
+  def set_hub
+    youth_ids = school_youths(@school).ids
+    @hub_youth_count = youth_ids.size
+    @hub_pv_count = begin
+      program = ProgramStream.find_by(name: AERIES_PROGRAM)
+      program ? ClientEnrollment.where(client_id: youth_ids, status: 'Active',
+                                       program_stream_id: program.id).count : 0
+    end
+    @hub_cards = Schools::CohortCards.new(youth_ids: youth_ids)
+  end
 
   def school_youths(school)
     Client.accessible_by(current_ability)
@@ -76,8 +106,14 @@ class SchoolsController < AdminController
           .distinct
   end
 
-  # Active ¡Por Vida! enrollments (the program carrying the Aeries tracking) for
-  # this school's ability-scoped youths.
+  def school_entries(youth_ids)
+    ClientEnrollmentTracking
+      .joins(:client_enrollment)
+      .where(client_enrollments: { client_id: youth_ids })
+  end
+
+  # Active ¡Por Vida! enrollments (the program carrying the Aeries tracking)
+  # for this school's ability-scoped youths.
   def aeries_enrollments(school)
     program = ProgramStream.find_by(name: AERIES_PROGRAM)
     return [] if program.nil? || program.trackings.find_by(name: AERIES_TRACKING).nil?

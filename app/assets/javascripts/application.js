@@ -99,6 +99,7 @@
 //= require tasks/form
 //= require tasks/index
 //= require calendars/index
+//= require schools/roster
 //= require dashboards/index
 //= require case_notes/form
 //= require cases/form

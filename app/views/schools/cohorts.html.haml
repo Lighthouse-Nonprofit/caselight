@@ -1,0 +1,27 @@
+-# HUB1 — the school Cohorts tab: one card per cohort curriculum with members
+-# at this school. Term-scoped rosters; a card without current-term members
+-# falls back to all terms and says so.
+= render 'schools/school_header', school: @school, active_tab: :cohorts
+- if @cards.empty?
+  .row.mini-margin
+    .col-12
+      .ibox
+        .ibox-content
+          %p.text-muted.mb-0= t('schools.cohorts.none', default: 'No cohort enrollments at this school yet.')
+- else
+  .row.mini-margin
+    - @cards.each do |card|
+      .col-12.col-md-6.col-xl-4
+        .ibox
+          .ibox-title
+            %h5= card.program.name
+          .ibox-content
+            - items = []
+            - term_value = card.fallback? ? t('schools.cohorts.all_terms', default: 'All terms') : card.term_label
+            - items << info_item(t('schools.cohorts.term', default: 'Term'), term_value)
+            - items << info_item(t('schools.cohorts.enrolled', default: 'Enrolled'), card.enrolled)
+            - items << info_item(t('schools.cohorts.sessions_logged', default: 'Sessions logged'), card.sessions_logged)
+            - items << info_item(t('schools.cohorts.avg_attendance', default: 'Avg attendance'), card.avg_attendance_pct ? "#{card.avg_attendance_pct}%" : nil)
+            - items << info_item(t('schools.cohorts.completers', default: 'Completers'), card.completers)
+            = render 'shared/info_grid', items: items
+            %p.text-muted.small.m-t-sm.mb-0= t('schools.cohorts.attendance_footnote', default: 'Avg attendance = Present ÷ all logged sessions; excused absences lower the average but never completion.')

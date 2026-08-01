@@ -1,7 +1,8 @@
 -# SCH2 — bulk report-card entry: one row per PV-enrolled youth at this school.
 -# Blank rows create nothing; each filled row becomes one Academic Check-in
 -# entry dated the shared report date.
-= render 'shared/page_header', title: "#{t('.title', default: 'Report card entry')} — #{@school.name}"
+= render 'schools/school_header', school: @school, active_tab: nil
+= render 'shared/page_header', title: t('.title', default: 'Report card entry')
 .row.mini-margin
   .col-12
     .ibox

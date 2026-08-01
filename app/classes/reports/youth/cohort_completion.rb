@@ -8,10 +8,12 @@ module Reports
     # curriculum's session total (Joven Noble 12, Girasol 13, default 12 —
     # OCA-confirmable constants), and the cohort completion rate.
     class CohortCompletion < BaseReport
-      SESSION_TRACKING = 'Session Attendance'
-      SESSION_TOTALS = { 'El Joven Noble' => 12, 'Girasol' => 13 }.freeze
-      DEFAULT_SESSIONS = 12
-      COMPLETER_RATIO = 0.75
+      # HUB1: the math lives in Cohorts (shared with the school hub + roll call);
+      # these aliases keep this report's public constants stable.
+      SESSION_TRACKING = Cohorts::SESSION_TRACKING
+      SESSION_TOTALS = Cohorts::SESSION_TOTALS
+      DEFAULT_SESSIONS = Cohorts::DEFAULT_SESSIONS
+      COMPLETER_RATIO = Cohorts::COMPLETER_RATIO
 
       private
 

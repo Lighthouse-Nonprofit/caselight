@@ -1,0 +1,33 @@
+-# HUB1 — the school hub header. Reuses .client-hub__* verbatim (the family
+-# header proved the classes entity-agnostic — zero new header SCSS). Locals:
+-# school:, active_tab: (:overview | :roster | :cohorts | nil for entry pages).
+.client-hub.school-hub
+  .client-hub__identity
+    .client-hub__who
+      %h1.client-hub__name= school.name
+      %span.client-hub__status= cl_badge(t('schools.header.kind_school', default: 'School'), :primary)
+      %p.client-hub__meta
+        = t('schools.header.youth_linked', count: @hub_youth_count, default: "#{@hub_youth_count} youth linked")
+        %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+        = t('schools.header.active_pv', count: @hub_pv_count, default: "#{@hub_pv_count} active ¡Por Vida!")
+        %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
+        = t('schools.header.cohorts_this_term', count: @hub_cards.cards.size, default: "#{@hub_cards.cards.size} cohorts")
+    - if can? :create, ClientEnrollmentTracking
+      .client-hub__actions
+        .dropdown.client-hub__edit
+          %button.btn.btn-outline-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', type: 'button', 'aria-expanded' => 'false' }
+            = t('schools.header.actions', default: 'Actions')
+          %ul.dropdown-menu.dropdown-menu-end
+            %li= link_to t('schools.report_cards.title', default: 'Report card entry'), report_cards_school_path(school), class: 'dropdown-item'
+  %ul.nav.nav-pills.client-hub__tabs
+    %li.nav-item
+      = link_to school_path(school), class: "nav-link #{'active' if active_tab == :overview}" do
+        = t('schools.tabs.overview', default: 'Overview')
+    %li.nav-item
+      = link_to roster_school_path(school), class: "nav-link #{'active' if active_tab == :roster}" do
+        = t('schools.tabs.roster', default: 'Roster')
+        %span.client-hub__tab-chip= @hub_youth_count
+    %li.nav-item
+      = link_to cohorts_school_path(school), class: "nav-link #{'active' if active_tab == :cohorts}" do
+        = t('schools.tabs.cohorts', default: 'Cohorts')
+        %span.client-hub__tab-chip= @hub_cards.cards.size

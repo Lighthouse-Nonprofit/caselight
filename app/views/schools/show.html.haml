@@ -1,36 +1,58 @@
--# Schools batch SCH1 — one school's roster (ability-scoped) + active enrollments.
-= render 'shared/page_header', title: @school.name
-- if can? :create, ClientEnrollmentTracking
-  .row.mini-margin
-    .col-12
-      = link_to t('schools.report_cards.title', default: 'Report card entry'), report_cards_school_path(@school), class: 'btn btn-primary btn-sm'
+-# HUB1 — the school Overview tab: stat tiles (dashboards pattern), info grid,
+-# recent activity (service-dated, the Y2 rule).
+= render 'schools/school_header', school: @school, active_tab: :overview
+.row
+  .col-lg-3.col-sm-6
+    .ibox
+      .ibox-content.text-center
+        %h1.font-bold.m-b-none= @hub_youth_count
+        %small.text-muted= t('schools.show.tile_youth', default: 'YOUTH LINKED')
+  .col-lg-3.col-sm-6
+    .ibox
+      .ibox-content.text-center
+        %h1.font-bold.m-b-none= @hub_pv_count
+        %small.text-muted= t('schools.show.tile_active_pv', default: 'ACTIVE ¡POR VIDA!')
+  .col-lg-3.col-sm-6
+    .ibox
+      .ibox-content.text-center
+        %h1.font-bold.m-b-none= @cohort_youth_count
+        %small.text-muted= t('schools.show.tile_cohort_youth', default: 'COHORT YOUTH THIS TERM')
+  .col-lg-3.col-sm-6
+    .ibox
+      .ibox-content.text-center
+        %h1.font-bold.m-b-none= @entries_this_month
+        %small.text-muted= t('schools.show.tile_service_entries', default: 'SERVICE ENTRIES THIS MONTH')
 .row.mini-margin
-  .col-12.col-md-7
+  .col-12
+    .ibox
+      .ibox-content
+        - items = []
+        - items << info_item(t('schools.show.info_description', default: 'About'), @school.description)
+        - mix = @active_enrollments.sort.map { |name, count| "#{name} #{count}" }.join(' · ')
+        - items << info_item(t('schools.show.info_program_mix', default: 'Active enrollments'), mix.presence)
+        = render 'shared/info_grid', items: items
+.row.mini-margin
+  .col-12
     .ibox
       .ibox-title
-        %h5= t('.roster', default: 'Youth roster')
+        %h5= t('schools.show.recent_activity', default: 'Recent activity')
       .ibox-content
-        - if @youths.empty?
-          %p.text-muted.mb-0= t('.no_youth', default: 'No youth on your caseload are linked to this school.')
+        - if @recent_entries.empty?
+          %p.text-muted.mb-0= t('schools.show.no_activity', default: 'No service entries yet.')
         - else
           .table-responsive
             %table.table.table-striped.m-b-none
-              %tbody
-                - @youths.sort_by { |c| c.name.to_s }.each do |youth|
-                  %tr
-                    %td= link_to youth.name, client_path(youth)
-  .col-12.col-md-5
-    .ibox
-      .ibox-title
-        %h5= t('.enrollments', default: 'Active enrollments')
-      .ibox-content
-        - if @active_enrollments.empty?
-          %p.text-muted.mb-0= t('reports.show.no_data')
-        - else
-          %table.table.m-b-none
-            %tbody
-              - @active_enrollments.sort.each do |program, count|
+              %thead
                 %tr
-                  %td= program
-                  %td.text-right
-                    %span.badge.text-bg-primary= count
+                  %th= t('schools.show.col_individual', default: 'Youth')
+                  %th= t('schools.show.col_program', default: 'Program')
+                  %th= t('schools.show.col_update', default: 'Update')
+                  %th.text-right= t('schools.show.col_logged', default: 'Logged')
+              %tbody
+                - @recent_entries.each do |entry|
+                  - enrollment = entry.client_enrollment
+                  %tr
+                    %td= link_to enrollment.client.name, client_path(enrollment.client)
+                    %td= enrollment.program_stream.try(:name)
+                    %td= entry.tracking.try(:name)
+                    %td.text-right= entry.entry_date.strftime('%b %d, %Y')

@@ -82,6 +82,8 @@ Rails.application.routes.draw do
   # flavor promotes it to the main sidebar; harmlessly empty elsewhere).
   resources :schools, only: [:index, :show] do
     member do
+      get 'roster'
+      get 'cohorts'
       get 'report_cards'
       post 'report_cards' => 'schools#create_report_cards'
     end
