@@ -173,9 +173,10 @@ RSpec.describe 'casebook importer' do
       jn = maria.client_enrollments.joins(:program_stream).find_by(program_streams: { name: 'El Joven Noble' })
       sessions = jn.client_enrollment_trackings.ordered
       expect(sessions.map(&:entry_date)).to eq([Date.new(2025, 2, 10), Date.new(2025, 2, 24)])
-      expect(sessions.first.properties['Session #']).to eq('2')
+      expect(sessions.first.properties['Session Number']).to eq('2')
+      expect(sessions.first.properties['Session Notes']).to eq('Palabra')
       # the bare "Week 3" note resolved against Maria's SOLE cohort enrollment
-      expect(sessions.last.properties['Session #']).to eq('3')
+      expect(sessions.last.properties['Session Number']).to eq('3')
 
       # the 1:1 check-in landed as a Mentorship Contact entry with the note date
       mentorship = pv.client_enrollment_trackings.joins(:tracking).find_by(trackings: { name: 'Mentorship Contact' })

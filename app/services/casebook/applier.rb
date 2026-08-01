@@ -192,7 +192,7 @@ module Casebook
         cet = ClientEnrollmentTracking.where(client_enrollment_id: ce.id, tracking_id: tr.id,
                                              entry_date: b[:date]).first_or_initialize
         next unless cet.new_record?
-        cet.properties = { 'Session #' => b[:week].to_s, 'Attendance' => 'Present' }
+        cet.properties = { 'Session Number' => b[:week].to_s, 'Attendance' => 'Present' }
         cet.save!
         @counts['tracking entries created'] += 1
       end
@@ -216,7 +216,12 @@ module Casebook
       cet = ClientEnrollmentTracking.where(client_enrollment_id: ce.id, tracking_id: tr.id,
                                            entry_date: date).first_or_initialize
       return unless cet.new_record?
-      cet.properties = c[:kind] == :session ? { 'Session #' => c[:week].to_s, 'Attendance' => 'Present' } : {}
+      cet.properties = if c[:kind] == :session
+                         { 'Session Number' => c[:week].to_s, 'Attendance' => 'Present',
+                           'Session Notes' => c[:lesson].to_s }
+                       else
+                         {}
+                       end
       cet.save!
       @counts['tracking entries created'] += 1
     end
