@@ -76,7 +76,9 @@ class ClientGrid
   STATUS_LABELS = {
     'Active EC' => 'Active — Priority Intake',
     'Active FC' => 'Active — Sponsor Care',
-    'Active KC' => 'Active — Kinship Care'
+    # Pre-production polish: KC is THE household case now (the single Add to Household
+    # action) — its status is just "Active"; no care-placement vocabulary surfaces.
+    'Active KC' => 'Active'
   }.freeze
 
   def status_options
@@ -121,15 +123,16 @@ class ClientGrid
     [[I18n.t('datagrid.columns.clients.has_dob'), 'Yes'], [I18n.t('datagrid.columns.clients.no_dob'), 'No']]
   end
 
+  # Country of Origin filter (pre-production polish): the one place the provinces list —
+  # now the countries list — filters individuals. Only countries with at least one person.
+  filter(:birth_province_id, :enum, select: :province_with_birth_place, header: -> { I18n.t('datagrid.columns.clients.birth_province', default: 'Country of Origin') })
+
   def province_with_birth_place
     Province.birth_places.map { |p| [p.name, p.id] }
   end
 
-  filter(:province_id, :enum, select: :province_with_clients, header: -> { I18n.t('datagrid.columns.clients.current_province') })
-
-  def province_with_clients
-    Province.has_clients.map { |p| [p.name, p.id] }
-  end
+  # (Pre-production polish: the current-province/"State" filter+column left — provinces
+  # hold Countries of Origin now; the birth-country shows on the individual's About grid.)
 
   filter(:initial_referral_date, :date, range: true, header: -> { I18n.t('datagrid.columns.clients.initial_referral_date') })
 
@@ -487,9 +490,6 @@ class ClientGrid
 
 
 
-  column(:province, order: 'provinces.name', header: -> { I18n.t('datagrid.columns.clients.current_province') }) do |object|
-    object.province.try(:name)
-  end
 
   column(:state, header: -> { I18n.t('datagrid.columns.clients.state') }) do |object|
     object.state.titleize

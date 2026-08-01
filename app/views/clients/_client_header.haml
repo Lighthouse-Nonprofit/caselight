@@ -51,8 +51,10 @@
                 %li
                   %hr.dropdown-divider
                 - if client.cases.exclude_referred.current.blank?
-                  %li= client.ec_button
-                  %li= client.fc_button
+                  -# Pre-production polish (2026-07-31): ONE case action. The three upstream
+                  -# care-placement buttons (Priority Intake / Sponsor Care / Kinship Care)
+                  -# collapse to the household case (KC = the active-household type here);
+                  -# label = "Add to Household" — opening the case IS the household link.
                   %li= client.kc_button
                   %li
                     - if client.client_enrollments.active.count > 0

@@ -39,7 +39,6 @@
           - items << info_item(t('.email'), emails_html.presence)
           - items << info_item(t('.date_of_birth'), date_format(@user.date_of_birth))
           - items << info_item(t('.start_date'), date_format(@user.start_date))
-          - items << info_item(t('.province'), @user.province.try(:name))
           - items << info_item(t('.pin_number'), @user.pin_number)
           = render 'shared/info_grid', items: items
 = render 'clients'

@@ -229,17 +229,11 @@ describe 'Family' do
       expect(page).not_to have_content(other_family)
     end
 
-    # BS5-Q3: the address filter is gone from the slimmed family grid — filter by the
-    # State (province) enum instead, which the fixture also sets to Phnom Penh.
-    scenario 'filter by family state' do
-      select('Phnom Penh', from: 'family_grid_province_id')
-      click_button 'Search'
-      expect(page).to have_content(family.name)
-      expect(page).not_to have_content(other_family)
-    end
-
-    scenario 'filter by family province' do
-      select('Phnom Penh', from: 'family_grid_province_id')
+    # (Pre-production polish: the province/State filter left the family grid — provinces
+    # hold Countries of Origin now. The household-type filter keeps the same
+    # include/exclude contract: the fixture family is :emergency, the other is not.)
+    scenario 'filter by household type excludes the others' do
+      select(Family::TYPE_LABELS['emergency'], from: 'family_grid_family_type')
       click_button 'Search'
       expect(page).to have_content(family.name)
       expect(page).not_to have_content(other_family)

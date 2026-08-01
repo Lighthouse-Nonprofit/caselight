@@ -41,10 +41,7 @@ class PartnerGrid
     scope.background_like(value)
   end
 
-  filter(:province_id, :enum, select: :province_options, header: -> { I18n.t('datagrid.columns.partners.province') })
-  def province_options
-    Partner.province_are
-  end
+  # (Pre-production polish: province filter removed — provinces hold Countries of Origin now.)
 
   filter(:start_date, :date, range: true, header: -> { I18n.t('datagrid.columns.partners.start_date') })
 
@@ -76,10 +73,6 @@ class PartnerGrid
   column(:engagement, header: -> { I18n.t('datagrid.columns.partners.engagement') })
   column(:background, header: -> { I18n.t('datagrid.columns.partners.background') })
   column(:address, header: -> { I18n.t('datagrid.columns.partners.address') })
-
-  column(:province, order: 'provinces.name', header: -> { I18n.t('datagrid.columns.partners.province') }) do |object|
-    object.province.try(:name)
-  end
 
   column(:manage, html: true, tag_options: { class: 'text-center' }, header: -> { I18n.t('datagrid.columns.partners.manage') }) do |object|
     render partial: 'partners/actions', locals: { object: object }

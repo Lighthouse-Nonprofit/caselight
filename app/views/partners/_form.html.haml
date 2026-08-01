@@ -7,7 +7,6 @@
         .col-12.col-sm-6.col-md-4= f.input :contact_person_name, label: t('.contact_name')
         .col-12.col-sm-6.col-md-4= f.input :contact_person_email, label: t('.contact_email')
         .col-12.col-sm-6.col-md-4= f.input :contact_person_mobile, label: t('.contact_mobile')
-        .col-12.col-sm-6.col-md-4= f.association :province, collection: @province, label: t('.province')
         .col-12.col-sm-6.col-md-4= f.input :address, input_html: { rows: '4' }, label: t('.address')
         .col-12.col-sm-6.col-md-4
           .mb-3.date.optional.partner_start_date

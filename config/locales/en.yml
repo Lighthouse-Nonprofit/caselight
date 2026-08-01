@@ -297,7 +297,7 @@ en:
       id_poor: ID Poor
       initial_referral_date: Initial Referral Date
       kid_id: Individual ID
-      live_with: Who to live with
+      live_with: Lives with
       local_family_name: Family Name (native)
       local_given_name: Given Name (native)
       name: Name
@@ -533,7 +533,7 @@ en:
       note: Note
     index:
       back: Back
-      case_note_lists: Case note lists of
+      case_note_lists: Case notes
       case_note_on: Case note on
       completed_tasks: Completed Tasks
       domain: Domain
@@ -553,7 +553,7 @@ en:
       fail_delete_attachment: Failed deleting attachment
   cases:
     create:
-      already_have_a_case: Client is already have a case.
+      already_have_a_case: This person already has an active case.
       successfully_created: Case has been successfully created.
     form:
       carer_address: Carer Address
@@ -593,7 +593,7 @@ en:
       support_amount: Support Amount
       support_note: Support Note
     new:
-      already_have_a_case: Client is already have a case.
+      already_have_a_case: This person already has an active case.
     update:
       successfully_updated: Case has been successfully updated.
   changelogs:
@@ -901,7 +901,7 @@ en:
       id_poor: ID Poor
       initial_referral_date: Initial Referral Date
       kid_id: Individual ID
-      live_with: Who to live with
+      live_with: Lives with
       local_family_name: Family Name (native)
       local_given_name: Given Name (native)
       name: Name
@@ -993,7 +993,7 @@ en:
       add_ec_btn: Priority Intake Case
       add_fc_btn: Sponsor Care Case
       add_form: Add Form
-      add_kc_btn: Kinship Care Case
+      add_kc_btn: Add to Household
       additional_details: Additional Details
       additional_forms: Additional Forms
       additional_info: Additional Information
@@ -1043,7 +1043,7 @@ en:
       id_poor: ID Poor
       initial_referral_date: Initial Referral Date
       kid_id: Individual ID
-      live_with: Who to live with
+      live_with: Lives with
       local_family_name: Family Name (native)
       local_given_name: Given Name (native)
       name: Name
@@ -1325,7 +1325,7 @@ en:
         id_poor: ID Poor
         initial_referral_date: Initial Referral Date
         kid_id: Individual ID
-        live_with: Who to live with
+        live_with: Lives with
         local_family_name: Family Name (native)
         local_given_name: Given Name (native)
         manage: Manage
@@ -1380,7 +1380,7 @@ en:
         case_history: Case History
         case_workers: Case Managers
         changelogs: Changelog
-        clients: Individuals
+        clients: Members
         code: Household ID
         contract_date: Contract Date
         dependable_income: Dependable Income
@@ -1396,7 +1396,7 @@ en:
         male_adult_count: Male Adults
         male_children_count: Male Children
         manage: Manage
-        member_count: Family Members
+        member_count: Members
         name: Name
         'no': 'No'
         province: State
@@ -1557,7 +1557,7 @@ en:
     id_poor: ID Poor
     initial_referral_date: Initial Referral Date
     kid_id: Individual ID
-    live_with: Who to live with
+    live_with: Lives with
     local_family_name: Family Name (native)
     local_given_name: Given Name (native)
     name: Name

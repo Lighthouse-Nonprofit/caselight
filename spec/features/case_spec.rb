@@ -78,6 +78,9 @@ feature 'Case' do
     # and no longer displays carer fields — assert the visible surface + the record.
     scenario 'valid', js: true do
       visit new_client_case_path(client, case_type: 'FC')
+      # Pre-production polish: the household is an explicit pick now (prompt, not a
+      # silent first-row preselect) — the Add to Household flow's headline decision.
+      select family.name, from: 'case_family_id'
       fill_in 'Carer Name', with: 'Carer Name'
       fill_in 'Start Date', with: FFaker::Time.date
       click_button 'Save'
@@ -88,7 +91,8 @@ feature 'Case' do
 
     scenario 'case type' do
       visit new_client_case_path(client, case_type: 'FC')
-      value = page.find(:css, '#case_case_type').value()
+      # polish: the raw case_type code is internal — carried as a hidden field now
+      value = page.find(:css, '#case_case_type', visible: :hidden).value()
       expect(value).to have_content('FC')
     end
 

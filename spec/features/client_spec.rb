@@ -117,7 +117,7 @@ describe 'Client' do
       fill_in 'Date of Birth', with: '2017-05-01'
       find(".client_users select option[value='#{user.id}']", visible: false).select_option
 
-      find(".client_province select option[value='#{province.id}']", visible: false).select_option
+      # no .client_province select anymore — the "State" select is pilot-hidden (polish)
       find(".client_birth_province_id select option[value='#{province.id}']", visible: false).select_option
 
       # (Village/Commune — Cambodia-era address fields — are gone from the SLO4HOME form)
@@ -170,9 +170,9 @@ describe 'Client' do
       click_button 'Accept'
     end
     scenario 'has new case note link' do
-      expect(page).to have_link('Priority Intake Case')
-      expect(page).to have_link('Sponsor Care Case')
-      expect(page).to have_link('Kinship Care Case')
+      expect(page).not_to have_link("Priority Intake Case") # polish: single Add to Household action
+      expect(page).not_to have_link("Sponsor Care Case") # polish: single Add to Household action
+      expect(page).to have_link("Add to Household")
     end
   end
 
@@ -299,15 +299,15 @@ describe 'Client' do
       end
 
       scenario 'Emergency Case Button' do
-        expect(page).to have_link('Priority Intake Case')
+        expect(page).not_to have_link("Priority Intake Case") # polish: single Add to Household action
       end
 
       scenario 'Foster Case Button' do
-        expect(page).to have_link('Sponsor Care Case')
+        expect(page).not_to have_link("Sponsor Care Case") # polish: single Add to Household action
       end
 
       scenario 'Kinship Case Button' do
-        expect(page).to have_link('Kinship Care Case')
+        expect(page).to have_link("Add to Household")
       end
 
       scenario 'Exit Organization Button' do
@@ -333,7 +333,7 @@ describe 'Client' do
       end
 
       scenario 'Kinship Case Button' do
-        expect(page).not_to have_link('Kinship Care Case')
+        expect(page).not_to have_link("Add to Household")
       end
 
       scenario 'Exit From EC' do
@@ -388,7 +388,7 @@ describe 'Client' do
       end
 
       scenario 'Kinship Case Button' do
-        expect(page).not_to have_link('Kinship Care Case')
+        expect(page).not_to have_link("Add to Household")
       end
     end
     feature 'Inactive Client' do
@@ -401,14 +401,14 @@ describe 'Client' do
       end
 
       scenario 'Emergency Case Button' do
-        expect(page).to have_link('Priority Intake Case')
+        expect(page).not_to have_link("Priority Intake Case") # polish: single Add to Household action
       end
 
       scenario 'Foster Case Button' do
-        expect(page).to have_link('Sponsor Care Case')
+        expect(page).not_to have_link("Sponsor Care Case") # polish: single Add to Household action
       end
       scenario 'Kinship Case Button' do
-        expect(page).to have_link('Kinship Care Case')
+        expect(page).to have_link("Add to Household")
       end
     end
   end

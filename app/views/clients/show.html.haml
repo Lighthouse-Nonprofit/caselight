@@ -61,14 +61,18 @@
         -# into ONE responsive label-over-value info grid (shared/_info_grid). Label/value
         -# TEXT is byte-identical to the tables it replaces (spec contract).
         - items = []
+        -# Pre-production polish (2026-07-31): ONE Household row. The old pair — a
+        -# "Households" item (non-case family types) + a "Case household" item from the
+        -# case rows — was an upstream care-placement distinction that reads as a dupe
+        -# here (membership is always through the case). All linked households, deduped.
         - families_html = capture do
-          - @client.families.as_non_cases.uniq.each do |family|
+          - @client.families.uniq.each do |family|
             %strong.badge.text-bg-light.family
               - if can? :read, Family
                 = link_to family(family), family_path(family)
               - else
                 = family(family)
-        - items << info_item(t('.families'), families_html.presence)
+        - items << info_item(t('.household', default: 'Household'), families_html.presence)
         - items << info_item(t('.address'), @client.current_address.presence || merged_address(@client))
         - items << info_item(t('.birth_province'), @client.birth_province)
         - items << info_item(t('.school_name'), @client.school_name)

@@ -39,10 +39,8 @@ class UserGrid
   # D2 removed the department filter/column: Departments are hidden for the pilot
   filter(:roles, :enum, select: User::ROLES.map{|val| [val.titleize, val]},  header: -> { I18n.t('datagrid.columns.users.roles') })
 
-  filter(:province_id, :enum, select: :province_options,  header: -> { I18n.t('datagrid.columns.users.province') })
-  def province_options
-    User.province_are
-  end
+  # (Pre-production polish: the province filter/column left with the D2 department pattern —
+  # provinces hold Countries of Origin now; staff location was never real data here.)
 
   filter(:pin_number, :integer, header: -> { I18n.t('datagrid.columns.users.pin_number') } )
 
@@ -73,9 +71,6 @@ class UserGrid
 
   column(:start_date, header: -> { I18n.t('datagrid.columns.users.start_date') })
 
-  column(:province, order: 'provinces.name', header: -> { I18n.t('datagrid.columns.users.province') }) do |object|
-    object.province.try(:name)
-  end
 
   column(:roles, header: -> { I18n.t('datagrid.columns.users.roles') }) do |object|
     object.roles.titleize
