@@ -1,0 +1,17 @@
+-# Schools batch SCH1 — the school list (kind=school agencies). Youth counts are
+-# ability-scoped: each viewer sees only the youths they may read.
+= render 'shared/page_header', title: t('.title', default: 'Schools')
+.row.mini-margin
+  .col-12
+    .ibox
+      .ibox-content
+        - if @schools.empty?
+          %p.text-muted.mb-0= t('.none', default: 'No schools configured. Seed them with rake youth:seed_schools.')
+        - else
+          %ul.reports-tools
+            - @schools.each do |school|
+              %li.reports-tools__item
+                = link_to school.name, school_path(school)
+                %p.text-muted.mb-0
+                  = t('.youth_linked', default: 'Youth linked:')
+                  = @youth_counts.fetch(school.id, 0)

@@ -78,6 +78,9 @@ Rails.application.routes.draw do
     end
   end
 
+  # Schools batch SCH1 — the browsable front for kind=school agencies (youth
+  # flavor promotes it to the main sidebar; harmlessly empty elsewhere).
+  resources :schools, only: [:index, :show]
   resources :agencies, except: [:show] do
     get 'version' => 'agencies#version'
   end

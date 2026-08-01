@@ -16,7 +16,8 @@ namespace :flavor do
     # Y3: sensitivity is set inline in the youth seeds (homogeneous forms), so no
     # separate classify pass.
     'youth' => {
-      seed: %w[youth:seed_taxonomy youth:seed_programs youth:seed_quantitative youth:seed_domains],
+      seed: %w[youth:seed_taxonomy youth:seed_programs youth:seed_quantitative youth:seed_domains
+               youth:seed_schools],
       demo: %w[youth:seed_demo_youth]
     }
   }.freeze
