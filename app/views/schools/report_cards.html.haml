@@ -1,0 +1,48 @@
+-# SCH2 — bulk report-card entry: one row per PV-enrolled youth at this school.
+-# Blank rows create nothing; each filled row becomes one Academic Check-in
+-# entry dated the shared report date.
+= render 'shared/page_header', title: "#{t('.title', default: 'Report card entry')} — #{@school.name}"
+.row.mini-margin
+  .col-12
+    .ibox
+      .ibox-content
+        - if @rows.empty?
+          %p.text-muted.mb-0= t('.no_rows', default: 'No youths on your caseload have an active ¡Por Vida! enrollment at this school.')
+        - else
+          = form_with url: report_cards_school_path(@school), method: :post, local: true do
+            .row.gy-2.gx-2.align-items-end.m-b-sm
+              .col-auto
+                %label.form-label{ for: 'report-date' }= t('.report_date', default: 'Report date')
+                %input#report-date.form-control{ type: 'date', name: 'report_date', value: Time.zone.today.iso8601, required: true }
+            .table-responsive
+              %table.table.table-striped
+                %thead
+                  %tr
+                    %th= t('.youth', default: 'Youth')
+                    %th= t('.gpa', default: 'GPA (x100)')
+                    %th= t('.credits', default: 'Credits')
+                    %th= t('.ag', default: 'A-G')
+                    %th= t('.attendance', default: 'Attendance %')
+                    %th= t('.discipline', default: 'Discipline')
+                    %th= t('.notes', default: 'Notes')
+                %tbody
+                  - @rows.each do |enrollment|
+                    - key = "report_cards[#{enrollment.client_id}]"
+                    %tr
+                      %td= enrollment.client.name
+                      %td
+                        %input.form-control{ type: 'number', name: "#{key}[gpa]", min: 0, max: 400 }
+                      %td
+                        %input.form-control{ type: 'number', name: "#{key}[credits]", min: 0 }
+                      %td
+                        %select.form-select{ name: "#{key}[ag]" }
+                          %option{ value: '' }
+                          - ['On track', 'At risk', 'Off track', 'N/A'].each do |v|
+                            %option{ value: v }= v
+                      %td
+                        %input.form-control{ type: 'number', name: "#{key}[attendance]", min: 0, max: 100 }
+                      %td
+                        %input.form-control{ type: 'number', name: "#{key}[discipline]", min: 0 }
+                      %td
+                        %input.form-control{ type: 'text', name: "#{key}[notes]" }
+            %button.btn.btn-primary{ type: 'submit' }= t('.save', default: 'Save report cards')
