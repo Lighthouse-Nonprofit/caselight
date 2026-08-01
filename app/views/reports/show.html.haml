@@ -24,8 +24,11 @@
               %input#report-to.form-control{ type: 'date', name: 'to', value: (@period.preset == :custom ? @period.end_date.iso8601 : '') }
           .col-auto
             %button.btn.btn-primary{ type: 'submit' }= t('reports.show.run')
-        %p.text-muted.m-t-sm.mb-0
-          %strong= @period.label
+        .m-t-sm.d-flex.align-items-center.gap-3
+          %p.text-muted.mb-0
+            %strong= @period.label
+          = link_to t('reports.show.export_csv'), report_path(@definition.slug, format: :csv, period: @period.param_value, from: params[:from], to: params[:to]), class: 'btn btn-outline-secondary btn-sm'
+          = link_to t('reports.show.export_pdf'), report_path(@definition.slug, format: :pdf, period: @period.param_value, from: params[:from], to: params[:to]), class: 'btn btn-outline-secondary btn-sm', target: '_blank', rel: 'noopener'
 
 - @report.sections.each do |section|
   .row.mini-margin
@@ -38,7 +41,7 @@
             %p.text-muted.mb-0= t('reports.show.restricted_hidden')
           - else
             - if section.chart
-              %div{ id: "report-chart-#{section.key}", data: { report_chart: section.chart[:data].to_json, chart_type: section.chart[:type] } }
+              %div{ id: "report-chart-#{section.key}", data: { report_chart: section.chart[:data].to_json, chart_type: section.chart[:type], title: @report.section_title(section) } }
             .table-responsive
               %table.table.table-striped.m-b-none
                 %thead

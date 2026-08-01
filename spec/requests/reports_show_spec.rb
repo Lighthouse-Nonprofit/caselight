@@ -99,4 +99,39 @@ RSpec.describe 'GET /reports/:slug', type: :request do
       expect(response.body).to include('2026-06-30')
     end
   end
+
+  # R2 — export formats. Tier denial applies to every format; CSV parses back
+  # (never substring-matched); PDF = real bytes + the sandbox CSP posture.
+  context 'exports' do
+    it 'CSV round-trips with section title, headers, and zero-count rows' do
+      program
+      sign_in_as(make_user('admin'))
+      get report_path('served-summary', format: :csv)
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq('text/csv')
+      table = CSV.parse(response.body)
+      expect(table.first.first).to eq(I18n.t('reports.registry.served_summary.title'))
+      header_row = table.find { |r| r.first == I18n.t('reports.registry.served_summary.columns.program') }
+      expect(header_row).to include(I18n.t('reports.registry.served_summary.columns.individuals'))
+      housing = table.find { |r| r.first == 'Housing' }
+      expect(housing[1..3]).to eq(%w[0 0 0]) # zero counts REPORTED, not omitted
+    end
+
+    it 'PDF returns real bytes inline under a sandboxing CSP' do
+      skip 'chromium not available in this environment' unless PdfRenderer.available?
+      sign_in_as(make_user('admin'))
+      get report_path('served-summary', format: :pdf)
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq('application/pdf')
+      expect(response.body[0, 5]).to eq('%PDF-')
+      expect(response.headers['Content-Security-Policy']).to eq('sandbox')
+      expect(response.headers['Content-Disposition']).to include('inline')
+    end
+
+    it 'tier denial covers exports too (worker CSV on a leadership slug redirects)' do
+      sign_in_as(make_user('case worker'))
+      get report_path('served-summary', format: :csv)
+      expect(response).to have_http_status(:redirect)
+    end
+  end
 end

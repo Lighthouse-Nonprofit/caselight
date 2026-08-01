@@ -1,0 +1,36 @@
+-# Reports batch (R2) — the registry-report PDF template. Rendered OUTSIDE any
+-# request by PdfRenderer.render_template: assigns arrive fully pre-resolved
+-# (sections already masked for the requesting viewer). SELF-CONTAINED BY
+-# CONTRACT — no assets, no external references (external_asset_reference_guard
+-# scans every haml); styling comes from layouts/pdf.
+- content_for(:pdf_title) { @report_title.to_s }
+%h1= @report_title
+.pdf-meta
+  = @period_label
+  ·
+  = t('reports.show.generated', default: 'Generated')
+  = @generated_on
+  - if @generated_by.present?
+    = "· #{@generated_by}"
+%hr.pdf-rule/
+- Array(@sections).each do |section|
+  %h2= section[:title]
+  - if section[:restricted_hidden]
+    %p= t('reports.show.restricted_hidden')
+  - else
+    %table
+      %thead
+        %tr
+          - Array(section[:columns]).each do |column|
+            %th= column
+      %tbody
+        - if Array(section[:rows]).empty?
+          %tr
+            %td{ colspan: [Array(section[:columns]).size, 1].max }= t('reports.show.no_data')
+        - else
+          - section[:rows].each do |row|
+            %tr
+              - row.each do |cell|
+                %td= cell
+    - if section[:footnote].present?
+      %p.pdf-meta= section[:footnote]

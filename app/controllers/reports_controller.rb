@@ -32,5 +32,41 @@ class ReportsController < AdminController
       viewer: current_user
     )
     @period_options = Reports::Period.options_for(@definition)
+
+    respond_to do |format|
+      format.html
+      format.csv do
+        send_data @report.to_csv, filename: "#{@report.filename_stem}.csv", type: 'text/csv'
+      end
+      format.pdf do
+        # Assigns are FULLY pre-resolved (sections built above with the viewer's
+        # masking) — PdfRenderer renders outside any request and must never see
+        # session state. Inline viewing rides the DownloadsController posture:
+        # a sandboxing CSP so the PDF viewer context can run nothing.
+        pdf = PdfRenderer.render_template(template: 'reports/pdf',
+                                          assigns: pdf_assigns(@report, @period))
+        response.headers['Content-Security-Policy'] = 'sandbox'
+        send_data pdf, filename: "#{@report.filename_stem}.pdf",
+                       type: 'application/pdf', disposition: 'inline'
+      end
+    end
+  end
+
+  private
+
+  def pdf_assigns(report, period)
+    {
+      report_title: report.title,
+      period_label: period.label,
+      generated_on: Time.zone.today.iso8601,
+      generated_by: current_user.name,
+      sections: report.sections.map do |section|
+        { title: report.section_title(section),
+          columns: section.columns,
+          rows: section.rows,
+          footnote: section.footnote,
+          restricted_hidden: section.restricted_hidden? }
+      end
+    }
   end
 end
