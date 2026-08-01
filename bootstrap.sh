@@ -61,6 +61,14 @@ REDIS_URL=redis://redis:6379/0
 RAILS_ENV=production
 SECRET_KEY_BASE=$(openssl rand -hex 64)
 RAILS_SERVE_STATIC_FILES=true
+
+# --- Flavor (Y1) ---
+# One server = one flavor. Picks the locale overlay (config/flavors/<FLAVOR>/) and
+# which taxonomy `rake flavor:seed` plants. Whitelisted at boot: resettlement | youth.
+# SEED_DEMO=true additionally plants SYNTHETIC demo records (demo boxes ONLY — never
+# on a production box). Youth boxes should also set ASSESSMENT_MIN_INTERVAL_DAYS=84.
+FLAVOR=resettlement
+SEED_DEMO=false
 # CSP kill switch (POAM-017f): the Content-Security-Policy is ENFORCED by default.
 # Uncomment to fall back to report-only shadow mode (violations logged via /csp_reports,
 # nothing blocked) — e.g. for a post-redeploy observation window. Restart required.
@@ -126,6 +134,28 @@ fi
 if [ ! -f .seeded ]; then
   echo "==> seeding base data"
   docker compose run --rm app bundle exec rake db:seed && touch .seeded
+fi
+
+# 7a. Flavor taxonomy (Y1). Older boxes predate the FLAVOR/SEED_DEMO keys — upsert them
+#     into .env idempotently (the heredoc above only runs on first boot; chmod stays 600).
+grep -q '^FLAVOR=' .env || printf '\nFLAVOR=resettlement\n' >> .env
+grep -q '^SEED_DEMO=' .env || printf 'SEED_DEMO=false\n' >> .env
+FLAVOR_ACTIVE="$(grep -E '^FLAVOR=' .env | tail -1 | cut -d= -f2)"
+SEED_DEMO_ACTIVE="$(grep -E '^SEED_DEMO=' .env | tail -1 | cut -d= -f2)"
+#     Stamp-gated per flavor: seed_domains destructively reconciles and seed_taxonomy
+#     reverts hand-edits, so this must NOT rerun every deploy. To re-apply an updated
+#     taxonomy deliberately: rm ".flavor_seeded.<flavor>" and rerun (read the
+#     destructive-reconcile warning in OPERATIONS.md first). A flavor FLIP works
+#     naturally — the new flavor's stamp is absent, so its seeds run.
+if [ ! -f ".flavor_seeded.$FLAVOR_ACTIVE" ]; then
+  echo "==> seeding $FLAVOR_ACTIVE flavor taxonomy"
+  docker compose run --rm -e TENANT="$TENANT_SHORT" app bundle exec rake flavor:seed
+  touch ".flavor_seeded.$FLAVOR_ACTIVE"
+fi
+if [ "$SEED_DEMO_ACTIVE" = "true" ] && [ ! -f ".flavor_demo_seeded.$FLAVOR_ACTIVE" ]; then
+  echo "==> seeding $FLAVOR_ACTIVE flavor DEMO data (synthetic)"
+  docker compose run --rm -e TENANT="$TENANT_SHORT" app bundle exec rake flavor:seed_demo
+  touch ".flavor_demo_seeded.$FLAVOR_ACTIVE"
 fi
 
 # 7b. Encrypt existing rows at rest — Phase 4 (FedRAMP SC-28 / SOC 2 C1.1). IDEMPOTENT and safe to run on
