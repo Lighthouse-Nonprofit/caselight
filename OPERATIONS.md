@@ -164,6 +164,14 @@ What the youth flavor contains and why: `docs/YOUTH-FLAVOR.md`. The Casebook
 migration for the youth production box (audit → dry run → triple-gated import):
 `docs/casebook-mapping.md`.
 
+**Aeries SIS integration (SCH3 — scaffold, OFF by default).** No calls are
+possible until `AERIES_BASE_URL` (https-only, host-pinned) and `AERIES_API_KEY`
+are set in `.env` — and those must not be set until the SMJUHSD data-sharing
+authorization is signed. Configuring the credentials IS the enable switch (the
+SES/ClientMessaging pattern). Then: `rake aeries:sync TENANT=<t>` (dry-run;
+add `CONFIRM=1` to write). Matching = the 'Student ID (Aeries)' intake field
+via the encrypted sidecar; idempotent per report date; logs are values-free.
+
 ## Email (SMTP) and the client-direct reminder flip
 
 Outbound mail is AWS SES over SMTP (`config/environments/production.rb`), driven by three
