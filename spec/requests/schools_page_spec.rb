@@ -149,6 +149,27 @@ RSpec.describe 'Schools surface', type: :request do
     expect(linked).to contain_exactly(quant_youth.id, sidecar_youth.id)
   end
 
+  it 'Manage → Agencies lists partners only — schools never double-list there' do
+    run_task('youth:seed_schools')
+    partner = Agency.create!(name: 'Partner Org', kind: 'partner')
+    admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
+    sign_in_as(admin)
+    get agencies_path
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include('Partner Org')
+    expect(response.body).not_to include('Santa Maria HS')
+  end
+
+  it 'the school hub Actions offers Edit school details (the agencies modal)' do
+    run_task('youth:seed_schools')
+    school = Agency.find_by(kind: 'school', name: 'Delta HS')
+    admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
+    sign_in_as(admin)
+    get school_path(school)
+    expect(response.body).to include(I18n.t('schools.header.edit_details'))
+    expect(response.body).to include("agencyModal-#{school.id}")
+  end
+
   it 'keeps the sidebar entry off the resettlement flavor (test posture)' do
     admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
     sign_in_as(admin)

@@ -12,15 +12,24 @@
         = t('schools.header.active_pv', count: @hub_pv_count, default: "#{@hub_pv_count} active ¡Por Vida!")
         %span.client-hub__sep{ 'aria-hidden' => 'true' } ·
         = t('schools.header.cohorts_this_term', count: @hub_cards.cards.size, default: "#{@hub_cards.cards.size} cohorts")
-    - if can? :create, ClientEnrollmentTracking
+    - if (can? :create, ClientEnrollmentTracking) || (can? :update, Agency)
       .client-hub__actions
         .dropdown.client-hub__edit
           %button.btn.btn-outline-primary.dropdown-toggle{ 'data-bs-toggle' => 'dropdown', type: 'button', 'aria-expanded' => 'false' }
             = t('schools.header.actions', default: 'Actions')
           %ul.dropdown-menu.dropdown-menu-end
-            %li= link_to t('schools.report_cards.title', default: 'Report card entry'), report_cards_school_path(school), class: 'dropdown-item'
-            - @hub_cards.cards.each do |card|
-              %li= link_to t('schools.header.roll_call', program: card.program.name, default: "Roll call — #{card.program.name}"), roll_call_school_path(school, program_stream_id: card.program.id), class: 'dropdown-item'
+            - if can? :create, ClientEnrollmentTracking
+              %li= link_to t('schools.report_cards.title', default: 'Report card entry'), report_cards_school_path(school), class: 'dropdown-item'
+            - if can? :create, ClientEnrollmentTracking
+              - @hub_cards.cards.each do |card|
+                %li= link_to t('schools.header.roll_call', program: card.program.name, default: "Roll call — #{card.program.name}"), roll_call_school_path(school, program_stream_id: card.program.id), class: 'dropdown-item'
+            - if can? :update, Agency
+              -# reuses the agencies inline-edit modal (there is no agencies#edit page)
+              %li
+                %button.dropdown-item{ type: 'button', 'data-bs-toggle' => 'modal', 'data-bs-target' => "#agencyModal-#{school.id}" }
+                  = t('schools.header.edit_details', default: 'Edit school details')
+  - if can? :update, Agency
+    = render 'agencies/form', agency: school
   %ul.nav.nav-pills.client-hub__tabs
     %li.nav-item
       = link_to school_path(school), class: "nav-link #{'active' if active_tab == :overview}" do

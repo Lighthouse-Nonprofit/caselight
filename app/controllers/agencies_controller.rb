@@ -4,8 +4,12 @@ class AgenciesController < AdminController
   before_action :find_agency, only: [:update, :destroy]
 
   def index
-    @agencies = Agency.order(:name).page(params[:page]).per(20)
-    @results  = Agency.count
+    # kind=school agencies live on the Schools surface (youth flavor) — the
+    # Manage list is partners only, so schools never double-list here. Editing
+    # a school still works via /agencies/:id/edit (linked from the school hub).
+    scope = Agency.where.not(kind: 'school')
+    @agencies = scope.order(:name).page(params[:page]).per(20)
+    @results  = scope.count
   end
 
   def create

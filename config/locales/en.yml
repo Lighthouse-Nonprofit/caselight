@@ -2812,6 +2812,7 @@ en:
       kind_school: School
       actions: Actions
       roll_call: 'Roll call — %{program}'
+      edit_details: Edit school details
     tabs:
       overview: Overview
       roster: Roster
