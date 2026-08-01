@@ -1,0 +1,25 @@
+// HUB2 — school entry grids (report cards / roll call): sticky youth column.
+// .cl-table-scroll owns the sticky thead (top: 0, z-index: 2, _tables.scss);
+// .cl-record-table is border-collapse: separate, so sticky cells keep borders.
+// The pinned header corner needs z-index 3 and explicit backgrounds
+// (transparent sticky cells bleed the scrolled content through).
+.schools-entry-grid {
+  thead th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background-color: #f6f8fa;
+  }
+
+  tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: #fff;
+  }
+
+  tbody tr:hover td:first-child,
+  tbody tr:focus-within td:first-child {
+    background-color: #fbfcfd; // match the cl-record-table row hover
+  }
+}

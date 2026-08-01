@@ -25,3 +25,5 @@
             - items << info_item(t('schools.cohorts.completers', default: 'Completers'), card.completers)
             = render 'shared/info_grid', items: items
             %p.text-muted.small.m-t-sm.mb-0= t('schools.cohorts.attendance_footnote', default: 'Avg attendance = Present ÷ all logged sessions; excused absences lower the average but never completion.')
+            - if can? :create, ClientEnrollmentTracking
+              = link_to t('schools.cohorts.roll_call', default: 'Roll call'), roll_call_school_path(@school, program_stream_id: card.program.id), class: 'btn btn-primary btn-sm m-t-sm'

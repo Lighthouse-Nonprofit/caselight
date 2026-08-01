@@ -2808,10 +2808,43 @@ en:
       back: Back
       modification_of: Changelog of
   schools:
+    header:
+      kind_school: School
+      actions: Actions
+      roll_call: 'Roll call — %{program}'
+    tabs:
+      overview: Overview
+      roster: Roster
+      cohorts: Cohorts
+    roster:
+      overdue: Check-in overdue
+      quick_entry: Quick entry
+    cohorts:
+      all_terms: All terms
+      roll_call: Roll call
+    quick_entry:
+      title: 'Quick entry — %{name}'
+      cancel: Cancel
+      save: Save
+      close: Close
+    roll_call:
+      title: Roll call
+      saved: 'Saved %{count} attendance entries.'
+      skipped: 'Skipped %{count} already logged for this date.'
+      bad_date: Enter a valid session date.
+      bad_session: Session number is out of range for this curriculum.
     report_cards:
       title: Report card entry
       created: 'Saved %{count} report card entries.'
       bad_date: Enter a valid report date.
+      report_date: Report date
+      gpa: GPA (x100)
+      attendance: 'Attendance %'
+      ag: A-G
+      notes: Notes
+      last_value: 'last: %{value}'
+      youth_count: '%{count} youth'
+      rows_hint: Only rows with data will be saved.
   reports:
     index:
       advanced_search_card: Advanced search & Excel export
