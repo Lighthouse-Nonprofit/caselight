@@ -26,7 +26,6 @@
                   %span.input-group-text
                     %i.fa.fa-calendar-check-o
             .row
-              .col-12.col-md-4= f.association :province, collection: @province, include_blank: false, label: t('.province')
               .col-12.col-md-4= f.input :mobile, label: t('.mobile')
               .col-12.col-md-4= f.input :email, required: true, label: t('.email')
               - if devise_mapping.confirmable? && resource.pending_reconfirmation?

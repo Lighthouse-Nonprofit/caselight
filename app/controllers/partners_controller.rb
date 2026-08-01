@@ -6,7 +6,7 @@ class PartnersController < AdminController
   before_action :find_association, except: [:index, :destroy]
 
   def index
-    @partner_grid = PartnerGrid.new(params[:partner_grid])
+    @partner_grid = PartnerGrid.new(sanitized_grid_order(PartnerGrid, params[:partner_grid]))
     respond_to do |f|
       f.html do
         @results = @partner_grid.assets.size

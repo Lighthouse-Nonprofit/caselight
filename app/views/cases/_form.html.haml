@@ -3,6 +3,11 @@
     = f.error_notification
     .form-inputs
       .row
+        -# Pre-production polish (2026-07-31): the HOUSEHOLD comes first — this form is the
+        -# "Add to Household" flow (a case row IS the membership link), so picking the
+        -# existing household is the headline decision, with an explicit prompt instead of
+        -# silently preselecting the first row. Validation covers a blank pick.
+        .col-12.col-sm-6.col-md-4= f.association :family, collection: @family.map{|family| [family.name.present? ? family.name : "Unknown", family.id] }, include_blank: t('.select_household', default: "Select a household"), label: t('.family')
         .col-12.col-sm-6.col-md-4= f.input :carer_names, label: t('.carer_names')
         .col-12.col-sm-6.col-md-4= f.input :carer_address, label: t('.carer_address')
         .col-12.col-sm-6.col-md-4= f.input :carer_phone_number, label: t('.carer_phone_number')
@@ -16,10 +21,11 @@
               %i.fa.fa-calendar-check-o
           = f.error :start_date
 
-        .col-12.col-sm-6.col-md-4= f.association :province, collection: @province, label: t('.province')
-        .col-12.col-sm-6.col-md-4= f.input :case_type, as: :string, label: t('.case_type'), default: params[:case_type], input_html: { readonly: 'readonly' }
+        -# (Polish: the raw case_type code — "KC" — is internal plumbing, carried hidden;
+        -# the province/"State" select is pilot-hidden — provinces now hold Countries of
+        -# Origin for the birth-country picker, and location lives in the address fields.)
+        = f.hidden_field :case_type, value: (f.object.case_type.presence || params[:case_type])
         .col-12.col-sm-6.col-md-4= f.association :partner, collection: @partner, label: t('.ongoing_partner'), include_blank: false
-        .col-12.col-sm-6.col-md-4= f.association :family, collection: @family.map{|family| [family.name.present? ? family.name : 'Unknown', family.id] }, include_blank: false, label: t('.family')
         .col-12.col-sm-6.col-md-4= f.input :support_amount, label: "#{t('.support_amount')}($)"
         .col-12.col-sm-6.col-md-4
           .cl-check-group.family-preservation

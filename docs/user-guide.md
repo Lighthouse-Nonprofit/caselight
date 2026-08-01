@@ -234,7 +234,7 @@ name, status, date of birth, household, and (when relevant) a red **Household al
 — with an **Actions** menu and tabs that follow you across every sub-page:
 
 - **Overview** — the **About** section first: one label-over-value grid holding the person's
-  details *and* the case facts (intake date, case household, case status), with
+  details *and* the case facts (household, intake date, case status), with
   **Edit Case** and **Exit From Case** close to hand. The edit form's **gender picker offers
   the full California SOGI-style list** (including non-binary, transgender, questioning,
   another gender identity, and declined to state — blank simply means "not asked"), a

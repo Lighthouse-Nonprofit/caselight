@@ -143,9 +143,10 @@ RSpec.describe 'Tier 3 staff-account PII encryption at rest (SC-28, deterministi
     end
 
     it 'keeps the non-PII filters intact (pin_number NOT encrypted)' do
-      # (:department left the grid in D2 — Departments are hidden for the pilot)
+      # (:department left the grid in D2; :province_id left in the pre-production polish —
+      # provinces hold Countries of Origin now)
       filter_names = UserGrid.filters.map(&:name)
-      expect(filter_names).to include(:job_title, :roles, :province_id, :pin_number,
+      expect(filter_names).to include(:job_title, :roles, :pin_number,
                                       :date_of_birth, :start_date, :id)
     end
   end

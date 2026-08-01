@@ -56,6 +56,10 @@ RSpec.describe 'Family caseload scoping', type: :request do
       expect(response.body.scan('Caseload Household').size).to eq(1)
       expect(response.body).not_to include('Foreign Household')
 
+      # (Pre-production polish: the province/State column left the grid — provinces hold
+      # Countries of Origin now. The LOWER(name) expression sort above remains the live
+      # guard for the DISTINCT/ORDER-BY regression; an unknown order param must still
+      # not 500.)
       get families_path, params: { family_grid: { order: 'province' } }
       expect(response).to have_http_status(:ok)
     end

@@ -819,6 +819,29 @@ namespace :slo4home do
     end
   end
 
-  desc 'Run seed_taxonomy, seed_programs, seed_domains, seed_demo_family, then seed_quantitative.'
-  task seed_all: %i[seed_taxonomy seed_programs seed_domains seed_demo_family seed_quantitative]
+  # Pre-production polish (2026-07-31): the provinces table IS the Countries of Origin list
+  # (clients.birth_province, labeled "Country of Origin" app-wide; every other province
+  # surface is pilot-hidden). Curated for US refugee resettlement — the org adds more under
+  # Manage when needed. Idempotent: find_or_create_by name, nothing deleted.
+  desc 'Seed the Countries of Origin list (provinces table). Idempotent.'
+  task seed_countries: :environment do
+    tenant = ENV['TENANT'] || 'cases'
+
+    countries = [
+      'Afghanistan', 'Belarus', 'Bhutan', 'Burma (Myanmar)', 'Burundi', 'Cameroon',
+      'Central African Republic', 'Chad', 'Colombia', 'Cuba',
+      'Democratic Republic of the Congo', 'El Salvador', 'Eritrea', 'Ethiopia',
+      'Guatemala', 'Haiti', 'Honduras', 'Iran', 'Iraq', 'Laos', 'Nepal', 'Nicaragua',
+      'Pakistan', 'Russia', 'Somalia', 'South Sudan', 'Sudan', 'Syria', 'Ukraine',
+      'Venezuela', 'Vietnam', 'Yemen', 'Other'
+    ]
+
+    Apartment::Tenant.switch(tenant) do
+      created = countries.count { |name| Province.find_or_create_by!(name: name).previously_new_record? }
+      puts "slo4home:seed_countries [tenant=#{tenant}]: #{created} created (of #{countries.size})."
+    end
+  end
+
+  desc 'Run seed_taxonomy, seed_programs, seed_domains, seed_demo_family, seed_quantitative, then seed_countries.'
+  task seed_all: %i[seed_taxonomy seed_programs seed_domains seed_demo_family seed_quantitative seed_countries]
 end

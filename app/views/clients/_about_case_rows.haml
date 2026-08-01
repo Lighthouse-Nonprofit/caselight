@@ -9,13 +9,8 @@
 - if current_case.present?
   - items << info_item(t('clients.show.resettlement_case', default: 'Case'), t('clients.show.case_active', default: 'Active'))
   - items << info_item(t('clients.show.intake_date', default: 'Intake date'), (date_format(current_case.start_date) if current_case.start_date))
-  - if current_case.family.present?
-    - household_html = capture do
-      - if can? :read, Family
-        = link_to family(current_case.family), family_path(current_case.family)
-      - else
-        = family(current_case.family)
-    - items << info_item(t('clients.show.case_household', default: 'Case household'), household_html.presence)
+  -# (Pre-production polish: the "Case household" item is gone — the About grid's single
+  -# Household row already carries the case's family; two rows read as a confusing dupe.)
 - elsif (last_case = client.cases.exclude_referred.inactive.order(:exit_date).last).present?
   - items << info_item(t('clients.show.resettlement_case', default: 'Case'), t('clients.show.case_exited', default: 'Closed'))
   - if last_case.exit_date.present?

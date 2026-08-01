@@ -25,11 +25,8 @@ class FamilyGrid
 
   filter(:male_children_count, :integer, range: true, header: -> { I18n.t('datagrid.columns.families.male_children_count') })
 
-  filter(:province_id, :enum, select: :province_options, header: -> { I18n.t('datagrid.columns.families.province') })
-
-  def province_options
-    Family.province_are
-  end
+  # (Pre-production polish: province filter/column removed — provinces hold Countries of
+  # Origin now; household geography lives in the address field. #248 precedent.)
 
   filter(:dependable_income, :xboolean, header: -> { I18n.t('datagrid.columns.families.dependable_income') }) do |value, scope|
     value ? scope.where(dependable_income: true) : scope.where(dependable_income: false)
@@ -96,9 +93,6 @@ class FamilyGrid
   column(:male_adult_count, header: -> { I18n.t('datagrid.columns.families.male_adult_count') }, html: false)
   column(:contract_date, header: -> { I18n.t('datagrid.columns.families.contract_date') })
 
-  column(:province, order: 'provinces.name', header: -> { I18n.t('datagrid.columns.families.province') }) do |object|
-    object.province.try(:name)
-  end
 
   column(:cases, header: -> { I18n.t('datagrid.columns.families.clients') }, html: false) do |object|
     object.cases.non_emergency.active.map { |c| c.client.name if c.client }.join(', ')

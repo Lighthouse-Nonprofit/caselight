@@ -2,7 +2,8 @@
   .col-12
     .ibox
       .ibox-title
-        %h5= "#{t('.history')} #{@cases.first.case_type} "
+        -# (Pre-production polish: the raw case_type code — "KC" etc. — is internal; don't render it.)
+        %h5= t('.history')
         .ibox-tools
           = link_to client_path(@client) do
             .btn.btn-outline.btn-outline-secondary.button

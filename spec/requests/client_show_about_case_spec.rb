@@ -34,7 +34,11 @@ RSpec.describe 'clients#show About case rows', type: :request do
       expect(body).to match(%r{>Case</dt>})
       expect(body).to include('Intake date')
       expect(body).to include(client_case.start_date.strftime('%d %B, %Y'))
-      expect(body).to include('Case household')
+      # Pre-production polish: ONE Household row (the old "Case household" dupe is gone);
+      # the case's family renders under it.
+      expect(body).to match(%r{>Household</dt>})
+      expect(body).not_to include('Case household')
+      expect(body).to include(family_path(family))
       expect(body).not_to include('overflow-case')
       # exactly one exit modal (the card used to render a duplicate id)
       expect(body.scan(/id="exit-from-case"/).size).to eq(1)
