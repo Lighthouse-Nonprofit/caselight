@@ -1,0 +1,292 @@
+# frozen_string_literal: true
+
+module Casebook
+  # Persist phase of casebook:import — only ever invoked behind the triple gate
+  # (CONFIRM=1 + production + explicit tenant). Every entity upserts on a
+  # Casebook GUID (or a full-content key for notes), so re-running is safe.
+  class Applier
+    IMPORT_FORM_TITLE = 'Imported from Casebook'
+
+    QUANTITATIVE_MAP = {
+      'Primary Language' => 'Preferred Language',
+      'Race' => 'Race',
+      'Hispanic/Latino' => 'Ethnicity',
+      'Poverty Level' => 'Poverty Level'
+    }.freeze
+
+    GENDER_MAP = { 'male' => 'male', 'female' => 'female' }.freeze
+
+    def initialize(plan, active_staff: [])
+      @plan = plan
+      @active_staff = active_staff
+      @counts = Hash.new(0)
+    end
+
+    def apply!
+      @form = ensure_import_form!
+      @import_user = ensure_users!
+      @guid_clients = existing_guid_map
+      clients = upsert_clients!
+      upsert_families!(clients)
+      enrollments = upsert_enrollments!(clients)
+      upsert_exits!(enrollments)
+      upsert_notes!(clients, enrollments)
+      upsert_agencies!
+      @counts.sort.each { |k, v| puts "  #{k}: #{v}" }
+      @counts
+    end
+
+    private
+
+    def ensure_import_form!
+      cf = CustomField.find_or_initialize_by(entity_type: 'Client', form_title: IMPORT_FORM_TITLE)
+      cf.fields = [
+        { name: 'casebook_person_id', type: 'text', label: 'Casebook person_id' },
+        { name: 'age_at_export', type: 'text', label: 'Age at export' },
+        { name: 'education', type: 'text', label: 'Education (Casebook)' },
+        { name: 'birthplace', type: 'text', label: 'Birthplace (Casebook)' },
+        { name: 'employment', type: 'text', label: 'Employment (Casebook)' },
+        { name: 'income', type: 'text', label: 'Income (Casebook)' },
+        { name: 'case_meta', type: 'textarea', label: 'Casebook case meta' }
+      ].map(&:stringify_keys)
+      cf.sensitivity = 'standard' if cf.respond_to?(:sensitivity=)
+      cf.save!
+      cf
+    end
+
+    # Staff (Assignee/Author names) become Users: active staff enabled, everyone
+    # else DISABLED with a random password — authorship preserved, no door keys.
+    def ensure_users!
+      @users_by_name = {}
+      @plan[:staff].each_key do |name|
+        slug = name.parameterize
+        user = User.find_or_initialize_by(email: "casebook-#{slug}@import.invalid")
+        if user.new_record?
+          given, family = name.split(/\s+/, 2)
+          user.assign_attributes(first_name: given.to_s, last_name: family.to_s,
+                                 roles: 'case worker', password: SecureRandom.hex(24))
+          @counts['users created'] += 1
+        end
+        user.disable = !@active_staff.include?(name)
+        user.save!(validate: false)
+        @users_by_name[name] = user
+      end
+      admin = User.where(disable: false).order(:id).first || User.order(:id).first
+      abort 'No usable User in tenant for record ownership.' if admin.nil?
+      admin
+    end
+
+    def existing_guid_map
+      CustomFieldProperty.where(custom_field_id: @form.id, custom_formable_type: 'Client')
+                         .each_with_object({}) do |cfp, map|
+        guid = cfp.properties['Casebook person_id']
+        map[guid] = cfp.custom_formable_id if guid.present?
+      end
+    end
+
+    def upsert_clients!
+      @plan[:resolvable].each_with_object({}) do |(name, row), out|
+        guid = row['person_id'].to_s
+        client = @guid_clients[guid] ? Client.find(@guid_clients[guid]) : Client.new
+        given, family = split_name(name)
+        client.assign_attributes(given_name: given, family_name: family, state: 'accepted',
+                                 gender: GENDER_MAP[row['Sex'].to_s.strip.downcase].to_s,
+                                 current_address: address_line(row))
+        client.users = [assignee_for(name)] if client.users.empty?
+        @counts[client.new_record? ? 'clients created' : 'clients updated'] += 1
+        client.save!
+        fill_form(client, guid, row)
+        link_quantitative(client, row)
+        out[name] = client
+      end
+    end
+
+    def upsert_families!(clients)
+      @plan[:families].each do |case_id, fam|
+        family = Family.find_or_initialize_by(code: "CB-#{case_id}")
+        family.assign_attributes(name: fam[:case_name].to_s, family_type: 'kinship')
+        @counts[family.new_record? ? 'families created' : 'families updated'] += 1
+        family.save!
+        fam[:members].filter_map { |n| clients[n] }.each do |client|
+          next if Case.where(family_id: family.id, client_id: client.id).exists?
+          Case.create!(family: family, client: client, case_type: 'KC', start_date: Time.zone.today)
+          @counts['family links created'] += 1
+        end
+      end
+    end
+
+    def upsert_enrollments!(clients)
+      @plan[:enrollments].each_with_object({}) do |e, out|
+        client = clients[e[:person]] or next
+        out[[e[:person], e[:program]]] = enroll(client, e[:person], e[:program])
+      end
+    end
+
+    def enroll(client, person, program_name)
+      ps = ProgramStream.find_by(name: program_name)
+      return nil if ps.nil?
+      ce = ClientEnrollment.find_or_initialize_by(client_id: client.id, program_stream_id: ps.id)
+      if ce.new_record?
+        ce.enrollment_date = @plan[:note_dates].dig(person, 0) || Time.zone.today
+        ce.status = 'Active'
+        @counts['enrollments created'] += 1
+        ce.save!
+      end
+      ce
+    end
+
+    def upsert_exits!(enrollments)
+      @plan[:exits].each do |e|
+        ce = enrollments[[e[:person], e[:program]]] or next
+        next if ce.status == 'Exited'
+        LeaveProgram.create!(client_enrollment_id: ce.id, program_stream_id: ce.program_stream_id,
+                             exit_date: e[:exit_date] || Time.zone.today)
+        ce.update_columns(status: 'Exited')
+        @counts['exits created'] += 1
+      end
+    end
+
+    def upsert_notes!(clients, enrollments)
+      note_type = ProgressNoteType.find_or_create_by!(note_type: IMPORT_FORM_TITLE)
+      # A real Location: without one, other_location? compares nil == nil (the
+      # Khmer 'Other' lookup misses) and the presence validation always fires.
+      location = Location.find_or_create_by!(name: IMPORT_FORM_TITLE)
+      bare = []
+      @plan[:notes].each do |row|
+        client = clients[row['Person Name'].to_s.strip] or next
+        date = to_date(row['Contact Start Date']) || Time.zone.today
+        author = @users_by_name[row['Author'].to_s.strip] || @import_user
+        subject = "[Casebook] #{row['Subject'].to_s.strip}"
+        narrative = row['Narrative'].to_s
+        # response/additional_note are NON-DETERMINISTICALLY encrypted — a WHERE
+        # on them can never match, so dedupe compares decrypted values in Ruby
+        # within the (client, author, date, import-type) candidate set.
+        candidates = ProgressNote.where(client_id: client.id, user_id: author.id,
+                                        date: date, progress_note_type_id: note_type.id)
+        next if candidates.any? { |pn| pn.additional_note == subject && pn.response == narrative }
+        ProgressNote.create!(client_id: client.id, user_id: author.id, date: date,
+                             progress_note_type_id: note_type.id, location_id: location.id,
+                             additional_note: subject, response: narrative)
+        @counts['progress notes created'] += 1
+        c = SubjectClassifier.classify(row['Subject'])
+        if c && c[:kind] == :bare_session
+          bare << { client: client, date: date, week: c[:week] }
+        else
+          track_classified(client, row, date, enrollments)
+        end
+      end
+      resolve_bare_sessions!(bare)
+    end
+
+    # Bare "Week N" subjects name no curriculum — after every explicit session
+    # note has implied its cohort enrollment, attribute each bare week to the
+    # client's SOLE curriculum enrollment; ambiguous ones stay ProgressNote-only.
+    def resolve_bare_sessions!(bare)
+      curricula = SubjectClassifier::CURRICULA.values.uniq
+      bare.each do |b|
+        ces = b[:client].client_enrollments.joins(:program_stream)
+                        .where(program_streams: { name: curricula })
+        next unless ces.count == 1
+        ce = ces.first
+        tr = ce.program_stream.trackings.find_by(name: 'Session Attendance') or next
+        cet = ClientEnrollmentTracking.where(client_enrollment_id: ce.id, tracking_id: tr.id,
+                                             entry_date: b[:date]).first_or_initialize
+        next unless cet.new_record?
+        cet.properties = { 'Session Number' => b[:week].to_s, 'Attendance' => 'Present' }
+        cet.save!
+        @counts['tracking entries created'] += 1
+      end
+    end
+
+    def track_classified(client, row, date, enrollments)
+      person = row['Person Name'].to_s.strip
+      c = SubjectClassifier.classify(row['Subject'])
+      return if c.nil? || c[:kind] == :assessment_marker
+      # Sessions IMPLY cohort participation (a Joven Noble session note is Joven
+      # Noble attendance); contact-type trackings do NOT imply enrollment — a
+      # Student's one-off 'Navigation' note must not mint an STH enrollment.
+      ce = if c[:kind] == :session
+             enroll(client, person, c[:program])
+           else
+             enrollments[[person, c[:program]]]
+           end
+      return if ce.nil?
+      tracking_name = c[:kind] == :session ? 'Session Attendance' : c[:tracking]
+      tr = ce.program_stream.trackings.find_by(name: tracking_name) or return
+      cet = ClientEnrollmentTracking.where(client_enrollment_id: ce.id, tracking_id: tr.id,
+                                           entry_date: date).first_or_initialize
+      return unless cet.new_record?
+      cet.properties = if c[:kind] == :session
+                         { 'Session Number' => c[:week].to_s, 'Attendance' => 'Present',
+                           'Session Notes' => c[:lesson].to_s }
+                       else
+                         {}
+                       end
+      cet.save!
+      @counts['tracking entries created'] += 1
+    end
+
+    def upsert_agencies!
+      @plan[:providers].each do |row|
+        name = row['Provider Name'].to_s.strip
+        next if name.empty?
+        agency = Agency.where('lower(name) = ?', name.downcase).first || Agency.new(name: name)
+        agency.description = "Casebook provider_id #{row['provider_id']}; " \
+                             "type #{row['Provider Type']}; status #{row['Provider Status']}"
+        @counts[agency.new_record? ? 'agencies created' : 'agencies updated'] += 1
+        agency.save!
+      end
+    end
+
+    def fill_form(client, guid, row)
+      cfp = CustomFieldProperty.find_or_initialize_by(
+        custom_field_id: @form.id, custom_formable_type: 'Client', custom_formable_id: client.id
+      )
+      cfp.properties = {
+        'Casebook person_id' => guid,
+        'Age at export' => row['Age'].to_s,
+        'Education (Casebook)' => row['Education'].to_s,
+        'Birthplace (Casebook)' => row['Birthplace'].to_s,
+        'Employment (Casebook)' => [row['Employer Name'], row['Employment Position']].map(&:to_s).reject(&:empty?).join(' — '),
+        'Income (Casebook)' => [row['Income Type'], row['Income Amount'], row['Income Frequency']].map(&:to_s).reject(&:empty?).join(' '),
+        'Casebook case meta' => ''
+      }.compact
+      cfp.save!
+    end
+
+    def link_quantitative(client, row)
+      QUANTITATIVE_MAP.each do |col, type_name|
+        raw = row[col].to_s.strip
+        next if raw.empty?
+        qt = QuantitativeType.find_by(name: type_name) or next
+        raw.split(',').map(&:strip).each do |value|
+          qc = qt.quantitative_cases.find_by(value: value)
+          next @counts['quantitative values unmatched'] += 1 if qc.nil?
+          client.quantitative_cases << qc unless client.quantitative_cases.include?(qc)
+        end
+      end
+    end
+
+    def assignee_for(person)
+      row = @plan[:cases].find { |r| r['Person'].to_s.strip == person && r['Assignee'].to_s.strip.present? }
+      (row && @users_by_name[row['Assignee'].to_s.strip]) || @import_user
+    end
+
+    def address_line(row)
+      [row['Address'], row['City'], row['Zip Code']].map { |v| v.to_s.strip }.reject(&:empty?).join(', ')
+    end
+
+    def split_name(name)
+      parts = name.to_s.strip.split(/\s+/)
+      return [name.to_s.strip, ''] if parts.size < 2
+      [parts[0..-2].join(' '), parts[-1]]
+    end
+
+    def to_date(value)
+      case value
+      when Date, Time then value.to_date
+      when String then value.blank? ? nil : (Date.parse(value) rescue nil)
+      end
+    end
+  end
+end
