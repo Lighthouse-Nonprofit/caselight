@@ -126,21 +126,26 @@ taxonomy `rake flavor:seed` plants (programs, forms, lists, assessment domains).
 value is whitelisted at boot: a typo stops the app with a clear error instead of
 silently rendering base labels.
 
-**Flipping the demo box** (the supported iteration workflow):
-1. Edit `~/oscar/.env`: set `FLAVOR=youth` (and `SEED_DEMO=true` if you want the
-   flavor's synthetic demo records — demo boxes ONLY, never production).
-2. Rerun `bootstrap.sh`. The new flavor's seed stamp (`.flavor_seeded.youth`) is
-   absent, so its taxonomy seeds; labels change at the restart.
-3. Flip back the same way. Programs, forms and quantitative lists COEXIST across
-   flips (a flip does not remove the other flavor's rows) — but **assessment
-   domains do not**: when the incoming flavor's seeds run, `seed_domains`
-   destructively reconciles domains to that flavor's set (unreferenced
-   other-flavor domains are removed, referenced ones survive — 2026-07-31 drill:
-   flipping the demo box to youth removed 7 unreferenced resettlement domains +
-   2 empty groups). The seed stamp then PREVENTS the removed set from
-   auto-restoring on a flip back; restoring means `rm` that flavor's stamp and
-   re-seeding — which reconciles domains the other way. One flavor's domain set
-   at a time; a truly clean flip means a fresh tenant.
+**Switching the demo box's flavor** (on demand, flavors always kept separate):
+
+```sh
+cd ~/oscar && ./switch-flavor.sh youth      # or resettlement
+```
+
+The script (demo boxes only — it refuses without `SEED_DEMO=true` in `.env`)
+flips `FLAVOR=` in `.env`, seeds the incoming flavor's taxonomy + synthetic demo
+records, **removes the outgoing flavor entirely** (`rake flavor:unseed_<old>` —
+taxonomy, lists, demo households, and the domain reconcile), updates the seed
+stamps, and recreates app+sidekiq so labels flip. Result: exactly ONE flavor
+visible at a time; the other is re-creatable from its seed rake on the next
+switch. The unseed hard-aborts (taxonomy untouched) if any enrollment or filled
+form survives the demo purge — the real-data guard; production boxes never
+switch flavors at all (one server = one flavor).
+
+Manual flips (edit `.env` + rerun bootstrap) still work but leave BOTH flavors'
+programs/forms/lists coexisting in the tenant, with only assessment domains
+reconciled destructively — that mixed state is what `switch-flavor.sh` exists
+to avoid.
 
 **Seed stamps.** `flavor:seed` is gated by `.flavor_seeded.<FLAVOR>` (and demo data by
 `.flavor_demo_seeded.<FLAVOR>`) because seeding is NOT operator-safe to rerun blindly:
