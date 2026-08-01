@@ -1,6 +1,22 @@
-# Youth Development flavor overlay (youth-flavor batch Y1 — stub; real vocabulary
-# lands in Y4). Same contract as the resettlement overlay: loads last, wins the
-# merge, root key `en:`, restart-only reload in dev.
+# Youth Development flavor overlay (Y4 — One Community Action vocabulary).
+# Same contract as the resettlement overlay: loads AFTER config/locales/, wins the
+# merge, root key `en:`, restart-only reload in dev. Every key here must either
+# override an existing base key or live under flavor.* (spec-enforced) — keep
+# entries minimal and deletable.
 en:
   flavor:
     name: Youth Development
+  dashboards:
+    index:
+      title: Youth Development Dashboard
+      subtitle: Families and youth across your active programs.
+      tile_households: FAMILIES
+      tile_individuals: YOUTH
+      tile_new_individuals: NEW YOUTH THIS MONTH
+      tile_check_ins: SERVICE CONTACTS THIS MONTH
+      section_households: Families
+      col_individual: Youth
+  layouts:
+    side_menu:
+      clients: Youth
+      families: Families

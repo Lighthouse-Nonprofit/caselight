@@ -78,4 +78,59 @@ RSpec.describe 'FLAVOR mechanism' do
       expect(Rake::Task.task_defined?('flavor:seed_demo')).to be(true)
     end
   end
+
+  # Y4 — overlay CONTENT contract. Proven by deep-merging the YAML files in the
+  # application.rb load order (base first, overlay last-wins) — the same merge the
+  # Simple backend performs, minus its lazy-init (which would pull the GLOBAL
+  # load path, i.e. the live resettlement overlay, into any fresh backend).
+  describe 'flavor overlay content (Y4)' do
+    def flat_keys(hash, prefix = [])
+      hash.flat_map do |k, v|
+        v.is_a?(Hash) ? flat_keys(v, prefix + [k]) : [(prefix + [k]).join('.')]
+      end
+    end
+
+    def merged_for(flavor)
+      base = YAML.load_file(Rails.root.join('config', 'locales', 'en.yml'))['en']
+      Dir[Rails.root.join('config', 'flavors', flavor, '*.yml').to_s].sort.reduce(base) do |acc, file|
+        acc.deep_merge(YAML.load_file(file)['en'])
+      end
+    end
+
+    it 'only overrides base keys or introduces flavor.* (typo guard)' do
+      base = flat_keys(YAML.load_file(Rails.root.join('config', 'locales', 'en.yml'))['en'])
+      CifWeb::Application::FLAVORS.each do |flavor|
+        Dir[Rails.root.join('config', 'flavors', flavor, '*.yml').to_s].each do |file|
+          flat_keys(YAML.load_file(file)['en']).each do |key|
+            next if key.start_with?('flavor.')
+            expect(base).to include(key),
+              "#{flavor} overlay key #{key} matches nothing in base en.yml (typo?)"
+          end
+        end
+      end
+    end
+
+    it 'youth overlay round-trips: youth vocabulary wins the merge' do
+      m = merged_for('youth')
+      expect(m.dig('flavor', 'name')).to eq('Youth Development')
+      expect(m.dig('dashboards', 'index', 'title')).to eq('Youth Development Dashboard')
+      expect(m.dig('dashboards', 'index', 'tile_households')).to eq('FAMILIES')
+      expect(m.dig('dashboards', 'index', 'tile_individuals')).to eq('YOUTH')
+      expect(m.dig('dashboards', 'index', 'tile_check_ins')).to eq('SERVICE CONTACTS THIS MONTH')
+      expect(m.dig('layouts', 'side_menu', 'clients')).to eq('Youth')
+      expect(m.dig('layouts', 'side_menu', 'families')).to eq('Families')
+      # untouched base keys shine through the overlay
+      expect(m.dig('dashboards', 'index', 'tile_programs_offered')).to eq('PROGRAMS OFFERED')
+      expect(m.dig('layouts', 'side_menu', 'partners')).to eq('Partners')
+    end
+
+    it 'resettlement overlay reclaims only its identity keys' do
+      m = merged_for('resettlement')
+      expect(m.dig('flavor', 'name')).to eq('Resettlement')
+      expect(m.dig('dashboards', 'index', 'title')).to eq('Resettlement Dashboard')
+      # everything else stays the neutral base
+      expect(m.dig('dashboards', 'index', 'tile_households')).to eq('HOUSEHOLDS')
+      expect(m.dig('layouts', 'side_menu', 'clients')).to eq('Individuals')
+    end
+  end
 end
