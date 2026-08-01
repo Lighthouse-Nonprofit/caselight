@@ -1,0 +1,59 @@
+-# Reports batch: one registry report. Period picker is a GET form (preset select
+-# + optional custom range); sections render as tables — zero counts always render
+-# (funders require reported zeros), restricted sections show the notice instead.
+= render 'shared/page_header', title: @report.title
+.row.mini-margin
+  .col-12
+    .ibox
+      .ibox-content
+        %p.text-muted= @report.description
+        = form_with url: report_path(@definition.slug), method: :get, local: true, class: 'row gy-2 gx-2 align-items-end' do |f|
+          .col-auto
+            %label.form-label{ for: 'report-period' }= t('reports.show.period')
+            %select#report-period.form-select{ name: 'period' }
+              - @period_options.each do |option|
+                %option{ value: option.param_value, selected: option.param_value == @period.param_value }= option.label
+              - if @definition.presets.include?(:custom)
+                %option{ value: '', selected: @period.preset == :custom }= t('reports.periods.custom')
+          - if @definition.presets.include?(:custom)
+            .col-auto
+              %label.form-label{ for: 'report-from' }= t('reports.show.from')
+              %input#report-from.form-control{ type: 'date', name: 'from', value: (@period.preset == :custom ? @period.start_date.iso8601 : '') }
+            .col-auto
+              %label.form-label{ for: 'report-to' }= t('reports.show.to')
+              %input#report-to.form-control{ type: 'date', name: 'to', value: (@period.preset == :custom ? @period.end_date.iso8601 : '') }
+          .col-auto
+            %button.btn.btn-primary{ type: 'submit' }= t('reports.show.run')
+        %p.text-muted.m-t-sm.mb-0
+          %strong= @period.label
+
+- @report.sections.each do |section|
+  .row.mini-margin
+    .col-12
+      .ibox
+        .ibox-title
+          %h5= @report.section_title(section)
+        .ibox-content
+          - if section.restricted_hidden?
+            %p.text-muted.mb-0= t('reports.show.restricted_hidden')
+          - else
+            - if section.chart
+              %div{ id: "report-chart-#{section.key}", data: { report_chart: section.chart[:data].to_json, chart_type: section.chart[:type] } }
+            .table-responsive
+              %table.table.table-striped.m-b-none
+                %thead
+                  %tr
+                    - section.columns.each do |column|
+                      %th= column
+                %tbody
+                  - if section.rows.empty?
+                    %tr
+                      %td{ colspan: section.columns.size }
+                        %span.text-muted= t('reports.show.no_data')
+                  - else
+                    - section.rows.each do |row|
+                      %tr
+                        - row.each do |cell|
+                          %td= cell
+            - if section.footnote.present?
+              %p.text-muted.small.m-t-sm.mb-0= section.footnote

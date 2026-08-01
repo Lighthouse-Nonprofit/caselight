@@ -2816,7 +2816,59 @@ en:
       data_tools: Data tools
       domain_score: Domain Scores
       legacy_note: Legacy quarterly reports live on each individual record (Actions menu).
+      library: Report library
+      tier_worker: My caseload
+      tier_manager: Operations
+      tier_leadership: Program & funder reports
       title: Reports
+    show:
+      period: Reporting period
+      from: From
+      to: To
+      run: Run
+      export_csv: Download CSV
+      export_pdf: Download PDF
+      no_data: No data for this period.
+      restricted_hidden: A restricted section is hidden for your role.
+      total: Total
+      unknown: Unknown
+    periods:
+      ffy: 'Federal fiscal year %{label}'
+      orr_trimester: 'ORR trimester %{label}'
+      ca_sfy: 'State fiscal year %{label}'
+      sfy_quarter: 'Quarter %{label}'
+      term: 'School term %{label}'
+      eyc_half: 'Reporting half %{label}'
+      calendar_year: 'Calendar year %{label}'
+      custom: Custom range
+      custom_label: '%{from} to %{to}'
+    registry:
+      served_summary:
+        title: Unduplicated served summary
+        description: Unduplicated individuals and households served per program, paired with duplicated service-unit counts.
+        footnote: Individuals and households are unduplicated within the period; service units count every logged service contact.
+        sections:
+          served: Served by program
+        columns:
+          program: Program
+          individuals: Individuals (unduplicated)
+          households: Households (unduplicated)
+          service_units: Service units
+      youth_served:
+        title: Unduplicated youth served
+        description: Unduplicated youth per program and school site, split new vs returning.
+        new_label: New this period
+        returning_label: Returning
+        sections:
+          by_program: Youth by program
+          by_site: Youth by school site
+          new_returning: New vs returning
+        columns:
+          program: Program
+          youth: Youth (unduplicated)
+          service_units: Service units
+          site: School site
+          category: Category
   review_problem: 'Please review the problems below:'
   save: Save
   shared:

@@ -20,3 +20,6 @@ en:
     side_menu:
       clients: Youth
       families: Families
+  reports:
+    index:
+      tier_worker: My youth

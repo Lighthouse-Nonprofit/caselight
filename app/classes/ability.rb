@@ -66,6 +66,9 @@ class Ability
       # If the org ratifies the change-audit dashboard as oversight need-to-know, drop this one line.
       cannot :read, DataTracker if @narrow
       can :report, :all
+      # Reports batch: leadership tier (read-only; sensitivity masking keeps the
+      # overviewer standard-only inside every report).
+      can %i[report_worker report_manager report_leadership], :report
 
       cannot :manage, CaseNote
       # UX round 3 (B2/B3): household notes + alerts mirror the CaseNote treatment — narrative
@@ -74,6 +77,11 @@ class Ability
       cannot :manage, FamilyNote
       cannot :manage, FamilyAlert
     elsif user.case_worker?
+      # Reports batch: worker tier — the reports library scoped to THEIR caseload
+      # (every report queries through Client.accessible_by, so the rules below
+      # bound the data; the tier symbol bounds which report definitions run).
+      can %i[index show], :report
+      can :report_worker, :report
       can :manage, AbleScreeningQuestion
       can :manage, Assessment
       can :manage, Attachment
@@ -102,6 +110,8 @@ class Ability
         Date.current > assessment.created_at + 2.weeks
       end
     elsif user.able_manager?
+      can %i[index show], :report
+      can :report_worker, :report
       can :manage, AbleScreeningQuestion
       can :manage, Assessment
       can :manage, Attachment
@@ -132,6 +142,8 @@ class Ability
         Date.current > assessment.created_at + 2.weeks
       end
     elsif user.ec_manager?
+      can %i[index show], :report
+      can :report_worker, :report
       can :create, Client
       can :manage, Client, status: 'Active EC'
       can :manage, Client, case_worker_clients: { user_id: user.id }
@@ -168,6 +180,8 @@ class Ability
         Date.current > assessment.created_at + 2.weeks
       end
     elsif user.fc_manager?
+      can %i[index show], :report
+      can :report_worker, :report
       can :create, Client
       can :manage, Client, status: 'Active FC'
       can :manage, Client, case_worker_clients: { user_id: user.id }
@@ -202,6 +216,8 @@ class Ability
         Date.current > assessment.created_at + 2.weeks
       end
     elsif user.kc_manager?
+      can %i[index show], :report
+      can :report_worker, :report
       can :create, Client
       can :manage, Client, status: 'Active KC'
       can :manage, Client, case_worker_clients: { user_id: user.id }
@@ -236,6 +252,9 @@ class Ability
       end
       can :read, Attachment
     elsif user.manager?
+      # Reports batch: worker + manager tiers (team-scoped via the Client rules below).
+      can %i[index show], :report
+      can %i[report_worker report_manager], :report
       can :manage, AbleScreeningQuestion
       can :create, Client
       # Phase 5.5: compute the manager's team-user-id set ONCE and reuse it for BOTH the Client rule
