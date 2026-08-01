@@ -40,11 +40,12 @@ describe 'Client' do
       # Investor UX round (2026-07): the charts live on the Reports landing page now.
       visit reports_path
     end
-    scenario 'Domain Score Statistic and Case Type Statistic', js: true do
+    scenario 'Domain Score Statistic and Enrollment Statistic', js: true do
       expect(page).to have_css("#cis-domain-score[data-title='#{I18n.t('reports.index.csi_domain_scores')}']")
       expect(page).to have_css("#cis-domain-score[data-yaxis-title='Domain Scores']")
-      expect(page).to have_css("#case-statistic[data-title='Case Statistics']")
-      expect(page).to have_css("#case-statistic[data-yaxis-title='Client Amounts']")
+      # Reports batch R8: the flavor-correct enrollments chart replaced the EC/FC/KC case chart
+      expect(page).to have_css("#enrollment-statistic[data-title='#{I18n.t('reports.index.enrollment_statistics')}']")
+      expect(page).to have_css("#enrollment-statistic[data-yaxis-title='#{I18n.t('reports.index.enrollment_amount')}']")
     end
   end
 
