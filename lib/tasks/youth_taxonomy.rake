@@ -541,6 +541,41 @@ namespace :youth do
     end
   end
 
+  desc 'Link youths to their kind=school agency from School Site values (SCH4). Idempotent.'
+  task link_schools_from_sites: :environment do
+    tenant = ENV['TENANT'] || 'cases'
+    Apartment::Tenant.switch(tenant) do
+      schools = Agency.where(kind: 'school').index_by(&:name)
+      abort 'youth:link_schools_from_sites: no kind=school agencies — run youth:seed_schools first.' if schools.empty?
+      linked = 0
+
+      # Source 1: the School Site quantitative selection (plaintext join).
+      if (qt = QuantitativeType.find_by(name: 'School Site'))
+        qt.quantitative_cases.each do |qc|
+          agency = schools[qc.value] or next
+          ClientQuantitativeCase.where(quantitative_case_id: qc.id).pluck(:client_id).each do |client_id|
+            link = AgencyClient.find_or_create_by!(agency_id: agency.id, client_id: client_id)
+            linked += 1 if link.previously_new_record?
+          end
+        end
+      end
+
+      # Source 2: cohort enrollments' 'School Site' field via the sidecar
+      # (deterministic equality per seeded site name — never a ciphertext scan).
+      schools.each do |name, agency|
+        enrollment_ids = ClientEnrollmentSearchEntry
+                         .where(field_label: 'School Site', value: name)
+                         .pluck(:client_enrollment_id)
+        ClientEnrollment.where(id: enrollment_ids).distinct.pluck(:client_id).each do |client_id|
+          link = AgencyClient.find_or_create_by!(agency_id: agency.id, client_id: client_id)
+          linked += 1 if link.previously_new_record?
+        end
+      end
+
+      puts "youth:link_schools_from_sites [tenant=#{tenant}]: #{linked} new link(s)."
+    end
+  end
+
   desc 'Run all Youth Development seeds (taxonomy, programs, quantitative, domains, schools).'
   task seed_all: %i[seed_taxonomy seed_programs seed_quantitative seed_domains seed_schools]
 end
