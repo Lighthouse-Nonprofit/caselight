@@ -40,6 +40,19 @@ RSpec.describe 'GET /reports/:slug', type: :request do
       expect(response).to have_http_status(:redirect)
     end
 
+    it 'manager CAN run a manager-tier report (worker-caseloads)' do
+      sign_in_as(make_user('manager'))
+      get report_path('worker-caseloads')
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(I18n.t('reports.registry.worker_caseloads.title'))
+    end
+
+    it 'case worker CAN run a worker-tier report (my-caseload-progress)' do
+      sign_in_as(make_user('case worker'))
+      get report_path('my-caseload-progress')
+      expect(response).to have_http_status(:ok)
+    end
+
     it 'redirects case worker' do
       sign_in_as(make_user('case worker'))
       get report_path('served-summary')

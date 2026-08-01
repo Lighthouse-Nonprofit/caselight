@@ -17,7 +17,10 @@ class ReportsController < AdminController
     clients = Client.accessible_by(current_ability)
     @csi_statistics = CsiStatistic.new(clients, visible_levels: visible_domain_levels)
                                   .assessment_domain_score.to_json
-    @cases_statistics = CaseStatistic.new(clients).statistic_data.to_json
+    # R8: EnrollmentStatistic replaced CaseStatistic — the EC/FC/KC case-type
+    # chart was legacy-wrong in both flavors; this one reads the tenant's own
+    # seeded programs.
+    @enrollment_statistics = Reports::EnrollmentStatistic.new(clients).statistic_data.to_json
   end
 
   def show

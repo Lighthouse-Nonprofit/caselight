@@ -28,8 +28,10 @@ RSpec.describe 'Reports landing page', type: :request do
 
       expect(body).to include('cis-domain-score')
       expect(body).to include('data-csi-domain')
-      expect(body).to include('case-statistic')
-      expect(body).to include('data-case-statistic')
+      # R8: the flavor-correct enrollments chart replaced the EC/FC/KC case chart
+      expect(body).to include('enrollment-statistic')
+      expect(body).to include('data-enrollment-statistic')
+      expect(body).not_to include('data-case-statistic')
       expect(body).to include(client_advanced_searches_path)
     end
 
@@ -57,11 +59,11 @@ RSpec.describe 'Reports landing page', type: :request do
     let(:worker) { create(:user, roles: 'case worker', password: password, password_confirmation: password) }
     before { sign_in_as(worker) }
 
-    it 'opens the page (worker tier) but sees no manager/leadership library groups' do
+    it 'opens the page with the worker tier only — no manager/leadership groups' do
       get reports_path
       expect(response).to have_http_status(:ok)
-      # PR1 registers leadership-tier reports only, so the worker's library is empty:
-      # no tier headings and no report links — but the page itself renders.
+      expect(response.body).to include(I18n.t('reports.index.tier_worker'))
+      expect(response.body).to include('my-caseload-progress')
       expect(response.body).not_to include(I18n.t('reports.index.tier_leadership'))
       expect(response.body).not_to include('served-summary')
     end

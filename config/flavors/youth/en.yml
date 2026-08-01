@@ -23,3 +23,11 @@ en:
   reports:
     index:
       tier_worker: My youth
+    registry:
+      my_caseload_progress:
+        description: Outcomes and progress for every youth on your caseload — programs, last contact, and assessment movement.
+        columns:
+          client: Youth
+      my_follow_up_compliance:
+        columns:
+          client: Youth
