@@ -1135,6 +1135,22 @@ en:
     index:
       subtitle: Households and individuals across your active programs.
       title: Dashboard
+      tile_households: HOUSEHOLDS
+      tile_individuals: INDIVIDUALS
+      tile_active_enrollments: ACTIVE PROGRAM ENROLLMENTS
+      tile_programs_offered: PROGRAMS OFFERED
+      tile_overdue_tasks: OVERDUE TASKS
+      tile_tasks_due_today: TASKS DUE TODAY
+      tile_new_individuals: NEW INDIVIDUALS THIS MONTH
+      tile_check_ins: CHECK-INS THIS MONTH
+      section_enrollments: Active enrollments by program
+      section_households: Households
+      section_activity: Recent program activity
+      col_individual: Individual
+      col_program: Program
+      col_update: Update
+      col_logged: Logged
+      member_noun: member
     client:
       ables: Ables
       clients: Active Clients
