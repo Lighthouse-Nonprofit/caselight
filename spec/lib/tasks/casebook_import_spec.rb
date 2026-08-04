@@ -2,6 +2,7 @@
 require 'rails_helper'
 require 'rake'
 require 'tmpdir'
+require Rails.root.join('spec', 'support', 'youth_flavor')
 require Rails.root.join('spec', 'support', 'casebook_fixture_builder')
 
 # Youth-flavor batch Y5 — the Casebook importer. All fixtures SYNTHETIC (built
@@ -11,6 +12,11 @@ require Rails.root.join('spec', 'support', 'casebook_fixture_builder')
 #   * audit prints aggregates only; import without gates = DRY RUN, zero writes
 #   * Applier maps people/cases/notes/providers and is idempotent on re-run
 RSpec.describe 'casebook importer' do
+  # S1: this spec seeds the youth taxonomy, and those rakes refuse to run on
+  # another flavor. WITHOUT this, the guard's `abort` raises SystemExit inside a
+  # before hook — an exception RSpec must not rescue — which kills the whole run
+  # silently (exit 1, zero reported failures).
+  include_context 'youth flavor'
   before(:all) do
     Rake.application.rake_require('tasks/casebook_import', [Rails.root.join('lib').to_s])
     Rake.application.rake_require('tasks/youth_taxonomy', [Rails.root.join('lib').to_s])
