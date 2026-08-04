@@ -65,11 +65,22 @@ slo4home.lighthousent.org  →  tenant/schema "slo4home"
   must be a plain A record (on Cloudflare: **DNS only**, not proxied). Serving
   several tenant hostnames means adding site blocks to the Caddyfile.
 * **Never point the bare domain or `www` at a box.** A host with no tenant label
-  falls through to the `public` schema, whose root is `organizations#index` — an
-  UNAUTHENTICATED page that lists every organization on the box. Keeping the apex
-  on the marketing site means that page is never reachable.
+  resolves no tenant, so it lands in the `public` schema: sign-in there
+  authenticates against a schema with no staff accounts, and tenant links built
+  from `request.domain` come out wrong. Keep the apex on the marketing site.
+* **`/` is an unauthenticated org list on EVERY host, not just the bare domain.**
+  `Organization` is an Apartment *excluded* model (`config/initializers/apartment.rb`),
+  so it always reads from the public schema and `root 'organizations#index'` lists
+  every organization on the box — names only, no client data, and a signed-in user
+  is redirected straight to their dashboard. Harmless while a box hosts one org
+  (the hostname already names it). **Before a second org shares a box**, make that
+  root redirect to the host's own tenant instead of listing everyone.
 * `config.action_dispatch.tld_length` is derived from `APP_HOST` in
-  `config/environments/production.rb`; no manual tuning needed.
+  `config/environments/production.rb`; no manual tuning needed. Verified on this
+  box: the root page's link resolves to
+  `https://slo4home.lighthousent.org/dashboards`, i.e. `request.domain` is
+  `lighthousent.org` and the tenant label survives — that link breaking to
+  `slo4home.slo4home…` is the symptom of a bad `tld_length`.
 
 ### Enabling TLS (after the A record resolves)
 
@@ -104,6 +115,9 @@ be rotated without orphaning every encrypted column.
 `SECURITY.md` is the authority; the short version:
 
 1. TLS live on the real hostname (Caddy cert issued, HTTP redirects to HTTPS).
+   ✅ 2026-08-04: `https://slo4home.lighthousent.org/users/sign_in` → 200 over
+   HTTP/2 with a Let's Encrypt cert, `http://` → 308, CSP enforcing,
+   `robots.txt` = `Disallow: /`.
 2. **DPA + CMIA addendum** signed with the org (2026-08-04 decision: the
    operative regime is the California Confidentiality of Medical Information
    Act, not HIPAA — see `docs/compliance/cmia-gap-analysis.md`). Accepting the
