@@ -96,6 +96,22 @@ namespace :slo4home do
         filef.call("Driver's License / State ID (adult)", 1),
         filef.call('Passport / Entry Documents', 2, multiple: true)
       ] },
+      # CMIA / AB 352 (effective 2024-07-01), gap G2 in docs/compliance/cmia-gap-analysis.md.
+      # Medical information about gender-affirming care, abortion and abortion-related
+      # services, or contraception must be access-LIMITED and SEGREGATED from the rest of
+      # the record. This form is the segregated section: pinned emergency_only, so it is
+      # invisible to every role without an audited break-glass grant, never renders on the
+      # Overview, and is withheld from report HTML/CSV/PDF for anyone without clearance.
+      # Staff guidance lives in docs/admin-guide.md — this information does NOT belong in
+      # general case notes.
+      { entity_type: 'Client', form_title: 'Confidential Health Information',
+        sensitivity: 'emergency_only', fields: [
+          mk.call('select', 'Category', values: ['Gender-affirming care', 'Reproductive health',
+                                                 'Contraception', 'Other confidential health']),
+          mk.call('date',     'Recorded On'),
+          mk.call('textarea', 'Confidential Notes'),
+          mk.call('radio-group', 'Disclosure Restriction Acknowledged (no out-of-state release)', values: %w[Yes No])
+        ] },
       { entity_type: 'Client', form_title: 'Member: Health', fields: [
         filef.call('Insurance Card', 1),
         mk.call('textarea', 'Mental Health Needs'),
@@ -152,6 +168,9 @@ namespace :slo4home do
       forms.each do |spec|
         cf = CustomField.find_or_initialize_by(entity_type: spec[:entity_type], form_title: spec[:form_title])
         cf.ngo_name = ngo
+        # CMIA/AB 352 (gap G2): a form may pin its own sensitivity inline. Everything
+        # else keeps deferring to the sensitivity:classify pass in FLAVOR_SEEDS.
+        cf.sensitivity = spec[:sensitivity] if spec[:sensitivity].present?
         begin
           if cf.new_record?
             cf.fields = spec[:fields]

@@ -79,9 +79,12 @@ be rotated without orphaning every encrypted column.
 `SECURITY.md` is the authority; the short version:
 
 1. TLS live on the real hostname (Caddy cert issued, HTTP redirects to HTTPS).
-2. AWS Business Associate Addendum accepted in **AWS Artifact** (account-wide)
-   and the BAA/DPA with the org signed. Only HIPAA-eligible services are in use
-   (EC2, EBS, S3, KMS) and the volume is encrypted.
+2. **DPA + CMIA addendum** signed with the org (2026-08-04 decision: the
+   operative regime is the California Confidentiality of Medical Information
+   Act, not HIPAA — see `docs/compliance/cmia-gap-analysis.md`). Accepting the
+   AWS Business Associate Addendum in AWS Artifact is **optional** outside a
+   HIPAA chain. Open CMIA items that gate real data: data residency (G1) and the
+   confidential-health form for AB 352 categories (G2).
 3. Encryption keys backed up off-box (above).
 4. One **restore drill** completed on this box (snapshot → restore → verify a
    decrypted field reads correctly).
