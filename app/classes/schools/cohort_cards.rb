@@ -52,13 +52,16 @@ module Schools
       entries = ClientEnrollmentTracking.where(client_enrollment_id: roster.select(:id),
                                                tracking_id: tracking&.id)
       logged = entries.count
-      present = logged.zero? ? 0 : Cohorts.present_count(entries)
       threshold = Cohorts.completer_threshold(program.name)
-      completers = roster.count do |enrollment|
-        enrollment_entries = ClientEnrollmentTracking.where(client_enrollment_id: enrollment.id,
-                                                            tracking_id: tracking&.id)
-        Cohorts.present_count(enrollment_entries) >= threshold
-      end
+      # ONE sidecar query for the cohort (was one per enrollment — this runs on
+      # EVERY school page via set_hub, so the N+1 scaled with the roster).
+      present_ids = logged.zero? ? [] : Reports::ValueCounts.owner_ids(
+        owner_scope: entries, field_label: 'Attendance', value: 'Present'
+      )
+      present = present_ids.size
+      per_enrollment = ClientEnrollmentTracking.where(id: present_ids)
+                                               .group(:client_enrollment_id).count
+      completers = per_enrollment.count { |_id, count| count >= threshold }
 
       Card.new(program: program, term_label: fallback ? nil : @term_label,
                enrolled: roster.count, sessions_logged: logged,

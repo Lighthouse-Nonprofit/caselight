@@ -70,6 +70,7 @@ module Reports
                                                     client_id: @served).count]
           end
           Section.new(key: :"quant_#{type_name.parameterize.underscore}",
+                      title: type_name, # dynamic section: CSV/PDF need a real title
                       columns: [type_name, I18n.t('reports.registry.demographics.columns.individuals')],
                       rows: rows)
         end

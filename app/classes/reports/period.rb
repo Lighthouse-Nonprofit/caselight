@@ -68,7 +68,9 @@ module Reports
         if params[:period].present?
           preset, from, to = params[:period].to_s.split('|')
           preset = preset.to_s.to_sym
-          if definition.presets.include?(preset) && preset != :custom
+          # from/to may be missing (truncated or hand-edited URL) — Date.iso8601(nil)
+          # raises TypeError, which the rescue below does NOT catch, so guard here.
+          if definition.presets.include?(preset) && preset != :custom && from.present? && to.present?
             return new(preset: preset, range: Date.iso8601(from)..Date.iso8601(to))
           end
         end

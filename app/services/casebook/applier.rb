@@ -22,16 +22,21 @@ module Casebook
       @counts = Hash.new(0)
     end
 
+    # ALL-OR-NOTHING: seven upsert phases in one transaction. A RecordInvalid in
+    # a late phase (an exit form that validates, a bad note) must not leave a
+    # half-imported tenant behind — the operator fixes the mapping and re-runs.
     def apply!
-      @form = ensure_import_form!
-      @import_user = ensure_users!
-      @guid_clients = existing_guid_map
-      clients = upsert_clients!
-      upsert_families!(clients)
-      enrollments = upsert_enrollments!(clients)
-      upsert_exits!(enrollments)
-      upsert_notes!(clients, enrollments)
-      upsert_agencies!
+      ActiveRecord::Base.transaction do
+        @form = ensure_import_form!
+        @import_user = ensure_users!
+        @guid_clients = existing_guid_map
+        clients = upsert_clients!
+        upsert_families!(clients)
+        enrollments = upsert_enrollments!(clients)
+        upsert_exits!(enrollments)
+        upsert_notes!(clients, enrollments)
+        upsert_agencies!
+      end
       @counts.sort.each { |k, v| puts "  #{k}: #{v}" }
       @counts
     end
@@ -59,7 +64,10 @@ module Casebook
     def ensure_users!
       @users_by_name = {}
       @plan[:staff].each_key do |name|
-        slug = name.parameterize
+        # parameterize collapses diacritics ("José García" and "Jose Garcia" both
+        # → jose-garcia), which would silently merge two staffers' identities and
+        # authorship. Keep a per-run claim on each slug and suffix collisions.
+        slug = unique_staff_slug(name)
         user = User.find_or_initialize_by(email: "casebook-#{slug}@import.invalid")
         if user.new_record?
           given, family = name.split(/\s+/, 2)
@@ -74,6 +82,19 @@ module Casebook
       admin = User.where(disable: false).order(:id).first || User.order(:id).first
       abort 'No usable User in tenant for record ownership.' if admin.nil?
       admin
+    end
+
+    def unique_staff_slug(name)
+      @staff_slugs ||= {}
+      base = name.parameterize.presence || 'staff'
+      return @staff_slugs[name] if @staff_slugs.key?(name)
+      slug = base
+      suffix = 1
+      while @staff_slugs.value?(slug)
+        suffix += 1
+        slug = "#{base}-#{suffix}"
+      end
+      @staff_slugs[name] = slug
     end
 
     def existing_guid_map

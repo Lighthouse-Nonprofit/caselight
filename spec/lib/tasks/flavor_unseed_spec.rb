@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rake'
+require Rails.root.join('spec', 'support', 'youth_flavor')
 
 # Bifurcation cleanup (flavor:unseed_*) — the engine behind switch-flavor.sh:
 #   * removes exactly the target flavor's taxonomy + demo records
@@ -8,6 +9,14 @@ require 'rake'
 #     reconcile sweeps the foreign domains once their references die
 #   * layered guards: CONFIRM_UNSEED, never-the-active-flavor, real-data aborts
 RSpec.describe 'flavor unseed' do
+  # S1: the youth seed rakes refuse on another flavor, but THIS spec asserts on
+  # the active flavor itself (unseeding the active flavor must be refused), so a
+  # blanket youth stub would invert its meaning. Instead the flavor is dynamic:
+  # 'youth' only while seed_youth_side is planting the taxonomy to be removed.
+  before do
+    allow(Rails.application.config.x).to receive(:flavor) { @flavor_override || 'resettlement' }
+  end
+
   before(:all) do
     %w[flavor flavor_unseed youth_taxonomy slo4home_taxonomy sensitivity_classification].each do |f|
       Rake.application.rake_require("tasks/#{f}", [Rails.root.join('lib').to_s])
@@ -30,8 +39,11 @@ RSpec.describe 'flavor unseed' do
 
   def seed_youth_side
     create(:user) if User.none?
+    @flavor_override = 'youth'
     %w[youth:seed_taxonomy youth:seed_programs youth:seed_quantitative youth:seed_domains
        youth:seed_demo_youth].each { |t| run_task(t) }
+  ensure
+    @flavor_override = nil # back to resettlement for the unseed assertions
   end
 
   describe 'guards' do

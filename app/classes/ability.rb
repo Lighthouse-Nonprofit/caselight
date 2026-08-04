@@ -22,6 +22,11 @@ class Ability
     # to :read so CanCan authorizes it via existing read rules. The field-level (domain sensitivity)
     # 403 is enforced inside AssessmentsController#download_attachment, not by CanCan.
     alias_action :download_attachment, to: :read
+    # S5 — the school hub's READ-ONLY tabs are custom Agency actions; without an
+    # alias, roles that hold :read but not :manage on Agency (strategic
+    # overviewer) get the tab links rendered and then denied. Write surfaces
+    # (report cards, roll call) stay gated on :create ClientEnrollmentTracking.
+    alias_action :roster, :cohorts, :cohort, to: :read
     can :manage, Agency
     can :manage, ReferralSource
     can :manage, QuarterlyReport

@@ -30,16 +30,15 @@ module Reports
       def cohort_section(program)
         total_sessions = SESSION_TOTALS.fetch(program.name, DEFAULT_SESSIONS)
         threshold = (total_sessions * COMPLETER_RATIO).ceil
-        enrollments = roster(program)
+        enrollments = roster(program).to_a
         session_tracking = program.trackings.find_by(name: SESSION_TRACKING)
 
+        # ONE sidecar query for the whole cohort (was one per enrollment — an
+        # N+1 that scaled with the roster), tallied per enrollment in Ruby.
+        present_by_enrollment = present_counts(enrollments, session_tracking)
         completers = 0
         rows = enrollments.map do |enrollment|
-          entries = ClientEnrollmentTracking.where(client_enrollment_id: enrollment.id,
-                                                   tracking_id: session_tracking.id)
-          present = Reports::ValueCounts.owner_ids(owner_scope: entries,
-                                                   field_label: 'Attendance',
-                                                   value: 'Present').size
+          present = present_by_enrollment.fetch(enrollment.id, 0)
           completer = present >= threshold
           completers += 1 if completer
           [client_label(enrollment.client), present, total_sessions,
@@ -47,29 +46,52 @@ module Reports
         end
 
         rate = enrollments.empty? ? '—' : "#{(100.0 * completers / enrollments.size).round}%"
+        footnote = I18n.t('reports.registry.cohort_completion.footnote',
+                          program: program.name, term: period.term_label || period.label,
+                          threshold: threshold, total: total_sessions, rate: rate)
+        if fallback_programs.include?(program.name)
+          footnote += " #{I18n.t('reports.registry.cohort_completion.all_terms_note')}"
+        end
         Section.new(
           key: :"cohort_#{program.name.parameterize.underscore}",
+          title: program.name,
           columns: cols,
           rows: rows,
-          footnote: I18n.t('reports.registry.cohort_completion.footnote',
-                           program: program.name, term: period.term_label || period.label,
-                           threshold: threshold, total: total_sessions, rate: rate)
+          footnote: footnote
         )
       end
 
-      # Roster: enrollments in the program whose Term field matches the period's
-      # term label (sidecar equality); a non-term period falls back to
-      # enrollments active in the period.
+      # { enrollment_id => Present count } in one indexed sidecar query.
+      def present_counts(enrollments, session_tracking)
+        return {} if enrollments.empty? || session_tracking.nil?
+        entries = ClientEnrollmentTracking.where(client_enrollment_id: enrollments.map(&:id),
+                                                 tracking_id: session_tracking.id)
+        present_ids = Reports::ValueCounts.owner_ids(owner_scope: entries,
+                                                     field_label: 'Attendance', value: 'Present')
+        ClientEnrollmentTracking.where(id: present_ids)
+                                .group(:client_enrollment_id).count
+      end
+
+      # Roster for the period's term. If NO enrollment carries that Term value
+      # (imported enrollments have no properties at all, so no sidecar rows),
+      # fall back to all terms — the same posture the school hub's cohort cards
+      # take, so the two surfaces can never disagree. `fallback?` footnotes it.
       def roster(program)
         scope = scoped_enrollments([program.id]).includes(:client)
-        if period.term_label
-          ids = Reports::ValueCounts.owner_ids(owner_scope: scope,
-                                               field_label: 'Term',
-                                               value: period.term_label)
-          scope.where(id: ids)
-        else
+        return scope.where(enrollment_date: ..period.end_date) unless period.term_label
+        ids = Reports::ValueCounts.owner_ids(owner_scope: scope,
+                                             field_label: 'Term',
+                                             value: period.term_label)
+        if ids.empty?
+          fallback_programs << program.name
           scope.where(enrollment_date: ..period.end_date)
+        else
+          scope.where(id: ids)
         end
+      end
+
+      def fallback_programs
+        @fallback_programs ||= []
       end
 
       def cols

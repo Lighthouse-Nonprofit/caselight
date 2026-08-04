@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rake'
+require Rails.root.join('spec', 'support', 'youth_flavor')
 
 # Schools batch SCH1 — schools as a first-class surface:
 #   * kind=school agencies seeded by youth:seed_schools (idempotent)
@@ -10,6 +11,7 @@ require 'rake'
 #   * the two new Family forms exist so the household Add-new-form picker is
 #     never empty after one fill
 RSpec.describe 'Schools surface', type: :request do
+  include_context 'youth flavor' # S1: the surface only exists on youth boxes
   let(:password) { 'SecurePass123!' }
 
   def sign_in_as(user)
@@ -101,7 +103,7 @@ RSpec.describe 'Schools surface', type: :request do
                                  enrollment_date: Time.zone.today - 30, status: 'Active')
 
       sign_in_as(worker)
-      get report_cards_school_path(school)
+      get new_report_cards_school_path(school) # S3: the batch grid lives on /new
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('Card Kid')
 
@@ -174,7 +176,9 @@ RSpec.describe 'Schools surface', type: :request do
     expect(response.body).to include("agencyModal-#{school.id}")
   end
 
-  it 'keeps the sidebar entry off the resettlement flavor (test posture)' do
+  it 'keeps the sidebar entry off the resettlement flavor' do
+    # override the file-wide youth stub — this example IS the resettlement case
+    allow(Rails.application.config.x).to receive(:flavor).and_return('resettlement')
     admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
     sign_in_as(admin)
     get clients_path

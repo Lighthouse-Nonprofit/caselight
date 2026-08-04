@@ -15,8 +15,11 @@ module Reports
     # restricted_hidden: the section exists but the viewer's sensitivity clearance
     # hides it (render the notice, never fabricate zeros);
     # chart: optional { type: :line|:pie, data: <CIF.ReportCreator payload> }.
+    # `title` is for DYNAMIC sections whose key can't live in en.yml (one per
+    # quantitative type / cohort program) — without it, CSV and PDF exports fall
+    # back to humanize and a funder reads "Quant english proficiency".
     Section = Struct.new(:key, :columns, :rows, :footnote, :restricted_hidden, :chart,
-                         keyword_init: true) do
+                         :title, keyword_init: true) do
       def restricted_hidden? = !!restricted_hidden
     end
 
@@ -65,6 +68,7 @@ module Reports
     end
 
     def section_title(section)
+      return section.title if section.title.present?
       I18n.t("reports.registry.#{definition.i18n_key}.sections.#{section.key}",
              default: section.key.to_s.humanize)
     end
@@ -99,7 +103,10 @@ module Reports
     def household_count(ids)
       ids = Array(ids)
       return 0 if ids.empty?
-      in_households = Case.where(client_id: ids, case_type: 'KC')
+      # A KC case with a NULL family_id counts for nothing in count(:family_id),
+      # and its client would ALSO be excluded from the singles remainder — so
+      # only clients whose KC case actually names a family are "in a household".
+      in_households = Case.where(client_id: ids, case_type: 'KC').where.not(family_id: nil)
       in_households.distinct.count(:family_id) +
         (ids - in_households.distinct.pluck(:client_id)).size
     end

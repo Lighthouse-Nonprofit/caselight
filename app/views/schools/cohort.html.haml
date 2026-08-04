@@ -1,0 +1,78 @@
+-# S4 — ONE cohort instance: curriculum × this school × term. Sessions are laid
+-# out explicitly (every slot 1..N, held or not); the roster shows who attended
+-# how many and who has crossed the completer threshold.
+= render 'schools/school_header', school: @school, active_tab: :cohorts
+= render 'shared/page_header', title: "#{@instance.program.name} — #{@school.name}"
+.row.mini-margin
+  .col-12
+    .ibox
+      .ibox-content
+        - items = []
+        - items << info_item(t('schools.cohorts.term', default: 'Term'), @instance.term_label || t('schools.cohorts.all_terms', default: 'All terms'))
+        - items << info_item(t('schools.cohort.enrolled', default: 'Enrolled'), @instance.enrolled)
+        - items << info_item(t('schools.cohort.sessions_held', default: 'Sessions held'), "#{@instance.sessions_held} / #{@instance.total_sessions}")
+        - items << info_item(t('schools.cohort.completers', default: 'Completers'), "#{@instance.completers} (#{t('schools.cohort.threshold', count: @instance.completer_threshold, default: "#{@instance.completer_threshold} sessions")})")
+        = render 'shared/info_grid', items: items
+        - if @instance.unnumbered_entries.positive?
+          %p.text-muted.small.m-t-sm.mb-0= t('schools.cohort.unnumbered', count: @instance.unnumbered_entries, default: "#{@instance.unnumbered_entries} attendance entries carry no session number (imported or hand-entered) — counted in the roster totals, not in a session row.")
+.row.mini-margin
+  .col-12.col-xl-7
+    .ibox
+      .ibox-title
+        %h5= t('schools.cohort.sessions', default: 'Sessions')
+      .ibox-content
+        .cl-table-scroll
+          %table.table.cl-record-table
+            %thead
+              %tr
+                %th= t('schools.cohort.col_session', default: 'Session')
+                %th= t('schools.cohort.col_date', default: 'Date')
+                %th= t('schools.roll_call.present', default: 'Present')
+                %th= t('schools.roll_call.absent', default: 'Absent')
+                %th= t('schools.roll_call.excused', default: 'Excused')
+                %th= t('schools.cohort.col_attendance', default: 'Attendance')
+                %th
+            %tbody
+              - @instance.sessions.each do |session|
+                %tr
+                  %td= session.number
+                  %td
+                    - if session.held?
+                      = session.date.strftime('%b %d, %Y')
+                    - else
+                      %span.text-muted= t('schools.cohort.not_held', default: 'Not held yet')
+                  %td= session.held? ? session.present : '—'
+                  %td= session.held? ? session.absent : '—'
+                  %td= session.held? ? session.excused : '—'
+                  %td= session.attendance_pct ? "#{session.attendance_pct}%" : '—'
+                  %td.text-right
+                    - if (can? :create, ClientEnrollmentTracking) && !session.held?
+                      = link_to t('schools.cohort.take_roll_call', default: 'Take roll call'),
+                                roll_call_school_path(@school, program_stream_id: @instance.program.id, session_number: session.number),
+                                class: 'btn btn-outline-primary btn-xs'
+  .col-12.col-xl-5
+    .ibox
+      .ibox-title
+        %h5= t('schools.cohort.roster', default: 'Roster')
+      .ibox-content
+        - if @instance.roster.empty?
+          %p.text-muted.mb-0= t('schools.cohort.no_roster', default: 'No youth on your caseload are enrolled in this cohort.')
+        - else
+          .cl-table-scroll
+            %table.table.cl-record-table
+              %thead
+                %tr
+                  %th= t('schools.cohort.col_youth', default: 'Youth')
+                  %th= t('schools.cohort.col_attended', default: 'Attended')
+                  %th
+              %tbody
+                - @instance.roster.each do |row|
+                  %tr
+                    %td= link_to school_person_label(row.client), client_path(row.client)
+                    %td
+                      = "#{row.present} / #{@instance.total_sessions}"
+                      - if row.absent.positive? || row.excused.positive?
+                        %span.text-muted.small= " (#{t('schools.cohort.absent_short', count: row.absent, default: "#{row.absent} abs")}, #{t('schools.cohort.excused_short', count: row.excused, default: "#{row.excused} exc")})"
+                    %td.text-right
+                      - if row.completer?
+                        = cl_badge(t('schools.cohorts.completer_badge', default: 'Completed'), :primary)

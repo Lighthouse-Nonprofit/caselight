@@ -40,7 +40,13 @@ module Reports
       end
 
       def rate_section
-        active_ids = scoped_enrollments.where(status: 'Active').pluck(:client_id).uniq
+        # households active DURING THE PERIOD, not whatever is Active today —
+        # otherwise a past-year report divides its units by today's caseload.
+        active_ids = scoped_enrollments
+                     .where(enrollment_date: ..period.end_date)
+                     .left_joins(:leave_program)
+                     .where('leave_programs.id IS NULL OR leave_programs.exit_date >= ?', period.start_date)
+                     .pluck(:client_id).uniq
         households = household_count(active_ids)
         units = scoped_trackings.count
         rate = households.zero? ? 0 : (units.to_f / households).round(1)

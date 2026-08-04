@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rake'
+require Rails.root.join('spec', 'support', 'youth_flavor')
 
 # HUB1 — the school hub: header/tabs on every page, ability-scoped chips,
 # entry_date-based tiles, latest-entry-only roster glance, cohort cards
 # matching the Cohort Completion math, no destructive chrome anywhere.
 RSpec.describe 'School hub', type: :request do
+  include_context 'youth flavor'
   let(:password) { 'SecurePass123!' }
 
   def sign_in_as(user)

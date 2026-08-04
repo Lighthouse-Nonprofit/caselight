@@ -83,6 +83,9 @@ module Reports
             by_client[record.client_enrollment.client] << { date: record.entry_date, props: props }
           end
           by_client.filter_map do |client, list|
+            # belt-and-braces: sort by service date in Ruby too, so baseline vs
+            # current can never invert on out-of-order rows
+            list = list.sort_by { |entry| entry[:date] }
             next unless period.range.cover?(list.last[:date])
             { client: client, baseline: list.first[:props], current: list.last[:props] }
           end
@@ -102,13 +105,21 @@ module Reports
         base && cur && cur > base
       end
 
+      # GPA is stored x100 (275 = 2.75) — the district-facing artifact must read
+      # like a GPA, not like a raw integer. Other numbers print as entered.
       def format_delta(pair, field)
-        base = numeric(pair[:baseline][field])
-        cur = numeric(pair[:current][field])
+        base = display_value(numeric(pair[:baseline][field]), field)
+        cur = display_value(numeric(pair[:current][field]), field)
         return '—' if cur.nil?
         return cur.to_s if base.nil? || base == cur
-        arrow = cur > base ? '↑' : '↓'
+        arrow = numeric(pair[:current][field]) > numeric(pair[:baseline][field]) ? '↑' : '↓'
         "#{base} #{arrow} #{cur}"
+      end
+
+      def display_value(value, field)
+        return nil if value.nil?
+        return format('%.2f', value / 100) if field == GPA_FIELD
+        value == value.to_i ? value.to_i : value
       end
 
       def pct_row(numerator, denominator)

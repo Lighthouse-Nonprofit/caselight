@@ -14,7 +14,7 @@
       .col-12.col-md-6.col-xl-4
         .ibox
           .ibox-title
-            %h5= card.program.name
+            %h5= link_to card.program.name, cohort_school_path(@school, program_stream_id: card.program.id)
           .ibox-content
             - items = []
             - term_value = card.fallback? ? t('schools.cohorts.all_terms', default: 'All terms') : card.term_label
@@ -25,5 +25,7 @@
             - items << info_item(t('schools.cohorts.completers', default: 'Completers'), card.completers)
             = render 'shared/info_grid', items: items
             %p.text-muted.small.m-t-sm.mb-0= t('schools.cohorts.attendance_footnote', default: 'Avg attendance = Present ÷ all logged sessions; excused absences lower the average but never completion.')
-            - if can? :create, ClientEnrollmentTracking
-              = link_to t('schools.cohorts.roll_call', default: 'Roll call'), roll_call_school_path(@school, program_stream_id: card.program.id), class: 'btn btn-primary btn-sm m-t-sm'
+            .m-t-sm
+              = link_to t('schools.cohorts.open_instance', default: 'Sessions & roster'), cohort_school_path(@school, program_stream_id: card.program.id), class: 'btn btn-outline-primary btn-sm'
+              - if can? :create, ClientEnrollmentTracking
+                = link_to t('schools.cohorts.roll_call', default: 'Roll call'), roll_call_school_path(@school, program_stream_id: card.program.id), class: 'btn btn-primary btn-sm'

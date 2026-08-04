@@ -40,8 +40,13 @@ module Reports
         session_tracking = program.trackings.find_by(name: SESSION_TRACKING)
         return '—' if session_tracking.nil?
 
+        # enrollments RELEVANT TO THE PERIOD only — prior-term cohorts would
+        # otherwise drag a quarterly completer rate down forever. An empty
+        # denominator reads '—' (unknown), never '0%' (nobody completed).
         enrollments = scoped_enrollments([program.id])
-        return '0%' if enrollments.none?
+                      .where(enrollment_date: ..period.end_date)
+                      .where(id: period_active_enrollment_ids(program))
+        return '—' if enrollments.none?
 
         completers = enrollments.count do |enrollment|
           entries = ClientEnrollmentTracking.where(client_enrollment_id: enrollment.id,
@@ -54,6 +59,16 @@ module Reports
           present.to_f / total >= COMPLETER_THRESHOLD
         end
         "#{(100.0 * completers / enrollments.size).round}%"
+      end
+
+      # Enrollments that were live during the period: enrolled on/before its end
+      # and not exited before its start.
+      def period_active_enrollment_ids(program)
+        scoped_enrollments([program.id])
+          .where(enrollment_date: ..period.end_date)
+          .left_joins(:leave_program)
+          .where('leave_programs.id IS NULL OR leave_programs.exit_date >= ?', period.start_date)
+          .pluck(:id)
       end
 
       def cols

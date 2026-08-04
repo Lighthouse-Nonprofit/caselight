@@ -14,8 +14,15 @@ module Reports
       [attribution_section, overlap_section]
     end
 
+    # Funders are PARTNER agencies. Schools (kind=school) also map to the
+    # programs they host (the youth flavor's school↔program links) — counting
+    # them here would invent funders and inflate the overlap buckets.
+    def funder_agencies
+      Agency.joins(:agency_program_streams).where.not(kind: 'school').distinct
+    end
+
     def attribution_section
-      rows = Agency.joins(:agency_program_streams).distinct.order(:name).map do |agency|
+      rows = funder_agencies.order(:name).map do |agency|
         program_ids = agency.program_streams.pluck(:id)
         served = served_client_ids(program_ids)
         units = scoped_trackings
@@ -31,7 +38,7 @@ module Reports
     # How many clients are countable under 1 / 2 / 3+ funders — the
     # grant-diversification story (and the double-count warning).
     def overlap_section
-      funder_sets = Agency.joins(:agency_program_streams).distinct.map do |agency|
+      funder_sets = funder_agencies.map do |agency|
         served_client_ids(agency.program_streams.pluck(:id))
       end
       counts_per_client = Hash.new(0)

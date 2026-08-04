@@ -22,7 +22,7 @@
               %tbody
                 - @rows.each do |row|
                   %tr{ data: { href: client_path(row.client) } }
-                    %td= link_to row.client.name, client_path(row.client)
+                    %td= link_to school_person_label(row.client), client_path(row.client)
                     %td
                       - row.programs.each do |program|
                         = cl_badge(program, :light)

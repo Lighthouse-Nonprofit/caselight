@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rake'
+require Rails.root.join('spec', 'support', 'youth_flavor')
 
 # Youth-flavor batch Y6 — the youth taxonomy end-to-end through the UI, on the
 # REAL seeds (rake youth:*, not factories):
@@ -10,6 +11,7 @@ require 'rake'
 #   * restricted youth forms follow the Phase-5 sensitivity policy (admin sees,
 #     strategic overviewer never does)
 describe 'Youth program flow', js: true do
+  include_context 'youth flavor' # S1: youth seeds refuse on another flavor
   before(:all) do
     Rake.application.rake_require('tasks/youth_taxonomy', [Rails.root.join('lib').to_s])
     Rake::Task.define_task(:environment)

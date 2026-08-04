@@ -49,12 +49,15 @@ module Reports
                            rows: [[I18n.t('reports.registry.youth_served.new_label'), 0],
                                   [I18n.t('reports.registry.youth_served.returning_label'), 0]]) if served.empty?
 
-        first_contact = ClientEnrollmentTracking
-                        .joins(:client_enrollment)
-                        .where(client_enrollments: { client_id: served })
-                        .group('client_enrollments.client_id')
-                        .minimum(:entry_date)
-        new_ids = first_contact.select { |_id, d| period.range.cover?(d) }.keys
+        # NEW = no service history before this period (VOCA convention: served
+        # for the first time ever). A youth enrolled this period who has no
+        # logged contact yet is still NEW — never silently "returning".
+        prior_contact_ids = ClientEnrollmentTracking
+                            .joins(:client_enrollment)
+                            .where(client_enrollments: { client_id: served })
+                            .where(entry_date: ...period.start_date)
+                            .distinct.pluck('client_enrollments.client_id')
+        new_ids = served - prior_contact_ids
         Section.new(
           key: :new_returning,
           columns: registry_columns(%w[category youth]),
