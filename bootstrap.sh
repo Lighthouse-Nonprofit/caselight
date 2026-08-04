@@ -14,8 +14,15 @@ set -euo pipefail
 REPO_URL="${REPO_URL:-git@github.com:Lighthouse-Nonprofit/caselight.git}"  # only used for the first clone
 APP_DIR="${APP_DIR:-$HOME/oscar}"
 BRANCH="${BRANCH:-main}"
-TENANT_SHORT="${TENANT_SHORT:-cases}"        # lowercase, no underscores; = subdomain label = PG schema
-TENANT_FULL="${TENANT_FULL:-Slo Home Pilot}"
+# Tenant identity. Resolved for real in stage 6 — an explicitly exported TENANT_SHORT wins,
+# otherwise the value PINNED IN .env on the first bootstrap, and only then the default. The
+# defaults exist for a brand-new demo box and must never decide anything on an established one:
+# a redeploy that forgot to re-export TENANT_SHORT used to silently create a SECOND tenant (org
+# row + schema) beside the real one, which then showed up as an extra entry on the landing page.
+TENANT_SHORT_ARG="${TENANT_SHORT:-}"
+TENANT_FULL_ARG="${TENANT_FULL:-}"
+TENANT_SHORT_DEFAULT='cases'                 # lowercase, no underscores; = subdomain label = PG schema
+TENANT_FULL_DEFAULT='Slo Home Pilot'
 
 # 1. Code — clone on first run, then always fast-sync to origin/$BRANCH.
 if [ ! -d "$APP_DIR/.git" ]; then
@@ -123,15 +130,35 @@ docker compose run --rm app bundle exec rake db:create 2>/dev/null || true
 docker compose run --rm app bundle exec rake db:migrate
 docker compose run --rm app bundle exec rake apartment:migrate
 
-# 6. Tenant — create only if the org row is absent (idempotent).
+# 6. Tenant — create only if the org row is absent (idempotent), and never a SECOND one by accident.
+#    Precedence: exported env > the value pinned in .env > the built-in default.
+env_pin() { grep -E "^$1=" .env 2>/dev/null | tail -1 | cut -d= -f2-; }
+TENANT_SHORT="${TENANT_SHORT_ARG:-$(env_pin TENANT_SHORT)}"
+TENANT_SHORT="${TENANT_SHORT:-$TENANT_SHORT_DEFAULT}"
+TENANT_FULL="${TENANT_FULL_ARG:-$(env_pin TENANT_FULL)}"
+TENANT_FULL="${TENANT_FULL:-$TENANT_FULL_DEFAULT}"
+
 echo "==> ensuring tenant '$TENANT_SHORT'"
 if docker compose run --rm app bundle exec rails runner \
      "exit(Organization.where(short_name: '$TENANT_SHORT').exists? ? 0 : 1)"; then
   echo "    tenant already present, skipping create"
+elif [ -z "$TENANT_SHORT_ARG" ] && \
+     docker compose run --rm app bundle exec rails runner "exit(Organization.exists? ? 0 : 1)"; then
+  # This box already hosts organization(s) and nobody asked for this one by name. Creating it
+  # would add a stray tenant (a whole PG schema) that then shows up on the landing page. Refuse,
+  # loudly, and keep deploying — the existing tenant is the one that matters.
+  echo "    !! NOT creating '$TENANT_SHORT': this box already has organizations and TENANT_SHORT" >&2
+  echo "    !! was not set for this run. Pin the real one in .env (TENANT_SHORT=/TENANT_FULL=)" >&2
+  echo "    !! or re-run with TENANT_SHORT=<name> if you genuinely want a second tenant." >&2
 else
   docker compose run --rm app bundle exec rails runner \
     "Organization.create_and_build_tanent(short_name: '$TENANT_SHORT', full_name: '$TENANT_FULL')"
 fi
+
+# Pin the resolved identity so the next redeploy needs no environment at all. Idempotent; only
+# ever adds the keys when absent (never rewrites an operator's edit).
+grep -q '^TENANT_SHORT=' .env || printf '\n# Pinned by bootstrap: this box'"'"'s tenant (subdomain label = PG schema).\nTENANT_SHORT=%s\n' "$TENANT_SHORT" >> .env
+grep -q '^TENANT_FULL='  .env || printf 'TENANT_FULL=%s\n' "$TENANT_FULL" >> .env
 
 # 7. Seed base reference data once.
 if [ ! -f .seeded ]; then

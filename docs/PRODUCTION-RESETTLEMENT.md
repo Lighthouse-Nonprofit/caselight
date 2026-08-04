@@ -68,13 +68,13 @@ slo4home.lighthousent.org  →  tenant/schema "slo4home"
   resolves no tenant, so it lands in the `public` schema: sign-in there
   authenticates against a schema with no staff accounts, and tenant links built
   from `request.domain` come out wrong. Keep the apex on the marketing site.
-* **`/` is an unauthenticated org list on EVERY host, not just the bare domain.**
+* **`/` on a tenant hostname goes to that tenant's sign-in, not a picker.**
   `Organization` is an Apartment *excluded* model (`config/initializers/apartment.rb`),
-  so it always reads from the public schema and `root 'organizations#index'` lists
-  every organization on the box — names only, no client data, and a signed-in user
-  is redirected straight to their dashboard. Harmless while a box hosts one org
-  (the hostname already names it). **Before a second org shares a box**, make that
-  root redirect to the host's own tenant instead of listing everyone.
+  so `root 'organizations#index'` reads the public schema whatever tenant the
+  elevator selected — it used to list every organization on the box to every org.
+  Now a host that names a tenant redirects (signed out → its own sign-in, signed
+  in → its dashboard) and only a host resolving NO tenant still shows the list.
+  Pinned by `spec/requests/tenant_landing_spec.rb`.
 * `config.action_dispatch.tld_length` is derived from `APP_HOST` in
   `config/environments/production.rb`; no manual tuning needed. Verified on this
   box: the root page's link resolves to
@@ -135,6 +135,29 @@ be rotated without orphaning every encrypted column.
    in Security Enforcement.
 6. Admin account seeded for the org, demo/synthetic data confirmed absent
    (`SEED_DEMO=false`; the tenant is created empty apart from taxonomy seeds).
+
+## Branding (the org's logo)
+
+`Organization#logo` is the no-code branding hook: attach an image to the org row
+and it becomes the sign-in page's logo (falling back to the CaseLight mark) plus
+the 404/500 pages. SLO for HOME's logo was installed 2026-08-04 from their own
+site. To replace it:
+
+```sh
+ssh slo4home 'cat > /tmp/logo.png' < new-logo.png
+ssh slo4home 'cd ~/oscar && docker compose cp /tmp/logo.png app:/app/tmp/logo.png &&
+  docker compose exec -T app bundle exec rails runner "
+    org = Organization.find_by(short_name: %q(slo4home))
+    org.logo = File.open(%q(/app/tmp/logo.png)); org.save!"'
+```
+
+png/jpg/gif only (`ImageUploader#extension_allowlist`). It is stored by
+CarrierWave under `public/uploads/organization/logo/<id>/` on the **uploads
+volume**, which is deliberately world-readable (`assets_uploads_guard.rb` allows
+`/uploads/organization/` and denies every other upload path) because the login
+page must render it before authentication. Note the volume is covered by the EBS
+snapshot but NOT by `ops/nightly_dump.sh`, which dumps databases only — after a
+volume-loss restore, re-attach the logo with the command above.
 
 ## Routine operations
 
