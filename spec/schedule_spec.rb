@@ -100,11 +100,25 @@ RSpec.describe 'Scheduler (config/schedule.rb cron jobs)' do
   # The box installs this crontab on the HOST, so every job must shell into the app container —
   # a bare `bundle exec` host job would silently fail (no Ruby on the host).
   describe 'docker-wrapped job types (host crontab shells into the app container)' do
-    it 'wraps rake and runner jobs in docker compose exec' do
+    it 'wraps rake and runner jobs in docker compose exec, and never runs Ruby on the host' do
       all_jobs = job_list.instance_variable_get(:@jobs).values.flat_map(&:values).flatten
-      outputs  = all_jobs.map { |job| job.output }
-      expect(outputs).to all(include('docker compose exec -T app'))
+      outputs  = all_jobs.map(&:output)
+      # every job runs from the app dir
       expect(outputs).to all(include('cd /home/ubuntu/oscar'))
+
+      # rake/runner jobs MUST shell into the container (no Ruby on the host).
+      ruby_jobs = outputs.select { |o| o.include?('bundle exec') }
+      expect(ruby_jobs).not_to be_empty
+      expect(ruby_jobs).to all(include('docker compose exec -T app'))
+
+      # `host` jobs (ops/*.sh) intentionally run on the host — they drive docker
+      # compose themselves — but must never invoke ruby/bundle directly there.
+      host_jobs = outputs.reject { |o| o.include?('docker compose exec -T app') }
+      host_jobs.each do |job|
+        expect(job).to match(%r{bash ops/[a-z_]+\.sh}),
+                       "host job must be an ops/*.sh script, got: #{job}"
+        expect(job).not_to include('bundle exec')
+      end
     end
   end
 
