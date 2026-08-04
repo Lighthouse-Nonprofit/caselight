@@ -5,6 +5,16 @@
 set :output, 'log/cron.log'
 job_type :rake,   'cd /home/ubuntu/oscar && docker compose exec -T app bundle exec rake :task --silent :output'
 job_type :runner, %q(cd /home/ubuntu/oscar && docker compose exec -T app bundle exec rails runner ':task' :output)
+# Host-side script (not inside the container): it drives docker compose itself.
+job_type :host, 'cd /home/ubuntu/oscar && bash :task :output'
+
+# Nightly logical backup — Postgres (all tenant schemas) + Mongo history, rotated
+# locally for 14 days. Runs BEFORE the 09:00 UTC AWS Backup snapshot so each
+# snapshot also captures a fresh dump. RECOVERY UNIT = dump + .env (or a whole
+# snapshot): dumps alone are ciphertext-locked. See docs/PRODUCTION-RESETTLEMENT.md.
+every :day, at: '1:30 am' do
+  host 'ops/nightly_dump.sh', output: 'log/backup.log'
+end
 
 every :day, :at => '00:00 am' do
   runner 'Task.upcoming_incomplete_tasks', output: 'log/whenever.log'
