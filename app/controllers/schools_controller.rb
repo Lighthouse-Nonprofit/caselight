@@ -90,9 +90,10 @@ class SchoolsController < AdminController
 
   def create_report_cards
     authorize! :create, ClientEnrollmentTracking
-    report_date = begin
-      Date.iso8601(params.require(:report_date))
-    rescue ArgumentError, Date::Error
+    # params.require would raise ParameterMissing (a 400) on an EMPTY field —
+    # a blank date is user error, so it gets the flash like any other bad date.
+    report_date = parse_date(params[:report_date])
+    if report_date.nil?
       return redirect_to new_report_cards_school_path(@school), alert: t('schools.report_cards.bad_date')
     end
 
@@ -135,9 +136,8 @@ class SchoolsController < AdminController
     authorize! :create, ClientEnrollmentTracking
     program = Cohorts.programs.find(params.require(:program_stream_id))
     tracking = program.trackings.find_by!(name: Cohorts::SESSION_TRACKING)
-    session_date = begin
-      Date.iso8601(params.require(:session_date))
-    rescue ArgumentError, Date::Error
+    session_date = parse_date(params[:session_date])
+    if session_date.nil?
       return redirect_to roll_call_school_path(@school, program_stream_id: program.id),
                          alert: t('schools.roll_call.bad_date')
     end
@@ -148,8 +148,18 @@ class SchoolsController < AdminController
     end
 
     enrollments = @hub_cards.roster_for(program).index_by { |e| e.client_id.to_s }
-    taken = ClientEnrollmentTracking.where(client_enrollment_id: enrollments.values.map(&:id),
-                                           tracking_id: tracking.id, entry_date: session_date)
+    # DEDUPE on (enrollment, tracking, date, SESSION NUMBER): two sessions can
+    # legitimately be held on one day (a make-up circle), and the same session
+    # can be re-entered on a corrected date — keying on the date alone would
+    # silently collapse the first and double-count the second. Session numbers
+    # live in encrypted properties, so the sidecar answers the "which session"
+    # half of the key.
+    same_date = ClientEnrollmentTracking.where(client_enrollment_id: enrollments.values.map(&:id),
+                                               tracking_id: tracking.id, entry_date: session_date)
+    same_session_ids = Reports::ValueCounts.owner_ids(owner_scope: same_date,
+                                                     field_label: 'Session Number',
+                                                     value: session_number)
+    taken = ClientEnrollmentTracking.where(id: same_session_ids)
                                     .pluck(:client_enrollment_id).to_set
     created = skipped = 0
     params.fetch(:roll, {}).each do |client_id, row|
@@ -180,6 +190,12 @@ class SchoolsController < AdminController
 
   def set_school
     @school = Agency.where(kind: 'school').find(params[:id])
+  end
+
+  def parse_date(value)
+    Date.iso8601(value.to_s)
+  rescue ArgumentError, TypeError, Date::Error
+    nil
   end
 
   # Header meta + tab chips — COUNT/sidecar-only, no decrypts.

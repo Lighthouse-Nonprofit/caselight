@@ -35,7 +35,11 @@ module Reports
                               .where(trackings: { name: SESSION_TRACKING })
                               .includes(:client, :program_stream)
         rows = session_enrollments.map do |enrollment|
-          entries = ClientEnrollmentTracking.where(client_enrollment_id: enrollment.id)
+          # scope to the SESSION tracking — any other tracking on a cohort
+          # program would dilute the attendance denominator
+          session_tracking = enrollment.program_stream.trackings.find_by(name: SESSION_TRACKING)
+          entries = ClientEnrollmentTracking.where(client_enrollment_id: enrollment.id,
+                                                   tracking_id: session_tracking&.id)
           total = entries.count
           present = Reports::ValueCounts.owner_ids(owner_scope: entries,
                                                    field_label: 'Attendance',

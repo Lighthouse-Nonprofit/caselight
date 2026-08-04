@@ -31,3 +31,6 @@ en:
       my_follow_up_compliance:
         columns:
           client: Youth
+      demographics:
+        title: Youth demographics profile
+        description: Race and ethnicity, preferred language, school site, grade, poverty level, age and gender of the youth served.

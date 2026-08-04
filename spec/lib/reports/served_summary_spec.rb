@@ -72,16 +72,28 @@ RSpec.describe 'served summary reports' do
     expect(housing[2]).to eq(1) # one household now
   end
 
-  it 'YouthServed splits new vs returning by first-ever contact date' do
+  # Adversarial-review fix: "new" = no service history BEFORE the period (the
+  # VOCA convention). The previous version of this spec asserted the opposite for
+  # a never-contacted youth — locking in a wrong number for funders.
+  it 'YouthServed counts anyone with no PRIOR service history as new' do
     scope = Client.where(id: [in_period_client.id, contact_only_client.id])
     report = definition('youth-served', 'Reports::Youth::YouthServed')
              .build(clients: scope, period: period)
     nr = report.sections.find { |s| s.key == :new_returning }
     new_row = nr.rows.find { |r| r.first == I18n.t('reports.registry.youth_served.new_label') }
     returning_row = nr.rows.find { |r| r.first == I18n.t('reports.registry.youth_served.returning_label') }
-    # contact_only_client's first-ever contact (2026-03-10) is IN period => new;
-    # in_period_client has no contacts at all => not new by first-contact => returning bucket
-    expect(new_row.last).to eq(1)
+    expect(new_row.last).to eq(2)      # neither had a contact before 2026-01-01
+    expect(returning_row.last).to eq(0)
+  end
+
+  it 'YouthServed counts a youth with pre-period history as returning' do
+    old_enrollment = ClientEnrollment.find_by(client_id: contact_only_client.id)
+    create(:client_enrollment_tracking, client_enrollment: old_enrollment,
+           tracking: tracking, entry_date: Date.new(2025, 11, 4), properties: PROPS)
+    report = definition('youth-served', 'Reports::Youth::YouthServed')
+             .build(clients: Client.where(id: contact_only_client.id), period: period)
+    nr = report.sections.find { |s| s.key == :new_returning }
+    returning_row = nr.rows.find { |r| r.first == I18n.t('reports.registry.youth_served.returning_label') }
     expect(returning_row.last).to eq(1)
   end
 end

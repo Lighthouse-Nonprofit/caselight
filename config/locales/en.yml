@@ -3112,6 +3112,7 @@ en:
           retention_denominator: Placements reaching day 90 this period
           retention_90: Retained at 90 days
       cohort_completion:
+        all_terms_note: No enrollment carried this term, so all terms are counted.
         title: Cohort completion
         description: Roster, attendance, and completion rate per cultura curriculum cohort.
         completer: Completer

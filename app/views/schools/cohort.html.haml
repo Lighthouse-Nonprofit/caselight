@@ -68,7 +68,7 @@
               %tbody
                 - @instance.roster.each do |row|
                   %tr
-                    %td= link_to row.client.name, client_path(row.client)
+                    %td= link_to school_person_label(row.client), client_path(row.client)
                     %td
                       = "#{row.present} / #{@instance.total_sessions}"
                       - if row.absent.positive? || row.excused.positive?

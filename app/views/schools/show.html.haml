@@ -62,7 +62,9 @@
                 - @recent_entries.each do |entry|
                   - enrollment = entry.client_enrollment
                   %tr
-                    %td= link_to enrollment.client.name, client_path(enrollment.client)
+                    -# leadership-read-only stays values-lean (report policy D12):
+                    -# a strategic overviewer sees the record id, not the name.
+                    %td= link_to school_person_label(enrollment.client), client_path(enrollment.client)
                     %td= enrollment.program_stream.try(:name)
                     %td= entry.tracking.try(:name)
                     %td.text-right= entry.entry_date.strftime('%b %d, %Y')

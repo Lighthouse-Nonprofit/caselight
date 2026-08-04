@@ -130,7 +130,9 @@ RSpec.describe 'youth leadership pack' do
       expect(gpra.rows).to include([I18n.t('reports.registry.academic_partner.rows.attendance_improved'), '1 of 1 (100%)'])
       expect(gpra.rows).to include([I18n.t('reports.registry.academic_partner.rows.discipline_reduced'), '1 of 1 (100%)'])
       roster = report.sections.find { |s| s.key == :roster }
-      expect(roster.rows.sole[1]).to eq('250.0 ↑ 285.0')
+      # GPA is stored x100 but the district-facing artifact must read like a GPA
+      # (adversarial-review fix — this used to print '250.0 ↑ 285.0')
+      expect(roster.rows.sole[1]).to eq('2.50 ↑ 2.85')
       expect(roster.rows.sole[4]).to eq('On track')
     end
   end

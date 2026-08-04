@@ -49,6 +49,7 @@ module Reports
                                                     client_id: client_ids).count]
           end
           Section.new(key: :"dist_#{type_name.parameterize.underscore}",
+                      title: type_name, # dynamic section: CSV/PDF need a real title
                       columns: [type_name, I18n.t('reports.registry.self_sufficiency.columns.individuals')],
                       rows: rows,
                       footnote: I18n.t('reports.registry.self_sufficiency.point_in_time'))
