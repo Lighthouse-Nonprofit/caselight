@@ -2,7 +2,15 @@
   .col-12.col-sm-6.offset-sm-3.col-md-4.offset-md-4
     .ibox.normal-space
       .ibox-title.text-center
-        = image_tag('brand/caselight-logo.png', alt: 'CaseLight', style: 'max-width: 260px; width: 100%; height: auto;')
+        -# The tenant's own logo when it has one (Organization#logo, the no-code branding hook) —
+        -# this is the first screen their staff see, so it should say who THEY are. Guarded with
+        -# .file.present? like the error pages: logo.url falls back to a placeholder asset, so
+        -# checking the URL would brand a logo-less tenant with a grey square.
+        - org = Organization.current
+        - if org && org.logo.file.present?
+          = image_tag(org.logo.url, alt: org.full_name, style: 'max-width: 260px; width: 100%; height: auto;')
+        - else
+          = image_tag('brand/caselight-logo.png', alt: 'CaseLight', style: 'max-width: 260px; width: 100%; height: auto;')
       .ibox-content
         = simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|
           = f.error_notification
