@@ -42,11 +42,23 @@
                       %td
                         - @program_stream.domains.pluck(:identity).each do |identity|
                           %span.badge.label-margin= identity
+                    -# S2: on youth boxes the schools hosting this program get their own
+                    -# row (linking into each school hub); partner agencies keep theirs.
+                    - if Rails.application.config.x.flavor == 'youth'
+                      - schools = @program_stream.agencies.where(kind: 'school').order(:name)
+                      %tr
+                        %td.agencies= t('.schools', default: 'Schools')
+                        %td
+                          - if schools.empty?
+                            %span.text-muted= t('.no_schools', default: 'Not mapped to a school yet')
+                          - else
+                            - schools.each do |school|
+                              = link_to school.name, school_path(school), class: 'badge label-margin'
                     %tr
                       %td.agencies= t('.partner_agencies', default: 'Partner agencies')
                       %td
                         -# D1: agencies linked to this program (agencies index manages the link)
-                        - @program_stream.agencies.order(:name).each do |agency|
+                        - @program_stream.agencies.where.not(kind: 'school').order(:name).each do |agency|
                           %span.badge.label-margin= agency.name
                     %tr
                       %td.enrolled= t('.enrolled')

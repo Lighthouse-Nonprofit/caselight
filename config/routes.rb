@@ -78,16 +78,22 @@ Rails.application.routes.draw do
     end
   end
 
-  # Schools batch SCH1 — the browsable front for kind=school agencies (youth
-  # flavor promotes it to the main sidebar; harmlessly empty elsewhere).
-  resources :schools, only: [:index, :show] do
-    member do
-      get 'roster'
-      get 'cohorts'
-      get 'report_cards'
-      post 'report_cards' => 'schools#create_report_cards'
-      get 'roll_call'
-      post 'roll_call' => 'schools#create_roll_call'
+  # Schools batch SCH1 — the browsable front for kind=school agencies.
+  # S1: LOCKED to the youth flavor. The constraint is a lambda evaluated per
+  # request, so a resettlement box has no school routes AT ALL (not merely a
+  # hidden sidebar entry) — and specs can stub config.x.flavor to exercise them.
+  constraints(->(_request) { Rails.application.config.x.flavor == 'youth' }) do
+    resources :schools, only: [:index, :show] do
+      member do
+        get 'roster'
+        get 'cohorts'
+        get 'report_cards'
+        get 'report_cards/new' => 'schools#new_report_cards', as: :new_report_cards
+        post 'report_cards' => 'schools#create_report_cards'
+        get 'roll_call'
+        post 'roll_call' => 'schools#create_roll_call'
+        get 'cohorts/:program_stream_id' => 'schools#cohort', as: :cohort
+      end
     end
   end
   resources :agencies, except: [:show] do

@@ -1,8 +1,14 @@
-# Schools batch SCH1 + HUB1 — schools as a first-class youth surface, now a
-# real hub: Overview / Roster / Cohorts tabs (server-rendered pages, the client
-# hub pattern) plus the entry surfaces (report cards; roll call in HUB2).
-# Rosters are ALWAYS ability-scoped: a case worker sees only their own
-# caseload's youths at a school, managers their team, leadership the org.
+# Schools — a first-class youth-flavor surface (kind=school agencies), LOCKED to
+# that flavor by a route constraint (config/routes.rb). Structure:
+#   index                        card grid of schools
+#   show / roster / cohorts      the hub tabs (Overview / Roster / Cohorts)
+#   cohort                       ONE cohort instance = program × school × term:
+#                                its sessions and its roster
+#   report_cards                 the report cards ALREADY on file (editable records)
+#   new_report_cards / create    batch entry for a report date
+#   roll_call / create_roll_call one-tap attendance for a cohort session
+# Every roster flows through Client.accessible_by(current_ability); write actions
+# additionally authorize :create, ClientEnrollmentTracking.
 class SchoolsController < AdminController
   authorize_resource class: 'Agency'
 
@@ -15,7 +21,6 @@ class SchoolsController < AdminController
     @youth_counts = AgencyClient.where(agency_id: @schools.select(:id),
                                        client_id: scope.select(:id))
                                 .group(:agency_id).distinct.count(:client_id)
-    # Card meta — batched COUNT/pluck only (no decrypts on the landing page).
     program = ProgramStream.find_by(name: AERIES_PROGRAM)
     @pv_counts = if program
                    ClientEnrollment.where(status: 'Active', program_stream_id: program.id,
@@ -36,7 +41,7 @@ class SchoolsController < AdminController
                    .transform_values { |pairs| pairs.map(&:last).uniq.sort }
   end
 
-  # Overview tab: stat tiles + info grid + recent activity.
+  # Overview tab.
   def show
     youth_ids = school_youths(@school).ids
     @active_enrollments = ClientEnrollment.where(client_id: youth_ids, status: 'Active')
@@ -48,6 +53,9 @@ class SchoolsController < AdminController
     @recent_entries = school_entries(youth_ids)
                       .includes(:tracking, client_enrollment: %i[client program_stream])
                       .order(entry_date: :desc, created_at: :desc).limit(8)
+    # S2: the programs this school HOSTS (agency ↔ program mapping, editable in
+    # the Actions → Edit school details modal), independent of who's enrolled.
+    @hosted_programs = @school.program_streams.order(:name)
   end
 
   def roster
@@ -58,22 +66,69 @@ class SchoolsController < AdminController
     @cards = @hub_cards.cards
   end
 
-  # HUB2 (SCH2 origin) — bulk report-card entry; POST semantics unchanged.
-  # GET gains prefill PLACEHOLDERS from each enrollment's latest Aeries entry
-  # (placeholder never value — blank row still means "save nothing").
-  def report_cards
-    authorize! :create, ClientEnrollmentTracking
-    @rows = aeries_enrollments(@school)
-    @prefills = latest_aeries_props_by_client(@rows)
+  # S4 — one cohort INSTANCE (program × this school × current term): the sessions
+  # that make it up and the roster that attends them.
+  def cohort
+    @program = Cohorts.programs.find(params[:program_stream_id])
+    @instance = Schools::CohortInstance.new(program: @program, school: @school,
+                                            enrollments: @hub_cards.roster_for(@program),
+                                            term_label: @hub_cards.term_label)
   end
 
-  # HUB2 — cohort roll call: one session date + number, one tap per youth.
+  # S3 — report cards ALREADY on file for this school (editable records), newest
+  # first. "New report cards" opens the batch grid.
+  def report_cards
+    authorize! :create, ClientEnrollmentTracking
+    @entries = Schools::ReportCards.new(enrollments: aeries_enrollments(@school)).recent
+  end
+
+  def new_report_cards
+    authorize! :create, ClientEnrollmentTracking
+    @rows = aeries_enrollments(@school)
+    @prefills = Schools::ReportCards.new(enrollments: @rows).latest_props_by_client
+  end
+
+  def create_report_cards
+    authorize! :create, ClientEnrollmentTracking
+    report_date = begin
+      Date.iso8601(params.require(:report_date))
+    rescue ArgumentError, Date::Error
+      return redirect_to new_report_cards_school_path(@school), alert: t('schools.report_cards.bad_date')
+    end
+
+    enrollments = aeries_enrollments(@school).index_by { |e| e.client_id.to_s }
+    created = 0
+    params.fetch(:report_cards, {}).each do |client_id, row|
+      enrollment = enrollments[client_id.to_s] or next
+      values = {
+        'GPA (x100, e.g. 275 = 2.75)' => row[:gpa],
+        'Credits Earned (cumulative)' => row[:credits],
+        'A-G On Track' => row[:ag],
+        'School-Day Attendance % (this period)' => row[:attendance],
+        'Discipline Incidents (this period)' => row[:discipline],
+        'Concerns / IEP-SST Notes' => row[:notes]
+      }.transform_values { |v| v.to_s.strip }.reject { |_k, v| v.blank? }
+      next if values.empty? # blank row = no entry
+
+      tracking = enrollment.program_stream.trackings.find_by(name: AERIES_TRACKING)
+      entry = ClientEnrollmentTracking.new(client_enrollment_id: enrollment.id,
+                                           tracking_id: tracking.id,
+                                           entry_date: report_date, properties: values)
+      created += 1 if entry.save
+    end
+    # land on the INDEX so what was just saved is visible and editable
+    redirect_to report_cards_school_path(@school),
+                notice: t('schools.report_cards.created', count: created)
+  end
+
   def roll_call
     authorize! :create, ClientEnrollmentTracking
     @program = Cohorts.programs.find(params.require(:program_stream_id))
     @tracking = @program.trackings.find_by!(name: Cohorts::SESSION_TRACKING)
     @rows = @hub_cards.roster_for(@program)
     @total_sessions = Cohorts.total_sessions(@program.name)
+    @session_number = params[:session_number].presence
+    @session_date = params[:session_date].presence
   end
 
   def create_roll_call
@@ -115,39 +170,7 @@ class SchoolsController < AdminController
     end
     notice = t('schools.roll_call.saved', count: created)
     notice += " #{t('schools.roll_call.skipped', count: skipped)}" if skipped.positive?
-    redirect_to cohorts_school_path(@school), notice: notice
-  end
-
-  def create_report_cards
-    authorize! :create, ClientEnrollmentTracking
-    report_date = begin
-      Date.iso8601(params.require(:report_date))
-    rescue ArgumentError, Date::Error
-      return redirect_to report_cards_school_path(@school), alert: t('schools.report_cards.bad_date')
-    end
-
-    enrollments = aeries_enrollments(@school).index_by { |e| e.client_id.to_s }
-    created = 0
-    params.fetch(:report_cards, {}).each do |client_id, row|
-      enrollment = enrollments[client_id.to_s] or next
-      values = {
-        'GPA (x100, e.g. 275 = 2.75)' => row[:gpa],
-        'Credits Earned (cumulative)' => row[:credits],
-        'A-G On Track' => row[:ag],
-        'School-Day Attendance % (this period)' => row[:attendance],
-        'Discipline Incidents (this period)' => row[:discipline],
-        'Concerns / IEP-SST Notes' => row[:notes]
-      }.transform_values { |v| v.to_s.strip }.reject { |_k, v| v.blank? }
-      next if values.empty? # blank row = no entry
-
-      tracking = enrollment.program_stream.trackings.find_by(name: AERIES_TRACKING)
-      entry = ClientEnrollmentTracking.new(client_enrollment_id: enrollment.id,
-                                           tracking_id: tracking.id,
-                                           entry_date: report_date, properties: values)
-      created += 1 if entry.save
-    end
-    redirect_to school_path(@school),
-                notice: t('schools.report_cards.created', count: created)
+    redirect_to cohort_school_path(@school, program_stream_id: program.id), notice: notice
   end
 
   private
@@ -159,8 +182,7 @@ class SchoolsController < AdminController
     @school = Agency.where(kind: 'school').find(params[:id])
   end
 
-  # Header meta + tab chips — COUNT/sidecar-only, no decrypts (entry pages
-  # must stay snappy).
+  # Header meta + tab chips — COUNT/sidecar-only, no decrypts.
   def set_hub
     youth_ids = school_youths(@school).ids
     @hub_youth_count = youth_ids.size
@@ -185,21 +207,8 @@ class SchoolsController < AdminController
       .where(client_enrollments: { client_id: youth_ids })
   end
 
-  # Latest Aeries properties per client for placeholder prefill — the bounded
-  # HUB1 pattern: DISTINCT ON id-list first, one DecryptedScan pass.
-  def latest_aeries_props_by_client(enrollments)
-    ids = Schools::Roster.latest_aeries_ids(enrollments.map(&:id))
-    client_by_enrollment = enrollments.to_h { |e| [e.id, e.client_id] }
-    prefills = {}
-    Reports::DecryptedScan.each(ClientEnrollmentTracking.where(id: ids)) do |record, props|
-      client_id = client_by_enrollment[record.client_enrollment_id] or next
-      prefills[client_id] = props
-    end
-    prefills
-  end
-
-  # Active ¡Por Vida! enrollments (the program carrying the Aeries tracking)
-  # for this school's ability-scoped youths.
+  # Active ¡Por Vida! enrollments (the program carrying the Aeries tracking) for
+  # this school's ability-scoped youths.
   def aeries_enrollments(school)
     program = ProgramStream.find_by(name: AERIES_PROGRAM)
     return [] if program.nil? || program.trackings.find_by(name: AERIES_TRACKING).nil?

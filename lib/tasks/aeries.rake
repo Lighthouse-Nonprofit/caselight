@@ -6,6 +6,10 @@
 namespace :aeries do
   desc 'Sync Aeries academic records into Academic Check-in entries. DRY_RUN unless CONFIRM=1.'
   task sync: :environment do
+    # S1: Aeries academic data only exists in the youth taxonomy.
+    unless Rails.application.config.x.flavor == 'youth'
+      abort "[aeries] refusing: FLAVOR=#{Rails.application.config.x.flavor.inspect} — youth boxes only."
+    end
     abort '[aeries] not configured (AERIES_BASE_URL/AERIES_API_KEY) — the DSA gate.' unless Aeries::Client.enabled?
     tenant = ENV['TENANT'] or abort '[aeries] TENANT= required'
     endpoint = ENV['AERIES_ENDPOINT'].presence || 'api/v5/schools'

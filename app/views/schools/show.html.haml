@@ -28,9 +28,19 @@
       .ibox-content
         - items = []
         - items << info_item(t('schools.show.info_description', default: 'About'), @school.description)
+        -# S2: the programs this school HOSTS (agency ↔ program mapping) — links
+        -# into each program, and into the cohort instance for cohort curricula.
+        - hosted = capture do
+          - if @hosted_programs.any?
+            %ul.record-card__tags
+              - @hosted_programs.each do |program|
+                %li.record-card__tag= link_to program.name, program_stream_path(program), class: 'record-card__tag-link'
+        - items << info_item(t('schools.show.info_hosted', default: 'Programs at this school'), hosted.presence)
         - mix = @active_enrollments.sort.map { |name, count| "#{name} #{count}" }.join(' · ')
         - items << info_item(t('schools.show.info_program_mix', default: 'Active enrollments'), mix.presence)
         = render 'shared/info_grid', items: items
+        - if @hosted_programs.empty?
+          %p.text-muted.small.m-t-sm.mb-0= t('schools.show.no_hosted', default: 'No programs mapped to this school yet — add them under Actions → Edit school details.')
 .row.mini-margin
   .col-12
     .ibox

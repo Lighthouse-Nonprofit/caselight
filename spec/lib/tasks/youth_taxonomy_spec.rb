@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rake'
+require Rails.root.join('spec', 'support', 'youth_flavor')
 
 # Youth-flavor batch Y3 — the Youth Development taxonomy seeds:
 #   * forms land with their INLINE sensitivity (restricted safety/guardian/incident)
@@ -10,6 +11,7 @@ require 'rake'
 #   * the domain reconcile keeps exactly Y1–Y6 and never touches referenced domains
 #   * demo seeds are synthetic and exercise backdated entry_date
 RSpec.describe 'youth taxonomy seeds' do
+  include_context 'youth flavor' # S1: the seeds refuse to run on other flavors
   before(:all) do
     Rake.application.rake_require('tasks/youth_taxonomy', [Rails.root.join('lib').to_s])
     Rake::Task.define_task(:environment)

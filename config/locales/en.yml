@@ -2820,9 +2820,32 @@ en:
     roster:
       overdue: Check-in overdue
       quick_entry: Quick entry
+    show:
+      info_hosted: Programs at this school
+      no_hosted: No programs mapped to this school yet — add them under Actions → Edit school details.
     cohorts:
       all_terms: All terms
       roll_call: Roll call
+      open_instance: Sessions & roster
+      completer_badge: Completed
+    cohort:
+      enrolled: Enrolled
+      sessions_held: Sessions held
+      completers: Completers
+      threshold: '%{count} sessions to complete'
+      unnumbered: '%{count} attendance entries carry no session number — counted in roster totals, not in a session row.'
+      sessions: Sessions
+      roster: Roster
+      col_session: Session
+      col_date: Date
+      col_attendance: Attendance
+      col_youth: Youth
+      col_attended: Attended
+      not_held: Not held yet
+      take_roll_call: Take roll call
+      no_roster: No youth on your caseload are enrolled in this cohort.
+      absent_short: '%{count} abs'
+      excused_short: '%{count} exc'
     quick_entry:
       title: 'Quick entry — %{name}'
       cancel: Cancel
@@ -2835,7 +2858,19 @@ en:
       bad_date: Enter a valid session date.
       bad_session: Session number is out of range for this curriculum.
     report_cards:
-      title: Report card entry
+      title: Report cards
+      new: New report cards
+      on_file: Report cards on file
+      none: No report cards on file yet. Use “New report cards” to enter a term.
+      col_youth: Youth
+      col_date: Report date
+      col_gpa: GPA
+      col_attendance: 'Attendance %'
+      col_credits: Credits
+      col_ag: A-G
+      col_discipline: Discipline
+      edit: Edit
+      edit_hint: Editing opens the youth’s report card form; saving returns to their Programs tab.
       created: 'Saved %{count} report card entries.'
       bad_date: Enter a valid report date.
       report_date: Report date
@@ -2846,6 +2881,22 @@ en:
       last_value: 'last: %{value}'
       youth_count: '%{count} youth'
       rows_hint: Only rows with data will be saved.
+    new_report_cards:
+      title: New report cards
+      on_file: Report cards on file
+      no_rows: No youths on your caseload have an active ¡Por Vida! enrollment at this school.
+      youth_count: '%{count} youth'
+      rows_hint: Only rows with data will be saved.
+      report_date: Report date
+      youth: Youth
+      gpa: GPA (x100)
+      credits: Credits
+      ag: A-G
+      attendance: 'Attendance %'
+      discipline: Discipline
+      notes: Notes
+      last_value: 'last: %{value}'
+      save: Save report cards
   reports:
     index:
       advanced_search_card: Advanced search & Excel export

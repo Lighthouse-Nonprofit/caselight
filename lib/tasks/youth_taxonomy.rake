@@ -15,8 +15,20 @@ namespace :youth do
   TERMS = ['Fall 24', 'Spring 25', 'Fall 25', 'Spring 26', 'Fall 26', 'Other'].freeze
   DELIVERY_METHODS = ['In-person', 'Phone Call', 'Text Message', 'Email', 'Videocall'].freeze
 
+  # S1 — these seeds belong to the youth flavor ONLY. Running them on a
+  # resettlement box would plant youth taxonomy in another vertical's tenant
+  # (the dispatcher in flavor.rake already routes by flavor; this is the guard
+  # for a hand-run rake). switch-flavor.sh flips .env BEFORE seeding, so the
+  # supported flip path passes.
+  def youth_flavor!
+    flavor = Rails.application.config.x.flavor
+    return if flavor == 'youth'
+    abort "[youth] refusing: FLAVOR=#{flavor.inspect} — youth seeds run on youth boxes only."
+  end
+
   desc 'Seed the Youth Development custom-field forms. Idempotent; sensitivity inline.'
   task seed_taxonomy: :environment do
+    youth_flavor!
     tenant = ENV['TENANT'] || 'cases'
 
     mk = lambda do |type, label, opts = {}|
@@ -156,6 +168,7 @@ namespace :youth do
 
   desc 'Seed the Youth Development programs (multi-tracking). Idempotent.'
   task seed_programs: :environment do
+    youth_flavor!
     tenant = ENV['TENANT'] || 'cases'
 
     pf = lambda do |type, label, opts = {}|
@@ -296,6 +309,7 @@ namespace :youth do
 
   desc 'Seed the Youth Development quantitative reference lists. Idempotent, additive.'
   task seed_quantitative: :environment do
+    youth_flavor!
     tenant = ENV['TENANT'] || 'cases'
 
     types = [
@@ -338,6 +352,7 @@ namespace :youth do
 
   desc 'Seed the SEL assessment domains (CASEL five + School Engagement). Idempotent; guarded reconcile.'
   task seed_domains: :environment do
+    youth_flavor!
     tenant = ENV['TENANT'] || 'cases'
 
     desc_html = lambda do |goal, questions, scores|
@@ -420,6 +435,7 @@ namespace :youth do
 
   desc 'Seed SYNTHETIC Youth Development demo records (demo boxes only). Idempotent.'
   task seed_demo_youth: :environment do
+    youth_flavor!
     tenant = ENV['TENANT'] || 'cases'
 
     Apartment::Tenant.switch(tenant) do
@@ -525,24 +541,36 @@ namespace :youth do
 
   desc 'Seed the SMJUHSD school sites as kind=school agencies (SCH1). Idempotent.'
   task seed_schools: :environment do
+    youth_flavor!
     tenant = ENV['TENANT'] || 'cases'
     schools = ['Santa Maria HS', 'Ernest Righetti HS', 'Pioneer Valley HS',
                'Delta HS', 'Fitzgerald Community School']
     Apartment::Tenant.switch(tenant) do
       created = 0
+      # S2: the programs a school HOSTS — school-embedded case management plus the
+      # cultura cohort curricula. Additive (never unmaps a hand-added program).
+      hosted = ['¡Por Vida!'] + Cohorts::SESSION_TOTALS.keys +
+               ['Cara y Corazón', 'Nurturing Our Futures', 'Susto y Limpia', 'Mi Palabra']
+      hosted_ids = ProgramStream.where(name: hosted.uniq).pluck(:id)
+      mapped = 0
       schools.each do |name|
         agency = Agency.where('lower(name) = ?', name.downcase).first_or_initialize(name: name)
         agency.kind = 'school'
         agency.description = 'SMJUHSD partner school site' if agency.description.blank?
         created += 1 if agency.new_record?
         agency.save!
+        hosted_ids.each do |program_id|
+          link = AgencyProgramStream.find_or_create_by!(agency_id: agency.id, program_stream_id: program_id)
+          mapped += 1 if link.previously_new_record?
+        end
       end
-      puts "youth:seed_schools [tenant=#{tenant}]: #{created} created, #{schools.size - created} existing (kind=school)."
+      puts "youth:seed_schools [tenant=#{tenant}]: #{created} created, #{schools.size - created} existing (kind=school); #{mapped} program link(s)."
     end
   end
 
   desc 'Link youths to their kind=school agency from School Site values (SCH4). Idempotent.'
   task link_schools_from_sites: :environment do
+    youth_flavor!
     tenant = ENV['TENANT'] || 'cases'
     Apartment::Tenant.switch(tenant) do
       schools = Agency.where(kind: 'school').index_by(&:name)

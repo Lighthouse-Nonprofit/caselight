@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rake'
+require Rails.root.join('spec', 'support', 'youth_flavor')
 
 # HUB2 — the entry surfaces:
 #   * roll call: no checked defaults, per-curriculum session ranges, exact
@@ -10,6 +11,7 @@ require 'rake'
 #     POST creates 0 (placeholder-not-submitted pin)
 #   * quick entry: single-row POST through the existing endpoint
 RSpec.describe 'School entry surfaces', type: :request do
+  include_context 'youth flavor'
   RPROPS = { 'e-mail' => 't@e.st', 'age' => '3', 'description' => 'ok' }.freeze
   let(:password) { 'SecurePass123!' }
 
@@ -141,7 +143,7 @@ RSpec.describe 'School entry surfaces', type: :request do
 
     it 'shows LATEST-entry placeholders (never value=) and all-blank POST saves 0' do
       sign_in_as(worker)
-      get report_cards_school_path(school)
+      get new_report_cards_school_path(school) # S3: the batch grid lives on /new
       expect(response.body).to include('placeholder="285"')
       expect(response.body).not_to include('placeholder="250"')
       expect(response.body).not_to include('value="285"')
