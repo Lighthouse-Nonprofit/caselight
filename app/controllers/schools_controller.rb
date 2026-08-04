@@ -159,7 +159,15 @@ class SchoolsController < AdminController
     same_session_ids = Reports::ValueCounts.owner_ids(owner_scope: same_date,
                                                      field_label: 'Session Number',
                                                      value: session_number)
-    taken = ClientEnrollmentTracking.where(id: same_session_ids)
+    # An entry on that date carrying NO session number (imported, or logged
+    # before session numbers were captured) most likely IS this session — block
+    # it too, so re-running a roll call can never double-log.
+    numbered_ids = ClientEnrollmentTrackingSearchEntry
+                   .where(field_label: 'Session Number',
+                          client_enrollment_tracking_id: same_date.select(:id))
+                   .distinct.pluck(:client_enrollment_tracking_id)
+    unnumbered_ids = same_date.where.not(id: numbered_ids).pluck(:id)
+    taken = ClientEnrollmentTracking.where(id: same_session_ids + unnumbered_ids)
                                     .pluck(:client_enrollment_id).to_set
     created = skipped = 0
     params.fetch(:roll, {}).each do |client_id, row|

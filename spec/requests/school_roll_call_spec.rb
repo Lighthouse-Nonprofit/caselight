@@ -73,6 +73,8 @@ RSpec.describe 'School entry surfaces', type: :request do
 
     it 'creates entries only for set rows with exact labels; dedupe skips but others save' do
       date = Time.zone.today - 1
+      # an UNNUMBERED entry on that date (imported/legacy) still blocks — we
+      # cannot tell which session it was, so we never risk double-logging
       ClientEnrollmentTracking.create!(client_enrollment_id: enroll_a.id, tracking_id: session_tracking.id,
                                        entry_date: date, properties: { 'Attendance' => 'Present' })
       sign_in_as(worker)
