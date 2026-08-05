@@ -26,7 +26,10 @@
           %td= u.name
           %td= u.email
           %td= u.roles
-          %td= u.last_sign_in_at&.strftime('%Y-%m-%d %H:%M')
+          -# Devise trackable semantics: current_sign_in_at = the MOST RECENT sign-in (it survives
+          -# logout); last_sign_in_at = the one BEFORE that. Displaying last_sign_in_at under a
+          -# "Last Sign In" header froze every user at their first-ever login.
+          %td= u.current_sign_in_at&.strftime('%Y-%m-%d %H:%M')
           %td= u.sign_in_count
           %td
             - if u.two_factor_enabled?
@@ -61,7 +64,9 @@
             %td= link_to u.name, user_path(u)
             %td= u.roles.titleize
             %td= u.case_worker_clients.size
-            %td= u.last_sign_in_at&.strftime('%Y-%m-%d')
+            -# current_sign_in_at, same reason as the table above — and for a DISABLED account the
+            -# distinction is the whole point: "when did this credential last actually get used".
+            %td= u.current_sign_in_at&.strftime('%Y-%m-%d')
 - else
   %p.text-muted None — no disabled account holds a caseload.
 

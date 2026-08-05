@@ -56,13 +56,16 @@ class AccessReviewsController < AdminController
   def access_review_csv(users)
     require 'csv'
     CSV.generate(headers: true) do |csv|
-      csv << ['User ID', 'Name', 'Email', 'Role', 'Manager ID', 'Last Sign In', 'Current Sign In',
-              'Sign In Count', 'MFA Enabled', 'MFA Gap (privileged w/o MFA)', 'Passkeys',
-              'Locked', 'Failed Attempts', 'Disabled', 'Caseload Count', 'Created']
+      # Devise trackable: current_sign_in_at is the MOST RECENT sign-in, last_sign_in_at the one
+      # before it. Name the columns for what they hold — the old 'Last Sign In' header over the
+      # last_sign_in_at value read as "most recent" but showed the previous session.
+      csv << ['User ID', 'Name', 'Email', 'Role', 'Manager ID', 'Last Sign In (most recent)',
+              'Previous Sign In', 'Sign In Count', 'MFA Enabled', 'MFA Gap (privileged w/o MFA)',
+              'Passkeys', 'Locked', 'Failed Attempts', 'Disabled', 'Caseload Count', 'Created']
       users.each do |u|
         mfa_gap = u.mfa_privileged? && !u.two_factor_enabled?
         csv << [u.id, u.name, u.email, u.roles, u.manager_id,
-                u.last_sign_in_at&.iso8601, u.current_sign_in_at&.iso8601, u.sign_in_count,
+                u.current_sign_in_at&.iso8601, u.last_sign_in_at&.iso8601, u.sign_in_count,
                 (u.two_factor_enabled? ? 'yes' : 'no'), (mfa_gap ? 'YES' : 'no'),
                 u.webauthn_credentials.size,
                 (u.respond_to?(:access_locked?) && u.access_locked? ? 'yes' : 'no'),
