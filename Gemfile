@@ -64,7 +64,7 @@ gem 'webauthn', '~> 3.4'
 # R11 (haml 6) / Dependabot #69 (haml 7.2, same Hamlit lineage). The R11 exposure audit was
 # audited before the bump: zero haml_tag/haml_concat/capture_haml/succeed/precede/object-ref
 # usage, filters limited to :javascript/:css (both in haml 6 core), no Haml::Options config.
-gem 'haml', '~> 7.2'
+gem 'haml', '~> 7.3'
 gem 'haml-rails', '~> 3.1'
 gem 'dotenv-rails', '~> 3.0'  # no Dotenv.* API usage in-app (auto-load of .env only)
 gem 'roo',                    '~> 3.0'
@@ -130,7 +130,7 @@ gem 'whenever',               '~> 1.1.2'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 17.0'
 gem 'carrierwave',            '~> 3.1'
-gem 'mini_magick',            '~> 5.0'  # 5.0 reworked the API, but this app touches it only via
+gem 'mini_magick',            '~> 5.3'  # 5.0 reworked the API, but this app touches it only via
 # carrierwave's CarrierWave::MiniMagick processor (resize_to_fill in the 4 uploaders), no direct
 # MiniMagick calls -- carrierwave 3.1 supports mini_magick 5.
 # font-awesome-rails removed (POAM-017e R9b): the gem shipped only a .css.erb (sprockets
@@ -198,7 +198,7 @@ end
 
 group :development do
   gem 'letter_opener',        '~> 1.10.0'
-  gem 'rubocop',              '~> 1.88.0', require: false
+  gem 'rubocop',              '~> 1.89.0', require: false
 end
 
 group :test do
