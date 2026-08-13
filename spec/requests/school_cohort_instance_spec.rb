@@ -134,26 +134,30 @@ RSpec.describe 'School programs, report cards, cohort instances', type: :request
     end
   end
 
-  describe 'schools ↔ programs (S2)' do
-    it 'shows hosted programs on the hub and the school on the program page' do
-      AgencyProgramStream.create!(agency: school, program_stream: girasol)
+  describe 'programs ↔ delivery sites (S3)' do
+    it 'lists the delivery SITE on the program page (schools are not program hosts)' do
+      site = Agency.create!(name: 'Delta HS', kind: 'site', description: 'Program delivery site')
+      AgencyProgramStream.create!(agency: site, program_stream: girasol)
       admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
       sign_in_as(admin)
-
-      get school_path(school)
-      expect(response.body).to include(I18n.t('schools.show.info_hosted'))
-      expect(response.body).to include(program_stream_path(girasol))
 
       get program_stream_path(girasol)
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include(school_path(school))
+      # the Delivery sites row shows the site; the school (same-named kind=school) is not a host
+      expect(response.body).to include('Delta HS')
+      expect(response.body).to include(I18n.t('program_streams.show.sites', default: 'Delivery sites'))
     end
 
-    it 'tells the operator when a school has no programs mapped' do
+    it 'no longer surfaces a static hosted-programs list on the school hub' do
+      AgencyProgramStream.create!(agency: school, program_stream: girasol) # a legacy stray link
       admin = create(:user, roles: 'admin', password: password, password_confirmation: password)
       sign_in_as(admin)
       get school_path(school)
-      expect(response.body).to include(I18n.t('schools.show.no_hosted'))
+      expect(response).to have_http_status(:ok)
+      # schools track academics: the Overview shows the youths' ACTUAL active enrollments,
+      # not an agency↔program host list.
+      expect(response.body).to include(I18n.t('schools.show.info_program_mix', default: 'Active enrollments'))
+      expect(response.body).not_to include('Programs at this school')
     end
   end
 end

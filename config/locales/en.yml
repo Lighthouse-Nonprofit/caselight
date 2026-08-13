@@ -2862,8 +2862,7 @@ en:
       overdue: Check-in overdue
       quick_entry: Quick entry
     show:
-      info_hosted: Programs at this school
-      no_hosted: No programs mapped to this school yet — add them under Actions → Edit school details.
+      info_program_mix: Active enrollments
     cohorts:
       all_terms: All terms
       roll_call: Roll call

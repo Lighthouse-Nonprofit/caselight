@@ -53,9 +53,9 @@ class SchoolsController < AdminController
     @recent_entries = school_entries(youth_ids)
                       .includes(:tracking, client_enrollment: %i[client program_stream])
                       .order(entry_date: :desc, created_at: :desc).limit(8)
-    # S2: the programs this school HOSTS (agency ↔ program mapping, editable in
-    # the Actions → Edit school details modal), independent of who's enrolled.
-    @hosted_programs = @school.program_streams.order(:name)
+    # S3: schools track EDUCATION, not program delivery — programs are hosted by
+    # delivery Sites now. The Overview surfaces the youths' actual "Active
+    # enrollments" mix (below), not a static agency↔program host list.
   end
 
   def roster
