@@ -56,7 +56,7 @@
               %tbody
                 - ProgramStream.order(:name).each do |ps|
                   %tr
-                    %td= link_to_if (can? :read, ProgramStream), ps.name, program_stream_path(ps)
+                    %td= link_to_if (can? :read, ProgramStream), ps.name, info_program_stream_path(ps)
                     %td.text-right
                       %span.badge.text-bg-primary= ps.client_enrollments.where(status: 'Active').count
     .col-lg-6

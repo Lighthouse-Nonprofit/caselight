@@ -27,6 +27,9 @@ class Ability
     # overviewer) get the tab links rendered and then denied. Write surfaces
     # (report cards, roll call) stay gated on :create ClientEnrollmentTracking.
     alias_action :roster, :cohorts, :cohort, to: :read
+    # The read-only Program Information page is a custom ProgramStream member action;
+    # alias it to :read so it rides the existing `can :read, ProgramStream` grant.
+    alias_action :info, to: :read
     can :manage, Agency
     can :manage, ReferralSource
     can :manage, QuarterlyReport
