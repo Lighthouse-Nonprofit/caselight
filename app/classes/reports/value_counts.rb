@@ -25,7 +25,7 @@ module Reports
     end
 
     # Owner ids whose field equals value — roster membership probes (cohort Term /
-    # School Site, Attendance = Present).
+    # Site, Attendance = Present).
     def self.owner_ids(owner_scope:, field_label:, value:)
       entries = owner_scope.klass.properties_search_entry_class
       fk = owner_scope.klass.properties_search_entry_foreign_key

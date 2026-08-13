@@ -93,7 +93,7 @@ RSpec.describe 'youth taxonomy seeds' do
     it 'gives each cohort curriculum Site+Term enrollment and a weekly Session Attendance tracking' do
       gira = ProgramStream.find_by(name: 'Girasol')
       labels = gira.enrollment.map { |f| f['label'] }
-      expect(labels).to include('School Site', 'Term')
+      expect(labels).to include('Site', 'Term')
       tr = gira.trackings.sole
       expect(tr.name).to eq('Session Attendance')
       expect(tr.frequency).to eq('Weekly')
@@ -119,6 +119,36 @@ RSpec.describe 'youth taxonomy seeds' do
       expect(QuantitativeType.find_by(name: 'Race').allow_multiple).to be(true)
       expect(QuantitativeType.find_by(name: 'Poverty Level').quantitative_cases.pluck(:value))
         .to match_array(%w[Below Above Unknown])
+    end
+
+    it 'names the school-of-attendance list School (not School Site) with the campuses' do
+      expect(QuantitativeType.find_by(name: 'School Site')).to be_nil
+      qt = QuantitativeType.find_by(name: 'School')
+      expect(qt).to be_present
+      expect(qt.quantitative_cases.pluck(:value))
+        .to match_array(['Santa Maria HS', 'Ernest Righetti HS', 'Pioneer Valley HS',
+                         'Delta HS', 'Fitzgerald Community School'])
+    end
+
+    it 'uses the US K-12 + college grade model' do
+      gl = QuantitativeType.find_by(name: 'Grade Level').quantitative_cases.pluck(:value)
+      expect(gl).to include('Kindergarten', '12th', 'College/Post-secondary')
+      expect(gl).not_to include('Post-secondary')
+    end
+  end
+
+  describe 'youth:seed_sites' do
+    it 'seeds delivery Sites as kind=site agencies, including non-school locations' do
+      run_task('youth:seed_sites')
+      sites = Agency.where(kind: 'site').pluck(:name)
+      expect(sites).to include('Delta HS', 'Community Site', 'Other / Not school-based')
+    end
+
+    it 'lets a campus be both a school and a site without collision' do
+      run_task('youth:seed_schools')
+      run_task('youth:seed_sites')
+      expect(Agency.where(name: 'Delta HS', kind: 'school')).to exist
+      expect(Agency.where(name: 'Delta HS', kind: 'site')).to exist
     end
   end
 

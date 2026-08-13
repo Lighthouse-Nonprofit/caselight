@@ -64,7 +64,7 @@ RSpec.describe 'flavor unseed' do
       girasol = ProgramStream.find_by(name: 'Girasol')
       ClientEnrollment.create!(client: outsider, program_stream: girasol, status: 'Active',
                                enrollment_date: Time.zone.today,
-                               properties: { 'School Site' => 'Delta HS', 'Term' => 'Fall 25' })
+                               properties: { 'Site' => 'Delta HS', 'Term' => 'Fall 25' })
       expect { run_task('flavor:unseed_youth', 'CONFIRM_UNSEED' => '1') }
         .to raise_error(SystemExit, /real data/)
       expect(ProgramStream.where(name: 'Girasol')).to exist
@@ -88,7 +88,7 @@ RSpec.describe 'flavor unseed' do
       expect(Family.where("code LIKE 'OCA-DEMO-%'")).to be_empty
       expect(ProgramStream.where(name: ['¡Por Vida!', 'Girasol', 'Mi Palabra'])).to be_empty
       expect(CustomField.where(form_title: ['Youth Safety Plan', 'Hate Incident Record'])).to be_empty
-      expect(QuantitativeType.where(name: ['Preferred Language', 'School Site'])).to be_empty
+      expect(QuantitativeType.where(name: ['Preferred Language', 'School'])).to be_empty
       expect(Domain.where(name: %w[Y1 Y2 Y3 Y4 Y5 Y6])).to be_empty
 
       # resettlement untouched (programs + its full domain set)

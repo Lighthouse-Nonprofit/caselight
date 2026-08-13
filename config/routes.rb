@@ -95,6 +95,8 @@ Rails.application.routes.draw do
         get 'cohorts/:program_stream_id' => 'schools#cohort', as: :cohort
       end
     end
+    # Sites — program-delivery locations (kind=site agencies), distinct from Schools.
+    resources :sites, only: %i[index create update destroy]
   end
   resources :agencies, except: [:show] do
     get 'version' => 'agencies#version'

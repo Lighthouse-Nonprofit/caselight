@@ -10,8 +10,15 @@
 # homogeneous so the split-and-migrate machinery in sensitivity_classification.rake is
 # never needed for this flavor.
 namespace :youth do
-  SCHOOL_SITES = ['Santa Maria HS', 'Ernest Righetti HS', 'Pioneer Valley HS',
-                  'Delta HS', 'Fitzgerald Community School', 'Other / Not school-based'].freeze
+  # School vs Site are DISTINCT concepts (bifurcated 2026-08):
+  #   SCHOOLS = institutions a youth ATTENDS (grades / GPA / A-G / attendance / Aeries).
+  #             Client-level ('School' quantitative) + kind='school' agencies (the hub).
+  #   SITES   = where OCA DELIVERS a session/enrollment (a campus, a community location,
+  #             or "Other"). Per-enrollment ('Site' field) + kind='site' agencies. A campus
+  #             is BOTH a school and a site — same name, two kinds. Adults get a Site, no School.
+  SCHOOLS = ['Santa Maria HS', 'Ernest Righetti HS', 'Pioneer Valley HS',
+             'Delta HS', 'Fitzgerald Community School'].freeze
+  SITES = (SCHOOLS + ['Community Site', 'Other / Not school-based']).freeze
   TERMS = ['Fall 24', 'Spring 25', 'Fall 25', 'Spring 26', 'Fall 26', 'Other'].freeze
   DELIVERY_METHODS = ['In-person', 'Phone Call', 'Text Message', 'Email', 'Videocall'].freeze
 
@@ -89,7 +96,7 @@ namespace :youth do
           mk.call('select', 'Referred By', values: ['School staff', 'Self', 'Family', 'Peer', 'Probation', 'Community org', 'Other']),
           mk.call('textarea', 'Presenting Needs / Reason for Referral'),
           mk.call('checkbox-group', 'Immediate Needs Flagged', values: ['Food', 'Housing', 'Clothing', 'Healthcare', 'Mental health', 'Legal', 'Transportation']),
-          mk.call('select', 'Intake Completed By Site', values: SCHOOL_SITES),
+          mk.call('select', 'Intake Site', values: SITES),
           # SCH3 — Aeries matching key; school-data use rides the enrollment
           # packet consent (FERPA release) + the SMJUHSD DSA before any sync runs.
           mk.call('text', 'Student ID (Aeries)')
@@ -196,7 +203,7 @@ namespace :youth do
     end
 
     cohort_enrollment = [
-      pf.call('select', 'School Site', values: SCHOOL_SITES, required: true),
+      pf.call('select', 'Site', values: SITES, required: true),
       pf.call('select', 'Term', values: TERMS, required: true),
       pf.call('text', 'Cohort Label (optional)')
     ]
@@ -205,7 +212,7 @@ namespace :youth do
       { name: '¡Por Vida!',
         description: 'School-embedded case management: holistic support for students — well-being, academics, development. (PV! funder code.)',
         enrollment: [
-          pf.call('select', 'School Site', values: SCHOOL_SITES, required: true),
+          pf.call('select', 'Site', values: SITES, required: true),
           pf.call('select', 'Grade', values: %w[9 10 11 12 Other]),
           pf.call('textarea', 'Presenting Needs')
         ],
@@ -250,7 +257,7 @@ namespace :youth do
         ] },
       { name: 'Elevate Youth Prevention',
         description: 'Substance-use prevention programming (Elevate Youth California; EYC funder code).',
-        enrollment: [pf.call('select', 'School Site', values: SCHOOL_SITES)],
+        enrollment: [pf.call('select', 'Site', values: SITES)],
         trackings: [
           { name: 'Prevention Activity', frequency: nil, fields: contact_fields.call(['Convening', 'Listening session', 'Training', 'Workshop']) }
         ] },
@@ -316,12 +323,13 @@ namespace :youth do
       { name: 'Preferred Language', allow_multiple: false,
         description: 'Language for contact with the young person themselves.',
         values: ['English', 'Spanish', 'Mixteco', 'Zapoteco', 'Triqui', 'Purépecha', 'Other'] },
-      { name: 'School Site', allow_multiple: false,
-        description: 'Current school of enrollment.',
-        values: SCHOOL_SITES },
+      { name: 'School', allow_multiple: false,
+        description: 'Current school of enrollment (institution the individual attends).',
+        values: SCHOOLS },
       { name: 'Grade Level', allow_multiple: false,
-        description: 'Current grade.',
-        values: ['6', '7', '8', '9', '10', '11', '12', 'Post-secondary', 'Not enrolled'] },
+        description: 'Current grade (US K-12 + college).',
+        values: ['Pre-K', 'Kindergarten', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th',
+                 '8th', '9th', '10th', '11th', '12th', 'College/Post-secondary', 'Not enrolled'] },
       { name: 'Race', allow_multiple: true,
         description: 'Self-identified; funders slice counts by this — record at intake.',
         values: ['White', 'Black or African American', 'Indigenous to the Americas',
@@ -336,7 +344,13 @@ namespace :youth do
     ]
 
     Apartment::Tenant.switch(tenant) do
-      created = updated = 0
+      # Migration (School/Site split 2026-08): the client-level 'School Site' quantitative
+      # became 'School' (school of attendance). Rename in place so an already-seeded box
+      # carries its rows over instead of orphaning them.
+      if (legacy = QuantitativeType.find_by(name: 'School Site')) && !QuantitativeType.exists?(name: 'School')
+        legacy.update!(name: 'School')
+      end
+      created = updated = pruned = 0
       types.each do |t|
         qt = QuantitativeType.find_or_initialize_by(name: t[:name])
         was_new = qt.new_record?
@@ -345,8 +359,15 @@ namespace :youth do
         qt.save!
         was_new ? created += 1 : updated += 1
         t[:values].each { |v| qt.quantitative_cases.find_or_create_by!(value: v) }
+        # Prune values no longer seeded (Grade scale change, School 'Other' removal) —
+        # reference-safe: never drop a value a client currently uses.
+        qt.quantitative_cases.where.not(value: t[:values]).each do |qc|
+          next if ClientQuantitativeCase.where(quantitative_case_id: qc.id).exists?
+          qc.destroy
+          pruned += 1
+        end
       end
-      puts "youth:seed_quantitative [tenant=#{tenant}]: #{created} created, #{updated} updated (of #{types.size})."
+      puts "youth:seed_quantitative [tenant=#{tenant}]: #{created} created, #{updated} updated, #{pruned} stale value(s) pruned (of #{types.size})."
     end
   end
 
@@ -498,6 +519,17 @@ namespace :youth do
       end
 
       marisol = youths[0]
+
+      # School of attendance (client-level 'School' quantitative) so youth:link_schools
+      # links these demo youths into the school hub. Delivery Site is separate (on enrollments).
+      set_school = lambda do |client, school_name|
+        qt = QuantitativeType.find_by(name: 'School') or next
+        qc = qt.quantitative_cases.find_or_create_by!(value: school_name)
+        ClientQuantitativeCase.find_or_create_by!(client_id: client.id, quantitative_case_id: qc.id)
+      end
+      set_school.call(marisol, 'Delta HS')
+      youths[1..].each { |c| set_school.call(c, 'Pioneer Valley HS') }
+
       fill.call(marisol, 'Client', 'Guardian & Emergency Contacts',
                 'Guardian 1: Name' => 'Demo Rosa Reyes', 'Guardian 1: Relationship' => 'Mother',
                 'Guardian 1: Phone' => '(805) 555-0100', 'Guardian 1: Preferred Language' => 'Mixteco',
@@ -511,7 +543,7 @@ namespace :youth do
                 'Incident Narrative' => 'Synthetic demo narrative.')
 
       if (pv = enroll.call(marisol, '¡Por Vida!', Time.zone.today - 75,
-                           'School Site' => 'Delta HS', 'Grade' => '11', 'Presenting Needs' => 'Demo needs'))
+                           'Site' => 'Delta HS', 'Grade' => '11', 'Presenting Needs' => 'Demo needs'))
         track.call(pv, 'Case Management Contact', Time.zone.today - 30,
                    'Delivery Method' => 'In-person', 'Duration (minutes)' => '45',
                    'Topic' => 'Check-in', 'Notes' => 'Synthetic demo contact.')
@@ -522,7 +554,7 @@ namespace :youth do
       end
 
       if (gira = enroll.call(marisol, 'Girasol', Time.zone.today - 60,
-                             'School Site' => 'Delta HS', 'Term' => 'Spring 26'))
+                             'Site' => 'Delta HS', 'Term' => 'Spring 26'))
         3.times do |i|
           track.call(gira, 'Session Attendance', Time.zone.today - 42 + (i * 7),
                      'Session Number' => (i + 1).to_s, 'Attendance' => 'Present',
@@ -532,7 +564,7 @@ namespace :youth do
 
       youths[1..].each_with_index do |c, i|
         enroll.call(c, 'El Joven Noble', Time.zone.today - 50,
-                    'School Site' => 'Pioneer Valley HS', 'Term' => 'Spring 26')
+                    'Site' => 'Pioneer Valley HS', 'Term' => 'Spring 26')
       end
 
       puts "youth:seed_demo_youth [tenant=#{tenant}]: #{youths.size} synthetic youths, 1 household, enrollments + backdated trackings."
@@ -554,9 +586,11 @@ namespace :youth do
       hosted_ids = ProgramStream.where(name: hosted.uniq).pluck(:id)
       mapped = 0
       schools.each do |name|
-        agency = Agency.where('lower(name) = ?', name.downcase).first_or_initialize(name: name)
+        # Keyed on (name, kind) so a campus can exist as BOTH a school (attendance) and a
+        # site (delivery) without one seed flipping the other's kind.
+        agency = Agency.where('lower(name) = ? AND kind = ?', name.downcase, 'school').first_or_initialize(name: name)
         agency.kind = 'school'
-        agency.description = 'SMJUHSD partner school site' if agency.description.blank?
+        agency.description = 'SMJUHSD partner school' if agency.description.blank?
         created += 1 if agency.new_record?
         agency.save!
         hosted_ids.each do |program_id|
@@ -568,17 +602,39 @@ namespace :youth do
     end
   end
 
-  desc 'Link youths to their kind=school agency from School Site values (SCH4). Idempotent.'
-  task link_schools_from_sites: :environment do
+  desc 'Seed the program-delivery Sites as kind=site agencies. Idempotent.'
+  task seed_sites: :environment do
+    youth_flavor!
+    tenant = ENV['TENANT'] || 'cases'
+    Apartment::Tenant.switch(tenant) do
+      created = 0
+      SITES.each do |name|
+        # Keyed on (name, kind) — a campus is both a school (attendance) and a site
+        # (delivery); this never flips a kind='school' row of the same name.
+        agency = Agency.where('lower(name) = ? AND kind = ?', name.downcase, 'site').first_or_initialize(name: name)
+        agency.kind = 'site'
+        agency.description = 'Program delivery site' if agency.description.blank?
+        created += 1 if agency.new_record?
+        agency.save!
+      end
+      puts "youth:seed_sites [tenant=#{tenant}]: #{created} created, #{SITES.size - created} existing (kind=site)."
+    end
+  end
+
+  desc 'Link individuals to their kind=school agency from their School (attendance). Idempotent.'
+  task link_schools: :environment do
     youth_flavor!
     tenant = ENV['TENANT'] || 'cases'
     Apartment::Tenant.switch(tenant) do
       schools = Agency.where(kind: 'school').index_by(&:name)
-      abort 'youth:link_schools_from_sites: no kind=school agencies — run youth:seed_schools first.' if schools.empty?
+      abort 'youth:link_schools: no kind=school agencies — run youth:seed_schools first.' if schools.empty?
       linked = 0
 
-      # Source 1: the School Site quantitative selection (plaintext join).
-      if (qt = QuantitativeType.find_by(name: 'School Site'))
+      # Link ONLY from the client-level 'School' quantitative (school of ATTENDANCE).
+      # The old delivery-Site path (matching enrollment 'School Site' to a school agency)
+      # was deleted with the School/Site split: where a program is delivered no longer
+      # decides which school's academics an individual appears under.
+      if (qt = QuantitativeType.find_by(name: 'School'))
         qt.quantitative_cases.each do |qc|
           agency = schools[qc.value] or next
           ClientQuantitativeCase.where(quantitative_case_id: qc.id).pluck(:client_id).each do |client_id|
@@ -588,22 +644,10 @@ namespace :youth do
         end
       end
 
-      # Source 2: cohort enrollments' 'School Site' field via the sidecar
-      # (deterministic equality per seeded site name — never a ciphertext scan).
-      schools.each do |name, agency|
-        enrollment_ids = ClientEnrollmentSearchEntry
-                         .where(field_label: 'School Site', value: name)
-                         .pluck(:client_enrollment_id)
-        ClientEnrollment.where(id: enrollment_ids).distinct.pluck(:client_id).each do |client_id|
-          link = AgencyClient.find_or_create_by!(agency_id: agency.id, client_id: client_id)
-          linked += 1 if link.previously_new_record?
-        end
-      end
-
-      puts "youth:link_schools_from_sites [tenant=#{tenant}]: #{linked} new link(s)."
+      puts "youth:link_schools [tenant=#{tenant}]: #{linked} new link(s)."
     end
   end
 
-  desc 'Run all Youth Development seeds (taxonomy, programs, quantitative, domains, schools).'
-  task seed_all: %i[seed_taxonomy seed_programs seed_quantitative seed_domains seed_schools]
+  desc 'Run all Youth Development seeds (taxonomy, programs, quantitative, domains, schools, sites).'
+  task seed_all: %i[seed_taxonomy seed_programs seed_quantitative seed_domains seed_schools seed_sites]
 end

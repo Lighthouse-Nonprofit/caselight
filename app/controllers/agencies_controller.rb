@@ -4,10 +4,10 @@ class AgenciesController < AdminController
   before_action :find_agency, only: [:update, :destroy]
 
   def index
-    # kind=school agencies live on the Schools surface (youth flavor) — the
-    # Manage list is partners only, so schools never double-list here. Editing
-    # a school still works via /agencies/:id/edit (linked from the school hub).
-    scope = Agency.where.not(kind: 'school')
+    # kind=school and kind=site agencies live on their own surfaces (youth flavor:
+    # the Schools hub and the Sites list) — the Manage list is partners only, so
+    # they never double-list here. Editing either still works via /agencies/:id/edit.
+    scope = Agency.where.not(kind: %w[school site])
     @agencies = scope.order(:name).page(params[:page]).per(20)
     @results  = scope.count
   end

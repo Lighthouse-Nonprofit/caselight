@@ -110,15 +110,16 @@ RSpec.describe 'FLAVOR mechanism' do
       end
     end
 
-    it 'youth overlay round-trips: youth vocabulary wins the merge' do
+    it 'youth overlay keeps program identity but reverts client/household nouns to base' do
       m = merged_for('youth')
       expect(m.dig('flavor', 'name')).to eq('Youth Development')
       expect(m.dig('dashboards', 'index', 'title')).to eq('Youth Development Dashboard')
-      expect(m.dig('dashboards', 'index', 'tile_households')).to eq('FAMILIES')
-      expect(m.dig('dashboards', 'index', 'tile_individuals')).to eq('YOUTH')
       expect(m.dig('dashboards', 'index', 'tile_check_ins')).to eq('SERVICE CONTACTS THIS MONTH')
-      expect(m.dig('layouts', 'side_menu', 'clients')).to eq('Youth')
-      expect(m.dig('layouts', 'side_menu', 'families')).to eq('Families')
+      # client/household NOUNS reverted to the neutral base (OCA serves adults + families now)
+      expect(m.dig('dashboards', 'index', 'tile_households')).to eq('HOUSEHOLDS')
+      expect(m.dig('dashboards', 'index', 'tile_individuals')).to eq('INDIVIDUALS')
+      expect(m.dig('layouts', 'side_menu', 'clients')).to eq('Individuals')
+      expect(m.dig('layouts', 'side_menu', 'families')).to eq('Households')
       # untouched base keys shine through the overlay
       expect(m.dig('dashboards', 'index', 'tile_programs_offered')).to eq('PROGRAMS OFFERED')
       expect(m.dig('layouts', 'side_menu', 'partners')).to eq('Partners')

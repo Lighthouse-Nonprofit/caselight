@@ -17,7 +17,7 @@ namespace :flavor do
     # separate classify pass.
     'youth' => {
       seed: %w[youth:seed_taxonomy youth:seed_programs youth:seed_quantitative youth:seed_domains
-               youth:seed_schools],
+               youth:seed_schools youth:seed_sites],
       demo: %w[youth:seed_demo_youth]
     }
   }.freeze

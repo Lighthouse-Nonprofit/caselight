@@ -28,10 +28,10 @@ RSpec.describe 'youth leadership pack' do
       off_term = create(:client, given_name: 'Oscar', family_name: 'Off', state: 'accepted')
       e_in = create(:client_enrollment, client: in_term, program_stream: girasol,
                                         enrollment_date: Date.new(2026, 8, 20),
-                                        properties: YPROPS.merge('School Site' => 'Delta HS', 'Term' => 'Fall 26'))
+                                        properties: YPROPS.merge('Site' => 'Delta HS', 'Term' => 'Fall 26'))
       create(:client_enrollment, client: off_term, program_stream: girasol,
                                  enrollment_date: Date.new(2026, 1, 15),
-                                 properties: YPROPS.merge('School Site' => 'Delta HS', 'Term' => 'Spring 26'))
+                                 properties: YPROPS.merge('Site' => 'Delta HS', 'Term' => 'Spring 26'))
       10.times do |i|
         create(:client_enrollment_tracking, client_enrollment: e_in, tracking: session,
                entry_date: Date.new(2026, 9, 1) + i * 7,
