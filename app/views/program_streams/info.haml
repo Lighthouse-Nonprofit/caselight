@@ -24,16 +24,16 @@
                 - @program_stream.domains.pluck(:identity).each do |identity|
                   %span.badge.text-bg-info.label-margin= identity
             - if Rails.application.config.x.flavor == 'youth'
-              - schools = @program_stream.agencies.where(kind: 'school').order(:name)
+              - sites = @program_stream.agencies.where(kind: 'site').order(:name)
               %p.mb-2
-                %strong= t('.schools', default: 'Schools')
+                %strong= t('.sites', default: 'Delivery sites')
                 &nbsp;
-                - if schools.empty?
-                  %span.text-muted= t('.no_schools', default: 'Not mapped to a school yet')
+                - if sites.empty?
+                  %span.text-muted= t('.no_sites', default: 'Not mapped to a site yet')
                 - else
-                  - schools.each do |school|
-                    = link_to school.name, school_path(school), class: 'badge text-bg-secondary label-margin'
-            - partner_agencies = @program_stream.agencies.where.not(kind: 'school').order(:name)
+                  - sites.each do |site|
+                    %span.badge.text-bg-secondary.label-margin= site.name
+            - partner_agencies = @program_stream.agencies.where.not(kind: %w[school site]).order(:name)
             - if partner_agencies.any?
               %p.mb-2
                 %strong= t('.partner_agencies', default: 'Partner agencies')

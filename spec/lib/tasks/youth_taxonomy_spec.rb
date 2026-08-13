@@ -150,6 +150,25 @@ RSpec.describe 'youth taxonomy seeds' do
       expect(Agency.where(name: 'Delta HS', kind: 'school')).to exist
       expect(Agency.where(name: 'Delta HS', kind: 'site')).to exist
     end
+
+    it 'hosts programs on SITES (delivery), not on schools; the catch-all bucket hosts none' do
+      run_task('youth:seed_programs')
+      run_task('youth:seed_sites')
+      delta = Agency.find_by(name: 'Delta HS', kind: 'site')
+      expect(delta.program_streams.pluck(:name)).to include('¡Por Vida!', 'Girasol')
+      other = Agency.find_by(name: 'Other / Not school-based', kind: 'site')
+      expect(other.program_streams).to be_empty
+    end
+
+    it 'keeps schools out of program hosting and purges legacy school→program links' do
+      run_task('youth:seed_programs')
+      run_task('youth:seed_schools')
+      school = Agency.find_by(name: 'Delta HS', kind: 'school')
+      # a stray legacy link (as an earlier seed would have created) is cleaned on re-seed
+      AgencyProgramStream.create!(agency: school, program_stream: ProgramStream.first)
+      run_task('youth:seed_schools')
+      expect(AgencyProgramStream.where(agency_id: Agency.where(kind: 'school').select(:id))).to be_empty
+    end
   end
 
   describe 'youth:seed_domains' do
