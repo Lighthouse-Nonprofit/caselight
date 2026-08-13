@@ -148,6 +148,7 @@ Rails.application.routes.draw do
   # round-3 vocabulary sweep; ProgramStream stays the internal name — helpers unchanged).
   resources :program_streams, path: 'programs' do
     get :preview, on: :collection
+    get :info, on: :member # read-only Program Information page (vs. the config-style show)
   end
   get '/program_streams', to: redirect('/programs')
 

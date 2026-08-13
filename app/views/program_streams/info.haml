@@ -1,0 +1,79 @@
+.row
+  .col-12
+    .ibox#program-information
+      .ibox-title
+        %h5
+          = @program_stream.name
+          = cl_badge(@program_stream.completed_status, @program_stream.completed_variant)
+        .ibox-tools
+          - if (can? :update, ProgramStream) && (current_organization.full_name == @program_stream.ngo_name)
+            = link_to program_stream_path(@program_stream), class: 'btn btn-outline btn-success btn-sm', title: t('.configure', default: 'Configuration') do
+              = fa_icon('cog')
+              = t('.configure', default: 'Configuration')
+          = link_to program_streams_path, class: 'btn btn-outline-secondary btn-sm' do
+            = t('.back', default: 'Back')
+      .ibox-content
+        .row
+          .col-12.col-md-8
+            %h4= t('.about', default: 'About this program')
+            %p= @program_stream.description.presence || content_tag(:span, t('.no_description', default: 'No description provided.'), class: 'text-muted')
+            - if @program_stream.domains.any?
+              %p.mb-2
+                %strong= t('.domains', default: 'Assessed domains')
+                &nbsp;
+                - @program_stream.domains.pluck(:identity).each do |identity|
+                  %span.badge.text-bg-info.label-margin= identity
+            - if Rails.application.config.x.flavor == 'youth'
+              - schools = @program_stream.agencies.where(kind: 'school').order(:name)
+              %p.mb-2
+                %strong= t('.schools', default: 'Schools')
+                &nbsp;
+                - if schools.empty?
+                  %span.text-muted= t('.no_schools', default: 'Not mapped to a school yet')
+                - else
+                  - schools.each do |school|
+                    = link_to school.name, school_path(school), class: 'badge text-bg-secondary label-margin'
+            - partner_agencies = @program_stream.agencies.where.not(kind: 'school').order(:name)
+            - if partner_agencies.any?
+              %p.mb-2
+                %strong= t('.partner_agencies', default: 'Partner agencies')
+                &nbsp;
+                - partner_agencies.each do |agency|
+                  %span.badge.text-bg-secondary.label-margin= agency.name
+          .col-12.col-md-4
+            .row.text-center
+              .col-6
+                %h2.font-bold.m-b-none= @active_enrollments
+                %small.text-muted= t('.active_enrollments', default: 'Active enrollments')
+              .col-6
+                %h2.font-bold.m-b-none= @program_stream.enrolled
+                %small.text-muted= t('.total_enrolled', default: 'Total ever enrolled')
+            %p.text-center.text-muted.mt-3.mb-0
+              = t('.capacity', default: 'Capacity per person')
+              %strong.ms-1= @program_stream.quantity
+        %hr
+        %h4= t('.captures', default: 'What this program captures')
+        .row
+          .col-12.col-md-5
+            %h5.text-muted= t('.at_enrollment', default: 'Collected at enrollment')
+            - if @program_stream.enrollment.present?
+              %ul.list-unstyled.mb-0
+                - @program_stream.enrollment.each do |field|
+                  %li
+                    = fa_icon('angle-right')
+                    = field['label']
+            - else
+              %p.text-muted= t('.none', default: 'None')
+          .col-12.col-md-7
+            %h5.text-muted= t('.services', default: 'Services tracked over time')
+            - if @program_stream.tracking_required?
+              %p.text-muted= t('.no_tracking', default: 'This program does not track recurring services.')
+            - else
+              - @program_stream.trackings.each do |tracking|
+                .mb-3
+                  %strong= tracking.name
+                  - if tracking.frequency.present?
+                    %span.badge.text-bg-light.label-margin= tracking.frequency
+                  - fields = tracking['fields'].to_a.map { |f| f['label'] }.compact
+                  - if fields.any?
+                    %div.text-muted.small= fields.join(' · ')

@@ -33,6 +33,13 @@ class ProgramStreamsController < AdminController
     @program_stream = @program_stream.decorate
   end
 
+  # Read-only Program INFORMATION page (what the program is, who it serves, what it
+  # tracks) — distinct from #show, which is the configuration-style field preview.
+  def info
+    @active_enrollments = @program_stream.client_enrollments.where(status: 'Active').count
+    @program_stream = @program_stream.decorate
+  end
+
   def create
     @program_stream = ProgramStream.new(program_stream_params)
     begin

@@ -2544,6 +2544,23 @@ en:
     edit:
       back: Back
       edit_program_stream: Edit Program
+    info:
+      about: About this program
+      active_enrollments: Active enrollments
+      at_enrollment: Collected at enrollment
+      back: Back
+      capacity: 'Capacity per person:'
+      captures: What this program captures
+      configure: Configuration
+      domains: 'Assessed domains:'
+      no_description: No description provided.
+      no_schools: Not mapped to a school yet
+      no_tracking: This program does not track recurring services.
+      none: None
+      partner_agencies: 'Partner agencies:'
+      schools: 'Schools:'
+      services: Services tracked over time
+      total_enrolled: Total ever enrolled
     enrollment:
       enrollment_form: Enrollment
       note: 'Note: The Date of Enrollment field is added automatically to this enrollment form.'
