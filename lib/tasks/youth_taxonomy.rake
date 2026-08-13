@@ -579,12 +579,6 @@ namespace :youth do
                'Delta HS', 'Fitzgerald Community School']
     Apartment::Tenant.switch(tenant) do
       created = 0
-      # S2: the programs a school HOSTS — school-embedded case management plus the
-      # cultura cohort curricula. Additive (never unmaps a hand-added program).
-      hosted = ['¡Por Vida!'] + Cohorts::SESSION_TOTALS.keys +
-               ['Cara y Corazón', 'Nurturing Our Futures', 'Susto y Limpia', 'Mi Palabra']
-      hosted_ids = ProgramStream.where(name: hosted.uniq).pluck(:id)
-      mapped = 0
       schools.each do |name|
         # Keyed on (name, kind) so a campus can exist as BOTH a school (attendance) and a
         # site (delivery) without one seed flipping the other's kind.
@@ -593,12 +587,12 @@ namespace :youth do
         agency.description = 'SMJUHSD partner school' if agency.description.blank?
         created += 1 if agency.new_record?
         agency.save!
-        hosted_ids.each do |program_id|
-          link = AgencyProgramStream.find_or_create_by!(agency_id: agency.id, program_stream_id: program_id)
-          mapped += 1 if link.previously_new_record?
-        end
       end
-      puts "youth:seed_schools [tenant=#{tenant}]: #{created} created, #{schools.size - created} existing (kind=school); #{mapped} program link(s)."
+      # Schools track a youth's EDUCATION (attendance/grades/Aeries via the school hub and
+      # the client `School` attribute), not program delivery — programs are hosted by SITES
+      # (youth:seed_sites). Purge any legacy school→program host links from earlier seeds.
+      unmapped = AgencyProgramStream.where(agency_id: Agency.where(kind: 'school').select(:id)).delete_all
+      puts "youth:seed_schools [tenant=#{tenant}]: #{created} created, #{schools.size - created} existing (kind=school); #{unmapped} legacy program link(s) removed."
     end
   end
 
@@ -608,6 +602,14 @@ namespace :youth do
     tenant = ENV['TENANT'] || 'cases'
     Apartment::Tenant.switch(tenant) do
       created = 0
+      # The programs a site DELIVERS — school-embedded case management plus the cultura
+      # cohort curricula. Sites (not schools) host programs: a site is WHERE OCA runs a
+      # session; a school is the institution a youth attends. Additive (never unmaps a
+      # hand-added program). The 'Other / Not school-based' catch-all bucket hosts nothing.
+      hosted = ['¡Por Vida!'] + Cohorts::SESSION_TOTALS.keys +
+               ['Cara y Corazón', 'Nurturing Our Futures', 'Susto y Limpia', 'Mi Palabra']
+      hosted_ids = ProgramStream.where(name: hosted.uniq).pluck(:id)
+      mapped = 0
       SITES.each do |name|
         # Keyed on (name, kind) — a campus is both a school (attendance) and a site
         # (delivery); this never flips a kind='school' row of the same name.
@@ -616,8 +618,14 @@ namespace :youth do
         agency.description = 'Program delivery site' if agency.description.blank?
         created += 1 if agency.new_record?
         agency.save!
+        next if name == 'Other / Not school-based'
+
+        hosted_ids.each do |program_id|
+          link = AgencyProgramStream.find_or_create_by!(agency_id: agency.id, program_stream_id: program_id)
+          mapped += 1 if link.previously_new_record?
+        end
       end
-      puts "youth:seed_sites [tenant=#{tenant}]: #{created} created, #{SITES.size - created} existing (kind=site)."
+      puts "youth:seed_sites [tenant=#{tenant}]: #{created} created, #{SITES.size - created} existing (kind=site); #{mapped} program link(s)."
     end
   end
 
