@@ -1,0 +1,16 @@
+= simple_form_for(site ||= Agency.new, url: (site.persisted? ? site_path(site) : sites_path), method: (site.persisted? ? :patch : :post)) do |f|
+  .modal.fade{id: "siteModal-#{site.id}", "aria-labelledby" => "siteModal-#{site.id}Label", :role => "dialog", :tabindex => "-1"}
+    .modal-dialog{:role => "document"}
+      .modal-content
+        .modal-header
+          %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+          %h4.modal-title{ id: "siteModal-#{site.id}Label" }= t('.site')
+        .modal-body
+          = error_notification(f)
+          .form-inputs
+            = f.input :name, label: t('.name')
+            = f.input :description, input_html: { rows: '6' }, label: t('.description')
+        .modal-footer
+          .float-start
+            = f.submit t('.save'), class: 'btn btn-primary form-btn'
+            %button.btn.btn-outline-secondary{"data-bs-dismiss" => "modal", :type => "button"}= t('.cancel')

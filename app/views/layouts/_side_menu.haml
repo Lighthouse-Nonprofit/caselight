@@ -50,6 +50,10 @@
             = link_to schools_path do
               = fa_icon('graduation-cap', 'aria-hidden': true)
               %span.nav-label= t('.schools', default: 'Schools')
+          %li{class: "#{active_menu('sites')}"}
+            = link_to sites_path do
+              = fa_icon('map-marker', 'aria-hidden': true)
+              %span.nav-label= t('.sites', default: 'Sites')
         - if can? :read, Family
           %li{class: families_menu_active}
             = link_to families_path do

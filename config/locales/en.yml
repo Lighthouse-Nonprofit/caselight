@@ -363,6 +363,30 @@ en:
     update:
       failed_update: Failed to update an agency
       successfully_updated: Agency has been successfully updated.
+  sites:
+    create:
+      failed_create: Failed to create a site
+      successfully_created: Site has been successfully created.
+    destroy:
+      failed_delete: Cannot delete a site with linked individuals.
+      successfully_deleted: Site has been successfully deleted.
+    form:
+      cancel: Cancel
+      description: Description
+      name: Name
+      save: Save
+      site: Site
+    index:
+      add_new_site: Add New Site
+      blurb: Program-delivery locations. A campus can be both a School (attendance) and a Site (delivery); a Site can also be a community location with no school.
+      confirm_delete: Delete this site?
+      description: Description
+      manage: Manage
+      site: Sites
+      site_name: Site Name
+    update:
+      failed_update: Failed to update a site
+      successfully_updated: Site has been successfully updated.
     version:
       back: Back
       modification_of: Changelog of
@@ -3191,18 +3215,18 @@ en:
           bucket: Coverage
       youth_served:
         title: Unduplicated youth served
-        description: Unduplicated youth per program and school site, split new vs returning.
+        description: Unduplicated youth per program and school (of attendance), split new vs returning.
         new_label: New this period
         returning_label: Returning
         sections:
           by_program: Youth by program
-          by_site: Youth by school site
+          by_school: Youth by school
           new_returning: New vs returning
         columns:
           program: Program
           youth: Youth (unduplicated)
           service_units: Service units
-          site: School site
+          school: School
           category: Category
   review_problem: 'Please review the problems below:'
   save: Save

@@ -44,7 +44,7 @@ namespace :flavor do
               ['Client', 'Consents & Releases'], ['Client', 'Referral & Intake'],
               ['Client', 'Hate Incident Record'], ['Family', 'Household & Family Context'],
               ['Family', 'Family Engagement Log'], ['Family', 'Custody & Pickup Authorization']],
-      quantitative: ['Preferred Language', 'School Site', 'Grade Level', 'Race',
+      quantitative: ['Preferred Language', 'School', 'Grade Level', 'Race',
                      'Ethnicity', 'Poverty Level'],
       active_domain_reconcile: 'slo4home:seed_domains'
     }
@@ -116,6 +116,15 @@ namespace :flavor do
         AgencyProgramStream.where(agency_id: agency.id).delete_all
         agency.destroy or abort "[unseed] ABORT: school agency #{agency.id} refused destroy"
         removed['school agencies'] += 1
+      end
+
+      # kind=site agencies (program-delivery locations) also belong to the youth flavor.
+      Agency.where(kind: 'site').find_each do |agency|
+        next unless manifest[:flavor] == 'youth'
+        AgencyClient.where(agency_id: agency.id).delete_all
+        AgencyProgramStream.where(agency_id: agency.id).delete_all
+        agency.destroy or abort "[unseed] ABORT: site agency #{agency.id} refused destroy"
+        removed['site agencies'] += 1
       end
 
       puts "[unseed] #{manifest[:flavor]} removed from tenant=#{tenant}: " +

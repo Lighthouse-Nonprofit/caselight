@@ -10,7 +10,7 @@ module Reports
     # included; a funder reads absence as unreported, not as zero).
     class Demographics < BaseReport
       QUANTITATIVE_SECTIONS = ['Race', 'Ethnicity', 'Preferred Language',
-                               'School Site', 'Grade Level', 'Poverty Level'].freeze
+                               'School', 'Grade Level', 'Poverty Level'].freeze
 
       private
 

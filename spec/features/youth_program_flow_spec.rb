@@ -40,7 +40,7 @@ describe 'Youth program flow', js: true do
     pv = ProgramStream.find_by(name: '¡Por Vida!')
     create(:client_enrollment, client: client, program_stream: pv,
                                enrollment_date: Time.zone.today - 60,
-                               properties: { 'School Site' => 'Santa Maria HS' })
+                               properties: { 'Site' => 'Santa Maria HS' })
 
     visit client_client_enrollments_path(client)
     click_button 'Add Tracking' # the multi-tracking dropdown toggle (a button, not a link)

@@ -2,15 +2,16 @@
 
 module Reports
   module Youth
-    # Unduplicated Youth Served — per program, plus by school site and
+    # Unduplicated Youth Served — per program, plus by school (of attendance) and
     # new-vs-returning. "New" = the youth's first-ever service contact falls in
-    # the period (VOCA PMT convention). School-site breakdown rides the PLAINTEXT
-    # quantitative join. Zero rows render for every program and every seeded site.
+    # the period (VOCA PMT convention). The school breakdown rides the PLAINTEXT
+    # 'School' quantitative join (school of attendance, NOT the delivery Site).
+    # Zero rows render for every program and every seeded school.
     class YouthServed < BaseReport
       private
 
       def build_sections
-        [program_section, site_section, new_returning_section]
+        [program_section, school_section, new_returning_section]
       end
 
       def program_section
@@ -29,17 +30,17 @@ module Reports
         )
       end
 
-      def site_section
-        site_type = QuantitativeType.find_by(name: 'School Site')
-        return Section.new(key: :by_site, columns: registry_columns(%w[site youth]), rows: []) if site_type.nil?
+      def school_section
+        school_type = QuantitativeType.find_by(name: 'School')
+        return Section.new(key: :by_school, columns: registry_columns(%w[school youth]), rows: []) if school_type.nil?
 
         served = served_client_ids
-        rows = site_type.quantitative_cases.map do |qc|
+        rows = school_type.quantitative_cases.map do |qc|
           count = ClientQuantitativeCase.where(quantitative_case_id: qc.id,
                                                client_id: served).count
           [qc.value, count]
         end
-        Section.new(key: :by_site, columns: registry_columns(%w[site youth]), rows: rows)
+        Section.new(key: :by_school, columns: registry_columns(%w[school youth]), rows: rows)
       end
 
       def new_returning_section

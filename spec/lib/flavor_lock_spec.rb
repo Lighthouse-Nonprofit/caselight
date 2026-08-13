@@ -41,7 +41,7 @@ RSpec.describe 'youth-flavor lock' do
       Rake.application.rake_require('tasks/youth_taxonomy', [Rails.root.join('lib').to_s])
       Rake::Task.define_task(:environment) unless Rake::Task.task_defined?(:environment)
       %w[youth:seed_taxonomy youth:seed_programs youth:seed_quantitative youth:seed_domains
-         youth:seed_demo_youth youth:seed_schools youth:link_schools_from_sites].each do |name|
+         youth:seed_demo_youth youth:seed_schools youth:seed_sites youth:link_schools].each do |name|
         Rake::Task[name].reenable
         expect { silence_stream { Rake::Task[name].invoke } }
           .to raise_error(SystemExit), "#{name} should refuse on a resettlement box"

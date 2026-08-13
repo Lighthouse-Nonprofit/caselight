@@ -1,36 +1,22 @@
-# Youth Development flavor overlay (Y4 — One Community Action vocabulary).
+# Youth Development flavor overlay (One Community Action).
 # Same contract as the resettlement overlay: loads AFTER config/locales/, wins the
 # merge, root key `en:`, restart-only reload in dev. Every key here must either
 # override an existing base key or live under flavor.* (spec-enforced) — keep
 # entries minimal and deletable.
+#
+# 2026-08: OCA now serves adults + families alongside youth, so the client/household
+# NOUNS were reverted to the neutral base ("Individuals" / "Households") — those keys
+# were deleted here so the base wins. What remains is OCA's genuine flavor identity
+# (program name, service-contact language) plus a demographics tweak, none of which is
+# a client-noun.
 en:
   flavor:
     name: Youth Development
   dashboards:
     index:
       title: Youth Development Dashboard
-      subtitle: Families and youth across your active programs.
-      tile_households: FAMILIES
-      tile_individuals: YOUTH
-      tile_new_individuals: NEW YOUTH THIS MONTH
       tile_check_ins: SERVICE CONTACTS THIS MONTH
-      section_households: Families
-      col_individual: Youth
-  layouts:
-    side_menu:
-      clients: Youth
-      families: Families
   reports:
-    index:
-      tier_worker: My youth
     registry:
-      my_caseload_progress:
-        description: Outcomes and progress for every youth on your caseload — programs, last contact, and assessment movement.
-        columns:
-          client: Youth
-      my_follow_up_compliance:
-        columns:
-          client: Youth
       demographics:
-        title: Youth demographics profile
-        description: Race and ethnicity, preferred language, school site, grade, poverty level, age and gender of the youth served.
+        description: Race and ethnicity, preferred language, school, grade, poverty level, age and gender of those served.

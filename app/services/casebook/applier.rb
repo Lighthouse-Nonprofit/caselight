@@ -16,6 +16,16 @@ module Casebook
 
     GENDER_MAP = { 'male' => 'male', 'female' => 'female' }.freeze
 
+    # Casebook embeds the delivery site as an abbreviation inside case/cohort names
+    # ("Girasol DHS (Spring 25)"). Map to the seeded Site names (School/Site split).
+    SITE_ABBREV = {
+      'delta' => 'Delta HS', 'dhs' => 'Delta HS',
+      'santa maria' => 'Santa Maria HS', 'smhs' => 'Santa Maria HS',
+      'ernest righetti' => 'Ernest Righetti HS', 'righetti' => 'Ernest Righetti HS', 'rhs' => 'Ernest Righetti HS',
+      'pioneer valley' => 'Pioneer Valley HS', 'pvhs' => 'Pioneer Valley HS', 'pioneer' => 'Pioneer Valley HS',
+      'fitzgerald' => 'Fitzgerald Community School', 'fcs' => 'Fitzgerald Community School'
+    }.freeze
+
     def initialize(plan, active_staff: [])
       @plan = plan
       @active_staff = active_staff
@@ -139,19 +149,31 @@ module Casebook
     def upsert_enrollments!(clients)
       @plan[:enrollments].each_with_object({}) do |e, out|
         client = clients[e[:person]] or next
-        out[[e[:person], e[:program]]] = enroll(client, e[:person], e[:program])
+        # Casebook case names embed the delivery site + term ("Girasol DHS (Spring 25)").
+        name = e[:row]['Case Name']
+        out[[e[:person], e[:program]]] =
+          enroll(client, e[:person], e[:program], site: parse_site(name), term: parse_term(name))
       end
     end
 
-    def enroll(client, person, program_name)
+    def enroll(client, person, program_name, site: nil, term: nil)
       ps = ProgramStream.find_by(name: program_name)
       return nil if ps.nil?
       ce = ClientEnrollment.find_or_initialize_by(client_id: client.id, program_stream_id: ps.id)
       if ce.new_record?
         ce.enrollment_date = @plan[:note_dates].dig(person, 0) || Time.zone.today
         ce.status = 'Active'
+        props = {}
+        props['Site'] = site if site.present?
+        props['Term'] = term if term.present?
+        ce.properties = props if props.any?
         @counts['enrollments created'] += 1
         ce.save!
+        # School/Site split: ¡Por Vida! is school-embedded, so a Student's delivery
+        # SITE is their school of ATTENDANCE — default the client 'School' from it
+        # (owner decision). Non-school sites ('Community Site'/'Other') have no
+        # 'School' quantitative value, so set_school_from_site is a no-op for them.
+        set_school_from_site(client, site) if site.present? && program_name == '¡Por Vida!'
       end
       ce
     end
@@ -227,7 +249,8 @@ module Casebook
       # Noble attendance); contact-type trackings do NOT imply enrollment — a
       # Student's one-off 'Navigation' note must not mint an STH enrollment.
       ce = if c[:kind] == :session
-             enroll(client, person, c[:program])
+             enroll(client, person, c[:program],
+                    site: parse_site(row['Subject']), term: parse_term(row['Subject']))
            else
              enrollments[[person, c[:program]]]
            end
@@ -286,6 +309,35 @@ module Casebook
           client.quantitative_cases << qc unless client.quantitative_cases.include?(qc)
         end
       end
+    end
+
+    # Parse the delivery Site from a free-text case/cohort name via SITE_ABBREV,
+    # longest token first so "santa maria" wins over a stray "maria". Returns a
+    # canonical Site name or nil.
+    def parse_site(text)
+      s = text.to_s.unicode_normalize(:nfkd).gsub(/\p{Mn}/, '').downcase
+      SITE_ABBREV.keys.sort_by { |k| -k.length }.each do |token|
+        return SITE_ABBREV[token] if s.match?(/\b#{Regexp.escape(token)}\b/)
+      end
+      nil
+    end
+
+    # Parse a Term ("Spring 25", "(Fall 2025)") into the seeded "Season YY" form.
+    def parse_term(text)
+      m = text.to_s.match(/\b(fall|spring|summer)\s*'?\s*(\d{2,4})\b/i)
+      return nil unless m
+      "#{m[1].capitalize} #{m[2].to_i % 100}"
+    end
+
+    # School of ATTENDANCE (client 'School' quantitative). Only real school campuses
+    # have a 'School' value, so a community/other Site is silently skipped. Then
+    # youth:link_schools links the client to the kind='school' agency of that name.
+    def set_school_from_site(client, site)
+      qt = QuantitativeType.find_by(name: 'School') or return
+      qc = qt.quantitative_cases.find_by(value: site) or return
+      return if ClientQuantitativeCase.where(client_id: client.id, quantitative_case_id: qc.id).exists?
+      client.quantitative_cases << qc
+      @counts['school set from site'] += 1
     end
 
     def assignee_for(person)

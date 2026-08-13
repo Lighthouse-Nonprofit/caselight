@@ -134,25 +134,25 @@ RSpec.describe 'Schools surface', type: :request do
     end
   end
 
-  it 'link_schools_from_sites bridges School Site values to rosters, idempotently (SCH4)' do
+  it 'link_schools links from School (attendance) only — a delivery Site does NOT link (SCH4)' do
     run_task('youth:seed_schools')
     school = Agency.find_by(kind: 'school', name: 'Pioneer Valley HS')
-    # source 1: quantitative selection
-    qt = QuantitativeType.create!(name: 'School Site')
+    # linked: the client-level 'School' (school of attendance) quantitative
+    qt = QuantitativeType.create!(name: 'School')
     qc = qt.quantitative_cases.create!(value: 'Pioneer Valley HS')
-    quant_youth = create(:client, state: 'accepted')
-    ClientQuantitativeCase.create!(client_id: quant_youth.id, quantitative_case_id: qc.id)
-    # source 2: cohort enrollment field via sidecar
+    school_youth = create(:client, state: 'accepted')
+    ClientQuantitativeCase.create!(client_id: school_youth.id, quantitative_case_id: qc.id)
+    # NOT linked: a youth whose only tie is a cohort DELIVERED at that campus (decoupled)
     cohort = create(:program_stream, name: 'Girasol')
-    sidecar_youth = create(:client, state: 'accepted')
-    create(:client_enrollment, client: sidecar_youth, program_stream: cohort,
+    site_only_youth = create(:client, state: 'accepted')
+    create(:client_enrollment, client: site_only_youth, program_stream: cohort,
                                enrollment_date: Time.zone.today - 10,
                                properties: { 'e-mail' => 't@e.st', 'age' => '3', 'description' => 'ok',
-                                             'School Site' => 'Pioneer Valley HS' })
+                                             'Site' => 'Pioneer Valley HS' })
 
-    2.times { run_task('youth:link_schools_from_sites') }
+    2.times { run_task('youth:link_schools') }
     linked = AgencyClient.where(agency_id: school.id).pluck(:client_id)
-    expect(linked).to contain_exactly(quant_youth.id, sidecar_youth.id)
+    expect(linked).to contain_exactly(school_youth.id)
   end
 
   it 'Manage → Agencies lists partners only — schools never double-list there' do

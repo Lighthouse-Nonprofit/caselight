@@ -1,0 +1,37 @@
+.row
+  .col-12
+    .ibox
+      .ibox-title
+        %h5= @results
+        %span.badge.text-bg-info= t('.site')
+        .ibox-tools
+          - if can? :manage, Agency
+            = link_to '#', {"data-bs-target" => "#siteModal-", "data-bs-toggle" => "modal", :type => "button"} do
+              .btn.btn-primary.btn-add
+                = t('.add_new_site')
+      .ibox-content
+        %p.text-muted.small= t('.blurb')
+        .table-responsive
+          %table.table.table-bordered.table-striped.table-hover
+            %thead
+              %tr
+                %th= t('.site_name')
+                %th= t('.description')
+                - if can? :manage, Agency
+                  %th.text-center{ colspan: '2' }= t('.manage')
+            %tbody
+              - @sites.each do |site|
+                %tr
+                  %td= site.name
+                  %td= site.description
+                  - if can? :manage, Agency
+                    %td.text-center
+                      = link_to '#', {class: 'btn btn-outline btn-success btn-xs', "data-bs-target" => "#siteModal-#{site.id}", "data-bs-toggle" => "modal", :type => "button"} do
+                        = fa_icon('pencil')
+                    %td.text-center
+                      = button_to fa_icon('trash'), site_path(site), method: :delete, class: 'btn btn-outline btn-danger btn-xs', form: { data: { turbo_confirm: t('.confirm_delete') } }
+                  - if can? :manage, Agency
+                    = render 'form', site: site
+        .ibox-footer.text-center
+          = paginate @sites
+= render 'form'
