@@ -19,4 +19,5 @@ en:
   reports:
     registry:
       demographics:
+        title: Youth demographics profile
         description: Race and ethnicity, preferred language, school, grade, poverty level, age and gender of those served.

@@ -6,7 +6,9 @@ class Agency < ActiveRecord::Base
   has_many :program_streams, through: :agency_program_streams
   has_paper_trail
 
-  validates :name, presence: true, uniqueness: { case_sensitive: false }
+  # Scoped to kind so a campus can be BOTH a school (attendance) and a site
+  # (delivery) — same name, two kinds — while still blocking a duplicate within a kind.
+  validates :name, presence: true, uniqueness: { case_sensitive: false, scope: :kind }
 
   def self.name_like(values = [])
     where('name iLIKE ANY ( array[?] )', values)
