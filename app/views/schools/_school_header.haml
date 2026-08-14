@@ -6,6 +6,8 @@
     .client-hub__who
       %h1.client-hub__name= school.name
       %span.client-hub__status= cl_badge(t('schools.header.kind_school', default: 'School'), :primary)
+      - if (site_twin = school.campus_twin)
+        = link_to t('schools.header.view_site', default: 'Also a delivery site'), site_path(site_twin), class: 'badge text-bg-info text-decoration-none ms-1'
       %p.client-hub__meta
         = t('schools.header.youth_linked', count: @hub_youth_count, default: "#{@hub_youth_count} youth linked")
         %span.client-hub__sep{ 'aria-hidden' => 'true' } ·

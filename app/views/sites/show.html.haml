@@ -1,0 +1,38 @@
+-# The delivery-location page: the programs run here, the youth served here, and a
+-# link to the school twin when this campus is also a school. Youth-flavor only.
+= render 'shared/page_header', title: @site.name
+.row.mini-margin
+  .col-lg-8
+    .ibox
+      .ibox-title
+        %h5= t('.programs_here', default: 'Programs delivered here')
+        %span.badge.text-bg-info= @programs.size
+      .ibox-content
+        %p.text-muted.small= t('.programs_blurb', default: 'The programs that run at this delivery location. Select a program for its details.')
+        - if @programs.empty?
+          %p.text-muted.mb-0= t('.no_programs', default: 'No programs are delivered at this site yet — add one from Manage → Programs.')
+        - else
+          %ul.list-group
+            - @programs.each do |program|
+              %li.list-group-item.d-flex.justify-content-between.align-items-center
+                = link_to program.name, info_program_stream_path(program)
+                - if @enrollment_mix[program.name].to_i.positive?
+                  %span.badge.text-bg-primary= t('.active_count', count: @enrollment_mix[program.name], default: "#{@enrollment_mix[program.name]} active")
+  .col-lg-4
+    .ibox
+      .ibox-title
+        %h5= t('.about', default: 'About this location')
+      .ibox-content
+        %p.mb-2
+          %strong= t('.type', default: 'Type')
+        - if @school_twin
+          %p.mb-1= t('.is_campus', default: 'Campus — this place is also a school (attendance & academics).')
+          = link_to t('.view_school', default: 'Open the school hub'), school_path(@school_twin), class: 'btn btn-outline-primary btn-xs mb-3'
+        - else
+          %p.mb-3= t('.community_site', default: 'Community delivery location — not a school of attendance.')
+        %p.mb-1
+          %strong= t('.youth_served', default: 'Youth served here')
+        %p= t('.youth_count', count: @youth_count, default: "#{@youth_count} youth")
+        - if @site.description.present?
+          %hr
+          %p.text-muted.small= @site.description
