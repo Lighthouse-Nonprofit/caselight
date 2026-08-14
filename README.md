@@ -64,6 +64,9 @@ CaseLight models the real shape of frontline casework — and lets staff reshape
   apart, with assigned case managers, referral source, status, and program tags.
 - **Configurable without code** — custom forms, enrollable **program streams**, and structured
   **assessments** are all built and edited in-app via a drag-and-drop form builder; no migrations.
+- **Configurable per program area** — a deployment "flavor" tailors vocabulary, taxonomy, and the
+  report library to a vertical (refugee resettlement or youth development); the core application is
+  identical across all of them.
 - **Programs over time** — enroll people in the programs you actually run and log dated check-ins;
   tasks, case notes, and documents live on every case.
 - **Role-aware views** — administrators and directors get a dense, sortable roster; managers and case
@@ -88,6 +91,8 @@ See the **[User Guide](docs/user-guide.md)** for a screen-by-screen walkthrough.
 - **[User Guide](docs/user-guide.md)** — a screen-by-screen walkthrough for staff.
 - **[Administrator Guide](docs/admin-guide.md)** — configuring and securing CaseLight (users, form
   builder, programs, enforcement, break-glass).
+- **[Youth Development flavor](docs/YOUTH-FLAVOR.md)** — how a deployment is tailored to a program
+  area (vocabulary, taxonomy, schools & cohorts, reports) without forking the code.
 - **Printable PDFs** ([`docs/pdf/`](docs/pdf)) — a [User Guide](docs/pdf/CaseLight-User-Guide.pdf), an [Administrator Guide](docs/pdf/CaseLight-Administrator-Guide.pdf), and a [Brochure](docs/pdf/CaseLight-Brochure.pdf); rebuild them from the markdown sources with [`docs/build-pdfs.js`](docs/build-pdfs.js).
 - **[Compliance program](docs/compliance/)** — System Security Plan, SOC 2 control matrix, policies,
   the POA&M, and a reproducible evidence bundle (`rake compliance:evidence`).
