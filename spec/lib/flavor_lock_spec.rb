@@ -58,7 +58,8 @@ RSpec.describe 'youth-flavor lock' do
     it 'exposes no youth reports in the registry' do
       slugs = Reports::Registry.for_flavor('resettlement').map(&:slug)
       expect(slugs).not_to include('youth-served', 'cohort-completion', 'stop-the-hate-quarterly',
-                                  'academic-partner', 'sel-outcomes')
+                                  'academic-partner', 'sel-outcomes',
+                                  'program-session-attendance', 'school-attendance')
       expect { Reports::Registry.find!('stop-the-hate-quarterly', flavor: 'resettlement') }
         .to raise_error(ActiveRecord::RecordNotFound)
     end
