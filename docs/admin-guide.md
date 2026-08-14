@@ -200,4 +200,46 @@ are documented in [`../OPERATIONS.md`](../OPERATIONS.md).
 > The full compliance package — System Security Plan, SOC 2 control matrix, policies, POA&M,
 > and a reproducible `rake compliance:evidence` bundle — lives in `docs/compliance/`.
 > Data-handling posture and the production gate for real client data are in `SECURITY.md`.
+
+## 8 · Flavors & the youth configuration
+
+CaseLight ships **flavors** — deploy-time configurations that change vocabulary, navigation,
+taxonomy, and reports without forking the code. A deployment is pinned to one flavor with
+`FLAVOR=` in `.env` (`resettlement` | `youth`); tenants on the box share it. The division of
+labor: ros-apartment gives each **tenant** full control of everything in the **database**
+(forms, program streams, domains, reference lists — all editable in-app), while a **flavor**
+carries the code-level differences (labels, sidebar, report library) a tenant can't change on
+its own. One server per flavor; the mechanism and the demo-box flip runbook are in
+[`../OPERATIONS.md`](../OPERATIONS.md), and the youth flavor is documented end-to-end in
+[`YOUTH-FLAVOR.md`](YOUTH-FLAVOR.md).
+
+**Seeding the youth taxonomy.** Seeds are dispatched by `flavor:seed` (and, on demo boxes,
+`flavor:seed_demo`), which fan out to the `youth:*` tasks — `seed_taxonomy` (forms),
+`seed_programs`, `seed_quantitative`, `seed_domains`, `seed_schools`, `seed_sites` (with
+`seed_all` running them in order). Each task is **idempotent** and guarded by `youth_flavor!`,
+so it aborts on a non-youth box. Because bootstrap seeds a box only once, run these by hand on
+an existing box after a taxonomy change.
+
+**Schools vs. Sites.** Both are `Agency` rows, distinguished by `kind`:
+
+- **Schools** (`kind: 'school'`) hold a youth's *education* — attendance, GPA, and the
+  Academic Check-in. They never host programs, and they're edited from the **school hub**
+  (Actions → *Edit school details*), not from Manage → Agencies, where they're deliberately
+  excluded so they don't double-list.
+- **Sites** (`kind: 'site'`) are *delivery* locations that host programs via program links.
+  A campus is often both — the same name seeded as a school and a site.
+
+**Linking youth to schools.** `rake youth:link_schools TENANT=<t>` builds the school-roster
+links from each youth's client-level **"School"** quantitative (their school of attendance);
+it's idempotent, so it's safe to re-run after intake or a data import.
+
+**Aeries academic sync (off until a data-sharing agreement is in place).** `rake aeries:sync`
+is inert unless both `AERIES_BASE_URL` and `AERIES_API_KEY` are set. It matches on the
+*Student ID (Aeries)* field and writes GPA / credits / attendance into the Academic Check-in
+tracking, idempotent per (enrollment, report date). Keep it off until the school-district DSA
+is signed.
+
+**Flavor lock.** School and site routes resolve only on a youth box (a per-request route
+constraint); the `youth:*` seed rakes and `aeries:sync` abort off-flavor; and the youth report
+slugs are absent from other flavors' registries. This is pinned by `spec/lib/flavor_lock_spec.rb`.
 > **Pilot data is synthetic only.**

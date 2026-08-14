@@ -46,12 +46,14 @@ This guide walks through the app the way staff actually use it, role by role and
 17. [Change history](#17-change-history)
 18. [Administration reference — the Manage menu](#18-administration-reference--the-manage-menu)
 19. [Troubleshooting & FAQ](#19-troubleshooting--faq)
-20. [Glossary](#20-glossary)
+20. [Schools & cohorts (youth configuration)](#20-schools--cohorts-youth-configuration)
+21. [Glossary](#21-glossary)
 
 **Reading paths.** Case workers: read §1–§13 — that is the day-to-day toolset. Managers: add
 §12 (the notifications and active-task views are your supervision tools) and §17. Administrators:
 this whole guide plus the **[Administrator Guide](pdf/CaseLight-Administrator-Guide.pdf)**, which
-covers configuration in depth.
+covers configuration in depth. **Youth-program staff:** §20 adds schools, rosters, report cards,
+and cohort roll call — read it after §9.
 
 ---
 
@@ -294,6 +296,10 @@ that only makes sense while someone is enrolled — it's a tracking on that prog
 belongs to the *person or household* regardless of program (an intake document, a housing
 inspection), it's a custom form ([§14](#14-custom-forms--the-form-builder-administrators)).
 When in doubt: "would we still record this if they left the program?" — yes means custom form.
+
+> **Youth-configured organizations** get an additional school- and cohort-based view onto this same
+> program data — rosters, academic report cards, and session roll call. See
+> [§20](#20-schools--cohorts-youth-configuration).
 
 ## 10. Case notes
 
@@ -558,7 +564,88 @@ to expand. The sidebar also collapses itself after you navigate; the menu icon p
 affects everyone already enrolled — the warning is asking you to confirm you mean it. When
 unsure, talk to whoever owns the program's reporting before saving.
 
-## 20. Glossary
+## 20. Schools & cohorts (youth configuration)
+
+> **This section applies only to organizations set up for youth-development work.** If your
+> sidebar doesn't show **Schools** and **Sites**, your CaseLight isn't configured this way and
+> you can skip to the [Glossary](#21-glossary). These surfaces sit on top of everything in
+> §1–§19, which still applies — they add a way to track a young person's *education* and their
+> place in *cohort* programming.
+
+**Schools vs. Sites — two different places.** A **School** is where a youth *attends* — it holds
+the education picture (grades, attendance, GPA, academic check-ins). A **Site** is where a
+*program is delivered* (a campus room, a community space). A single campus is often **both** —
+the same name appears once as a School and once as a Site. Programs are hosted by **Sites**, never
+by Schools. You'll spend most of your time on **Schools**; **Sites** is a short list of delivery
+locations that administrators maintain.
+
+### The Schools list
+
+**Schools** in the sidebar opens a card grid — one card per school, each showing the school name,
+how many of *your* youth are linked to it, how many have an active **¡Por Vida!** enrollment, and
+tags for any cohorts running there (click a tag to jump to that school's Cohorts tab). The counts
+are scoped to your caseload, so two workers can open the same school and see different numbers. An
+empty page means no schools have been set up yet — an administrator seeds them.
+
+### The school hub
+
+Opening a school gives you a hub with three tabs:
+
+- **Overview** — four stat tiles (**Youth linked**, **Active ¡Por Vida!**, **Cohort youth this
+  term**, **Service entries this month**), the mix of programs your linked youth are actively
+  enrolled in, and a **Recent activity** table of the latest dated entries.
+- **Roster** — one row per youth on your caseload linked to this school: their programs, last
+  contact, **GPA**, **attendance %**, and a **"Check-in overdue"** flag when their latest academic
+  check-in is missing or more than 45 days old. A **Quick entry** button logs a single youth's
+  report card without leaving the page.
+- **Cohorts** — one card per cultura curriculum (El Joven Noble, Girasol, …) with members at this
+  school, showing the term, how many are enrolled, sessions logged so far, average attendance, and
+  completers. Each card has **Sessions & roster** and **Roll call** buttons.
+
+The hub's **Actions** menu (top right) is the fast way in: **Report card entry**, a **Roll call**
+item per cohort, and **Edit school details**.
+
+### Report cards (academic check-ins)
+
+A "report card" in CaseLight is the **Academic Check-in** on a youth's **¡Por Vida!** enrollment —
+GPA (entered ×100, so 2.75 is typed `275`), cumulative credits, whether they're **A-G on track**,
+school-day attendance %, discipline incidents this period, and a notes field for IEP/SST concerns.
+Two ways to enter them:
+
+- **New report cards** (from the school's Actions menu or the report-cards page) is a **batch
+  grid**: one row per ¡Por Vida! youth at the school, a single **report date** at the top, and each
+  youth's last values shown as faint placeholders so you can see the trend. Fill only the rows you
+  have data for — **blank rows are skipped** — and save. A missing or nonsense date is rejected
+  with a prompt to fix it.
+- The **report cards on file** page lists what's already been entered, newest first, each with an
+  **Edit** link that opens that youth's check-in form.
+
+### Cohort roll call
+
+**Roll call** records attendance for one **session** of a cohort. Pick the **session date** and
+**session number** once, then tap **Present / Absent / Excused** for each youth — nothing is
+pre-selected, because attendance is asserted, not assumed — with an optional note per youth. Rows
+you leave blank are skipped, and a youth already logged for that date and session won't be
+double-counted. Save, and you land back on the cohort's sessions page.
+
+### Cohort sessions & completion
+
+A **cohort** runs a fixed curriculum at one school for one term. Its **Sessions & roster** page
+lays out every session, numbered 1 through the curriculum's length (El Joven Noble is 12, Girasol
+13). Sessions you've held show their attendance tally; ones you haven't show **"Not held yet"**
+with a **Take roll call** link — an unheld session is one that still needs a roll call, not a gap
+in the record. The roster tracks each youth's attended-vs-total, and a **Completed** badge appears
+once a youth has attended at least **75%** of sessions (excused absences lower the average but
+never block completion).
+
+### How youth get linked to a school
+
+A youth appears on a school's roster when their record carries that school as their **school of
+attendance**. An administrator runs the linking step after intake or a data import (see the
+Administrator Guide). Because rosters are caseload-scoped, you only ever see the youth who are
+actually yours.
+
+## 21. Glossary
 
 | Term | Meaning |
 |---|---|
@@ -578,3 +665,10 @@ unsure, talk to whoever owns the program's reporting before saving.
 | **Break-glass** | Reason-required, fully-audited 1-hour self-elevation to see emergency-only data. |
 | **Case history / Changelogs** | Per-record and organization-wide views of who changed what, when. |
 | **Shadow window** | A security control running in report-only mode: it records what it *would* deny, before you enforce it. |
+| **School** *(youth config)* | Where a youth attends — holds the education picture (grades, attendance, GPA, academic check-ins). Never hosts a program. |
+| **Site** *(youth config)* | Where a program is *delivered*. A campus is often both a School and a Site. |
+| **Cohort** *(youth config)* | A fixed-length cultura curriculum (e.g. El Joven Noble, Girasol) run at one school for one term. |
+| **Session** *(youth config)* | One numbered meeting of a cohort, with attendance recorded via roll call. |
+| **Roll call** *(youth config)* | Recording Present / Absent / Excused for each youth in one cohort session. |
+| **Report card** *(youth config)* | An **Academic Check-in** on a ¡Por Vida! enrollment — GPA, credits, A-G, attendance, discipline, notes. |
+| **Completer** *(youth config)* | A youth who has attended at least 75% of a cohort's sessions. |
