@@ -83,7 +83,7 @@ Rails.application.routes.draw do
   # request, so a resettlement box has no school routes AT ALL (not merely a
   # hidden sidebar entry) — and specs can stub config.x.flavor to exercise them.
   constraints(->(_request) { Rails.application.config.x.flavor == 'youth' }) do
-    resources :schools, only: [:index, :show] do
+    resources :schools, only: [:index, :show, :create, :destroy] do
       member do
         get 'roster'
         get 'cohorts'
@@ -96,7 +96,8 @@ Rails.application.routes.draw do
       end
     end
     # Sites — program-delivery locations (kind=site agencies), distinct from Schools.
-    resources :sites, only: %i[index create update destroy]
+    # `show` is the delivery-location page (programs hosted + youth served + campus link).
+    resources :sites, only: %i[index show create update destroy]
   end
   resources :agencies, except: [:show] do
     get 'version' => 'agencies#version'

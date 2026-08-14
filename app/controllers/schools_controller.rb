@@ -12,11 +12,13 @@
 class SchoolsController < AdminController
   authorize_resource class: 'Agency'
 
-  before_action :set_school, except: [:index]
-  before_action :set_hub, except: [:index]
+  before_action :set_school, except: %i[index create]
+  before_action :set_hub, except: %i[index create]
 
   def index
     @schools = Agency.where(kind: 'school').order(:name)
+    # which schools are also delivery sites (campuses), for the badge + cross-link
+    @site_twins = Agency.where(kind: 'site').index_by { |a| a.name.to_s.downcase }
     scope = Client.accessible_by(current_ability)
     @youth_counts = AgencyClient.where(agency_id: @schools.select(:id),
                                        client_id: scope.select(:id))
@@ -39,6 +41,26 @@ class SchoolsController < AdminController
                    .distinct.pluck('agency_clients.agency_id', 'program_streams.name')
                    .group_by(&:first)
                    .transform_values { |pairs| pairs.map(&:last).uniq.sort }
+  end
+
+  def create
+    @school = Agency.new(school_params.merge(kind: 'school'))
+    if @school.save
+      @school.ensure_campus_twin! if params[:also_site] == '1' # make it a campus
+      redirect_to schools_path, notice: t('.created')
+    else
+      redirect_to schools_path, alert: t('.failed_create')
+    end
+  end
+
+  def destroy
+    # a school carries its roster (AgencyClient links) — never orphan them.
+    if @school.clients.present?
+      redirect_to schools_path, alert: t('.failed_delete')
+    else
+      @school.destroy
+      redirect_to schools_path, notice: t('.deleted')
+    end
   end
 
   # Overview tab.
@@ -198,6 +220,10 @@ class SchoolsController < AdminController
 
   def set_school
     @school = Agency.where(kind: 'school').find(params[:id])
+  end
+
+  def school_params
+    params.require(:agency).permit(:name, :description)
   end
 
   def parse_date(value)

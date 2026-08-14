@@ -10,6 +10,11 @@
           .form-inputs
             = f.input :name, label: t('.name')
             = f.input :description, input_html: { rows: '6' }, label: t('.description')
+            - unless site.persisted?
+              .checkbox.mt-2
+                %label
+                  = check_box_tag :also_school, '1'
+                  = t('.also_school', default: 'This place is also a school (create a campus)')
         .modal-footer
           .float-start
             = f.submit t('.save'), class: 'btn btn-primary form-btn'

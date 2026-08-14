@@ -13,7 +13,8 @@ require Rails.root.join('spec', 'support', 'youth_flavor')
 RSpec.describe 'youth-flavor lock' do
   SCHOOL_PATHS = ['/schools', '/schools/1', '/schools/1/roster', '/schools/1/cohorts',
                   '/schools/1/report_cards', '/schools/1/report_cards/new',
-                  '/schools/1/roll_call', '/schools/1/cohorts/2'].freeze
+                  '/schools/1/roll_call', '/schools/1/cohorts/2',
+                  '/sites', '/sites/1'].freeze
 
   def recognize(path, method: :get)
     Rails.application.routes.recognize_path(path, method: method)
@@ -74,6 +75,7 @@ RSpec.describe 'youth-flavor lock' do
       expect(recognize('/schools/1/report_cards/new')[:action]).to eq('new_report_cards')
       expect(recognize('/schools/1/cohorts/2')[:action]).to eq('cohort')
       expect(recognize('/schools/1/roll_call', method: :post)[:action]).to eq('create_roll_call')
+      expect(recognize('/sites/1')[:action]).to eq('show')
     end
   end
 

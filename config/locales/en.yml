@@ -371,6 +371,7 @@ en:
       failed_delete: Cannot delete a site with linked individuals.
       successfully_deleted: Site has been successfully deleted.
     form:
+      also_school: This place is also a school (create a campus)
       cancel: Cancel
       description: Description
       name: Name
@@ -379,11 +380,27 @@ en:
     index:
       add_new_site: Add New Site
       blurb: Program-delivery locations. A campus can be both a School (attendance) and a Site (delivery); a Site can also be a community location with no school.
+      campus_school: Campus — also a school
+      community: Community site
       confirm_delete: Delete this site?
       description: Description
       manage: Manage
+      programs: Programs
       site: Sites
       site_name: Site Name
+      type: Type
+    show:
+      about: About this location
+      active_count: '%{count} active'
+      community_site: Community delivery location — not a school of attendance.
+      is_campus: Campus — this place is also a school (attendance & academics).
+      no_programs: No programs are delivered at this site yet — add one from Manage → Programs.
+      programs_blurb: The programs that run at this delivery location. Select a program for its details.
+      programs_here: Programs delivered here
+      type: Type
+      view_school: Open the school hub
+      youth_count: '%{count} youth'
+      youth_served: Youth served here
     update:
       failed_update: Failed to update a site
       successfully_updated: Site has been successfully updated.
@@ -2854,6 +2871,28 @@ en:
       actions: Actions
       roll_call: 'Roll call — %{program}'
       edit_details: Edit school details
+      view_site: Also a delivery site
+    index:
+      active_pv: '%{count} active ¡Por Vida!'
+      add_new_school: Add school
+      blurb: Schools are where youth attend — attendance, grades, and academic check-ins. A campus can be both a School and a delivery Site; programs are delivered at Sites.
+      campus_site: Campus — also a delivery site
+      none: No schools yet. Add one above, or seed them with rake youth:seed_schools.
+      title: Schools
+      youth_linked: '%{count} youth'
+    add_modal:
+      also_site: This campus is also a program-delivery site (recommended)
+      cancel: Cancel
+      description: Description
+      name: School name
+      save: Add school
+      title: Add school
+    create:
+      created: School added.
+      failed_create: Could not add the school — check the name.
+    destroy:
+      deleted: School removed.
+      failed_delete: This school has youth linked to it — reassign them first.
     tabs:
       overview: Overview
       roster: Roster

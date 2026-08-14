@@ -16,13 +16,22 @@
             %thead
               %tr
                 %th= t('.site_name')
+                %th= t('.type', default: 'Type')
+                %th.text-center= t('.programs', default: 'Programs')
                 %th= t('.description')
                 - if can? :manage, Agency
                   %th.text-center{ colspan: '2' }= t('.manage')
             %tbody
               - @sites.each do |site|
+                - twin = @school_twins[site.name.to_s.downcase]
                 %tr
-                  %td= site.name
+                  %td= link_to site.name, site_path(site)
+                  %td
+                    - if twin
+                      = link_to t('.campus_school', default: 'Campus — also a school'), school_path(twin), class: 'badge text-bg-primary text-decoration-none'
+                    - else
+                      %span.badge.text-bg-secondary= t('.community', default: 'Community site')
+                  %td.text-center= @program_counts.fetch(site.id, 0)
                   %td= site.description
                   - if can? :manage, Agency
                     %td.text-center

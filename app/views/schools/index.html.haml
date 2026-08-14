@@ -2,16 +2,23 @@
 -# (clients/families precedent; _cards.scss scope includes schools-index).
 -# Counts are ability-scoped; cohort tags link into each school's Cohorts tab.
 = render 'shared/page_header', title: t('.title', default: 'Schools')
+.row.mini-margin
+  .col-12
+    %p.text-muted.small.mb-2= t('.blurb', default: 'Schools are where youth attend — attendance, grades, and academic check-ins. A campus can be both a School and a delivery Site; programs are delivered at Sites.')
+    - if can? :manage, Agency
+      %button.btn.btn-primary.btn-add{ type: 'button', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#schoolAddModal' }
+        = t('.add_new_school', default: 'Add school')
 - if @schools.empty?
   .row.mini-margin
     .col-12
       .ibox
         .ibox-content
-          %p.text-muted.mb-0= t('.none', default: 'No schools configured. Seed them with rake youth:seed_schools.')
+          %p.text-muted.mb-0= t('.none', default: 'No schools yet. Add one above, or seed them with rake youth:seed_schools.')
 - else
   %ul.record-cards{ role: 'list' }
     - @schools.each do |school|
       - initials = school.name.split.first(2).map { |word| word[0] }.join.upcase
+      - twin = @site_twins[school.name.to_s.downcase]
       %li.record-card-item
         %article.record-card
           .record-card__body
@@ -23,8 +30,13 @@
                 = t('.youth_linked', count: @youth_counts.fetch(school.id, 0), default: "#{@youth_counts.fetch(school.id, 0)} youth")
                 - if @pv_counts.fetch(school.id, 0).positive?
                   = "· #{t('.active_pv', count: @pv_counts.fetch(school.id, 0), default: "#{@pv_counts.fetch(school.id, 0)} active ¡Por Vida!")}"
-            - if @cohort_tags.key?(school.id)
-              %ul.record-card__tags
+            %ul.record-card__tags
+              - if twin
+                %li.record-card__tag
+                  = link_to t('.campus_site', default: 'Campus — also a delivery site'), site_path(twin), class: 'record-card__tag-link'
+              - if @cohort_tags.key?(school.id)
                 - @cohort_tags[school.id].each do |cohort_name|
                   %li.record-card__tag
                     = link_to cohort_name, cohorts_school_path(school), class: 'record-card__tag-link'
+- if can? :manage, Agency
+  = render 'add_modal'

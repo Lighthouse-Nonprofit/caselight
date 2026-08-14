@@ -1,0 +1,22 @@
+-# Add-a-school modal (youth flavor). Creates a kind=school agency; the campus
+-# checkbox also creates the matching delivery-site twin.
+= simple_form_for(Agency.new, url: schools_path, method: :post) do |f|
+  .modal.fade#schoolAddModal{ 'aria-labelledby' => 'schoolAddModalLabel', role: 'dialog', tabindex: '-1' }
+    .modal-dialog{ role: 'document' }
+      .modal-content
+        .modal-header
+          %button.btn-close{ 'aria-label' => 'Close', 'data-bs-dismiss' => 'modal', type: 'button' }
+          %h4.modal-title#schoolAddModalLabel= t('.title', default: 'Add school')
+        .modal-body
+          = error_notification(f)
+          .form-inputs
+            = f.input :name, label: t('.name', default: 'School name')
+            = f.input :description, input_html: { rows: '4' }, label: t('.description', default: 'Description')
+            .checkbox.mt-2
+              %label
+                = check_box_tag :also_site, '1', true
+                = t('.also_site', default: 'This campus is also a program-delivery site (recommended)')
+        .modal-footer
+          .float-start
+            = f.submit t('.save', default: 'Add school'), class: 'btn btn-primary form-btn'
+            %button.btn.btn-outline-secondary{ 'data-bs-dismiss' => 'modal', type: 'button' }= t('.cancel', default: 'Cancel')
