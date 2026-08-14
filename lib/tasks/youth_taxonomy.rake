@@ -208,6 +208,17 @@ namespace :youth do
       pf.call('text', 'Cohort Label (optional)')
     ]
 
+    # Council / campaign activity: the "track a youth council or campaign" side of the
+    # council programs (El Camino Concilio, Sembradores) — distinct from the weekly
+    # curriculum session attendance those programs also carry.
+    council_campaign = [
+      pf.call('date', 'Activity Date'),
+      pf.call('select', 'Activity Type', values: ['Council meeting', 'Campaign action', 'Community organizing', 'Advocacy / civic engagement', 'Youth-led event', 'Coalition / partner meeting']),
+      pf.call('text', 'Campaign / Initiative'),
+      pf.call('number', 'Youth Participants'),
+      pf.call('textarea', 'Notes')
+    ]
+
     programs = [
       { name: '¡Por Vida!',
         description: 'School-embedded case management: holistic support for students — well-being, academics, development. (PV! funder code.)',
@@ -233,7 +244,9 @@ namespace :youth do
             pf.call('textarea', 'Notes')
           ] },
           { name: 'SMART Goals Review', frequency: nil, fields: [
+            pf.call('number', 'Goal Number (this program year)'),
             pf.call('textarea', 'Goals Reviewed / Set'),
+            pf.call('select', 'Goal Status', values: ['Active', 'Achieved', 'Not met', 'Discontinued']),
             pf.call('select', 'Progress', values: ['On track', 'Partial', 'Stalled', 'Achieved'])
           ] }
         ] },
@@ -273,6 +286,23 @@ namespace :youth do
             pf.call('select', 'Activity', values: ['Advocacy', 'Artivism', 'Media literacy', 'Leadership training', 'Intergenerational healing']),
             pf.call('textarea', 'Notes')
           ] }
+        ] },
+      # Youth councils that are BOTH a curriculum to assess (weekly Session Attendance —
+      # so they also appear in cohort roll call + completion) AND a council/campaign to
+      # track (Council / Campaign Activity). Owner decision (Araceli feedback 2026-08): "both".
+      { name: 'El Camino Concilio',
+        description: 'Youth leadership council: an indigenous-rooted rites-of-passage curriculum plus a standing youth council that runs campaigns and civic actions.',
+        enrollment: cohort_enrollment,
+        trackings: [
+          { name: 'Session Attendance', frequency: 'Weekly', fields: session_attendance.call },
+          { name: 'Council / Campaign Activity', frequency: nil, fields: council_campaign }
+        ] },
+      { name: 'Sembradores Youth Council',
+        description: 'Youth council: a leadership-development curriculum plus a youth council advancing campaigns, advocacy, and community organizing.',
+        enrollment: cohort_enrollment,
+        trackings: [
+          { name: 'Session Attendance', frequency: 'Weekly', fields: session_attendance.call },
+          { name: 'Council / Campaign Activity', frequency: nil, fields: council_campaign }
         ] }
     ]
 
@@ -414,7 +444,14 @@ namespace :youth do
       { name: 'Y6', identity: 'School Engagement', group: groups[1],
         goal: 'The young person attends, participates, and progresses toward graduation.',
         questions: ['Attendance and participation trend this period?',
-                    'On track for credits / A-G / graduation?'] }
+                    'On track for credits / A-G / graduation?'] },
+      # Combined, grant-facing belonging measure (owner decision, Araceli feedback 2026-08):
+      # one domain in the SEL/CASEL group rather than a standalone that overlaps CASEL, so it
+      # rolls into the combined SEL outcomes picture.
+      { name: 'Y7', identity: 'Sense of Belonging', group: groups[0],
+        goal: 'The young person feels they belong and are valued — in the program, at school, and in the community (the combined, grant-facing belonging measure).',
+        questions: ['Do they feel connected and valued in this program and among peers?',
+                    'Do they feel they belong and are safe at school and in their community?'] }
     ]
 
     Apartment::Tenant.switch(tenant) do

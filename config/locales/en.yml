@@ -3244,6 +3244,34 @@ en:
           service_units: Service units
           school: School
           category: Category
+      program_session_attendance:
+        title: Program session attendance
+        description: Session attendance across cohort and council programs — present, absent, excused, and the attendance rate per program.
+        total_row: All programs
+        footnote: 'Attendance rate = Present ÷ all logged sessions (Present + Absent + Excused) in the period. Excused absences count against the rate.'
+        columns:
+          program: Program
+          logged: Sessions logged
+          present: Present
+          absent: Absent
+          excused: Excused
+          rate: Attendance rate
+      school_attendance:
+        title: School attendance
+        description: School-day attendance from the ¡Por Vida! academic check-in — each youth's latest rate this period, with chronic-absence and strong-attendance counts.
+        chronic_flag: Chronically absent
+        footnote: 'Chronic absence is under 90%; strong attendance is 95% or above. Uses each youth''s latest school-day attendance % on or before the period end.'
+        columns:
+          youth: Youth
+          attendance: School-day attendance
+          chronic: Status
+          measure: Measure
+          result: Result
+        rows:
+          youth_with_data: Youth with a check-in this period
+          average: Average school-day attendance
+          chronic: Chronically absent (under 90%)
+          strong: Strong attendance (95%+)
   review_problem: 'Please review the problems below:'
   save: Save
   shared:

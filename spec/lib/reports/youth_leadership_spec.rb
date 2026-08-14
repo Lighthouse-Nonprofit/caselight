@@ -136,4 +136,61 @@ RSpec.describe 'youth leadership pack' do
       expect(roster.rows.sole[4]).to eq('On track')
     end
   end
+
+  describe Reports::Youth::ProgramSessionAttendance do
+    it 'tallies Present/Absent/Excused and the attendance rate per program, with a total row' do
+      gira = create(:program_stream, name: 'Girasol')
+      session = create(:tracking, name: 'Session Attendance', frequency: 'Weekly', program_stream: gira)
+      youth = create(:client, state: 'accepted')
+      enrollment = create(:client_enrollment, client: youth, program_stream: gira,
+                                              enrollment_date: Date.new(2026, 8, 20))
+      day = 0
+      { 'Present' => 3, 'Absent' => 1, 'Excused' => 1 }.each do |status, n|
+        n.times do
+          create(:client_enrollment_tracking, client_enrollment: enrollment, tracking: session,
+                 entry_date: Date.new(2026, 9, 1) + day,
+                 properties: YPROPS.merge('Attendance' => status))
+          day += 1
+        end
+      end
+
+      report = definition('program-session-attendance', 'Reports::Youth::ProgramSessionAttendance')
+               .build(clients: Client.where(id: youth.id), period: term_period)
+      section = report.sections.sole
+      row = section.rows.find { |r| r[0] == 'Girasol' }
+      expect(row[1, 4]).to eq([5, 3, 1, 1]) # logged, present, absent, excused
+      expect(row[5]).to eq('60%')           # 3 of 5
+      total = section.rows.last
+      expect(total[0]).to eq(I18n.t('reports.registry.program_session_attendance.total_row'))
+      expect(total[1]).to eq(5)
+    end
+  end
+
+  describe Reports::Youth::SchoolAttendance do
+    it "reports each youth's LATEST school-day attendance with chronic and strong counts" do
+      pv = create(:program_stream, name: '¡Por Vida!')
+      aeries = create(:tracking, name: 'Academic Check-in (Aeries)', program_stream: pv)
+      att = 'School-Day Attendance % (this period)'
+      strong = create(:client, given_name: 'Sara', family_name: 'Strong', state: 'accepted')
+      chronic = create(:client, given_name: 'Cora', family_name: 'Chronic', state: 'accepted')
+      [[strong, '92', '97'], [chronic, '95', '85']].each do |client, early, late|
+        e = create(:client_enrollment, client: client, program_stream: pv, enrollment_date: Date.new(2026, 8, 15))
+        create(:client_enrollment_tracking, client_enrollment: e, tracking: aeries,
+               entry_date: Date.new(2026, 9, 1), properties: YPROPS.merge(att => early))
+        create(:client_enrollment_tracking, client_enrollment: e, tracking: aeries,
+               entry_date: Date.new(2026, 11, 1), properties: YPROPS.merge(att => late))
+      end
+
+      report = definition('school-attendance', 'Reports::Youth::SchoolAttendance')
+               .build(clients: Client.where(id: [strong.id, chronic.id]), period: term_period)
+      roster = report.sections.find { |s| s.key == :roster }
+      expect(roster.rows.map { |r| r[1] }).to match_array(['97%', '85%']) # latest wins, not the earlier value
+      expect(roster.rows.find { |r| r[1] == '85%' }[2])
+        .to eq(I18n.t('reports.registry.school_attendance.chronic_flag'))
+      expect(roster.rows.find { |r| r[1] == '97%' }[2]).to eq('')
+      summary = report.sections.find { |s| s.key == :summary }
+      expect(summary.rows).to include([I18n.t('reports.registry.school_attendance.rows.chronic'), '1 of 2 (50%)'])
+      expect(summary.rows).to include([I18n.t('reports.registry.school_attendance.rows.strong'), '1 of 2 (50%)'])
+    end
+  end
 end

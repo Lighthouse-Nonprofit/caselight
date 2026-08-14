@@ -69,15 +69,28 @@ RSpec.describe 'youth taxonomy seeds' do
   describe 'youth:seed_programs' do
     before { run_task('youth:seed_programs') }
 
-    it 'creates 10 programs, all completed (wizard gate bypassed)' do
+    it 'creates 12 programs, all completed (wizard gate bypassed)' do
       names = ['¡Por Vida!', 'Stop The Hate', 'Elevate Youth Prevention', 'R.A.I.C.E.S.',
                'El Joven Noble', 'Girasol', 'Cara y Corazón', 'Nurturing Our Futures',
-               'Susto y Limpia', 'Mi Palabra']
+               'Susto y Limpia', 'Mi Palabra', 'El Camino Concilio', 'Sembradores Youth Council']
       names.each do |n|
         ps = ProgramStream.find_by(name: n)
         expect(ps).to be_present, "missing program #{n}"
         expect(ps.completed).to be(true), "#{n} not completed"
       end
+    end
+
+    it 'gives the youth councils BOTH a curriculum (Session Attendance) and a Council / Campaign Activity tracking' do
+      ['El Camino Concilio', 'Sembradores Youth Council'].each do |n|
+        ps = ProgramStream.find_by(name: n)
+        expect(ps.trackings.pluck(:name)).to match_array(['Session Attendance', 'Council / Campaign Activity'])
+      end
+    end
+
+    it 'adds the sequential-goal fields to the ¡Por Vida! SMART Goals Review tracking' do
+      smart = ProgramStream.find_by(name: '¡Por Vida!').trackings.find_by(name: 'SMART Goals Review')
+      labels = smart.fields.map { |f| f['label'] }
+      expect(labels).to include('Goal Number (this program year)', 'Goal Status')
     end
 
     it 'gives ¡Por Vida! its five trackings (multi-tracking is the point)' do
@@ -174,9 +187,13 @@ RSpec.describe 'youth taxonomy seeds' do
   describe 'youth:seed_domains' do
     before { run_task('youth:seed_domains') }
 
-    it 'keeps exactly the six youth domains (CASEL five + School Engagement)' do
-      expect(Domain.pluck(:name)).to match_array(%w[Y1 Y2 Y3 Y4 Y5 Y6])
+    it 'keeps exactly the seven youth domains (CASEL five + School Engagement + Belonging)' do
+      expect(Domain.pluck(:name)).to match_array(%w[Y1 Y2 Y3 Y4 Y5 Y6 Y7])
       expect(Domain.find_by(name: 'Y5').identity).to eq('Responsible Decision-Making')
+      expect(Domain.find_by(name: 'Y7').identity).to eq('Sense of Belonging')
+      # Belonging is the combined grant-facing measure — it lives in the SEL/CASEL group,
+      # not a standalone group.
+      expect(Domain.find_by(name: 'Y7').domain_group.name).to eq('1. Social-Emotional Learning (CASEL)')
       expect(DomainGroup.pluck(:name)).to match_array(['1. Social-Emotional Learning (CASEL)', '2. School Engagement'])
     end
 
