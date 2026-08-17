@@ -65,7 +65,11 @@ namespace :encryption do
       # guard stays green.
       'FamilyAlert'  => %i[title body],
       'FamilyNote'   => %i[note],
-      'ProgressNote' => %i[response additional_note]
+      'ProgressNote' => %i[response additional_note],
+      # PR 4: referrals-OUT narrative. Born-encrypted (brand-new table, no plaintext rows to
+      # backfill) — registered here so encryption:verify covers it and the drift guard stays
+      # green, same precedent as FamilyAlert/FamilyNote.
+      'Referral'     => %i[reason outcome]
     },
     '2' => {
       # D6: + email (client contact PII, born via the encrypted attribute — reminder
