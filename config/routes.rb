@@ -232,7 +232,9 @@ Rails.application.routes.draw do
       end
     end
     scope module: 'client' do
-      resources :tasks
+      resources :tasks do
+        member { patch :complete } # toggle completed
+      end
       # PR 4 — referrals OUT: the per-client hub section (Client::ReferralsController).
       resources :referrals
     end
