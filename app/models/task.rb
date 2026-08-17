@@ -60,6 +60,10 @@ class Task < ActiveRecord::Base
   end
 
   def set_users
+    # Seed assignees from the caseload ONLY when none were chosen — never widen a hand-picked
+    # subset back to the whole caseload (that clobbered the assignee choice). The `user_ids=`
+    # assignment persists its join rows in the after-create autosave, before this after_save.
+    return if case_worker_tasks.reload.any?
     client.users.map { |user| CaseWorkerTask.find_or_create_by(task_id: id, user_id: user.id) }
   end
 

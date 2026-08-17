@@ -3,7 +3,7 @@ class Client::TasksController < AdminController
 
   load_and_authorize_resource
   before_action :find_client
-  before_action :find_task, only: [:edit, :update, :destroy]
+  before_action :find_task, only: [:edit, :update, :destroy, :complete]
 
   def index
     @tasks = @client.tasks
@@ -15,7 +15,8 @@ class Client::TasksController < AdminController
 
   def create
     @task = @client.tasks.new(task_params)
-    @task.user_ids = @client.user_ids
+    # default to the whole caseload only when no assignee was chosen on the form
+    @task.user_ids = @client.user_ids if @task.user_ids.blank?
     respond_to do |format|
       if @task.save
         format.json { render json: @task.to_json, status: 200 }
@@ -46,6 +47,15 @@ class Client::TasksController < AdminController
     end
   end
 
+  def complete
+    # Toggle without validations/callbacks — a completion flip carries no user input and must
+    # not re-fan assignees or push calendar events.
+    @task.update_column(:completed, !@task.completed)
+    key = @task.completed? ? '.marked_complete' : '.reopened'
+    redirect_to client_tasks_path(@client),
+                notice: t(key, default: (@task.completed? ? 'Task completed.' : 'Task reopened.'))
+  end
+
   private
 
   def find_client
@@ -53,7 +63,7 @@ class Client::TasksController < AdminController
   end
 
   def task_params
-    params.require(:task).permit(:domain_id, :name, :completion_date, :start_time, :duration_minutes)
+    params.require(:task).permit(:domain_id, :name, :completion_date, :start_time, :duration_minutes, user_ids: [])
   end
 
   def encode32hex(str)

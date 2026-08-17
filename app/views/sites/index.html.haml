@@ -38,7 +38,8 @@
                       = link_to '#', {class: 'btn btn-outline btn-success btn-xs', "data-bs-target" => "#siteModal-#{site.id}", "data-bs-toggle" => "modal", :type => "button"} do
                         = fa_icon('pencil')
                     %td.text-center
-                      = button_to fa_icon('trash'), site_path(site), method: :delete, class: 'btn btn-outline btn-danger btn-xs', form: { data: { turbo_confirm: t('.confirm_delete') } }
+                      = button_to site_path(site), method: :delete, class: 'btn btn-outline btn-danger btn-xs', form: { data: { turbo_confirm: t('.confirm_delete') } } do
+                        = fa_icon('trash', 'aria-hidden': true)
                   - if can? :manage, Agency
                     = render 'form', site: site
         .ibox-footer.text-center

@@ -370,7 +370,11 @@ namespace :youth do
         values: ['Hispanic/Latino', 'Not Hispanic/Latino', 'Unknown', 'Declined'] },
       { name: 'Poverty Level', allow_multiple: false,
         description: 'Household relative to the federal poverty level — two clicks at intake keeps funder reports complete.',
-        values: ['Below', 'Above', 'Unknown'] }
+        values: ['Below', 'Above', 'Unknown'] },
+      { name: 'Disability', allow_multiple: true,
+        description: 'Self-reported disability status (funder demographic). A youth may have more than one.',
+        values: ['None', 'Learning disability', 'ADHD', 'Physical', 'Sensory (vision/hearing)',
+                 'Developmental', 'Mental health', 'Speech-language', 'Other', 'Declined to state'] }
     ]
 
     Apartment::Tenant.switch(tenant) do
