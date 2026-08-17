@@ -410,9 +410,9 @@ CIF.Client_advanced_searchesIndex = (function () {
 
   var _setDefaultCheckColumnVisibilityAll = () =>
     setTimeout(function () {
-      const clientCheckboxChecked = $('#client-column .visibility .checked');
-      const programCheckboxChecked = $('#program-stream-column .visibility .checked');
-      const customFormCheckboxChecked = $('#custom-form-column .visibility .checked');
+      const clientCheckboxChecked = $('#client-column .visibility input:checked');
+      const programCheckboxChecked = $('#program-stream-column .visibility input:checked');
+      const customFormCheckboxChecked = $('#custom-form-column .visibility input:checked');
       if (
         $(clientCheckboxChecked).length === 0 &&
         $(programCheckboxChecked).length === 0 &&
@@ -551,7 +551,7 @@ CIF.Client_advanced_searchesIndex = (function () {
   };
 
   var _handleSelectFieldVisibilityCheckBox = function () {
-    const checkedFields = $('.visibility .checked input, .all-visibility .checked input');
+    const checkedFields = $('.visibility input:checked, .all-visibility input:checked');
     return $('form#advanced-search').append(checkedFields);
   };
 

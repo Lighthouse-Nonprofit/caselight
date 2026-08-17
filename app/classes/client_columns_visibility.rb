@@ -15,7 +15,6 @@ class ClientColumnsVisibility
       date_of_birth_: :date_of_birth,
       status_: :status,
       agencies_name_: :agency,
-      province_id_: :province,
       current_address_: :current_address,
       school_name_: :school_name,
       grade_: :grade,
@@ -39,8 +38,14 @@ class ClientColumnsVisibility
 
   def visible_columns
     @grid.column_names = []
+    static_keys = columns_collection.keys
     add_custom_builder_columns.each do |key, value|
-      @grid.column_names << value if @params[key]
+      next unless @params[key]
+      # Guard stale bookmarked params: a STATIC column the grid no longer defines (e.g. the
+      # province/State column removed 2026-07-31) makes Datagrid raise on render — a blank 500.
+      # Dynamic form-builder columns are instance-added, so only static keys get the class check.
+      next if static_keys.include?(key) && @grid.class.column_by_name(value).nil?
+      @grid.column_names << value
     end
   end
 
