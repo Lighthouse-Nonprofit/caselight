@@ -105,6 +105,7 @@ class Ability
       can :read,   FamilyNote,  family: caseload_family
       can :create, FamilyNote,  family: caseload_family
       can :read,   FamilyAlert, family: caseload_family
+      can :create, FamilyAlert, family: caseload_family # case workers raise alerts on their own caseload's households
       can :manage, ProgressNote
       can :manage, Task
       can :manage, CustomFieldProperty, custom_formable_type: 'Client'
