@@ -23,5 +23,8 @@
       %label.form-label{ for: 'task_duration_minutes' }= t('.duration', default: 'Duration')
       = f.select :duration_minutes, options_for_select([[t('.duration_all_day', default: 'All day'), '']] + [15, 30, 45, 60, 90, 120, 180, 240].map { |m| ["#{m} min", m] }, @task.duration_minutes), {}, class: 'form-select', id: 'task_duration_minutes'
 
+  = f.association :users, collection: User.non_strategic_overviewers.order(:id), as: :check_boxes, label_method: :name, label: t('.assignees', default: 'Assign to')
+  %p.text-muted.small.mb-3= t('.assignees_hint', default: 'Leave blank to assign to the client’s case workers.')
+
   = f.submit t('.save'), class: 'btn btn-primary form-btn'
   = link_to t('.back'), client_tasks_path(@task.client), class: 'btn btn-outline-secondary form-btn'

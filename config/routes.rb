@@ -228,7 +228,9 @@ Rails.application.routes.draw do
       end
     end
     scope module: 'client' do
-      resources :tasks
+      resources :tasks do
+        member { patch :complete } # toggle completed
+      end
     end
     # resources :surveys
 
