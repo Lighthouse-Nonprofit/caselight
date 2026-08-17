@@ -86,17 +86,26 @@ RSpec.describe 'Family caseload scoping', type: :request do
       end.to change { my_family.family_notes.count }.by(1)
     end
 
-    it 'reads caseload alerts but cannot raise one' do
+    it 'reads caseload alerts and can raise one on their own household (but not a foreign one)' do
       create(:family_alert, family: my_family, title: 'WORKER_VISIBLE_ALERT')
       get family_family_alerts_path(my_family)
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('WORKER_VISIBLE_ALERT')
 
+      # Pre-migration PR 3 (2026-08): case workers can now RAISE alerts on their OWN caseload's
+      # households (owner ask — "make it easier for case managers to create alerts on their cases").
       expect do
         post family_family_alerts_path(my_family), params: {
           family_alert: { severity: 'caution', title: 'worker-raised' }
         }
-      end.not_to change { my_family.family_alerts.count }
+      end.to change { my_family.family_alerts.count }.by(1)
+
+      # ...but the caseload scoping still denies raising one on a household they don't case-manage.
+      expect do
+        post family_family_alerts_path(foreign_family), params: {
+          family_alert: { severity: 'caution', title: 'worker-raised-foreign' }
+        }
+      end.not_to change { foreign_family.family_alerts.count }
     end
 
     it 'is denied foreign household notes' do
