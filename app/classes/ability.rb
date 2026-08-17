@@ -107,6 +107,7 @@ class Ability
       can :read,   FamilyAlert, family: caseload_family
       can :manage, ProgressNote
       can :manage, Task
+      can :manage, Referral   # PR 4 — referrals OUT (client-scoped by find_client, like Task)
       can :manage, CustomFieldProperty, custom_formable_type: 'Client'
       can :manage, ClientEnrollment
       can :manage, ClientEnrollmentTracking
@@ -138,6 +139,7 @@ class Ability
       can :read, FamilyAlert, family: { cases: { client: { case_worker_clients: { user_id: user.id } } } }
       can :manage, ProgressNote
       can :manage, Task
+      can :manage, Referral   # PR 4 — referrals OUT (client-scoped by find_client, like Task)
       can :manage, CustomFieldProperty, custom_formable_type: "Client"
       can :manage, CustomField
       can :manage, ClientEnrollment
@@ -174,6 +176,7 @@ class Ability
       can :manage, Case, { case_type: 'EC', exited: false }
       can :manage, Assessment
       can :manage, Task
+      can :manage, Referral   # PR 4 — referrals OUT (client-scoped by find_client, like Task)
       can :manage, CustomFieldProperty, custom_formable_type: 'Client'
       can :manage, CustomFieldProperty, custom_formable_type: 'Family'
       can :manage, CustomFieldProperty, custom_formable_type: 'Partner'
@@ -209,6 +212,7 @@ class Ability
       can :manage, Case, { case_type: 'FC', exited: false }
       can :manage, Assessment
       can :manage, Task
+      can :manage, Referral   # PR 4 — referrals OUT (client-scoped by find_client, like Task)
       can :manage, CustomFieldProperty, custom_formable_type: 'Client'
       can :manage, CustomFieldProperty, custom_formable_type: 'Family'
       can :manage, CustomFieldProperty, custom_formable_type: 'Partner'
@@ -245,6 +249,7 @@ class Ability
       can :manage, Case, { case_type: 'KC', exited: false }
       can :manage, Assessment
       can :manage, Task
+      can :manage, Referral   # PR 4 — referrals OUT (client-scoped by find_client, like Task)
       can :manage, CustomFieldProperty, custom_formable_type: 'Client'
       can :manage, CustomFieldProperty, custom_formable_type: 'Family'
       can :manage, CustomFieldProperty, custom_formable_type: 'Partner'
@@ -274,6 +279,7 @@ class Ability
       can :manage, User, id: user.id
       can :manage, Case
       can :manage, Task
+      can :manage, Referral   # PR 4 — referrals OUT (client-scoped by find_client, like Task)
       can :manage, Assessment
       can :manage, CaseNote
       can :manage, Family

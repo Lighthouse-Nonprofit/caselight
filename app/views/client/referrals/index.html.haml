@@ -1,0 +1,43 @@
+.row
+  .col-12.col-md-10.offset-md-1
+    = render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
+    .ibox
+      .ibox-title
+        %h5= t('.referrals_out', default: 'Referrals (out)')
+        .ibox-tools
+          - if can? :manage, Referral
+            = link_to new_client_referral_path(@client), class: 'btn btn-primary btn-width' do
+              = t('.new_referral', default: 'New Referral')
+      .ibox-content
+        %p.text-muted.small= t('.blurb', default: 'Businesses and partners this client was referred to (employment, housing, legal, and more).')
+        - if @referrals.empty?
+          %p.text-muted= t('.none', default: 'No referrals recorded yet.')
+        - else
+          .table-responsive
+            %table.table.table-bordered.table-hover
+              %thead
+                %tr
+                  %th= t('.organization', default: 'Referred to')
+                  %th= t('.type', default: 'Type')
+                  %th= t('.referred_on', default: 'Date')
+                  %th= t('.status', default: 'Status')
+                  %th= t('.referred_by', default: 'By')
+                  - if can? :manage, Referral
+                    %th.text-center= t('.manage', default: 'Manage')
+              %tbody
+                - @referrals.each do |referral|
+                  %tr
+                    %td
+                      %strong= referral.organization_name
+                      - if referral.contact_name.present?
+                        %div.text-muted.small= referral.contact_name
+                    %td= referral.referral_type
+                    %td= referral.referred_on&.strftime('%B %d, %Y')
+                    %td= referral_status_badge(referral)
+                    %td= referral.user&.name
+                    - if can? :manage, Referral
+                      %td.text-center.margin-icon
+                        = link_to edit_client_referral_path(@client, referral), class: 'btn btn-outline btn-success btn-xs' do
+                          %i.fa.fa-pencil
+                        = button_to client_referral_path(@client, referral), method: :delete, class: 'btn btn-outline btn-danger btn-xs', form: { data: { turbo_confirm: t('.confirm_delete', default: 'Remove this referral?') } } do
+                          %i.fa.fa-trash

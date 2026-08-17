@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_17_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -408,11 +408,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_000001) do
   end
 
   create_table "donors", id: :serial, force: :cascade do |t|
+    t.text "address", default: ""
     t.string "code", default: ""
+    t.string "contact_name", default: ""
     t.datetime "created_at", precision: nil, null: false
     t.text "description", default: ""
+    t.string "donor_type", default: ""
+    t.string "email", default: ""
+    t.decimal "last_gift_amount", precision: 12, scale: 2
+    t.date "last_gift_on"
     t.string "name", default: ""
+    t.string "phone", default: ""
+    t.string "preferred_contact", default: ""
+    t.string "status", default: ""
+    t.string "tax_id", default: ""
+    t.decimal "total_giving", precision: 12, scale: 2, default: "0.0"
     t.datetime "updated_at", precision: nil, null: false
+    t.string "website", default: ""
   end
 
   create_table "enforcement_settings", force: :cascade do |t|
@@ -762,6 +774,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_000001) do
     t.text "description", default: ""
     t.string "name", default: ""
     t.datetime "updated_at", precision: nil
+  end
+
+  create_table "referrals", force: :cascade do |t|
+    t.bigint "client_id", null: false
+    t.string "contact_email", default: ""
+    t.string "contact_name", default: ""
+    t.string "contact_phone", default: ""
+    t.datetime "created_at", null: false
+    t.string "organization_name", default: "", null: false
+    t.text "outcome"
+    t.date "outcome_on"
+    t.text "reason"
+    t.string "referral_type", default: ""
+    t.date "referred_on"
+    t.string "status", default: "Pending"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["client_id"], name: "index_referrals_on_client_id"
+    t.index ["status"], name: "index_referrals_on_status"
+    t.index ["user_id"], name: "index_referrals_on_user_id"
   end
 
   create_table "stages", id: :serial, force: :cascade do |t|
@@ -1167,6 +1199,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_000001) do
   add_foreign_key "progress_notes", "users"
   add_foreign_key "quantitative_cases", "quantitative_types", on_delete: :cascade
   add_foreign_key "quarterly_reports", "cases"
+  add_foreign_key "referrals", "clients"
+  add_foreign_key "referrals", "users"
   add_foreign_key "surveys", "clients"
   add_foreign_key "tasks", "clients"
   add_foreign_key "thredded_messageboard_users", "thredded_messageboards"

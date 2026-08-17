@@ -94,6 +94,9 @@
                 = link_to t('.donors'), donors_path
               %li{ class: active_menu('referral_sources') }
                 = link_to t('.referral_sources'), referral_sources_path
+              - if can? :index, Referral
+                %li{ class: active_menu('referrals') }
+                  = link_to t('.referrals_out', default: 'Referrals (out)'), referrals_path
               %li{ class: active_menu('quantitative_types') }
                 = link_to t('.quantitative_types'), quantitative_types_path
               %li
@@ -131,6 +134,9 @@
               - if can? :read, ReferralSource
                 %li{ class: active_menu('referral_sources') }
                   = link_to t('.referral_sources'), referral_sources_path
+              - if can? :index, Referral
+                %li{ class: active_menu('referrals') }
+                  = link_to t('.referrals_out', default: 'Referrals (out)'), referrals_path
         -# Investor UX round (2026-07): the Reports landing page — admin + strategic overviewer
         -# (can? :index, :report mirrors ReportsController's authorize_resource class: false).
         - if can? :index, :report

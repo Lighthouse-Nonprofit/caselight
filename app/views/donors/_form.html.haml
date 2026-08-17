@@ -8,9 +8,45 @@
         .modal-body
           = error_notification(f)
           .form-inputs
-            = f.input :name, label: t('.name')
-            = f.input :code, label: t('.code')
-            = f.input :description, input_html: { rows: '10' }, label: t('.description')
+            .row
+              .col-12.col-md-6
+                = f.input :name, label: t('.name')
+              .col-12.col-md-6
+                = f.input :code, label: t('.code')
+            .row
+              .col-12.col-md-6
+                = f.input :donor_type, collection: Donor::TYPES, include_blank: t('.type_prompt', default: 'Select a type'), label: t('.donor_type', default: 'Type')
+              .col-12.col-md-6
+                = f.input :status, collection: Donor::STATUSES, include_blank: t('.status_prompt', default: 'Select a status'), label: t('.status', default: 'Status')
+
+            %h5.mt-3= t('.contact_heading', default: 'Contact')
+            .row
+              .col-12.col-md-6
+                = f.input :contact_name, label: t('.contact_name', default: 'Primary contact')
+              .col-12.col-md-6
+                = f.input :preferred_contact, collection: Donor::CONTACT_METHODS, include_blank: t('.preferred_contact_prompt', default: 'No preference'), label: t('.preferred_contact', default: 'Preferred contact')
+            .row
+              .col-12.col-md-6
+                = f.input :email, label: t('.email', default: 'Email')
+              .col-12.col-md-6
+                = f.input :phone, label: t('.phone', default: 'Phone')
+            = f.input :address, input_html: { rows: '2' }, label: t('.address', default: 'Address')
+            .row
+              .col-12.col-md-6
+                = f.input :website, label: t('.website', default: 'Website')
+              .col-12.col-md-6
+                = f.input :tax_id, label: t('.tax_id', default: 'EIN / Tax ID')
+
+            %h5.mt-3= t('.giving_heading', default: 'Giving summary')
+            .row
+              .col-12.col-md-4
+                = f.input :total_giving, label: t('.total_giving', default: 'Total giving ($)')
+              .col-12.col-md-4
+                = f.input :last_gift_amount, label: t('.last_gift_amount', default: 'Last gift ($)')
+              .col-12.col-md-4
+                = f.input :last_gift_on, as: :string, input_html: { class: 'date-picker', value: (donor.last_gift_on&.strftime('%Y-%m-%d')) }, label: t('.last_gift_on', default: 'Last gift date')
+
+            = f.input :description, input_html: { rows: '4' }, label: t('.description')
         .modal-footer
           .float-start
             = f.submit t('.save') , class: 'btn btn-primary form-btn'

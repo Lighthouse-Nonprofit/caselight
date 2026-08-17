@@ -88,6 +88,8 @@
                       = t('clients.client_header.new_assessment', default: 'New Assessment')
               - if can? :manage, Task
                 %li= link_to t('clients.client_header.new_task', default: 'New Task'), new_client_task_path(client), class: 'dropdown-item'
+              - if can? :manage, Referral
+                %li= link_to t('clients.client_header.new_referral', default: 'New Referral (out)'), new_client_referral_path(client), class: 'dropdown-item'
               - if can_read_client_progress_note?(client)
                 %li= link_to t('clients.show.progress_note'), client_progress_notes_path(client), class: 'dropdown-item'
               - if client.has_any_quarterly_reports? && (can? :manage, QuarterlyReport)
@@ -129,6 +131,11 @@
         = link_to client_tasks_path(client), class: "nav-link #{'active' if active_tab == :tasks}" do
           = t('clients.client_header.tasks', default: 'Tasks')
           %span.client-hub__tab-chip= client.tasks.incomplete.count
+      - if can? :manage, Referral
+        %li.nav-item
+          = link_to client_referrals_path(client), class: "nav-link #{'active' if active_tab == :referrals}" do
+            = t('clients.client_header.referrals', default: 'Referrals')
+            %span.client-hub__tab-chip= client.referrals.count
 -# UX round 3 (A3): the exit modals the Actions items target — rendered with the header so
 -# the dropdown works on every hub page, not just show. Same gates as the menu items above.
 - if client.state == 'accepted' && (can? :manage, Case)

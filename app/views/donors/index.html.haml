@@ -16,7 +16,9 @@
               %tr
                 %th.name= t('.donor_names')
                 %th.code= t('.code')
-                %th.description= t('.description')
+                %th.donor_type= t('.donor_type', default: 'Type')
+                %th.status= t('.status', default: 'Status')
+                %th.contact= t('.contact', default: 'Contact')
                 %th.clients= t('.clients')
                 - if can? :manage, Donor
                   %th.text-center.custom_column_manage{ colspan: '2' }= t('.manage')
@@ -27,7 +29,15 @@
                 %tr
                   %td= donor.name
                   %td= donor.code
-                  %td= donor.description
+                  %td= donor.donor_type
+                  %td
+                    - if donor.status.present?
+                      %span.badge.text-bg-light= donor.status
+                  %td
+                    - if donor.contact_name.present?
+                      %div= donor.contact_name
+                    - if donor.email.present?
+                      %div.text-muted.small= donor.email
                   %td
                     -# Investor UX round (2026-07): accessible_by-scoped for consistency with the
                     -# agencies/referral-sources columns (only admin + strategic overviewer can

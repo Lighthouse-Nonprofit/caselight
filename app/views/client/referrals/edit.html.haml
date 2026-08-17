@@ -1,0 +1,8 @@
+.row
+  .col-12.col-md-10.offset-md-1
+    = render 'clients/client_header', client: @client, active_tab: client_hub_active_tab
+    .ibox
+      .ibox-title
+        %h5= t('.edit_referral', default: 'Edit Referral (out)')
+      .ibox-content
+        = render 'form'
