@@ -1,0 +1,33 @@
+= simple_form_for([@client, @referral], html: { class: 'referral-form' }) do |f|
+  = error_notification(f)
+
+  .row
+    .col-12.col-md-6
+      = f.input :organization_name, label: t('.organization_name', default: 'Business / organization referred to'), required: true
+    .col-12.col-md-6
+      = f.input :referral_type, collection: Referral::TYPES, include_blank: t('.type_prompt', default: 'Select a type'), label: t('.referral_type', default: 'Referral type')
+
+  .row
+    .col-12.col-md-4
+      = f.input :contact_name, label: t('.contact_name', default: 'Contact name')
+    .col-12.col-md-4
+      = f.input :contact_phone, label: t('.contact_phone', default: 'Contact phone')
+    .col-12.col-md-4
+      = f.input :contact_email, label: t('.contact_email', default: 'Contact email')
+
+  = f.input :reason, as: :text, input_html: { rows: 3 }, label: t('.reason', default: 'Reason for referral')
+
+  .row
+    .col-12.col-md-4
+      = f.input :referred_on, as: :string, input_html: { class: 'date-picker', value: (@referral.referred_on&.strftime('%Y-%m-%d')) }, label: t('.referred_on', default: 'Date referred')
+    .col-12.col-md-4
+      = f.input :status, collection: Referral::STATUSES, include_blank: false, label: t('.status', default: 'Status')
+    .col-12.col-md-4
+      = f.input :outcome_on, as: :string, input_html: { class: 'date-picker', value: (@referral.outcome_on&.strftime('%Y-%m-%d')) }, label: t('.outcome_on', default: 'Outcome date')
+
+  = f.input :outcome, as: :text, input_html: { rows: 3 }, label: t('.outcome', default: 'Outcome / notes')
+
+  = f.association :user, collection: User.non_strategic_overviewers.order(:id), label_method: :name, include_blank: t('.referred_by_prompt', default: 'Unassigned'), label: t('.referred_by', default: 'Referred by (staff)')
+
+  = f.submit t('.save', default: 'Save'), class: 'btn btn-primary form-btn'
+  = link_to t('.back', default: 'Back'), client_referrals_path(@client), class: 'btn btn-outline-secondary form-btn'

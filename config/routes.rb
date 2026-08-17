@@ -125,6 +125,10 @@ Rails.application.routes.draw do
     get 'version' => 'referral_sources#version'
   end
 
+  # PR 4 — the org-wide "referrals OUT" manage list (read-only roll-up across caseloads;
+  # creation/edit live on the client hub via Client::ReferralsController).
+  resources :referrals, only: [:index]
+
   resources :domain_groups, except: [:show] do
     get 'version' => 'domain_groups#version'
   end
@@ -231,6 +235,8 @@ Rails.application.routes.draw do
       resources :tasks do
         member { patch :complete } # toggle completed
       end
+      # PR 4 — referrals OUT: the per-client hub section (Client::ReferralsController).
+      resources :referrals
     end
     # resources :surveys
 

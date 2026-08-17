@@ -11,7 +11,8 @@ module ClientHubHelper
     'custom_field_properties'          => :forms,
     'case_notes'                       => :case_notes,
     'assessments'                      => :assessments,
-    'tasks'                            => :tasks
+    'tasks'                            => :tasks,
+    'referrals'                        => :referrals
   }.freeze
 
   def client_hub_active_tab

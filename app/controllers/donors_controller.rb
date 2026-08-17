@@ -42,7 +42,9 @@ class DonorsController < AdminController
   private
 
   def donor_params
-    params.require(:donor).permit(:name, :description, :code)
+    params.require(:donor).permit(:name, :description, :code, :donor_type, :status,
+                                  :contact_name, :email, :phone, :address, :website, :tax_id,
+                                  :preferred_contact, :total_giving, :last_gift_on, :last_gift_amount)
   end
 
   def find_donor

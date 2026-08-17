@@ -1,0 +1,40 @@
+.row
+  .col-12
+    .ibox
+      .ibox-title
+        %h5= @results
+        %span.badge.text-bg-info= t('.referrals_out', default: 'Referrals (out)')
+        .ibox-tools
+          = form_tag referrals_path, method: :get, class: 'd-inline' do
+            = select_tag :status,
+              options_for_select([[t('.all_statuses', default: 'All statuses'), '']] + Referral::STATUSES.map { |s| [s, s] }, params[:status]),
+              class: 'form-select form-select-sm d-inline w-auto', onchange: 'this.form.submit()'
+      .ibox-content
+        %p.text-muted.small= t('.blurb', default: 'Outbound referrals across your caseload — where clients were sent for employment, housing, legal help, and more. Add or edit referrals from a client’s Referrals tab.')
+        - if @referrals.empty?
+          %p.text-muted= t('.none', default: 'No referrals recorded yet.')
+        - else
+          .table-responsive
+            %table.table.table-bordered.table-striped.table-hover
+              %thead
+                %tr
+                  %th= t('.client', default: 'Client')
+                  %th= t('.organization', default: 'Referred to')
+                  %th= t('.type', default: 'Type')
+                  %th= t('.referred_on', default: 'Date')
+                  %th= t('.status', default: 'Status')
+                  %th= t('.referred_by', default: 'By')
+              %tbody
+                - @referrals.each do |referral|
+                  %tr
+                    %td= link_to entity_name(referral.client), client_referrals_path(referral.client)
+                    %td
+                      %strong= referral.organization_name
+                      - if referral.contact_name.present?
+                        %div.text-muted.small= referral.contact_name
+                    %td= referral.referral_type
+                    %td= referral.referred_on&.strftime('%B %d, %Y')
+                    %td= referral_status_badge(referral)
+                    %td= referral.user&.name
+      .ibox-footer.text-center
+        = paginate @referrals

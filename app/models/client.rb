@@ -41,6 +41,8 @@ class Client < ActiveRecord::Base
   has_many :answers, dependent: :destroy
   has_many :able_screening_questions, through: :answers
   has_many :tasks,          dependent: :destroy
+  # PR 4 — referrals OUT (businesses/partners this client was referred to). Owned; cascades.
+  has_many :referrals,      dependent: :destroy
   has_many :agency_clients, dependent: :destroy
   has_many :agencies, through: :agency_clients
   has_many :client_quantitative_cases, dependent: :destroy
