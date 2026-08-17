@@ -1,4 +1,6 @@
 class Task < ActiveRecord::Base
+  attr_accessor :assignees_explicit # set by the tasks controller when the form hand-picks a subset
+
   belongs_to :domain, counter_cache: true
   belongs_to :case_note_domain_group
   belongs_to :client
@@ -60,10 +62,9 @@ class Task < ActiveRecord::Base
   end
 
   def set_users
-    # Seed assignees from the caseload ONLY when none were chosen — never widen a hand-picked
-    # subset back to the whole caseload (that clobbered the assignee choice). The `user_ids=`
-    # assignment persists its join rows in the after-create autosave, before this after_save.
-    return if case_worker_tasks.reload.any?
+    # Default assignees to the whole caseload, EXCEPT when the task form hand-picked a subset
+    # (assignees_explicit) — then honor the choice instead of widening it back to the caseload.
+    return if assignees_explicit
     client.users.map { |user| CaseWorkerTask.find_or_create_by(task_id: id, user_id: user.id) }
   end
 

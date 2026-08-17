@@ -15,8 +15,11 @@ class Client::TasksController < AdminController
 
   def create
     @task = @client.tasks.new(task_params)
-    # default to the whole caseload only when no assignee was chosen on the form
-    @task.user_ids = @client.user_ids if @task.user_ids.blank?
+    if @task.user_ids.present?
+      @task.assignees_explicit = true  # honor the chosen subset; set_users won't widen it
+    else
+      @task.user_ids = @client.user_ids # default to the whole caseload
+    end
     respond_to do |format|
       if @task.save
         format.json { render json: @task.to_json, status: 200 }
@@ -32,7 +35,9 @@ class Client::TasksController < AdminController
   end
 
   def update
-    if @task.update(task_params)
+    @task.assign_attributes(task_params)
+    @task.assignees_explicit = true if @task.user_ids.present?
+    if @task.save
       redirect_to client_tasks_path(@client), notice: t('.successfully_updated')
     else
       render :edit
