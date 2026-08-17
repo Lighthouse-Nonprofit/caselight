@@ -72,7 +72,10 @@ class ProgressNotesController < AdminController
   private
 
   def find_client
-    @client = Client.able.accessible_by(current_ability).friendly.find(params[:client_id])
+    # Progress notes — the flexible, non-service note (voicemails, follow-up texts, etc.) — used to
+    # be gated to the ABLE program (Client.able). Unlocked 2026-08 so they work on ANY client in
+    # both flavors (the youth flavor has no ABLE program), alongside domain-based Case Notes.
+    @client = Client.accessible_by(current_ability).friendly.find(params[:client_id])
   end
 
   def find_progress_note

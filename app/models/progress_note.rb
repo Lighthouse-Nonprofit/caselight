@@ -45,7 +45,11 @@ class ProgressNote < ActiveRecord::Base
   end
 
   def other_location?
-    other_location = Location.find_by(name: 'ផ្សេងៗ Other')
-    location == other_location
+    # Guard location.blank? — otherwise a note with NO location matches when the 'Other' location
+    # row is absent (nil == nil), wrongly requiring an other_location value and blocking a valid
+    # location-less note (e.g. a quick voicemail). Relevant now that the flexible note is unlocked
+    # for all clients/flavors.
+    return false if location.blank?
+    location == Location.find_by(name: 'ផ្សេងៗ Other')
   end
 end
