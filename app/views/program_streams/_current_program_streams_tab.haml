@@ -1,34 +1,50 @@
 #current-program-streams.tab-pane.active{role: "tabpanel"}
-  .table-responsive
-    %table.table.table-bordered.table-hover.table-striped.program-stream-table
-      %thead
-        %th.name
-          = t('.name')
-          .float-end
-            = render 'order', column: :name, ngo: 'current'
-        %th.domain
-          = t('.domain')
-        %th.status
-          = t('.status')
-        %th.places
-          = t('.enrolled')
-        %th.quantity
-          = t('.maximum')
-          .float-end
-            = render 'order', column: :quantity, ngo: 'current'
-        %th.actions
-          = t('.actions')
-
-      %tbody
-        - @program_streams.each do |program_stream|
-          %tr
-            %td.name= program_stream.name
-            %td.domain= program_stream.domains.pluck(:identity).join(', ')
-            %td.status
-              = cl_badge(program_stream.completed_status, program_stream.completed_variant)
-            %td.places= program_stream.enrolled
-            %td.quantity= program_stream.quantity
-            %td.actions
-              = render 'actions', program_stream: program_stream
+  -# Demo UX polish — card per program: name links to the program, lifecycle status badge,
+  -# currently-enrolled listed underneath, and ALL actions in one top-right menu (no inline
+  -# button row). Enrolled count is the real active count (no longer gated on the config flag).
+  .d-flex.justify-content-end.mb-2
+    = render 'order', column: :name, ngo: 'current'
+  .row
+    - @program_streams.each do |program_stream|
+      - ps = program_stream.decorate
+      - active_ces = ps.client_enrollments.active.includes(:client)
+      .col-12.col-lg-6.mb-3
+        .card.h-100.program-stream-card
+          .card-header.d-flex.justify-content-between.align-items-start
+            .pe-2
+              %h5.mb-1= link_to ps.name, program_stream_path(ps), class: 'text-decoration-none'
+              = cl_badge(ps.lifecycle_status, ps.lifecycle_variant)
+              - if ps.domains.any?
+                %span.text-muted.small.ms-2= ps.domains_format.join(', ')
+            .dropdown.flex-shrink-0
+              %button.btn.btn-outline-secondary.btn-sm.dropdown-toggle{ 'data-bs-toggle': 'dropdown', type: 'button', 'aria-expanded': 'false' }
+                = t('.actions')
+              %ul.dropdown-menu.dropdown-menu-end
+                %li= link_to t('shared.actions.view', default: 'View'), program_stream_path(ps), class: 'dropdown-item'
+                - if can? :update, ProgramStream
+                  %li= link_to t('shared.actions.edit', default: 'Edit'), edit_program_stream_path(ps), class: 'dropdown-item'
+                  - if ps.client_enrollments.blank?
+                    %li= link_to t('shared.actions.delete', default: 'Delete'), program_stream_path(ps), method: 'delete', data: { confirm: t('program_streams.actions.are_you_sure', default: 'Are you sure?') }, class: 'dropdown-item text-danger'
+                  - else
+                    %li
+                      %span.dropdown-item.disabled{ 'aria-disabled': 'true', title: t('.delete_blocked', default: 'Has enrollments — cannot delete') }= t('shared.actions.delete', default: 'Delete')
+          .card-body
+            %p.small.text-muted.mb-2
+              = t('.enrolled')
+              %span.badge.text-bg-light.ms-1= ps.active_enrollment_count
+              - if ps.quantity.present?
+                %span.text-muted= "/ #{ps.quantity}"
+            - if active_ces.any?
+              %ul.list-inline.mb-2
+                - active_ces.first(10).each do |ce|
+                  - if ce.client
+                    %li.list-inline-item.mb-1= link_to entity_name(ce.client), client_path(ce.client), class: 'badge text-bg-light text-decoration-none'
+                - if ps.active_enrollment_count > 10
+                  %li.list-inline-item.small.text-muted= "+#{ps.active_enrollment_count - 10} more"
+            - else
+              %p.small.text-muted.fst-italic= t('.none_enrolled', default: 'No one currently enrolled.')
+            = link_to program_stream_path(ps), class: 'btn btn-outline-primary btn-sm' do
+              = fa_icon('users', 'aria-hidden': true)
+              = t('.view_program', default: 'View program')
   .text-center
     = paginate @program_streams, params: { tab: 'current_ngo' }, param_name: 'page_1'

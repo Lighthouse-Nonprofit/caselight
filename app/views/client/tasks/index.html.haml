@@ -10,32 +10,29 @@
               .btn.btn-primary.btn-width
                 = t('.new_task')
       .ibox-content
+        -# Demo UX polish — the task NAME opens the detail modal (edit/delete/complete live there);
+        -# the row keeps a one-click Complete so a task can be closed from the list without a trip in.
         - [[t('.overdue_tasks'), @tasks.incomplete.overdue], [t('.today_tasks'), @tasks.incomplete.today], [t('.upcoming_tasks'), @tasks.incomplete.upcoming]].each do |label, tasks|
-          .card
-            .card-header
-              .row
-                .col-6= label
-            .card-body
-              .row
-                .col-12
-                  %table.table.table-bordered
-                    - tasks.each do |task|
-                      %tr
-                        %td= "#{t('.domain')}: #{task.domain.name}"
-                        %td.task-name= task.name
-                        %td= task.completion_date.strftime("%B %d, %Y")
-                        %td= task.users.map(&:name).join(', ')
-                        - if can? :manage, Task
-                          %td.text-center.margin-icon
-                            = link_to complete_client_task_path(@client, task), method: :patch, title: t('.mark_complete', default: 'Mark complete') do
-                              .btn.btn-outline.btn-primary.btn-xs
+          - if tasks.any?
+            .card
+              .card-header
+                .row
+                  .col-6= label
+              .card-body
+                .row
+                  .col-12
+                    %table.table.table-bordered.table-hover
+                      - tasks.each do |task|
+                        %tr
+                          - if can? :manage, Task
+                            %td.text-center{ style: 'width: 3rem' }
+                              = link_to complete_client_task_path(@client, task), method: :patch, class: 'btn btn-outline-primary btn-xs', title: t('.mark_complete', default: 'Mark complete'), 'aria-label': t('.mark_complete', default: 'Mark complete') do
                                 %i.fa.fa-check
-                            = link_to edit_client_task_path(@client, task) do
-                              .btn.btn-outline.btn-success.btn-xs
-                                %i.fa.fa-pencil
-                            = link_to client_task_path(@client, task), method: :delete, data: { confirm: t('.are_you_sure_you_want_to_delete') } do
-                              .btn.btn-outline.btn-danger.btn-xs.action-gap-start
-                                %i.fa.fa-trash
+                          %td= "#{t('.domain')}: #{task.domain.name}"
+                          %td.task-name
+                            %button.btn.btn-link.p-0.text-start.text-decoration-none{ type: 'button', 'data-bs-toggle': 'modal', 'data-bs-target': "#taskModal-#{task.id}" }= task.name
+                          %td= task.completion_date.strftime("%B %d, %Y")
+                          %td= task.users.map(&:name).join(', ')
         - if @tasks.completed.any?
           .card
             .card-header
@@ -44,15 +41,18 @@
             .card-body
               .row
                 .col-12
-                  %table.table.table-bordered
+                  %table.table.table-bordered.table-hover
                     - @tasks.completed.each do |task|
                       %tr
+                        - if can? :manage, Task
+                          %td.text-center{ style: 'width: 3rem' }
+                            = link_to complete_client_task_path(@client, task), method: :patch, class: 'btn btn-outline-secondary btn-xs', title: t('.reopen', default: 'Reopen') do
+                              %i.fa.fa-undo
                         %td= "#{t('.domain')}: #{task.domain.name}"
-                        %td.task-name.text-decoration-line-through= task.name
+                        %td.task-name.text-decoration-line-through
+                          %button.btn.btn-link.p-0.text-start.text-decoration-none{ type: 'button', 'data-bs-toggle': 'modal', 'data-bs-target': "#taskModal-#{task.id}" }= task.name
                         %td= task.completion_date.strftime("%B %d, %Y")
                         %td= task.users.map(&:name).join(', ')
-                        - if can? :manage, Task
-                          %td.text-center.margin-icon
-                            = link_to complete_client_task_path(@client, task), method: :patch do
-                              .btn.btn-outline.btn-secondary.btn-xs
-                                = t('.reopen', default: 'Reopen')
+        -# task detail modals (one per task) — rendered outside the tables
+        - @tasks.each do |task|
+          = render 'tasks/task_modal', task: task

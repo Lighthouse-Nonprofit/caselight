@@ -10,60 +10,30 @@
         .ibox-title
           %h5= "#{t('.tasks_of')} #{@user.first_name}" if @user
         .ibox-content
-          .card
-            .card-header
-              .row
-                .col-6
-                  %h5= t('.overdue_tasks')
-            .card-body
-              - grouped_tasks = @tasks.overdue.group_by do |task|
-                - task.client
-              - grouped_tasks.each do |client, tasks|
-                .ibox.border-left-right.border-bottom
-                  .ibox-title
-                    %h5= client.name
-                  .ibox-content.no-padding
-                    %table.table
-                      - tasks.each do |task|
-                        %tr
-                          %td= "#{t('.domain')} #{task.domain.name} #{task.domain.identity}"
-                          %td.task-name.border-left-right= task.name
-                          %td= task.completion_date.strftime("%B %d, %Y")
-          .card
-            .card-header
-              .row
-                .col-6
-                  %h5= t('.today_tasks')
-            .card-body
-              - grouped_tasks = @tasks.today.group_by do |task|
-                - task.client
-              - grouped_tasks.each do |client, tasks|
-                .ibox.border-left-right.border-bottom
-                  .ibox-title
-                    %h5= client.name
-                  .ibox-content.no-padding
-                    %table.table
-                      - tasks.each do |task|
-                        %tr
-                          %td= "#{t('.domain')} #{task.domain.name} #{task.domain.identity}"
-                          %td.task-name.border-left-right= task.name
-                          %td= task.completion_date.strftime("%B %d, %Y")
-          .card
-            .card-header
-              .row
-                .col-6
-                  %h5= t('.upcoming_tasks')
-            .card-body
-              - grouped_tasks = @tasks.upcoming.group_by do |task|
-                - task.client
-              - grouped_tasks.each do |client, tasks|
-                .ibox.border-left-right.border-bottom
-                  .ibox-title
-                    %h5= client.name
-                  .ibox-content.no-padding
-                    %table.table
-                      - tasks.each do |task|
-                        %tr
-                          %td= "#{t('.domain')} #{task.domain.name} #{task.domain.identity}"
-                          %td.task-name.border-left-right= task.name
-                          %td= task.completion_date.strftime("%B %d, %Y")
+          -# Demo UX polish — client names link to the client; task names open the detail modal
+          -# (edit/delete/complete there); each row keeps a one-click Complete.
+          - [[t('.overdue_tasks'), @tasks.overdue], [t('.today_tasks'), @tasks.today], [t('.upcoming_tasks'), @tasks.upcoming]].each do |label, section_tasks|
+            .card
+              .card-header
+                .row
+                  .col-6
+                    %h5= label
+              .card-body
+                - section_tasks.group_by(&:client).each do |client, tasks|
+                  .ibox.border-left-right.border-bottom
+                    .ibox-title
+                      %h5= client ? link_to(entity_name(client), client_path(client), class: 'text-decoration-none') : t('.no_client', default: 'No client')
+                    .ibox-content.no-padding
+                      %table.table.table-hover
+                        - tasks.each do |task|
+                          %tr
+                            - if can? :manage, Task
+                              %td.text-center{ style: 'width: 3rem' }
+                                = link_to complete_client_task_path(task.client, task), method: :patch, class: 'btn btn-outline-primary btn-xs', title: t('client.tasks.index.mark_complete', default: 'Mark complete'), 'aria-label': t('client.tasks.index.mark_complete', default: 'Mark complete') do
+                                  %i.fa.fa-check
+                            %td= "#{t('.domain')} #{task.domain.name} #{task.domain.identity}"
+                            %td.task-name.border-left-right
+                              %button.btn.btn-link.p-0.text-start.text-decoration-none{ type: 'button', 'data-bs-toggle': 'modal', 'data-bs-target': "#taskModal-#{task.id}" }= task.name
+                            %td= task.completion_date.strftime("%B %d, %Y")
+        - @tasks.each do |task|
+          = render 'tasks/task_modal', task: task

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_17_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_18_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -681,6 +681,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_17_000002) do
     t.integer "program_exclusive", default: [], array: true
     t.integer "quantity"
     t.jsonb "rules", default: {}
+    t.string "status", default: "active", null: false
     t.boolean "tracking_required", default: false
     t.datetime "updated_at", precision: nil, null: false
   end

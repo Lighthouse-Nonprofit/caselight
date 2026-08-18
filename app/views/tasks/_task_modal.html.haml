@@ -1,0 +1,35 @@
+-# Demo UX polish — reusable task detail modal. Rendered anywhere a task is listed; the task
+-# NAME opens it. Carries all task actions (complete/reopen, edit, delete). locals: task:.
+- task_client = task.client
+.modal.fade{ id: "taskModal-#{task.id}", tabindex: '-1', 'aria-labelledby': "taskModal-#{task.id}-label", 'aria-hidden': 'true' }
+  .modal-dialog
+    .modal-content
+      .modal-header
+        %h5.modal-title{ id: "taskModal-#{task.id}-label" }= task.name
+        %button.btn-close{ 'data-bs-dismiss': 'modal', 'aria-label': t('shared.actions.close', default: 'Close'), type: 'button' }
+      .modal-body
+        %dl.row.mb-0
+          %dt.col-5= t('client.tasks.index.domain', default: 'Domain')
+          %dd.col-7= task.domain&.name
+          - if task_client
+            %dt.col-5= t('tasks.task_modal.client', default: 'Client')
+            %dd.col-7= link_to entity_name(task_client), client_path(task_client)
+          %dt.col-5= t('tasks.task_modal.due', default: 'Due')
+          %dd.col-7= task.completion_date&.strftime('%B %d, %Y')
+          - if task.respond_to?(:timed?) && task.timed?
+            %dt.col-5= t('tasks.task_modal.time', default: 'Time')
+            %dd.col-7= "#{task.starts_at&.strftime('%-l:%M %p')} · #{task.duration_minutes} min"
+          %dt.col-5= t('client.tasks.index.assignees', default: 'Assigned to')
+          %dd.col-7= task.users.map(&:name).join(', ').presence || '—'
+          %dt.col-5= t('tasks.task_modal.status', default: 'Status')
+          %dd.col-7
+            - if task.completed
+              %span.badge.text-bg-secondary= t('client.tasks.index.completed_tasks', default: 'Completed')
+            - else
+              %span.badge.text-bg-warning= t('tasks.task_modal.open', default: 'Open')
+      - if (can? :manage, Task) && task_client
+        .modal-footer
+          = link_to complete_client_task_path(task_client, task), method: :patch, class: "btn #{task.completed ? 'btn-outline-secondary' : 'btn-primary'}" do
+            = task.completed ? t('client.tasks.index.reopen', default: 'Reopen') : t('client.tasks.index.mark_complete', default: 'Mark complete')
+          = link_to t('shared.actions.edit', default: 'Edit'), edit_client_task_path(task_client, task), class: 'btn btn-outline-success'
+          = link_to t('shared.actions.delete', default: 'Delete'), client_task_path(task_client, task), method: :delete, data: { confirm: t('client.tasks.index.are_you_sure_you_want_to_delete', default: 'Delete this task?') }, class: 'btn btn-outline-danger'

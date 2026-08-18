@@ -42,8 +42,13 @@
                     %span.agenda-empty__text= t('.nothing_scheduled', default: 'Nothing scheduled')
                 - else
                   - day_tasks.each do |task|
-                    = link_to client_tasks_path(task.client), class: 'agenda-task' do
+                    -# Demo UX polish — open the task detail modal (edit/delete/complete) in place
+                    -# instead of bouncing to the client's task list.
+                    %button.agenda-task.border-0.bg-transparent.w-100.text-start{ type: 'button', 'data-bs-toggle': 'modal', 'data-bs-target': "#taskModal-#{task.id}" }
                       %span.agenda-task__time
                         = task.timed? ? task.starts_at.strftime('%l:%M %p').strip : t('.all_day', default: 'All day')
                       %span.agenda-task__title= task.name
                       %span.agenda-task__person= entity_name(task.client)
+  -# task detail modals for the agenda (edit/delete/complete from the dashboard)
+  - @agenda_by_day.values.flatten.uniq.each do |task|
+    = render 'tasks/task_modal', task: task

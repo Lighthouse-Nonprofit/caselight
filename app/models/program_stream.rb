@@ -20,8 +20,17 @@ class ProgramStream < ActiveRecord::Base
 
   include FormBuilderFieldTypes # D5: server-side type allowlist
 
+  # Owner-set lifecycle (distinct from `completed`, the internal config-readiness flag):
+  # pending = set up, not yet running; active = currently running; completed = ran, no longer running.
+  LIFECYCLE_STATUSES = %w[pending active completed].freeze
+
   validates :name, presence: true
   validates :name, uniqueness: true
+  validates :status, inclusion: { in: LIFECYCLE_STATUSES }
+
+  scope :lifecycle_active,    -> { where(status: 'active') }
+  scope :lifecycle_pending,   -> { where(status: 'pending') }
+  scope :lifecycle_completed, -> { where(status: 'completed') }
   validate  :form_builder_field_uniqueness
   validate  -> { validate_field_types_of(:enrollment, enrollment) }, if: -> { enrollment.present? }
   validate  -> { validate_field_types_of(:exit_program, exit_program) }, if: -> { exit_program.present? }
