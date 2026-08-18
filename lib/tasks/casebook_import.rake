@@ -79,9 +79,14 @@ namespace :casebook do
     notes = books[:notes]&.rows || []
     providers = books[:providers]&.rows || []
 
-    by_name = people.group_by { |r| r['Person Name'].to_s.strip }
+    by_name = people.group_by { |r| r['Person Name'].to_s.strip }.reject { |n, _| n.empty? }
     collided = by_name.select { |_n, rs| rs.size > 1 }
-    resolvable = by_name.select { |_n, rs| rs.size == 1 }.transform_values(&:first)
+    # OCA 2026-08 (graceful collisions): import ALL named people as distinct clients (the applier keys
+    # on person_id). A collided NAME maps to the FIRST person for name-keyed cases/notes (best-effort;
+    # the audit still lists collisions for a manual split); collided_extra holds the 2nd+ so those
+    # people are still created as clients rather than silently dropped.
+    resolvable = by_name.transform_values(&:first)
+    collided_extra = collided.flat_map { |_n, rs| rs.drop(1) }
 
     notes_by_person = notes.group_by { |r| r['Person Name'].to_s.strip }
     note_dates = notes_by_person.transform_values do |rs|
@@ -100,9 +105,15 @@ namespace :casebook do
       person = row['Person'].to_s.strip
       next unresolved_case_rows += 1 unless resolvable.key?(person)
       role = row['Person Role'].to_s.strip
+      program = nil # reset per row — a bare local leaks across each-iterations otherwise
       if role == 'Parent'
         (families[row['case_id']] ||= { case_name: row['Case Name'], members: [] })[:members] << person
-      elsif (program = ROLE_PROGRAMS[role])
+        # OCA 2026-08: parents are their OWN participants (Cara y Corazón adult cohort), not just
+        # household members — enroll them too, keeping the family link above.
+        program = 'Cara y Corazón'
+      end
+      program ||= ROLE_PROGRAMS[role]
+      if program
         enrollments << { person: person, program: program, row: row }
         status = row['Case Status'].to_s.strip
         exits << { person: person, program: program, exit_date: note_dates.dig(person, 1) } unless status == 'Active'
@@ -124,7 +135,7 @@ namespace :casebook do
 
     {
       books: books, missing: missing, people: people, cases: cases, notes: notes,
-      providers: providers, collided: collided, resolvable: resolvable,
+      providers: providers, collided: collided, collided_extra: collided_extra, resolvable: resolvable,
       notes_by_person: notes_by_person, note_dates: note_dates, classified: classified,
       staff: staff, enrollments: enrollments, exits: exits, families: families,
       unresolved_case_rows: unresolved_case_rows, session_entries: session_entries

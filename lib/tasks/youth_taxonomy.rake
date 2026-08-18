@@ -313,7 +313,11 @@ namespace :youth do
      ['Cara y Corazón', 'Family-strengthening circle for parents and caregivers (National Compadres Network).'],
      ['Nurturing Our Futures', 'Youth development cohort.'],
      ['Susto y Limpia', 'Cultural healing cohort.'],
-     ['Mi Palabra', 'Youth voice & expression cohort.']].each do |name, description|
+     ['Mi Palabra', 'Youth voice & expression cohort.'],
+     # OCA Casebook migration (2026-08): the three largest curriculum buckets, made their own programs.
+     ['Cultura Club', 'Cultural identity & belonging club.'],
+     ['Celebración', 'Cultural celebration & community events cohort.'],
+     ['Ancestral Teachings', 'Indigenous ancestral knowledge & practices cohort.']].each do |name, description|
       programs << {
         name: name, description: description,
         enrollment: cohort_enrollment,
