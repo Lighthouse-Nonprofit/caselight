@@ -50,6 +50,7 @@ module Casebook
         # sets 'Active KC' on members via a callback, so force the status blank AFTER all cases
         # exist (update_all bypasses the callback; the household link via the Case is unaffected).
         Client.where(id: (@imported_client_ids || []).uniq).update_all(status: '')
+        backfill_timestamps!
       end
       @counts.sort.each { |k, v| puts "  #{k}: #{v}" }
       @counts
@@ -400,6 +401,25 @@ module Casebook
 
     def note_type_for(name)
       @note_types[name] ||= ProgressNoteType.find_or_create_by!(note_type: name)
+    end
+
+    # Historic timestamps (owner decision 2026-08): set created_at/updated_at on the imported rows
+    # from the SOURCE dates so the timeline reads historically (created_at was the import moment).
+    # Scoped to the imported clients so a re-run or a mixed tenant never touches other rows.
+    def backfill_timestamps!
+      ids = (@imported_client_ids || []).uniq
+      return if ids.empty?
+      ProgressNote.where(client_id: ids).where.not(date: nil).update_all('created_at = date, updated_at = date')
+      ces = ClientEnrollment.where(client_id: ids)
+      ces.where.not(enrollment_date: nil).update_all('created_at = enrollment_date, updated_at = enrollment_date')
+      ClientEnrollmentTracking.where(client_enrollment_id: ces.select(:id)).where.not(entry_date: nil)
+                              .update_all('created_at = entry_date, updated_at = entry_date')
+      LeaveProgram.where(client_enrollment_id: ces.select(:id)).where.not(exit_date: nil)
+                  .update_all('created_at = exit_date, updated_at = exit_date')
+      Client.where(id: ids).find_each do |c|
+        e = [c.client_enrollments.minimum(:enrollment_date), c.progress_notes.minimum(:date)].compact.min
+        c.update_columns(created_at: e.to_time, updated_at: e.to_time) if e
+      end
     end
   end
 end

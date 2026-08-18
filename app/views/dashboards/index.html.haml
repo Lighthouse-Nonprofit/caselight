@@ -18,7 +18,7 @@
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          = link_to_if (can? :read, ProgramStream), content_tag(:h1, ClientEnrollment.where(status: 'Active').count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_active_enrollments', default: 'ACTIVE PROGRAM ENROLLMENTS'), class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
+          = link_to_if (can? :read, ProgramStream), content_tag(:h1, ClientEnrollment.active.for_active_clients.count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_active_enrollments', default: 'ACTIVE PROGRAM ENROLLMENTS'), class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
@@ -58,7 +58,7 @@
                   %tr
                     %td= link_to_if (can? :read, ProgramStream), ps.name, info_program_stream_path(ps)
                     %td.text-right
-                      %span.badge.text-bg-primary= ps.client_enrollments.where(status: 'Active').count
+                      %span.badge.text-bg-primary= ps.client_enrollments.active.for_active_clients.count
     .col-lg-6
       .ibox
         .ibox-title

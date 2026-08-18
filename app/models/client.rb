@@ -218,6 +218,11 @@ class Client < ActiveRecord::Base
   scope :without_assessments,         ->        { includes(:assessments).where(assessments:         { client_id: nil }) }
   scope :able,                        ->        { where(able_state: ABLE_STATES[0]) }
   scope :all_active_types,            ->        { where(status: CLIENT_ACTIVE_STATUS) }
+  # Post-import (2026-08): historic imported clients carry a BLANK status (inactive). Program
+  # rosters/counts show only clients with a status set — an inactive client keeps their enrollment
+  # history on their own Programs tab but doesn't appear "in" the program. Setting any status
+  # (when a youth returns) brings them back into the program views.
+  scope :in_programs,                 ->        { where.not(status: ['', nil]) }
   scope :of_case_worker,              -> (user_id) { joins(:case_worker_clients).where(case_worker_clients: { user_id: user_id }) }
 
   def self.filter(options)

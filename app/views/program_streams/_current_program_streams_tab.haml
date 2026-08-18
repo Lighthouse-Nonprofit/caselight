@@ -7,7 +7,7 @@
   .row
     - @program_streams.each do |program_stream|
       - ps = program_stream.decorate
-      - active_ces = ps.client_enrollments.active.includes(:client)
+      - active_ces = ps.client_enrollments.active.for_active_clients.includes(:client)
       .col-12.col-lg-6.mb-3
         .card.h-100.program-stream-card
           .card-header.d-flex.justify-content-between.align-items-start

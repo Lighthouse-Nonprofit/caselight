@@ -32,6 +32,9 @@ class ClientEnrollment < ActiveRecord::Base
   scope :enrollments_by,              ->(client)         { where(client_id: client) }
   scope :find_by_program_stream_id,   ->(value)          { where(program_stream_id: value) }
   scope :active,                      ->                 { where(status: 'Active') }
+  # Post-import (2026-08): enrollments of clients WITH a status set — excludes historic inactive
+  # (blank-status) imports from program rosters/counts while their enrollment history is preserved.
+  scope :for_active_clients,          ->                 { joins(:client).where.not(clients: { status: ['', nil] }) }
   scope :inactive,                    ->                 { where(status: 'Exited') }
 
   after_create :set_client_status

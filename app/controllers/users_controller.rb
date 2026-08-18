@@ -88,6 +88,29 @@ class UsersController < AdminController
     redirect_to users_path, notice: t('.successfully_disable') if @user.update(disable: !@user.disable)
   end
 
+  # Admin: clear a Devise lockout (AC-7) so the user can sign in again.
+  def unlock
+    @user = User.find(params[:user_id])
+    @user.unlock_access!
+    redirect_to user_path(@user), notice: t('.unlocked', default: 'Account unlocked — the user can sign in again.')
+  end
+
+  # Admin: reset another user's password to a strong temporary one. No reset EMAIL is sent (SMTP is
+  # not wired for the pilot), so the temp password is shown ONCE to the admin to hand off securely;
+  # it is force-expired so the user must change it at next sign-in.
+  def reset_password
+    @user = User.find(params[:user_id])
+    temp = "#{SecureRandom.alphanumeric(14)}A9!"
+    if @user.update(password: temp, password_confirmation: temp)
+      @user.unlock_access! if @user.respond_to?(:access_locked?) && @user.access_locked?
+      @user.update_column(:password_changed_at, 1.year.ago) if @user.respond_to?(:password_changed_at)
+      redirect_to user_path(@user),
+                  notice: t('.password_reset', default: 'Temporary password (share securely; the user must change it at next sign-in): %{pw}', pw: temp)
+    else
+      redirect_to user_path(@user), alert: @user.errors.full_messages.to_sentence
+    end
+  end
+
   private
 
   def user_params

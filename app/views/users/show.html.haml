@@ -24,6 +24,14 @@
               = link_to edit_user_path(@user) do
                 .btn.btn-outline.btn-success
                   %i.fa.fa-pencil
+              -# Admin user management (owner ask 2026-08): unlock a locked account + reset the password.
+              - if @user.respond_to?(:access_locked?) && @user.access_locked?
+                = link_to user_unlock_path(@user), method: :patch, data: { confirm: t('.confirm_unlock', default: 'Unlock this account so the user can sign in again?') } do
+                  .btn.btn-outline.btn-warning{ title: t('.unlock', default: 'Unlock account') }
+                    %i.fa.fa-unlock
+              = link_to user_reset_password_path(@user), method: :patch, data: { confirm: t('.confirm_reset_password', default: 'Reset this user’s password to a new temporary one?') } do
+                .btn.btn-outline.btn-info{ title: t('.reset_password', default: 'Reset password') }
+                  %i.fa.fa-key
               = remove_link(@user, {user_case: @user.cases_count}, 'btn-md')
 
       .ibox-content

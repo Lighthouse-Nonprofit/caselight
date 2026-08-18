@@ -38,7 +38,7 @@ class ProgramStreamDecorator < Draper::Decorator
   # Currently-enrolled (active) clients — always the real count now (was gated on the config
   # flag, which showed blank for not-yet-fully-built programs).
   def active_enrollment_count
-    model.client_enrollments.active.size
+    model.client_enrollments.active.for_active_clients.size
   end
 
   def maximum_client?
