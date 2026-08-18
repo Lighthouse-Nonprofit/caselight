@@ -16,12 +16,18 @@
             = f.text_field :date_of_birth, class: 'date optional form-control date-picker', type: 'text', name: 'client[date_of_birth]', id: 'client_date_of_birth'
             %span.input-group-text
               %i.fa.fa-calendar-check-o
-        .col-12.col-sm-6.col-md-4= f.input :school_name, label: t('.school_name')
+        -# Youth flavor: school collapses to the single hub-linked 'School' quantitative (set via the
+        -# quantitative editor / Casebook import) — hide the legacy free-text school_name here. Country
+        -# of Origin (birth_province) is a resettlement concept — hidden in youth too.
+        - youth_flavor = Rails.application.config.x.flavor == 'youth'
+        - unless youth_flavor
+          .col-12.col-sm-6.col-md-4= f.input :school_name, label: t('.school_name')
         .col-12.col-sm-6.col-md-4= f.input :grade, label: t('.school_grade')
         -# Pre-production polish: provinces = the Countries of Origin list (seeded by
         -# slo4home:seed_countries). The separate "State"/current-province select is
         -# pilot-hidden — current location lives in the address field.
-        .col-12.col-sm-6.col-md-4= f.input :birth_province_id, collection: @province.map{|p| [p.name, p.id]},  label: t('.province')
+        - unless youth_flavor
+          .col-12.col-sm-6.col-md-4= f.input :birth_province_id, collection: @province.map{|p| [p.name, p.id]},  label: t('.province')
         .col-12.col-sm-6.col-md-4
           = f.association :donor, collection: @donors, label: t('.donor')
         - if f.object.current_address.present?
@@ -37,7 +43,10 @@
             %span.input-group-text
               %i.fa.fa-calendar-check-o
 
-        .col-12.col-sm-6.col-md-4= f.association :agencies, collection: @agencies, multiple: true, label_method: :name, value_method: :id, label: t('.agencies_involved')
+        -# Youth flavor: schools are the 'School' quantitative, not a generic agency — keep them out
+        -# of the "Agencies involved" picker so school isn't a third field on the record.
+        - agency_collection = youth_flavor ? @agencies.reject { |a| a.kind == 'school' } : @agencies
+        .col-12.col-sm-6.col-md-4= f.association :agencies, collection: agency_collection, multiple: true, label_method: :name, value_method: :id, label: t('.agencies_involved')
         .col-12.col-sm-6.col-md-4= f.association :referral_source, collection: @referral_source, label: t('.referral_source')
         .col-12.col-sm-6.col-md-4.mb-3.date.optional.client_follow_up_date
           %label.date.optional.form-label{ for: 'client_follow_up_date' }= t('.follow_up_date')

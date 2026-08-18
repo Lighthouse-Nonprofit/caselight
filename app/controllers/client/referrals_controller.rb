@@ -2,6 +2,7 @@
 # `can :manage, Referral` authorizes the action; find_client's accessible_by is what bounds the
 # records to the viewer's caseload (a worker can only reach referrals on clients they can read).
 class Client::ReferralsController < AdminController
+  include SensitiveFields   # the client hub header's Forms chip reads visible_custom_field_ids_for
   load_and_authorize_resource
   before_action :find_client
   before_action :find_referral, only: [:edit, :update, :destroy]

@@ -74,8 +74,12 @@
                 = family(family)
         - items << info_item(t('.household', default: 'Household'), families_html.presence)
         - items << info_item(t('.address'), @client.current_address.presence || merged_address(@client))
-        - items << info_item(t('.birth_province'), @client.birth_province)
-        - items << info_item(t('.school_name'), @client.school_name)
+        -# Youth flavor: Country of Origin (birth_province) is a resettlement concept — hidden.
+        -# And school collapses to the ONE hub-linked 'School' quantitative (in the quantitative
+        -# table below) — the legacy free-text school_name is hidden here too.
+        - youth_flavor = Rails.application.config.x.flavor == 'youth'
+        - items << info_item(t('.birth_province'), @client.birth_province) unless youth_flavor
+        - items << info_item(t('.school_name'), @client.school_name) unless youth_flavor
         - items << info_item(t('.school_grade'), @client.grade)
         - items << info_item(t('.relevant_referral_information'), @client.relevant_referral_information)
         - case_workers_html = capture do
@@ -87,8 +91,11 @@
         -# values link to their (index) pages when the viewer can read them (no show routes
         -# exist for these reference records). Donor + Referral Source rows are NEW: they were
         -# invisible outside the edit form.
+        -# Youth flavor: exclude kind='school' agencies — the school is the 'School' quantitative,
+        -# not a generic "agency involved" (avoids the third school field on the record).
+        - shown_agencies = youth_flavor ? @client.agencies.reject { |a| a.kind == 'school' } : @client.agencies
         - agencies_html = capture do
-          - @client.agencies.each do |agency|
+          - shown_agencies.each do |agency|
             %strong.badge.text-bg-light.agency
               - if can? :read, Agency
                 = link_to agency.name, agencies_path
