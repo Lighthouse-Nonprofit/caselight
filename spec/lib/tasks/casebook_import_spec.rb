@@ -97,6 +97,16 @@ RSpec.describe 'casebook importer' do
         .to eq(kind: :tracking, program: '¡Por Vida!', tracking: 'Mentorship Contact')
       expect(described_class.classify('Case Management follow up')[:tracking]).to eq('Case Management Contact')
       expect(described_class.classify('Navigation')[:program]).to eq('Stop The Hate')
+      # OCA 2026-08: three named curricula, Session/Clase session formats, and contact types.
+      expect(described_class.classify('Cultura Club')[:program]).to eq('Cultura Club')
+      expect(described_class.classify('Celebracion')[:program]).to eq('Celebración')
+      expect(described_class.classify('Ancestral teachings')[:program]).to eq('Ancestral Teachings')
+      expect(described_class.classify('Session 3')).to eq(kind: :bare_session, week: 3)
+      expect(described_class.classify('Clase 7-Objectivo')).to include(kind: :bare_session, week: 7)
+      expect(described_class.classify('Phone Call')).to eq(kind: :contact, note_type: 'Phone call')
+      expect(described_class.classify('Home Visit')).to eq(kind: :contact, note_type: 'Home visit')
+      expect(described_class.classify('Parent Phone Call')).to eq(kind: :contact, note_type: 'Parent contact')
+      expect(described_class.classify('Ride provided')).to eq(kind: :contact, note_type: 'Transportation')
       expect(described_class.classify('Pre-Assessment')).to eq(kind: :assessment_marker, phase: 'Pre')
       expect(described_class.classify('1-1 Check in: Introduction')[:tracking]).to eq('Mentorship Contact')
       expect(described_class.classify('Referral for Food assistance')[:tracking]).to eq('Navigation / Case Mgmt / Referral')
@@ -170,8 +180,10 @@ RSpec.describe 'casebook importer' do
       expect(maria).to be_present
       expect(maria.current_address).to eq('1 Test St, Santa Maria, 93454')
 
-      # collided name skipped entirely
-      expect(Client.where(given_name: 'Sam', family_name: 'Twin')).to be_empty
+      # Graceful collisions (OCA 2026-08): both same-name people are imported as DISTINCT clients
+      # (keyed on person_id) rather than silently dropped — the org splits their shared-name records
+      # by hand (the audit still lists the collision).
+      expect(Client.where(given_name: 'Sam', family_name: 'Twin').count).to eq(2)
 
       # Student → ¡Por Vida! active; session note implies the cohort enrollment
       pv = maria.client_enrollments.joins(:program_stream).find_by(program_streams: { name: '¡Por Vida!' })
@@ -198,13 +210,15 @@ RSpec.describe 'casebook importer' do
       expect(ProgressNote.where(client_id: maria.id).count).to eq(3)
       expect(maria.date_of_birth).to be_nil
 
-      # Parent → family via KC case, both members linked, parent not enrolled
+      # Parent → family via KC case (both members linked) AND enrolled as a Cara y Corazón
+      # participant (OCA 2026-08: parents are their own participants, not just household members).
       fam = Family.find_by(code: 'CB-C-01')
       # map, not pluck — pluck bypasses the ignore_case encryption reader that
       # restores original case from the original_* sidecar
       expect(fam.clients.map(&:given_name)).to match_array(['Maria Test', 'Rosa'])
       rosa = Client.find_by(given_name: 'Rosa', family_name: 'Lopez')
-      expect(rosa.client_enrollments).to be_empty
+      expect(rosa.client_enrollments.joins(:program_stream)
+                 .where(program_streams: { name: 'Cara y Corazón' })).to be_present
 
       # staff: assignee active, departed disabled but authorship preserved
       expect(User.find_by(first_name: 'Staff', last_name: 'One').disable).to be(false)

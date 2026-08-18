@@ -23,11 +23,40 @@ module Casebook
       'nurturing' => 'Nurturing Our Futures',
       'susto y limpia' => 'Susto y Limpia',
       'susto' => 'Susto y Limpia',
-      'mi palabra' => 'Mi Palabra'
+      'mi palabra' => 'Mi Palabra',
+      # OCA 2026-08 (owner decision): the three biggest unclassified curriculum buckets become
+      # their own programs. Seeded by youth:seed_casebook_programs.
+      'cultura club' => 'Cultura Club',
+      'celebracion' => 'Celebración',
+      'ancestral teachings' => 'Ancestral Teachings',
+      'ancestral teaching' => 'Ancestral Teachings'
     }.freeze
 
+    # OCA's session notes come in several shapes: "Week 8- Tsa Ho Fa", "Session 10: Warrior",
+    # "Clase 7-Objectivo". Capture N and the rest; a leading curriculum token (if any) is matched
+    # separately below, so a bare "Session 3" resolves against the person's sole cohort enrollment.
     WEEK_SESSION = /\Aweek\s+(\d+)\s+([^:]+?)\s*(?::\s*(.+))?\z/i
-    BARE_WEEK    = /\Aweek\s+(\d+)\z/i
+    BARE_SESSION = /\A(?:week|session|clase|semana)\s*[#\-]?\s*(\d+)\b[\-:\s]*(.*)\z/i
+
+    # Contact-type subjects — a note ABOUT a contact, not a curriculum session. These set the
+    # ProgressNote's TYPE (owner ask: "make sure we have all the note types") and never mint an
+    # enrollment. Order matters: most specific first. Values are seeded ProgressNoteType names
+    # (youth:seed_casebook_note_types). Matched on the normalized subject.
+    CONTACT_TYPES = [
+      [/parent (phone|call|meeting|contact)/,            'Parent contact'],
+      [/phone call|phone called|called|phone contact/,   'Phone call'],
+      [/home visit/,                                     'Home visit'],
+      [/drop.?in/,                                        'Drop-in'],
+      [/e.?mail/,                                         'Email'],
+      [/attempt(ed)? to (meet|contact)|no answer|no response|unable to reach/, 'Attempted contact'],
+      [/ride provided|transportation|drove/,             'Transportation'],
+      [/(wellness )?check.?in|welcome back/,             'Check-in'],
+      [/intake|needs assessment|success plan|smart goal/, 'Intake / assessment'],
+      [/referral|referred to/,                            'Referral'],
+      [/closing (note|case)|last (check|session)|reintroduction|welcome/, 'Closing / status'],
+      [/individual meeting|1[:\-\s]?1|one.on.one|meeting w|meet(ing)? with (student|counselor|staff)/, 'Individual meeting'],
+      [/clothing|food (resource|assistance|bank)|resource/, 'Resource / navigation']
+    ].freeze
 
     def self.classify(subject)
       s = subject.to_s.strip
@@ -52,22 +81,32 @@ module Casebook
                  lesson: s[/:\s*(.+)\z/, 1] }
       end
 
-      # Bare "Week N" can't name its curriculum — the applier resolves it against
+      # Bare "Week/Session/Clase N" can't name its curriculum — the applier resolves it against
       # the person's sole cohort enrollment (or drops it if ambiguous).
-      if (m = s.match(BARE_WEEK))
-        return { kind: :bare_session, week: m[1].to_i }
+      if (m = s.match(BARE_SESSION))
+        out = { kind: :bare_session, week: m[1].to_i }
+        out[:lesson] = m[2].strip if m[2].present?
+        return out
       end
 
-      case norm
-      when /\A1[:\-]1 check.?in/, /\Acheck.?in\z/
-        { kind: :tracking, program: '¡Por Vida!', tracking: 'Mentorship Contact' }
-      when /\Acase (management|mgmt)\b/
-        { kind: :tracking, program: '¡Por Vida!', tracking: 'Case Management Contact' }
-      when /\Anavigation\b/, /food (resource|assistance)/, /referral for food/
-        { kind: :tracking, program: 'Stop The Hate', tracking: 'Navigation / Case Mgmt / Referral' }
-      when /(pre|post).?\s*assessment/
-        { kind: :assessment_marker, phase: Regexp.last_match(1).capitalize }
-      end
+      # Existing program-tracking rules run BEFORE the generic contact types, so "1:1 check-in"
+      # stays a mentorship tracking rather than a bare contact note.
+      program_tracking =
+        case norm
+        when /\A1[:\-]1 check.?in/, /\Acheck.?in\z/
+          { kind: :tracking, program: '¡Por Vida!', tracking: 'Mentorship Contact' }
+        when /\Acase (management|mgmt)\b/
+          { kind: :tracking, program: '¡Por Vida!', tracking: 'Case Management Contact' }
+        when /\Anavigation\b/, /food (resource|assistance)/, /referral for food/
+          { kind: :tracking, program: 'Stop The Hate', tracking: 'Navigation / Case Mgmt / Referral' }
+        when /(pre|post).?\s*assessment/
+          { kind: :assessment_marker, phase: Regexp.last_match(1).capitalize }
+        end
+      return program_tracking if program_tracking
+
+      # Contact-type subjects → the ProgressNote's TYPE (no enrollment/tracking).
+      CONTACT_TYPES.each { |re, type| return { kind: :contact, note_type: type } if norm.match?(re) }
+      nil
     end
 
     def self.normalize(str)

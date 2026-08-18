@@ -116,20 +116,31 @@ module Casebook
     end
 
     def upsert_clients!
-      @plan[:resolvable].each_with_object({}) do |(name, row), out|
-        guid = row['person_id'].to_s
-        client = @guid_clients[guid] ? Client.find(@guid_clients[guid]) : Client.new
-        given, family = split_name(name)
-        client.assign_attributes(given_name: given, family_name: family, state: 'accepted',
-                                 gender: GENDER_MAP[row['Sex'].to_s.strip.downcase].to_s,
-                                 current_address: address_line(row))
-        client.users = [assignee_for(name)] if client.users.empty?
-        @counts[client.new_record? ? 'clients created' : 'clients updated'] += 1
-        client.save!
-        fill_form(client, guid, row)
-        link_quantitative(client, row)
-        out[name] = client
+      out = {}
+      @plan[:resolvable].each { |name, row| out[name] = build_client(name, row) }
+      # Graceful collisions: create the 2nd+ same-name people as DISTINCT clients (keyed on person_id).
+      # They are NOT added to the name map, so name-keyed cases/notes stay with the first twin — the
+      # org splits them by hand (the audit lists the collision).
+      (@plan[:collided_extra] || []).each do |row|
+        build_client(row['Person Name'].to_s.strip, row)
+        @counts['collided twins imported'] += 1
       end
+      out
+    end
+
+    def build_client(name, row)
+      guid = row['person_id'].to_s
+      client = @guid_clients[guid] ? Client.find(@guid_clients[guid]) : Client.new
+      given, family = split_name(name)
+      client.assign_attributes(given_name: given, family_name: family, state: 'accepted',
+                               gender: GENDER_MAP[row['Sex'].to_s.strip.downcase].to_s,
+                               current_address: address_line(row))
+      client.users = [assignee_for(name)] if client.users.empty?
+      @counts[client.new_record? ? 'clients created' : 'clients updated'] += 1
+      client.save!
+      fill_form(client, guid, row)
+      link_quantitative(client, row)
+      client
     end
 
     def upsert_families!(clients)
@@ -190,7 +201,8 @@ module Casebook
     end
 
     def upsert_notes!(clients, enrollments)
-      note_type = ProgressNoteType.find_or_create_by!(note_type: IMPORT_FORM_TITLE)
+      @note_types = {}
+      default_type = note_type_for(IMPORT_FORM_TITLE)
       # A real Location: without one, other_location? compares nil == nil (the
       # Khmer 'Other' lookup misses) and the presence validation always fires.
       location = Location.find_or_create_by!(name: IMPORT_FORM_TITLE)
@@ -201,17 +213,20 @@ module Casebook
         author = @users_by_name[row['Author'].to_s.strip] || @import_user
         subject = "[Casebook] #{row['Subject'].to_s.strip}"
         narrative = row['Narrative'].to_s
-        # response/additional_note are NON-DETERMINISTICALLY encrypted — a WHERE
-        # on them can never match, so dedupe compares decrypted values in Ruby
-        # within the (client, author, date, import-type) candidate set.
-        candidates = ProgressNote.where(client_id: client.id, user_id: author.id,
-                                        date: date, progress_note_type_id: note_type.id)
+        c = SubjectClassifier.classify(row['Subject'])
+        # OCA 2026-08: contact-type subjects set the ProgressNote's TYPE (Phone call, Home visit,
+        # …); everything else keeps the generic import type. Curriculum/session subjects still
+        # become trackings below on top of the note.
+        ptype = c && c[:kind] == :contact ? note_type_for(c[:note_type]) : default_type
+        # response/additional_note are NON-DETERMINISTICALLY encrypted — a WHERE on them can never
+        # match, so dedupe compares decrypted values in Ruby within the (client, author, date)
+        # candidate set (type-independent so a reclassified note isn't re-imported).
+        candidates = ProgressNote.where(client_id: client.id, user_id: author.id, date: date)
         next if candidates.any? { |pn| pn.additional_note == subject && pn.response == narrative }
         ProgressNote.create!(client_id: client.id, user_id: author.id, date: date,
-                             progress_note_type_id: note_type.id, location_id: location.id,
+                             progress_note_type_id: ptype.id, location_id: location.id,
                              additional_note: subject, response: narrative)
         @counts['progress notes created'] += 1
-        c = SubjectClassifier.classify(row['Subject'])
         if c && c[:kind] == :bare_session
           bare << { client: client, date: date, week: c[:week] }
         else
@@ -244,7 +259,8 @@ module Casebook
     def track_classified(client, row, date, enrollments)
       person = row['Person Name'].to_s.strip
       c = SubjectClassifier.classify(row['Subject'])
-      return if c.nil? || c[:kind] == :assessment_marker
+      # :contact subjects set the note TYPE only (handled in upsert_notes!) — never a tracking.
+      return if c.nil? || %i[assessment_marker contact].include?(c[:kind])
       # Sessions IMPLY cohort participation (a Joven Noble session note is Joven
       # Noble attendance); contact-type trackings do NOT imply enrollment — a
       # Student's one-off 'Navigation' note must not mint an STH enrollment.
@@ -360,6 +376,10 @@ module Casebook
       when Date, Time then value.to_date
       when String then value.blank? ? nil : (Date.parse(value) rescue nil)
       end
+    end
+
+    def note_type_for(name)
+      @note_types[name] ||= ProgressNoteType.find_or_create_by!(note_type: name)
     end
   end
 end

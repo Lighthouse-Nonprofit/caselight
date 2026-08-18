@@ -6,7 +6,11 @@ namespace :notes do
   task seed_types: :environment do
     tenant = ENV['TENANT'] || 'cases'
     types = ['In-person', 'Phone call', 'Voicemail', 'Text / SMS', 'Email', 'Follow-up text',
-             'Home visit', 'Video call', 'Collateral contact', 'Other']
+             'Home visit', 'Video call', 'Collateral contact', 'Other',
+             # OCA Casebook contact types (from the real note Subjects — see SubjectClassifier::CONTACT_TYPES).
+             'Parent contact', 'Drop-in', 'Attempted contact', 'Transportation', 'Check-in',
+             'Intake / assessment', 'Referral', 'Closing / status', 'Individual meeting',
+             'Resource / navigation']
     locations = ['Office', 'School', 'Home', 'Community', 'Phone', 'Virtual', 'Other']
     Apartment::Tenant.switch(tenant) do
       types.each { |name| ProgressNoteType.find_or_create_by!(note_type: name) }
