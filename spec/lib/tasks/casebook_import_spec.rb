@@ -179,6 +179,10 @@ RSpec.describe 'casebook importer' do
       maria = Client.find_by(given_name: 'Maria Test', family_name: 'Lopez')
       expect(maria).to be_present
       expect(maria.current_address).to eq('1 Test St, Santa Maria, 93454')
+      # imported clients are historic/inactive — status left blank (not the 'Referred' column default)
+      expect(maria.status).to eq('')
+      # cohorts are separated — enrollments carry a cohort key (blank = single default cohort)
+      expect(maria.client_enrollments.first).to respond_to(:cohort)
 
       # Graceful collisions (OCA 2026-08): both same-name people are imported as DISTINCT clients
       # (keyed on person_id) rather than silently dropped — the org splits their shared-name records

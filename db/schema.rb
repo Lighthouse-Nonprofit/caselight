@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_18_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_18_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -245,12 +245,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000001) do
 
   create_table "client_enrollments", id: :serial, force: :cascade do |t|
     t.integer "client_id"
+    t.string "cohort", default: ""
     t.datetime "created_at", precision: nil, null: false
     t.date "enrollment_date"
     t.integer "program_stream_id"
     t.text "properties", default: "{}"
     t.string "status", default: "Active"
     t.datetime "updated_at", precision: nil, null: false
+    t.index ["client_id", "program_stream_id", "cohort"], name: "idx_client_enrollments_cohort"
     t.index ["client_id"], name: "index_client_enrollments_on_client_id"
     t.index ["program_stream_id"], name: "index_client_enrollments_on_program_stream_id"
   end
