@@ -108,6 +108,9 @@ Rails.application.routes.draw do
       resources :custom_field_properties
       get 'version' => 'users#version'
       get 'disable' => 'users#disable'
+      # Admin user management (owner ask 2026-08): clear a lockout / reset another user's password.
+      patch 'unlock' => 'users#unlock'
+      patch 'reset_password' => 'users#reset_password'
     end
   end
 
