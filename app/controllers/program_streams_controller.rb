@@ -87,7 +87,7 @@ class ProgramStreamsController < AdminController
     ngo_name = current_organization.full_name
     delete_select_option_empty
 
-    default_params = [:name, :rules, :description, :enrollment, :exit_program, :tracking_required, :quantity, program_exclusive: [], mutual_dependence: [], domain_ids: []]
+    default_params = [:name, :status, :rules, :description, :enrollment, :exit_program, :tracking_required, :quantity, program_exclusive: [], mutual_dependence: [], domain_ids: []]
     default_params << { trackings_attributes: [:name, :frequency, :time_of_frequency, :fields, :_destroy, :id] } unless program_without_tracking?
 
     params.require(:program_stream).permit(default_params).merge(ngo_name: ngo_name)

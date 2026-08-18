@@ -11,12 +11,16 @@ RSpec.describe 'Referrals (out) + Donor management', type: :request do
 
   describe 'Referrals — per-client hub section' do
     let!(:admin) { create(:user, roles: 'admin') }
-    let(:client) { create(:client) }
+    # state: 'accepted' so the client-hub header renders its TAB BAR (with the Forms chip that
+    # calls visible_custom_field_ids_for) — the path that 500'd in production when the controller
+    # was missing `include SensitiveFields`.
+    let(:client) { create(:client, state: 'accepted') }
     before { sign_in admin }
 
-    it 'opens the client referrals tab' do
+    it 'opens the client referrals tab (renders the hub header + tab bar)' do
       get client_referrals_path(client)
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include('client-hub__tabs')
     end
 
     it 'records a referral out and encrypts the narrative at rest' do

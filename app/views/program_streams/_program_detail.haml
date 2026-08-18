@@ -2,5 +2,6 @@
 %section
   #description
     = f.input :name, label: t('.name')
+    = f.input :status, collection: ProgramStream::LIFECYCLE_STATUSES.map { |s| [s.titleize, s] }, include_blank: false, label: t('.status', default: 'Status'), hint: t('.status_hint', default: 'Pending = set up, not yet running · Active = currently running · Completed = ran, no longer running')
     = f.input :description, label: t('.description')
     = f.association :domains, label_method: :identity, value_method: :id, multiple: true, label: t('.domain')
