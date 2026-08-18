@@ -46,6 +46,10 @@ module Casebook
         upsert_exits!(enrollments)
         upsert_notes!(clients, enrollments)
         upsert_agencies!
+        # Imported clients are HISTORIC/inactive (owner decision 2026-08). The KC household case
+        # sets 'Active KC' on members via a callback, so force the status blank AFTER all cases
+        # exist (update_all bypasses the callback; the household link via the Case is unaffected).
+        Client.where(id: (@imported_client_ids || []).uniq).update_all(status: '')
       end
       @counts.sort.each { |k, v| puts "  #{k}: #{v}" }
       @counts
@@ -132,7 +136,10 @@ module Casebook
       guid = row['person_id'].to_s
       client = @guid_clients[guid] ? Client.find(@guid_clients[guid]) : Client.new
       given, family = split_name(name)
-      client.assign_attributes(given_name: given, family_name: family, state: 'accepted',
+      # status: '' — imported clients are HISTORIC/inactive (owner decision 2026-08); leaving the
+      # status blank keeps them out of the active-caseload buckets (the clients.status column
+      # DEFAULTS to 'Referred', which would wrongly read as a pending intake).
+      client.assign_attributes(given_name: given, family_name: family, state: 'accepted', status: '',
                                gender: GENDER_MAP[row['Sex'].to_s.strip.downcase].to_s,
                                current_address: address_line(row))
       client.users = [assignee_for(name)] if client.users.empty?
@@ -140,6 +147,7 @@ module Casebook
       client.save!
       fill_form(client, guid, row)
       link_quantitative(client, row)
+      (@imported_client_ids ||= []) << client.id
       client
     end
 
@@ -162,15 +170,24 @@ module Casebook
         client = clients[e[:person]] or next
         # Casebook case names embed the delivery site + term ("Girasol DHS (Spring 25)").
         name = e[:row]['Case Name']
-        out[[e[:person], e[:program]]] =
-          enroll(client, e[:person], e[:program], site: parse_site(name), term: parse_term(name))
+        site = parse_site(name)
+        term = parse_term(name)
+        ce = enroll(client, e[:person], e[:program], site: site, term: term)
+        out[[e[:person], e[:program], cohort_key(site, term)]] = ce if ce
       end
+    end
+
+    def cohort_key(site, term)
+      [site, term].map { |v| v.to_s.strip }.reject(&:empty?).join(' · ')
     end
 
     def enroll(client, person, program_name, site: nil, term: nil)
       ps = ProgramStream.find_by(name: program_name)
       return nil if ps.nil?
-      ce = ClientEnrollment.find_or_initialize_by(client_id: client.id, program_stream_id: ps.id)
+      # OCA 2026-08: cohorts are SEPARATE — one enrollment per (client, program, cohort=Site+Term),
+      # not one merged enrollment per program. A blank cohort is the single default bucket.
+      ce = ClientEnrollment.find_or_initialize_by(client_id: client.id, program_stream_id: ps.id,
+                                                  cohort: cohort_key(site, term))
       if ce.new_record?
         ce.enrollment_date = @plan[:note_dates].dig(person, 0) || Time.zone.today
         ce.status = 'Active'
@@ -191,7 +208,8 @@ module Casebook
 
     def upsert_exits!(enrollments)
       @plan[:exits].each do |e|
-        ce = enrollments[[e[:person], e[:program]]] or next
+        name = e[:row] && e[:row]['Case Name']
+        ce = enrollments[[e[:person], e[:program], cohort_key(parse_site(name), parse_term(name))]] or next
         next if ce.status == 'Exited'
         LeaveProgram.create!(client_enrollment_id: ce.id, program_stream_id: ce.program_stream_id,
                              exit_date: e[:exit_date] || Time.zone.today)
@@ -268,7 +286,9 @@ module Casebook
              enroll(client, person, c[:program],
                     site: parse_site(row['Subject']), term: parse_term(row['Subject']))
            else
-             enrollments[[person, c[:program]]]
+             # program-level contact tracking — attach to ANY cohort enrollment for this program
+             # (the map key now carries a cohort; contact trackings aren't cohort-specific).
+             enrollments.find { |(p, prog, _cohort), _ce| p == person && prog == c[:program] }&.last
            end
       return if ce.nil?
       tracking_name = c[:kind] == :session ? 'Session Attendance' : c[:tracking]

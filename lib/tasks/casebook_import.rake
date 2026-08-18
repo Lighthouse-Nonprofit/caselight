@@ -116,7 +116,7 @@ namespace :casebook do
       if program
         enrollments << { person: person, program: program, row: row }
         status = row['Case Status'].to_s.strip
-        exits << { person: person, program: program, exit_date: note_dates.dig(person, 1) } unless status == 'Active'
+        exits << { person: person, program: program, exit_date: note_dates.dig(person, 1), row: row } unless status == 'Active'
       end
     end
     # a family needs its youths too — pull every resolvable person on a parented case
