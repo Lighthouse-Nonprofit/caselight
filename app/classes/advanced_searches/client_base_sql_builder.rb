@@ -76,9 +76,18 @@ module AdvancedSearches
           @sql_string << name_filter[:id]
           @values     << name_filter[:values]
 
-        elsif field != nil
+        elsif field != nil && Client.column_names.include?(field)
           value = field == 'grade' ? validate_integer(value) : value
           base_sql(field, operator, value)
+
+        elsif field != nil
+          # Defensive: a rule field that is neither a real clients column nor a handled
+          # association/form-builder/enrollment/quantitative field (e.g. a stale/bookmarked column an
+          # older UI still sends, like the removed `province`) must NOT reach base_sql — it would emit
+          # `clients.<field> = ?` and 500 with PG::UndefinedColumn (surfacing as a 409 via TenantBoundary
+          # on the error page). Skip it rather than crash the whole search. Same failure class as the
+          # province phantom column fixed in #302 — this generalizes the guard.
+          Rails.logger.warn("[ClientAdvancedSearch] skipped unknown rule field: #{field.inspect}")
 
         else
           nested_query =  AdvancedSearches::ClientBaseSqlBuilder.new(@clients, rule).generate

@@ -74,6 +74,12 @@ RSpec.describe 'Referrals (out) + Donor management', type: :request do
       expect(response.body).to include('MyCaseload Employer')
       expect(response.body).not_to include('OtherWorker Employer')
     end
+
+    it 'offers a create affordance (New referral) on the org-wide list' do
+      get referrals_path
+      expect(response.body).to include(clients_path)
+      expect(response.body).to match(/New referral/i)
+    end
   end
 
   describe 'Donor — rich fields' do
