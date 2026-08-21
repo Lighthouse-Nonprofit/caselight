@@ -21,6 +21,22 @@ RSpec.describe 'Advanced search results render', type: :request do
         params: { client_advanced_search: { basic_rules: rules } }.merge(extra)
   end
 
+  def submit_field(field)
+    rules = { condition: 'AND',
+              rules: [{ id: field, field: field, type: 'string',
+                        input: 'text', operator: 'equal', value: 'x' }] }.to_json
+    get '/client_advanced_searches', params: { client_advanced_search: { basic_rules: rules } }
+  end
+
+  it 'does not 500 on a rule whose field is neither a real column nor a handled association' do
+    create(:client, given_name: 'Guarded', family_name: 'Case')
+    # e.g. a stale field id an older UI still sends — must be skipped, not emitted as clients.<field> = ?
+    submit_field('program_streams')
+    expect(response).to have_http_status(:ok)
+    submit_field('some_removed_field')
+    expect(response).to have_http_status(:ok)
+  end
+
   it 'renders results (200) when a bookmarked search still carries the removed province column' do
     create(:client, given_name: 'Zephyrina', family_name: 'Testcase', code: 5551)
     # given_name_ = a live column; province_id_ = the stale phantom that used to 500 the page

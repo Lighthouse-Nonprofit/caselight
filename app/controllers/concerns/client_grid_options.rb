@@ -18,7 +18,7 @@ module ClientGridOptions
   # select's selected option + the sort form's hidden-field replay). XLS exports come through
   # here too, so a name order never reaches the export path (stays status-ordered).
   def client_grid_params
-    grid_params = params.fetch(:client_grid, {})
+    grid_params = sanitize_dynamic_filters(params.fetch(:client_grid, {}))
     order = grid_params[:order].to_s
     if ClientGrid::NAME_ORDERS.key?(order)
       @name_sort = ClientGrid::NAME_ORDERS[order]
@@ -30,6 +30,27 @@ module ClientGridOptions
     # not SQL-orderable anyway, so stripping them here is the same safe degradation.
     return grid_params if order.blank? || ClientGrid.column_by_name(order).present?
     grid_params.except(:order, :descending)
+  end
+
+  # datagrid 2.x :dynamic filters (the CSI `all_domains` + `domain_1a..6b`) pick their operator by
+  # probing the chosen field's column TYPE with `SELECT <field> AS "custom_field" FROM clients LIMIT 1`.
+  # The full client filter form POSTs EVERY dynamic filter on every search, and the CSI domain filters
+  # ride along with a blank field/value. A blank field makes that probe `SELECT  AS "custom_field" ...`
+  # -> PG::SyntaxError, which datagrid 2.0 re-wraps as an (uninitialized) NameError -> 500, surfacing as
+  # a 409 via TenantBoundary on the public-schema error page. A dynamic filter with no value is a no-op
+  # anyway, so drop any whose field OR value is blank before the grid ever sees it. This also fixes the
+  # sibling surprise where a filled field + blank value (e.g. all_domains[field]=id) ran `clients.id = ''`
+  # and silently returned zero rows. Dynamic filters are the only ones shaped `{field:, operation:, value:}`
+  # (range filters use {from:, to:}; the rest are scalars), so key on the `field` member — no datagrid
+  # filter-registry introspection needed.
+  def sanitize_dynamic_filters(grid_params)
+    cleaned = grid_params.respond_to?(:to_unsafe_h) ? grid_params.to_unsafe_h : grid_params.to_h
+    cleaned.each_key.to_a.each do |key|
+      value = cleaned[key]
+      next unless value.is_a?(Hash) && value.key?('field')
+      cleaned.delete(key) if value['field'].to_s.blank? || value['value'].to_s.blank?
+    end
+    ActionController::Parameters.new(cleaned)
   end
 
   def columns_visibility
