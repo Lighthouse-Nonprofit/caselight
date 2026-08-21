@@ -194,7 +194,8 @@ module ClientsHelper
     else
       current_address << client.province.name.split(' / ').last if client.province.present?
     end
-    current_address << I18n.t('datagrid.columns.clients.cambodia')
+    # Cambodia-era hardcode removed 2026-08: this is a US deployment (both flavors). The address is now
+    # just the parts the record actually carries (+ province/State); no country is appended.
     current_address.compact.join(', ')
   end
 

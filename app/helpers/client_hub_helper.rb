@@ -10,6 +10,7 @@ module ClientHubHelper
     'forms'                            => :forms,
     'custom_field_properties'          => :forms,
     'case_notes'                       => :case_notes,
+    'progress_notes'                   => :progress_notes,
     'assessments'                      => :assessments,
     'tasks'                            => :tasks,
     'referrals'                        => :referrals

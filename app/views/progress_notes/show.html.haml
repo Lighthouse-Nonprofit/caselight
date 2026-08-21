@@ -1,5 +1,8 @@
 .row
   .col-12
+    = render 'clients/client_header', client: @client, active_tab: :progress_notes
+.row
+  .col-12
     .ibox
       .ibox-title
         %h5= @progress_note.date.strftime('%d %B, %Y')

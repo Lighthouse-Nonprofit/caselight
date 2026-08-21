@@ -1,5 +1,8 @@
 .row
   .col-12
+    = render 'clients/client_header', client: @client, active_tab: :progress_notes
+.row
+  .col-12
     .ibox
       .ibox-title
         %h5=  t('.new_progress_note')

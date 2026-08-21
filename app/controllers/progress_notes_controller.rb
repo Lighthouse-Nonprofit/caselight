@@ -1,5 +1,9 @@
 class ProgressNotesController < AdminController
   include AccessAudit   # AU-2/AU-12: audit successful ProgressNote show/index reads
+  # Renders the shared clients/_client_header now that Progress Notes is a client-hub tab (youth). The
+  # header's Forms chip calls visible_custom_field_ids_for (a SensitiveFields helper_method) — without
+  # this include that raises NoMethodError -> 500 -> 409 on prod (same trap as the referrals tab, #305).
+  include SensitiveFields
   load_and_authorize_resource
 
   before_action :find_client
