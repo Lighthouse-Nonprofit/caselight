@@ -1495,6 +1495,7 @@ en:
         quantity: Quantity
       progress_notes:
         additional_notes: Additional Notes
+        category: Note family
         changelogs: Changelog
         child: Child
         date: Date

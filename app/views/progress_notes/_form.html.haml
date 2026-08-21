@@ -20,7 +20,8 @@
       = f.association :user, collection: @case_workers, input_html: { class: 'form-control' }, label: t('.staff'), include_blank: false
   .row
     .col-12.col-md-4
-      = f.association :progress_note_type, collection: @progress_note_types.map{ |t| [t.note_type, t.id] }, input_html: { class: 'form-control' }, label: t('.progress_note_type')
+      -# Grouped by note family (Contact / Curriculum & Activity / General) — see ProgressNoteType::CATEGORIES.
+      = f.input :progress_note_type_id, collection: ProgressNoteType.grouped_by_category, as: :grouped_select, group_method: :last, group_label_method: :first, label_method: :note_type, value_method: :id, input_html: { class: 'form-control' }, label: t('.progress_note_type')
     .col-12.col-md-4
       = f.association :location, collection: @locations.map{ |l| [l.name, l.id] }, input_html: { class: 'form-control' }, label: t('.location'), include_blank: false
     .col-12.col-md-4

@@ -120,7 +120,15 @@
         = link_to client_forms_path(client), class: "nav-link #{'active' if active_tab == :forms}" do
           = t('clients.client_header.forms', default: 'Forms')
           %span.client-hub__tab-chip= client_hub_forms(client).size
-      - if can? :manage, CaseNote
+      -# Notes tab. Youth flavor uses the flexible ProgressNote (the CSI CaseNote model is unused there,
+      -# so its always-empty tab is hidden); resettlement keeps the domain-scored Case Notes tab.
+      - if Rails.application.config.x.flavor == 'youth'
+        - if can_read_client_progress_note?(client)
+          %li.nav-item
+            = link_to client_progress_notes_path(client), class: "nav-link #{'active' if active_tab == :progress_notes}" do
+              = t('clients.client_header.notes', default: 'Notes')
+              %span.client-hub__tab-chip= client.progress_notes.count
+      - elsif can? :manage, CaseNote
         %li.nav-item
           = link_to client_case_notes_path(client), class: "nav-link #{'active' if active_tab == :case_notes}" do
             = t('clients.client_header.case_notes', default: 'Case Notes')
