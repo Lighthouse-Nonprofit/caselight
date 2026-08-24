@@ -89,7 +89,7 @@ gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on 
 # Explicit redis-rb for rack_attack's throttle store (config/initializers/rack_attack.rb uses raw
 # Redis.new). Previously an implicit transitive dep of sidekiq 4; sidekiq 7 switched to redis-client,
 # so without this line the redis gem would silently drop out of the bundle and break rack-attack.
-gem 'redis', '~> 5.4'
+gem 'redis', '~> 6.0'
 gem 'lograge', '~> 0.14'      # Phase 3: structured (JSON) request logging with audit tags (AU-3)
 gem 'rails-erd'
 gem 'phony_rails',            '~> 0.15.0'
