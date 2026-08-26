@@ -61,6 +61,14 @@ class ClientGrid
     scope.where(gender: value)
   end
 
+  # OCA 2026-08-26: "Lives with" became a closed vocabulary AND lost its encryption, which is
+  # what lets it be filtered in SQL here (an encrypted column could only ever be scanned).
+  filter(:live_with, :enum,
+         select: -> { Client::LIVE_WITH_OPTIONS.map { |v| [I18n.t("clients.live_with_options.#{v}", default: v.titleize), v] } },
+         header: -> { I18n.t('datagrid.columns.clients.live_with') }) do |value, scope|
+    scope.where(live_with: value)
+  end
+
   filter(:slug, :string, header: -> { I18n.t('datagrid.columns.clients.id')})  { |value, scope| scope.slug_like(value) }
 
   filter(:code, :integer, header: -> { I18n.t('datagrid.columns.clients.code') }) { |value, scope| scope.start_with_code(value) }
@@ -436,6 +444,10 @@ class ClientGrid
 
   column(:gender, header: -> { I18n.t('datagrid.columns.clients.gender') }) do |object|
     object.gender_label
+  end
+
+  column(:live_with, header: -> { I18n.t('datagrid.columns.clients.live_with') }) do |object|
+    object.live_with_label
   end
 
   column(:status, header: -> { I18n.t('datagrid.columns.clients.status') }) do |object|

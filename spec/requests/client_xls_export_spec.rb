@@ -119,7 +119,7 @@ RSpec.describe 'Client XLS export (clients#index.xls)', type: :request do
       expect(response).to have_http_status(:ok)
 
       cells = xls_cells(response.body)
-      expect(cells).to include('Given Name')      # default column header retained (absent if collapsed to assessments-only)
+      expect(cells).to include('First Name')      # default column header retained (absent if collapsed to assessments-only)
       expect(cells).to include('Current Address') # ...the full default set, not a lone assessments column
       expect(cells).to include('GuardSubject')    # the client's given_name value is still exported
     end

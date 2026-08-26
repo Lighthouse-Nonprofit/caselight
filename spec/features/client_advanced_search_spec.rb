@@ -15,7 +15,7 @@ feature 'ClientAdvancedSearch', js: true do
   scenario 'Advanced Search Text Field' do
     click_page_header_action 'Advanced Search'
     find(".rule-filter-container select option[value='given_name']", visible: false).select_option
-    expect(page).to have_content 'Given Name'
+    expect(page).to have_content 'First Name'
     expect(page).to have_content 'is'
   end
 

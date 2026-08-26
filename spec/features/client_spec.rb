@@ -93,7 +93,7 @@ describe 'Client' do
       visit new_client_path
     end
     scenario 'valid', js: true do
-      fill_in 'Given Name', with: 'Kema'
+      fill_in 'First Name', with: 'Kema'
       find(".client_users select option[value='#{user.id}']", visible: false).select_option
       click_button 'Save'
       wait_for_ajax
@@ -101,7 +101,7 @@ describe 'Client' do
     end
 
     scenario 'invalid as missing case workers', js: true do
-      fill_in 'Given Name', with: FFaker::Name.name
+      fill_in 'First Name', with: FFaker::Name.name
       click_button 'Save'
       wait_for_ajax
       expect(page).to have_content("can't be blank")
@@ -111,10 +111,10 @@ describe 'Client' do
     # encryption dropped the 75%-prefix fuzzy match), so only exact name matches
     # trigger the duplicate warning now — fill the fixture's exact names.
     scenario 'warning', js: true do
-      fill_in 'Given Name', with: 'Branderson'
-      fill_in 'Family Name', with: 'Anderson'
-      fill_in 'Given Name (native)', with: 'Vin'
-      fill_in 'Family Name (native)', with: 'Kell'
+      fill_in 'First Name', with: 'Branderson'
+      fill_in 'Last Name', with: 'Anderson'
+      fill_in 'First Name (native)', with: 'Vin'
+      fill_in 'Last Name (native)', with: 'Kell'
       fill_in 'Date of Birth', with: '2017-05-01'
       find(".client_users select option[value='#{user.id}']", visible: false).select_option
 
@@ -135,14 +135,14 @@ describe 'Client' do
       visit edit_client_path(client)
     end
     scenario 'valid', js: true do
-      fill_in 'Given Name', with: 'Allen'
+      fill_in 'First Name', with: 'Allen'
       click_button 'Save'
       wait_for_ajax
       expect(page).to have_content('Allen')
     end
 
     xscenario 'invalid' do
-      fill_in 'Given Name', with: ''
+      fill_in 'First Name', with: ''
       click_button 'Save'
       expect(page).to have_content("can't be blank")
     end

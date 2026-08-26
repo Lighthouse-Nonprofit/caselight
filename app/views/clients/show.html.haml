@@ -81,6 +81,8 @@
         - items << info_item(t('.birth_province'), @client.birth_province) unless youth_flavor
         - items << info_item(t('.school_name'), @client.school_name) unless youth_flavor
         - items << info_item(t('.school_grade'), @client.grade)
+        -# OCA 2026-08-26: "Lives with" is now a closed list and was previously not shown at all.
+        - items << info_item(t('.live_with'), @client.live_with_label.presence)
         - items << info_item(t('.relevant_referral_information'), @client.relevant_referral_information)
         - case_workers_html = capture do
           - order_case_worker(@client).each do |case_worker|
@@ -91,17 +93,18 @@
         -# values link to their (index) pages when the viewer can read them (no show routes
         -# exist for these reference records). Donor + Referral Source rows are NEW: they were
         -# invisible outside the edit form.
-        -# Youth flavor: exclude kind='school' agencies — the school is the 'School' quantitative,
-        -# not a generic "agency involved" (avoids the third school field on the record).
-        - shown_agencies = youth_flavor ? @client.agencies.reject { |a| a.kind == 'school' } : @client.agencies
-        - agencies_html = capture do
-          - shown_agencies.each do |agency|
-            %strong.badge.text-bg-light.agency
-              - if can? :read, Agency
-                = link_to agency.name, agencies_path
-              - else
-                = agency.name
-        - items << info_item(t('.agencies_involved'), agencies_html.presence)
+        -# Youth uses campus + site (the schools/sites surfaces) rather than a generic
+        -# "Agencies involved" row on the record (OCA feedback 2026-08-26). The association is
+        -# still load-bearing for those surfaces - only this row is hidden.
+        - unless youth_flavor
+          - agencies_html = capture do
+            - @client.agencies.each do |agency|
+              %strong.badge.text-bg-light.agency
+                - if can? :read, Agency
+                  = link_to agency.name, agencies_path
+                - else
+                  = agency.name
+          - items << info_item(t('.agencies_involved'), agencies_html.presence)
         - donor_html = capture do
           - if @client.donor.present?
             %strong.badge.text-bg-light.donor

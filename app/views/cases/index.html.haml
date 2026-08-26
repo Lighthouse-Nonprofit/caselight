@@ -30,10 +30,14 @@
                   - items = []
                   - items << info_item(t('.exit_note'), case_history.exit_note)
                   - items << info_item(t('.start_date'), (case_history.start_date.strftime('%B %d, %Y') if case_history.start_date))
-                  - items << info_item(t('.carer_names'), case_history.carer_names)
-                  - items << info_item(t('.carer_address'), case_history.carer_address)
+                  -# Carer rows are resettlement-only (OCA feedback 2026-08-26).
+                  - youth_flavor = Rails.application.config.x.flavor == 'youth'
+                  - unless youth_flavor
+                    - items << info_item(t('.carer_names'), case_history.carer_names)
+                    - items << info_item(t('.carer_address'), case_history.carer_address)
                   - items << info_item(t('.province'), (case_history.province.name if case_history.province))
-                  - items << info_item(t('.carer_phone_number'), (case_history.carer_phone_number.phony_formatted(normalize: :KH, format: :international) if case_history.carer_phone_number))
+                  - unless youth_flavor
+                    - items << info_item(t('.carer_phone_number'), (case_history.carer_phone_number.phony_formatted(normalize: :KH, format: :international) if case_history.carer_phone_number))
                   - items << info_item(t('.support_amount'), number_to_currency(case_history.support_amount))
                   - items << info_item(t('.support_note'), case_history.support_note)
                   - items << info_item(t('.ongoing_partner'), (partner(case_history.partner) if case_history.partner))
