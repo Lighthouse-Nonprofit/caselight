@@ -8,7 +8,7 @@ gem 'nokogiri', '~> 1.16'
 gem 'loofah', '~> 2.3'
 gem 'rails-html-sanitizer', '~> 1.4'
 gem 'json', '>= 2.3'
-gem 'tilt', '~> 2.0'
+gem 'tilt', '~> 2.9'
 gem 'benchmark'  # POAM-020: Ruby 4.0 dropped benchmark from default gems and Rails 8.1 no longer
 # pulls it in transitively (8.0 did, via activesupport), so gems that `require 'benchmark'`
 # (mini_magick 4.x, etc.) raise LoadError on boot. Declared explicitly. (Same class as the logger pin.)
@@ -32,7 +32,7 @@ gem 'dartsass-rails', '~> 0.5'
 # sass-rails pinned `sprockets < 4.0`. Sprockets 4 reads app/assets/config/manifest.js
 # for the precompile set and no longer ships the ruby-sass/coffee engines the R6/R9c
 # neutralizing shims guarded against.
-gem 'sprockets', '~> 4.3'
+gem 'sprockets', '~> 4.4'
 # sprockets-rails was only ever in the bundle as sass-rails' transitive dependency — with
 # sass-rails gone it must be declared directly (config/application.rb requires
 # 'sprockets/railtie', which this gem provides).
@@ -64,7 +64,7 @@ gem 'webauthn', '~> 3.4'
 # R11 (haml 6) / Dependabot #69 (haml 7.2, same Hamlit lineage). The R11 exposure audit was
 # audited before the bump: zero haml_tag/haml_concat/capture_haml/succeed/precede/object-ref
 # usage, filters limited to :javascript/:css (both in haml 6 core), no Haml::Options config.
-gem 'haml', '~> 7.3'
+gem 'haml', '~> 7.4'
 gem 'haml-rails', '~> 3.1'
 gem 'dotenv-rails', '~> 3.0'  # no Dotenv.* API usage in-app (auto-load of .env only)
 gem 'roo',                    '~> 3.0'
@@ -149,7 +149,7 @@ gem 'dropzonejs-rails',       '~> 0.8.5'
 # sidekiq 4 -> 7 (Phase 6 / POAM-001: XSS + 2x DoS CVEs). 7.x uses redis-client internally (the
 # explicit redis gem above keeps rack-attack working); Sidekiq.default_worker_options renamed to
 # default_job_options (initializer updated); no Sidekiq::Extensions (.delay) usage existed to convert.
-gem 'sidekiq',                '~> 8.0'
+gem 'sidekiq',                '~> 8.1'
 # connection_pool 3.0 changed TimedStack#pop's signature and crashed sidekiq 7.3's scheduler thread
 # at boot -- which is why connection_pool was pinned to 2.x. sidekiq 8 is built against
 # connection_pool 3, so the pin lifts on this rung (Phase 3a). sidekiq 8 needs Redis server >= 7.2
