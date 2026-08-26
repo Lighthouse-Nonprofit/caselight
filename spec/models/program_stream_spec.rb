@@ -69,7 +69,10 @@ end
 
 describe ProgramStream, 'validations' do
   it { is_expected.to validate_presence_of(:name) }
-  it { is_expected.to validate_uniqueness_of(:name) }
+  # OCA 2026-08-26: uniqueness is scoped to the parent program — "Mentorship" and "Groups" run
+  # under BOTH ¡Por Vida! and R.A.I.C.E.S.. Top-level names stay unique; both directions are
+  # covered in spec/models/program_stream_nesting_spec.rb.
+  it { is_expected.to validate_uniqueness_of(:name).scoped_to(:parent_id) }
   it { is_expected.to accept_nested_attributes_for(:trackings) }
 end
 

@@ -19,18 +19,33 @@
                 %th= t('.places', default: 'Places left')
                 %th= t('.actions', default: 'Actions')
             %tbody
-              - @enrollable_streams.each do |ps|
-                %tr
-                  %td= link_to ps.name, program_stream_path(ps, client: true)
-                  %td
-                    - ps.domains_format.each do |domain|
-                      %strong.badge.text-bg-light= domain
-                  %td= ps.place_available
-                  %td
-                    - if ps.maximum_client?
-                      .badge.text-bg-info= t('client_enrollments.manage.full_program', default: 'This Program is full')
-                    - else
-                      = link_to new_client_client_enrollment_path(@client, program_stream_id: ps.id) do
-                        .btn.btn-primary.btn-xs.btn-width= t('.enroll', default: 'Enroll')
+              -# OCA 2026-08-26: curricula are nested under their top-level program rather than
+              -# listed flat -- the flat list is what Araceli described as cluttered. Programs whose
+              -# parent is not set yet fall into the trailing nil group, so nothing disappears from
+              -# the picker before the nesting is seeded.
+              - grouped = @enrollable_by_parent.presence || { nil => @enrollable_streams }
+              - parents_by_id = @enrollable_streams.index_by(&:id)
+              - parent_ids = grouped.keys.compact.sort_by { |pid| parents_by_id[pid]&.name.to_s }
+              - (parent_ids + [nil]).each do |parent_id|
+                - streams = grouped[parent_id]
+                - next if streams.blank?
+                - parent = parent_id ? parents_by_id[parent_id] : nil
+                - if parent
+                  %tr.program-picker__group
+                    %td{ colspan: 4 }
+                      %strong= parent.name
+                - streams.each do |ps|
+                  %tr{ class: ('program-picker__child' if parent) }
+                    %td= link_to ps.name, program_stream_path(ps, client: true)
+                    %td
+                      - ps.domains_format.each do |domain|
+                        %strong.badge.text-bg-light= domain
+                    %td= ps.place_available
+                    %td
+                      - if ps.maximum_client?
+                        .badge.text-bg-info= t('client_enrollments.manage.full_program', default: 'This Program is full')
+                      - else
+                        = link_to new_client_client_enrollment_path(@client, program_stream_id: ps.id) do
+                          .btn.btn-primary.btn-xs.btn-width= t('.enroll', default: 'Enroll')
       .modal-footer
         %button.btn.btn-outline-secondary{ 'data-bs-dismiss' => 'modal', type: 'button' }= t('.close', default: 'Close')

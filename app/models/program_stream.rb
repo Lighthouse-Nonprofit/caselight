@@ -24,8 +24,22 @@ class ProgramStream < ActiveRecord::Base
   # pending = set up, not yet running; active = currently running; completed = ran, no longer running.
   LIFECYCLE_STATUSES = %w[pending active completed].freeze
 
+  # OCA 2026-08-26 -- curriculum nesting. A curriculum (El Joven Noble, Girasol, Cultura Club, ...)
+  # is an educational curriculum WITHIN a top-level program; the Casebook import flattened them to
+  # top level. They stay ProgramStreams because per-curriculum enrollment backs the cohort roster,
+  # roll call, Session Attendance and Cohorts::SESSION_TOTALS -- nesting here is grouping, not a
+  # remodelling.
+  belongs_to :parent, class_name: 'ProgramStream', optional: true, inverse_of: :curricula
+  has_many   :curricula, class_name: 'ProgramStream', foreign_key: :parent_id,
+                         inverse_of: :parent, dependent: :nullify
+
+  scope :top_level, -> { where(parent_id: nil) }
+
   validates :name, presence: true
-  validates :name, uniqueness: true
+  # Scoped to the parent: "Mentorship" and "Groups" exist under BOTH ¡Por Vida! and R.A.I.C.E.S.
+  # in OCA's structure. Matching partial unique indexes are in 20260826000001.
+  validates :name, uniqueness: { scope: :parent_id }
+  validate  :parent_cannot_be_self_or_descendant
   validates :status, inclusion: { in: LIFECYCLE_STATUSES }
 
   scope :lifecycle_active,    -> { where(status: 'active') }
@@ -197,5 +211,27 @@ class ProgramStream < ActiveRecord::Base
       field_remove.map{ |f| error_fields << f['label'] if property[f['label']].present? }
     end
     error_fields.uniq
+  end
+
+  # One level is all OCA's structure needs, but a cycle would hang every tree render, so
+  # refuse self-parenting and any ancestor loop outright.
+  def parent_cannot_be_self_or_descendant
+    return if parent_id.blank?
+
+    if parent_id == id
+      errors.add(:parent_id, 'cannot be the program itself')
+      return
+    end
+
+    seen = [id].compact
+    node = parent
+    while node
+      if seen.include?(node.id)
+        errors.add(:parent_id, 'would create a circular nesting')
+        return
+      end
+      seen << node.id
+      node = node.parent
+    end
   end
 end
