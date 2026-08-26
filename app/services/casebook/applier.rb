@@ -178,8 +178,9 @@ module Casebook
       end
     end
 
+    # Single source of truth lives on the model so the importer and the enrollment rules agree.
     def cohort_key(site, term)
-      [site, term].map { |v| v.to_s.strip }.reject(&:empty?).join(' · ')
+      ClientEnrollment.cohort_key(site, term)
     end
 
     def enroll(client, person, program_name, site: nil, term: nil)

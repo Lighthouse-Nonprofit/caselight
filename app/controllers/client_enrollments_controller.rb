@@ -13,7 +13,12 @@ class ClientEnrollmentsController < AdminController
     @active_streams  = ProgramStreamDecorator.decorate_collection(ProgramStream.active_enrollments(@client))
     @exited_streams  = ProgramStreamDecorator.decorate_collection(ProgramStream.inactive_enrollments(@client))
     @pane_streams    = @active_streams + @exited_streams
-    @enrollable_streams = ProgramStreamDecorator.decorate_collection(ProgramStream.without_status_by(@client).complete)
+    # OCA 2026-08-26: legacy/Casebook-era programs are retired by setting lifecycle status
+    # `completed`. Until now `lifecycle_active` had ZERO call sites, so a "completed" program kept
+    # appearing in the picker and kept accepting enrollments -- the status only changed a badge.
+    @enrollable_streams = ProgramStreamDecorator.decorate_collection(
+      ProgramStream.without_status_by(@client).complete.lifecycle_active
+    )
     @enrollments_by_stream = @client.client_enrollments
                                     .where(program_stream_id: @pane_streams.map(&:id))
                                     .includes(:leave_program, client_enrollment_trackings: :tracking)

@@ -132,13 +132,24 @@ class ProgramStream < ActiveRecord::Base
     client_enrollments.last
   end
 
-  def number_available_for_client
-    quantity - client_enrollments.active.size
+  # OCA 2026-08-26: places remaining are per COHORT, and blank-status historic imports do not
+  # occupy a place (matching ProgramStreamDecorator#active_enrollment_count).
+  def number_available_for_client(cohort = '')
+    return nil if quantity.blank?
+
+    quantity - client_enrollments.active.for_active_clients.in_cohort(cohort).distinct.count(:client_id)
   end
 
-  def enroll?(client)
-    enrollments = client_enrollments.enrollments_by(client).order(:created_at)
-    (enrollments.present? && enrollments.first.status == 'Exited') || enrollments.empty?
+  # Must use the same RULE as ClientEnrollmentPolicy#create?, which is what actually gates the
+  # save. This previously took enrollments.FIRST (oldest) while the policy took .last (newest), so
+  # the two disagreed by construction and a client could be shown a Re-enroll button and then be
+  # bounced. Both now key on the newest enrollment in a given cohort.
+  #
+  # Callers in the views pass no cohort (the default bucket) because the cohort is not known until
+  # the enrollment form's Site/Term are filled in -- the policy remains the authoritative check.
+  def enroll?(client, cohort = '')
+    history = client_enrollments.enrollments_by(client).in_cohort(cohort).order(:created_at)
+    history.empty? || history.last.status == 'Exited'
   end
 
   def is_used?

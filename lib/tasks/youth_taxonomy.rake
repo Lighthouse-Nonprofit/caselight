@@ -331,9 +331,14 @@ namespace :youth do
       programs.each do |spec|
         ps = ProgramStream.find_or_initialize_by(name: spec[:name])
         was_new = ps.new_record?
+        # NO quantity here (OCA 2026-08-26). This used to stamp `quantity: 30` on EVERY youth
+        # program; combined with the (then) lifetime-wide enrollment count that hard-blocked any
+        # program which had ever had 30 active clients. Because the seed is
+        # find_or_initialize_by(name:), it also re-applied the cap on every re-seed, so fixing the
+        # data alone was never enough. Capacity is now a deliberate per-program decision made in
+        # the UI, and it is enforced per COHORT.
         ps.assign_attributes(description: spec[:description], enrollment: spec[:enrollment],
-                             exit_program: exit_form, ngo_name: ngo, tracking_required: false,
-                             quantity: 30)
+                             exit_program: exit_form, ngo_name: ngo, tracking_required: false)
         ps.save!
         spec[:trackings].each do |tspec|
           tr = ps.trackings.find_or_initialize_by(name: tspec[:name])
