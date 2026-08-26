@@ -26,7 +26,14 @@
       = f.association :location, collection: @locations.map{ |l| [l.name, l.id] }, input_html: { class: 'form-control' }, label: t('.location'), include_blank: false
     .col-12.col-md-4
       = f.input :other_location, input_html: { class: 'form-control' }, label: t('.other_location')
-  .row
+  -# OCA 2026-08-26: Interventions / Equipment-Materials / Goals Addressed belong to PROGRAM
+  -# (curriculum & session) notes, not to a general contact note. Gated on the selected note
+  -# type's category (ProgressNoteType::CATEGORIES). Server-rendered for the current value, then
+  -# kept in sync by progress_notes/form.js on change -- CSP is enforced, so the type ids travel
+  -# in a data attribute rather than an inline script.
+  - curriculum_type_ids = ProgressNoteType.curriculum.pluck(:id)
+  - curriculum_selected = curriculum_type_ids.include?(@progress_note.progress_note_type_id)
+  .row#curriculum-only-fields{ data: { curriculum_type_ids: curriculum_type_ids.to_json }, style: (curriculum_selected ? nil : 'display: none;') }
     .col-12.col-md-4
       = f.association :interventions, collection: @interventions, multiple: true, label_method: :action, value_method: :id, label: t('.interventions')
     .col-12.col-md-4

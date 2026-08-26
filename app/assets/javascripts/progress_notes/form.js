@@ -17,6 +17,8 @@ CIF.Progress_notesNew =
         _select2();
         _toggleOtherLocation();
         _triggerLocationChanged();
+        _toggleCurriculumFields();
+        _triggerNoteTypeChanged();
         return _handleSubmitForm();
       };
       // POAM-017a: TinyMCE init removed — the Trix editors (<trix-editor> in the form
@@ -65,6 +67,28 @@ CIF.Progress_notesNew =
 
       var _triggerLocationChanged = () =>
         $('.progress_note_location select').change(() => _toggleOtherLocation());
+
+      // OCA 2026-08-26: Interventions / Equipment-Materials / Goals Addressed are program
+      // (curriculum & session) fields, so they only show for a Curriculum-category note type.
+      // The allowed ids are rendered into a data attribute by the form partial because CSP
+      // (POAM-017f) forbids inline script.
+      var _toggleCurriculumFields = function () {
+        const $block = $('#curriculum-only-fields');
+        if (!$block.length) {
+          return;
+        }
+        const ids = $block.data('curriculum-type-ids') || [];
+        const selected = parseInt($('#progress_note_progress_note_type_id').val(), 10);
+        if ($.inArray(selected, ids) >= 0) {
+          return $block.show();
+        }
+        // Clear on hide so a note retyped to Contact/General cannot silently keep program values.
+        $block.find('select').val(null).trigger('change');
+        return $block.hide();
+      };
+
+      var _triggerNoteTypeChanged = () =>
+        $('#progress_note_progress_note_type_id').change(() => _toggleCurriculumFields());
 
       const _clearProgressNoteDateError = function () {
         $('.form-text').remove();

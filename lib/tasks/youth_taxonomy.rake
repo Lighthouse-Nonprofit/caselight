@@ -202,6 +202,38 @@ namespace :youth do
        pf.call('textarea', 'Session Notes')]
     end
 
+    # OCA Pre/Post Program Assessment (Araceli, 2026-08-26) -- "26-27 Pre and Post Program
+    # Assessment (SMJUHSD & Elevate Youth)". Ten statements rated 1-5, delivered twice per
+    # participant. Modelled as ONE tracking with a Stage selector rather than two trackings, so a
+    # participant's pre and post land in the same form and pair up for matched-pair reporting
+    # (Reports::Youth::SelOutcomes). entry_date on the tracking carries the real delivery date, so
+    # late entry stays honest.
+    LIKERT_1_5 = ['1 - Strongly disagree', '2 - Disagree', '3 - Neutral',
+                  '4 - Agree', '5 - Strongly agree'].freeze
+
+    pre_post_items = [
+      'Attendance & Engagement: I feel motivated to attend school and participate in program activities regularly.',
+      'Social-Emotional & Belonging: I feel a sense of belonging on campus.',
+      'Mentorship & Connection: I have a trusted adult on campus or in this program I can turn to for support.',
+      'Work-Based Learning: I understand how my current education and workshop learning connect to my future career goals.',
+      'Peer Networks: I feel connected to a strong network of supportive peers.',
+      'Educational Workshops: I feel confident in my ability to gain and apply practical skills from educational workshops.',
+      'Civic Leadership: I see myself as a leader who can make a positive impact in my community.',
+      'Advocacy: I feel empowered to advocate for issues and changes that matter to me and my peers.',
+      'SMART Goals: I have clear, short-term personal or academic goals that I am working to achieve.',
+      'Participation & Connection: I believe participating in these programs will help me stay connected to my school and community.'
+    ].freeze
+
+    pre_post_assessment = lambda do
+      fields = [pf.call('select', 'Stage', values: %w[Pre Post], required: true),
+                pf.call('date', 'Assessment Date', required: true)]
+      pre_post_items.each_with_index do |statement, i|
+        fields << pf.call('select', "Q#{i + 1}. #{statement}", values: LIKERT_1_5)
+      end
+      fields << pf.call('textarea', 'Assessment Notes')
+      fields
+    end
+
     cohort_enrollment = [
       pf.call('select', 'Site', values: SITES, required: true),
       pf.call('select', 'Term', values: TERMS, required: true),
@@ -323,6 +355,25 @@ namespace :youth do
         enrollment: cohort_enrollment,
         trackings: [{ name: 'Session Attendance', frequency: 'Weekly', fields: session_attendance.call }]
       }
+    end
+
+    # The Pre/Post attaches to the TOP-LEVEL programs only, never to the cohort curricula
+    # (El Joven Noble, Girasol, Cultura Club, ...). A youth is typically enrolled in a parent
+    # program AND one or more of its curricula, so attaching it everywhere would ask them to
+    # answer the same ten statements three or four times and would make matched-pair reporting
+    # ambiguous about which pair is authoritative.
+    #
+    # OPEN with Araceli: her items name El Camino Concilio and Sembradores as *topics within one
+    # survey* (Q7, Q8), which reads as one survey per youth rather than one per program. If she
+    # confirms that, this moves to a client-level assessment instead of a per-program tracking.
+    # Tracking upsert is find_or_initialize_by(name:), so re-running updates in place.
+    PRE_POST_PROGRAMS = ['¡Por Vida!', 'Stop The Hate', 'Elevate Youth Prevention',
+                         'R.A.I.C.E.S.', 'El Camino Concilio', 'Sembradores Youth Council'].freeze
+    programs = programs.map do |spec|
+      next spec unless PRE_POST_PROGRAMS.include?(spec[:name])
+
+      spec.merge(trackings: spec[:trackings] +
+        [{ name: 'Pre/Post Program Assessment', frequency: nil, fields: pre_post_assessment.call }])
     end
 
     Apartment::Tenant.switch(tenant) do

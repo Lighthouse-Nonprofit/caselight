@@ -83,7 +83,8 @@ RSpec.describe 'youth taxonomy seeds' do
     it 'gives the youth councils BOTH a curriculum (Session Attendance) and a Council / Campaign Activity tracking' do
       ['El Camino Concilio', 'Sembradores Youth Council'].each do |n|
         ps = ProgramStream.find_by(name: n)
-        expect(ps.trackings.pluck(:name)).to match_array(['Session Attendance', 'Council / Campaign Activity'])
+        expect(ps.trackings.pluck(:name)).to match_array(['Session Attendance', 'Council / Campaign Activity',
+                                                           'Pre/Post Program Assessment'])
       end
     end
 
@@ -97,10 +98,38 @@ RSpec.describe 'youth taxonomy seeds' do
       pv = ProgramStream.find_by(name: '¡Por Vida!')
       expect(pv.trackings.pluck(:name)).to match_array([
         'Case Management Contact', 'Mentorship Contact', 'Academic Check-in (Aeries)',
-        'Workshop / Student Engagement', 'SMART Goals Review'
+        'Workshop / Student Engagement', 'SMART Goals Review', 'Pre/Post Program Assessment'
       ])
       expect(pv.trackings.find_by(name: 'Case Management Contact').frequency).to eq('Monthly')
       expect(pv.trackings.find_by(name: 'Mentorship Contact').frequency).to be_nil
+    end
+
+    it 'attaches the Pre/Post assessment to top-level programs but NOT to cohort curricula' do
+      expect(ProgramStream.find_by(name: '¡Por Vida!').trackings.pluck(:name))
+        .to include('Pre/Post Program Assessment')
+
+      # A youth is usually in a parent program AND a curriculum; attaching it to both would ask
+      # for the same ten statements more than once and make matched-pair reporting ambiguous.
+      ['Girasol', 'El Joven Noble'].each do |curriculum|
+        expect(ProgramStream.find_by(name: curriculum).trackings.pluck(:name))
+          .not_to include('Pre/Post Program Assessment')
+      end
+    end
+
+    it 'builds the Pre/Post form as Stage + date + ten 1-5 statements + notes' do
+      tr = ProgramStream.find_by(name: '¡Por Vida!').trackings.find_by(name: 'Pre/Post Program Assessment')
+      labels = tr.fields.map { |f| f['label'] }
+
+      expect(labels.first(2)).to eq(['Stage', 'Assessment Date'])
+      expect(labels.count { |l| l.start_with?('Q') }).to eq(10)
+      expect(labels.last).to eq('Assessment Notes')
+
+      stage = tr.fields.find { |f| f['label'] == 'Stage' }
+      expect(stage['values'].map { |v| v['value'] }).to eq(%w[Pre Post])
+
+      q1 = tr.fields.find { |f| f['label'].start_with?('Q1.') }
+      expect(q1['values'].map { |v| v['value'] }.first).to eq('1 - Strongly disagree')
+      expect(q1['values'].size).to eq(5)
     end
 
     it 'gives each cohort curriculum Site+Term enrollment and a weekly Session Attendance tracking' do

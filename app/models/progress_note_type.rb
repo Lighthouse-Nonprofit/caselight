@@ -17,6 +17,12 @@ class ProgressNoteType < ActiveRecord::Base
   validates :note_type, presence: true, uniqueness: { case_sensitive: false }
   validates :category, inclusion: { in: CATEGORIES }
 
+  # OCA 2026-08-26: the program-only note fields (Interventions / Equipment-Materials /
+  # Goals Addressed) key off this rather than comparing category strings at each call site.
+  def curriculum?
+    category.to_s == 'curriculum'
+  end
+
   scope :contact,    -> { where(category: 'contact') }
   scope :curriculum, -> { where(category: 'curriculum') }
   scope :general,    -> { where(category: 'general') }

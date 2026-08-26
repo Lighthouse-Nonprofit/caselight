@@ -25,15 +25,20 @@
         - items << info_item(t('.progress_note_type'), @progress_note.progress_note_type)
         - items << info_item(t('.location'), @progress_note.location)
         - items << info_item(t('.other_location'), @progress_note.other_location)
-        - items << info_item(t('.interventions'), (@progress_note.interventions.pluck(:action).join(', ') if @progress_note.interventions.any?))
-        - items << info_item(t('.material'), @progress_note.material)
-        - goals_html = capture do
-          - if @progress_note.assessment_domains.any?
-            - visible_ads = @progress_note.assessment_domains.includes(:domain).select { |ad| domain_visible?(ad) }
-            - hidden_ad_count = @progress_note.assessment_domains.size - visible_ads.size
-            = visible_ads.map(&:goal).join(', ')
-            = masked_hidden_notice(hidden_ad_count)
-        - items << info_item(t('.goals_addressed'), goals_html.presence)
+        -# OCA 2026-08-26: Interventions / Equipment-Materials / Goals Addressed are PROGRAM
+        -# (curriculum & session) fields and are hidden on contact and general notes. The
+        -# sensitivity masking inside the goals block is unchanged -- it just no longer runs for
+        -# note types that never carry goals.
+        - if @progress_note.curriculum_note?
+          - items << info_item(t('.interventions'), (@progress_note.interventions.pluck(:action).join(', ') if @progress_note.interventions.any?))
+          - items << info_item(t('.material'), @progress_note.material)
+          - goals_html = capture do
+            - if @progress_note.assessment_domains.any?
+              - visible_ads = @progress_note.assessment_domains.includes(:domain).select { |ad| domain_visible?(ad) }
+              - hidden_ad_count = @progress_note.assessment_domains.size - visible_ads.size
+              = visible_ads.map(&:goal).join(', ')
+              = masked_hidden_notice(hidden_ad_count)
+          - items << info_item(t('.goals_addressed'), goals_html.presence)
         - items << info_item(t('.response'), render_rich_text(@progress_note.response), full: true)
         - items << info_item(t('.additional_notes'), render_rich_text(@progress_note.additional_note), full: true)
         - if @progress_note.attachments.any?
