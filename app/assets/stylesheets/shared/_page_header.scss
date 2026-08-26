@@ -68,5 +68,21 @@
     }
   }
 
+  // OCA 2026-08-26 — the dashboard cohort chips are SELECTABLE filters, not the dismissible
+  // applied-filter chips this class was built for, so the current one needs to read as chosen.
+  // aria-current is set alongside it in the markup for non-visual clients.
+  .filter-chips__chip--active {
+    color: #fff;
+    background: $navy;
+    border-color: $navy;
+    font-weight: 600;
+
+    &:hover,
+    &:focus {
+      color: #fff;
+      background: shade-color($navy, 6%);
+    }
+  }
+
   .filter-chips__x { font-weight: 700; margin-left: 2px; }
 }
