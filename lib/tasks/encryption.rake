@@ -75,7 +75,7 @@ namespace :encryption do
       # D6: + email (client contact PII, born via the encrypted attribute — reminder
       # sends read per-record; never queried by equality)
       'Client'  => %i[current_address school_name house_number street_number
-                      village commune district live_with email],
+                      village commune district email],
       'Family'  => %i[address],
       'Partner' => %i[address]
     },

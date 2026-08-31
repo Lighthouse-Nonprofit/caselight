@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_21_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.hstore"
@@ -680,12 +680,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_000001) do
     t.integer "mutual_dependence", default: [], array: true
     t.string "name"
     t.string "ngo_name", default: ""
+    t.integer "parent_id"
     t.integer "program_exclusive", default: [], array: true
     t.integer "quantity"
     t.jsonb "rules", default: {}
     t.string "status", default: "active", null: false
     t.boolean "tracking_required", default: false
     t.datetime "updated_at", precision: nil, null: false
+    t.index ["name", "parent_id"], name: "index_program_streams_on_name_and_parent_id", unique: true, where: "(parent_id IS NOT NULL)"
+    t.index ["name"], name: "index_program_streams_on_name_when_top_level", unique: true, where: "(parent_id IS NULL)"
+    t.index ["parent_id"], name: "index_program_streams_on_parent_id"
   end
 
   create_table "progress_note_types", id: :serial, force: :cascade do |t|
@@ -1196,6 +1200,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_000001) do
   add_foreign_key "interventions_progress_notes", "progress_notes"
   add_foreign_key "leave_program_search_entries", "leave_programs", on_delete: :cascade
   add_foreign_key "leave_programs", "client_enrollments"
+  add_foreign_key "program_streams", "program_streams", column: "parent_id", on_delete: :nullify
   add_foreign_key "progress_notes", "clients"
   add_foreign_key "progress_notes", "locations"
   add_foreign_key "progress_notes", "materials"

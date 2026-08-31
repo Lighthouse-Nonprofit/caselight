@@ -3,11 +3,16 @@
   .ibox-content
     = error_notification(f)
     .form-inputs
+      -# Flavor gate for the whole form. Resettlement keeps the fields youth has no use for
+      -# (native-script names, the agencies picker). Convention: hide, don't drop the column.
+      - youth_flavor = Rails.application.config.x.flavor == 'youth'
       .row
         .col-12.col-sm-6.col-md-4= f.input :given_name, label: t('.given_name')
         .col-12.col-sm-6.col-md-4= f.input :family_name, label: t('.family_name')
-        .col-12.col-sm-6.col-md-4= f.input :local_given_name, label: t('.local_given_name')
-        .col-12.col-sm-6.col-md-4= f.input :local_family_name, label: t('.local_family_name')
+        -# Native-script name pair is a resettlement concept (OCA feedback 2026-08-26) - hidden in youth.
+        - unless youth_flavor
+          .col-12.col-sm-6.col-md-4= f.input :local_given_name, label: t('.local_given_name')
+          .col-12.col-sm-6.col-md-4= f.input :local_family_name, label: t('.local_family_name')
         -# D4: CA SOGI list — ONE source (Client::GENDER_OPTIONS + i18n labels)
         .col-12.col-sm-6.col-md-4= f.input :gender, collection: Client::GENDER_OPTIONS.map { |g| [t("clients.gender_options.#{g}", default: g.titleize), g] }, label: t('.gender')
         .col-12.col-sm-6.col-md-4.mb-3.date.optional.client_date_of_birth
@@ -19,7 +24,6 @@
         -# Youth flavor: school collapses to the single hub-linked 'School' quantitative (set via the
         -# quantitative editor / Casebook import) — hide the legacy free-text school_name here. Country
         -# of Origin (birth_province) is a resettlement concept — hidden in youth too.
-        - youth_flavor = Rails.application.config.x.flavor == 'youth'
         - unless youth_flavor
           .col-12.col-sm-6.col-md-4= f.input :school_name, label: t('.school_name')
         .col-12.col-sm-6.col-md-4= f.input :grade, label: t('.school_grade')
@@ -43,10 +47,11 @@
             %span.input-group-text
               %i.fa.fa-calendar-check-o
 
-        -# Youth flavor: schools are the 'School' quantitative, not a generic agency — keep them out
-        -# of the "Agencies involved" picker so school isn't a third field on the record.
-        - agency_collection = youth_flavor ? @agencies.reject { |a| a.kind == 'school' } : @agencies
-        .col-12.col-sm-6.col-md-4= f.association :agencies, collection: agency_collection, multiple: true, label_method: :name, value_method: :id, label: t('.agencies_involved')
+        -# Youth uses campus + site (Agency kind school/site) instead of a generic
+        -# "Agencies involved" picker (OCA feedback 2026-08-26). The association is
+        -# load-bearing for the school/site surfaces - only this input is hidden.
+        - unless youth_flavor
+          .col-12.col-sm-6.col-md-4= f.association :agencies, collection: @agencies, multiple: true, label_method: :name, value_method: :id, label: t('.agencies_involved')
         .col-12.col-sm-6.col-md-4= f.association :referral_source, collection: @referral_source, label: t('.referral_source')
         .col-12.col-sm-6.col-md-4.mb-3.date.optional.client_follow_up_date
           %label.date.optional.form-label{ for: 'client_follow_up_date' }= t('.follow_up_date')
@@ -64,7 +69,7 @@
         .col-12.col-sm-6.col-md-4
           = f.input :notify_consent, as: :boolean, label: t('.notify_consent', default: 'May we send appointment reminders to this email?')
         .col-12.col-sm-6.col-md-4
-          = f.input :live_with, label: t('.live_with')
+          = f.input :live_with, collection: Client::LIVE_WITH_OPTIONS.map { |v| [t("clients.live_with_options.#{v}", default: v.titleize), v] }, label: t('.live_with')
         - if @client.exit_date_was.present?
           .col-12.col-sm-6.col-md-4.mb-3.date.optional{ class: ('has-error' if f.error :exit_date) }
             %label.date.optional.form-label

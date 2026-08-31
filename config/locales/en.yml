@@ -280,7 +280,7 @@ en:
       exit_kc_date: Exit KC Date
       family: Household
       family_id: Household ID
-      family_name: Family Name
+      family_name: Last Name
       follow_up_by: Followed Up By
       follow_up_date: Follow Up Date
       followed_up_by: Followed Up By
@@ -288,7 +288,7 @@ en:
       form_title: Form Title
       frequency: Frequency
       gender: Gender
-      given_name: Given Name
+      given_name: First Name
       grade: Grade
       has_been_in_government_care: Has Been In Government Care
       has_been_in_orphanage: Has Been In Orphanage
@@ -298,8 +298,8 @@ en:
       initial_referral_date: Initial Referral Date
       kid_id: Individual ID
       live_with: Lives with
-      local_family_name: Family Name (native)
-      local_given_name: Given Name (native)
+      local_family_name: Last Name (native)
+      local_given_name: First Name (native)
       name: Name
       ngo_accepted_date: Organization Accept Date
       ngo_exit_date: Organization Exit Date
@@ -846,6 +846,13 @@ en:
       questioning: Questioning
       another_gender_identity: Another gender identity
       declined_to_state: Declined to state
+    # OCA 2026-08-26: "Lives with" is a closed list. Keys = Client::LIVE_WITH_OPTIONS tokens.
+    live_with_options:
+      mom: Mom
+      dad: Dad
+      resource_parent: Resource parent
+      family_member: Family member
+      other: Other
     answer_fields:
       answer: Answer
       yes_no: Yes/No
@@ -927,14 +934,14 @@ en:
       exit_date: Organization Exit Date
       exit_note: Exit Note
       exit_status: Exit Status
-      family_name: Family Name
+      family_name: Last Name
       follow_up_by: Followed Up By
       follow_up_date: Follow Up Date
       followed_up_by: Followed Up By
       from: From
       gender: Gender
       general_question: General Question
-      given_name: Given Name
+      given_name: First Name
       has_been_in_government_care: Has Been In Government Care
       has_been_in_orphanage: Has Been In Orphanage
       house_number: House
@@ -943,8 +950,8 @@ en:
       initial_referral_date: Initial Referral Date
       kid_id: Individual ID
       live_with: Lives with
-      local_family_name: Family Name (native)
-      local_given_name: Given Name (native)
+      local_family_name: Last Name (native)
+      local_given_name: First Name (native)
       name: Name
       province: Country of Origin
       received_by: Received By
@@ -1070,13 +1077,13 @@ en:
       exit_ngo_btn: Exit From Organization
       exit_note: Exit Note
       families: Households
-      family_name: Family Name
+      family_name: Last Name
       follow_up_by: Followed Up By
       follow_up_date: Follow Up Date
       followed_up_by: Followed Up By
       gender: Gender
       general_info: About Individual
-      given_name: Given Name
+      given_name: First Name
       has_been_in_government_care: Has Been In Government Care
       has_been_in_orphanage: Has Been In Orphanage
       house_number: House
@@ -1085,8 +1092,8 @@ en:
       initial_referral_date: Initial Referral Date
       kid_id: Individual ID
       live_with: Lives with
-      local_family_name: Family Name (native)
-      local_given_name: Given Name (native)
+      local_family_name: Last Name (native)
+      local_given_name: First Name (native)
       name: Name
       note: Note
       placements:
@@ -1362,14 +1369,14 @@ en:
         domains: All CSI
         donor: Donor
         family_id: Household ID
-        family_name: Family Name
+        family_name: Last Name
         follow_up_by: Followed Up By
         follow_up_date: Follow Up Date
         followed_up_by: Followed Up By
         form_title: Form Title
         frequency: Frequency
         gender: Gender
-        given_name: Given Name
+        given_name: First Name
         has_been_in_government_care: Has Been In Government Care
         has_been_in_orphanage: Has Been In Orphanage
         has_date_of_birth: Has Date of Birth
@@ -1383,8 +1390,8 @@ en:
         initial_referral_date: Initial Referral Date
         kid_id: Individual ID
         live_with: Lives with
-        local_family_name: Family Name (native)
-        local_given_name: Given Name (native)
+        local_family_name: Last Name (native)
+        local_given_name: First Name (native)
         manage: Manage
         name: Name
         ngo_accepted_date: Organization Accept Date
@@ -1602,12 +1609,12 @@ en:
     date_of_birth: Date of Birth
     district: County
     donor: Donor
-    family_name: Family Name
+    family_name: Last Name
     follow_up_by: Followed Up By
     follow_up_date: Follow Up Date
     followed_up_by: Followed Up By
     gender: Gender
-    given_name: Given Name
+    given_name: First Name
     has_been_in_government_care: Has Been In Government Care
     has_been_in_orphanage: Has Been In Orphanage
     house_number: House
@@ -1616,8 +1623,8 @@ en:
     initial_referral_date: Initial Referral Date
     kid_id: Individual ID
     live_with: Lives with
-    local_family_name: Family Name (native)
-    local_given_name: Given Name (native)
+    local_family_name: Last Name (native)
+    local_given_name: First Name (native)
     name: Name
     province: Country of Origin
     received_by: Received By

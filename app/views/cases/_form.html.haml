@@ -2,15 +2,19 @@
   .ibox-content
     = f.error_notification
     .form-inputs
+      - youth_flavor = Rails.application.config.x.flavor == 'youth'
       .row
         -# Pre-production polish (2026-07-31): the HOUSEHOLD comes first — this form is the
         -# "Add to Household" flow (a case row IS the membership link), so picking the
         -# existing household is the headline decision, with an explicit prompt instead of
         -# silently preselecting the first row. Validation covers a blank pick.
         .col-12.col-sm-6.col-md-4= f.association :family, collection: @family.map{|family| [family.name.present? ? family.name : "Unknown", family.id] }, include_blank: t('.select_household', default: "Select a household"), label: t('.family')
-        .col-12.col-sm-6.col-md-4= f.input :carer_names, label: t('.carer_names')
-        .col-12.col-sm-6.col-md-4= f.input :carer_address, label: t('.carer_address')
-        .col-12.col-sm-6.col-md-4= f.input :carer_phone_number, label: t('.carer_phone_number')
+        -# Carer details are a resettlement placement concept (OCA feedback 2026-08-26) - hidden
+        -# in youth. Columns are kept so slo4home placement records keep working.
+        - unless youth_flavor
+          .col-12.col-sm-6.col-md-4= f.input :carer_names, label: t('.carer_names')
+          .col-12.col-sm-6.col-md-4= f.input :carer_address, label: t('.carer_address')
+          .col-12.col-sm-6.col-md-4= f.input :carer_phone_number, label: t('.carer_phone_number')
         .col-12.col-sm-6.col-md-4.mb-3.date.optional.case_start_date{ class: ('has-error' if f.error :start_date) }
           %label.date.optional.form-label{ for: 'case_start_date' }
             %abbr{ title: 'required' } *

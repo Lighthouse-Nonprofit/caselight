@@ -1,0 +1,43 @@
+-# OCA feedback 2026-08-26 — Araceli asked for an at-a-glance view she can filter by current
+-# cohort and date range, so a school-site contact or a district "eagle view" question can be
+-# answered without exporting a report.
+-#
+-# Deliberately a plain GET form + GET links: CSP (POAM-017f) is enforced, so no inline handlers,
+-# and a filtered dashboard is then just a URL she can paste to a colleague. The period control is
+-# the same shape as reports/show.html.haml so the two surfaces behave identically.
+.dashboard-filters.m-b-md
+  = form_with url: dashboards_path, method: :get, local: true, class: 'row gy-2 gx-2 align-items-end' do |f|
+    - if @cohort
+      = hidden_field_tag :cohort_id, @cohort.id
+    .col-auto
+      %label.form-label{ for: 'dashboard-period' }= t('.period', default: 'Period')
+      %select#dashboard-period.form-select{ name: 'period' }
+        - @period_options.each do |option|
+          %option{ value: option.param_value, selected: option.param_value == @period.param_value }= option.label
+        - if @period_definition.presets.include?(:custom)
+          %option{ value: '', selected: @period.preset == :custom }= t('reports.periods.custom', default: 'Custom range')
+    - if @period_definition.presets.include?(:custom)
+      .col-auto
+        %label.form-label{ for: 'dashboard-from' }= t('.from', default: 'From')
+        %input#dashboard-from.form-control{ type: 'date', name: 'from', value: (@period.preset == :custom ? @period.start_date.iso8601 : '') }
+      .col-auto
+        %label.form-label{ for: 'dashboard-to' }= t('.to', default: 'To')
+        %input#dashboard-to.form-control{ type: 'date', name: 'to', value: (@period.preset == :custom ? @period.end_date.iso8601 : '') }
+    .col-auto
+      %button.btn.btn-primary{ type: 'submit' }= t('.apply', default: 'Apply')
+
+  - if @cohorts.any?
+    .m-t-sm
+      %span.text-muted.small.m-r-xs= t('.cohort', default: 'Cohort:')
+      %ul.filter-chips.d-inline-flex.flex-wrap.align-items-center
+        %li
+          = link_to t('.all_cohorts', default: 'All'), dashboards_path(period: @period.param_value, from: params[:from], to: params[:to]), class: "filter-chips__chip#{' filter-chips__chip--active' if @cohort.nil?}", 'aria-current' => (@cohort.nil? ? 'true' : nil)
+        - @cohorts.each do |cohort|
+          - selected = @cohort&.id == cohort.id
+          %li
+            = link_to cohort.name, dashboards_path(cohort_id: cohort.id, period: @period.param_value, from: params[:from], to: params[:to]), class: "filter-chips__chip#{' filter-chips__chip--active' if selected}", 'aria-current' => (selected ? 'true' : nil)
+
+  .m-t-sm.text-muted.small
+    %strong= @period.label
+    - if @cohort
+      = "— #{@cohort.name}"

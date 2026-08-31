@@ -3,7 +3,7 @@ require 'rails_helper'
 
 # Phase 4 Tier 2 — field-level encryption-at-rest regression specs for ADDRESS / LOCATION PII
 # (FedRAMP SC-28, SOC 2 C1.1). Proves the 10 Tier-2 columns (Client x8: current_address, school_name,
-# house_number, street_number, village, commune, district, live_with; Family#address; Partner#address)
+# house_number, street_number, village, commune, district; Family#address; Partner#address)
 # are encrypted (transparent decrypt on read; ciphertext envelope in the raw DB column), were widened
 # string->text, and every now-unsearchable query site was removed: the eight Client *_like scopes, the
 # village/commune iLIKE clauses in Client.filter, the ClientGrid current_address/school_name filters +
@@ -25,12 +25,15 @@ RSpec.describe 'Tier 2 address/location PII encryption at rest (SC-28)', type: :
     )
   end
 
+  # live_with LEFT Tier 2 on 2026-08-26 (OCA feedback): it became a closed vocabulary
+  # (Client::LIVE_WITH_OPTIONS), which is no longer free-text PII, and it has to stay queryable
+  # to be reportable. See the "live_with is deliberately NOT encrypted" block below.
   CLIENT_TIER2_COLUMNS = %i[
-    current_address school_name house_number street_number village commune district live_with
+    current_address school_name house_number street_number village commune district
   ].freeze
 
   describe 'declared encrypted attributes' do
-    it 'encrypts the eight Client address/location columns' do
+    it 'encrypts the seven Client address/location columns' do
       expect(Client.encrypted_attributes).to include(*CLIENT_TIER2_COLUMNS)
     end
 
@@ -68,8 +71,7 @@ RSpec.describe 'Tier 2 address/location PII encryption at rest (SC-28)', type: :
         street_number:   'Street 271',
         village:         'Riverside Village',
         commune:         'Sangkat Toul',
-        district:        'Khan Daun Penh',
-        live_with:       'Maternal grandmother'
+        district:        'Khan Daun Penh'
       }
       client = create(:client, values)
 
@@ -111,10 +113,45 @@ RSpec.describe 'Tier 2 address/location PII encryption at rest (SC-28)', type: :
     end
   end
 
+  # OCA feedback 2026-08-26 - "Lives with" moved from free text to a dropdown. Dropping the
+  # encryption is the point: a closed vocabulary is not free-text PII, and staying queryable is
+  # what makes it filterable in the grid and usable in grant reporting.
+  describe 'live_with is deliberately NOT encrypted (closed vocabulary, must stay queryable)' do
+    it 'is absent from Client.encrypted_attributes' do
+      expect(Client.encrypted_attributes).not_to include(:live_with)
+    end
+
+    it 'stores plaintext in the raw column so it can be filtered in SQL' do
+      client = create(:client, live_with: 'resource_parent')
+      expect(raw_column(Client, client.id, :live_with)).to eq('resource_parent')
+      expect(Client.where(live_with: 'resource_parent')).to include(client)
+    end
+
+    it 'rejects values outside Client::LIVE_WITH_OPTIONS but allows blank' do
+      # Assert on the attribute's own errors: the factory leaves user_ids unset on #build, so a
+      # bare be_valid/not_to be_valid here would pass for the wrong reason.
+      free_text = build(:client, live_with: 'Maternal grandmother')
+      free_text.valid?
+      expect(free_text.errors[:live_with]).to be_present
+
+      blank = build(:client, live_with: '')
+      blank.valid?
+      expect(blank.errors[:live_with]).to be_empty
+
+      allowed = build(:client, live_with: 'resource_parent')
+      allowed.valid?
+      expect(allowed.errors[:live_with]).to be_empty
+    end
+
+    it 'is no longer skipped by paper_trail, so changes stay auditable' do
+      expect(Array(Client.paper_trail_options[:skip]).map(&:to_s)).not_to include('live_with')
+    end
+  end
+
   describe 'dropped query sites (cannot search/sort an encrypted column)' do
-    it 'removed the eight Client *_like scopes' do
+    it 'removed the seven Client *_like scopes' do
       %i[current_address_like school_name_like house_number_like street_number_like
-         village_like commune_like district_like live_with_like].each do |scope_name|
+         village_like commune_like district_like].each do |scope_name|
         expect(Client).not_to respond_to(scope_name), "expected Client.#{scope_name} to be removed"
       end
     end

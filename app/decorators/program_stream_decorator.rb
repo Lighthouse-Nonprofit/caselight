@@ -41,8 +41,13 @@ class ProgramStreamDecorator < Draper::Decorator
     model.client_enrollments.active.for_active_clients.size
   end
 
-  def maximum_client?
-    model.quantity.present? && model.client_enrollments.active.size >= model.quantity
+  # Cohort-scoped + excludes blank-status historic imports, so the badge and
+  # ClientEnrollmentPolicy#create? can no longer disagree about whether a program is full.
+  def maximum_client?(cohort = '')
+    return false if model.quantity.blank?
+
+    model.client_enrollments.active.for_active_clients
+         .in_cohort(cohort).distinct.count(:client_id) >= model.quantity
   end
 
   def place_available

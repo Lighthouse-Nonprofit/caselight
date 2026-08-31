@@ -27,6 +27,13 @@ class Client < ActiveRecord::Base
   GENDER_OPTIONS = %w[female male non_binary transgender_woman transgender_man
                       questioning another_gender_identity declined_to_state].freeze
 
+  # OCA feedback 2026-08-26: "Lives with" was free text, which made it unreportable. Now a closed
+  # vocabulary on the same pattern as GENDER_OPTIONS - lowercase tokens are the ONE source feeding
+  # the form collection and the grid filter; display goes through #live_with_label
+  # (i18n clients.live_with_options.*). Because the vocabulary is closed it is no longer free-text
+  # PII, so the column is deliberately NOT encrypted - that is what makes it filterable/reportable.
+  LIVE_WITH_OPTIONS = %w[mom dad resource_parent family_member other].freeze
+
   EXIT_STATUSES = CLIENT_STATUSES.select { |status| status if status.include?('Exited') || status.include?('Independent - Monitored')  }
 
   delegate :name, to: :donor, prefix: true, allow_nil: true
@@ -78,7 +85,7 @@ class Client < ActiveRecord::Base
                            original_local_given_name original_local_family_name
                            reason_for_referral background exit_note rejected_note
                            relevant_referral_information current_address school_name
-                           house_number street_number village commune district live_with
+                           house_number street_number village commune district
                            email]
   include RedactedUpdateVersions  # skipped-only edits still write a values-free who/when version
 
@@ -111,7 +118,6 @@ class Client < ActiveRecord::Base
   encrypts :village
   encrypts :commune
   encrypts :district
-  encrypts :live_with
   # D6: client contact email (appointment reminders, ClientMessaging feature flip).
   # Non-deterministic like the rest of Tier 2 — never queried by equality; reminder
   # sends read the decrypted attribute per record. notify_consent gates every send.
@@ -172,6 +178,8 @@ class Client < ActiveRecord::Base
   validates :user_ids, presence: true
   # D4: closed list (lowercase tokens); blank = not stated/asked
   validates :gender, inclusion: { in: GENDER_OPTIONS }, allow_blank: true
+  # OCA 2026-08-26: closed list; blank = not stated/asked
+  validates :live_with, inclusion: { in: LIVE_WITH_OPTIONS }, allow_blank: true
   # D6: contact email for reminders (optional; consent is separate and defaults false)
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
 
@@ -276,6 +284,11 @@ class Client < ActiveRecord::Base
   def gender_label
     return '' if gender.blank?
     I18n.t("clients.gender_options.#{gender}", default: gender.titleize)
+  end
+
+  def live_with_label
+    return '' if live_with.blank?
+    I18n.t("clients.live_with_options.#{live_with}", default: live_with.titleize)
   end
 
   def en_and_local_name

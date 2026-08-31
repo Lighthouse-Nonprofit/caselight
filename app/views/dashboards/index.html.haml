@@ -5,46 +5,47 @@
       -# Dashboard" — flavors override these keys in their locale overlay).
       %h2.m-t-none.m-b-xs= t('.title', default: 'Dashboard')
       %p.text-muted= t('.subtitle', default: 'Households and individuals across your active programs.')
+  = render 'dashboards/period_cohort_filter'
   -# UX rung 6: stat tiles are links now (can?-gated — a case worker cannot :read Family).
   .row
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          = link_to_if (can? :read, Family), content_tag(:h1, Family.count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_households', default: 'HOUSEHOLDS'), class: 'text-muted'), families_path, class: 'dashboard-tile-link'
+          = link_to_if (can? :read, Family), content_tag(:h1, @families_total, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_households', default: 'HOUSEHOLDS'), class: 'text-muted'), families_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          = link_to_if (can? :read, Client), content_tag(:h1, Client.count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_individuals', default: 'INDIVIDUALS'), class: 'text-muted'), clients_path, class: 'dashboard-tile-link'
+          = link_to_if (can? :read, Client), content_tag(:h1, @clients_total, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_individuals', default: 'INDIVIDUALS'), class: 'text-muted'), clients_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          = link_to_if (can? :read, ProgramStream), content_tag(:h1, ClientEnrollment.active.for_active_clients.count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_active_enrollments', default: 'ACTIVE PROGRAM ENROLLMENTS'), class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
+          = link_to_if (can? :read, ProgramStream), content_tag(:h1, @enrollments_active, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_active_enrollments', default: 'ACTIVE PROGRAM ENROLLMENTS'), class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center
-          = link_to_if (can? :read, ProgramStream), content_tag(:h1, ProgramStream.count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_programs_offered', default: 'PROGRAMS OFFERED'), class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
+          = link_to_if (can? :read, ProgramStream), content_tag(:h1, @programs_offered, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_programs_offered', default: 'PROGRAMS OFFERED'), class: 'text-muted'), program_streams_path, class: 'dashboard-tile-link'
   -# UX review 1 — activity flash metrics. Research-backed: a small set of workload/activity
   -# signals (overdue work, today's work, intake velocity, service-use frequency) beats a
   -# long list; sources in the PR. All four are single COUNT queries.
   .row
     .col-lg-3.col-sm-6
       .ibox
-        .ibox-content.text-center.dashboard-flash{ class: (Task.overdue_incomplete.count.positive? ? 'dashboard-flash--alert' : nil) }
-          = link_to_if (can? :read, Task), content_tag(:h2, Task.overdue_incomplete.count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_overdue_tasks', default: 'OVERDUE TASKS'), class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
+        .ibox-content.text-center.dashboard-flash{ class: (@overdue_tasks.positive? ? 'dashboard-flash--alert' : nil) }
+          = link_to_if (can? :read, Task), content_tag(:h2, @overdue_tasks, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_overdue_tasks', default: 'OVERDUE TASKS'), class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center.dashboard-flash
-          = link_to_if (can? :read, Task), content_tag(:h2, Task.today_incomplete.count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_tasks_due_today', default: 'TASKS DUE TODAY'), class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
+          = link_to_if (can? :read, Task), content_tag(:h2, @today_tasks, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_tasks_due_today', default: 'TASKS DUE TODAY'), class: 'text-muted'), tasks_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center.dashboard-flash
-          = link_to_if (can? :read, Client), content_tag(:h2, Client.where(created_at: Time.zone.now.beginning_of_month..).count, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_new_individuals', default: 'NEW INDIVIDUALS THIS MONTH'), class: 'text-muted'), clients_path, class: 'dashboard-tile-link'
+          = link_to_if (can? :read, Client), content_tag(:h2, @clients_in_period, class: 'font-bold m-b-none') + content_tag(:small, t('.tile_new_individuals', default: 'NEW INDIVIDUALS'), class: 'text-muted'), clients_path, class: 'dashboard-tile-link'
     .col-lg-3.col-sm-6
       .ibox
         .ibox-content.text-center.dashboard-flash
           -# Y2(a): count check-ins by SERVICE date (a backdated entry belongs to its month)
-          %h2.font-bold.m-b-none= ClientEnrollmentTracking.where(entry_date: Time.zone.today.beginning_of_month..).count
-          %small.text-muted= t('.tile_check_ins', default: 'CHECK-INS THIS MONTH')
+          %h2.font-bold.m-b-none= @checkins_in_period
+          %small.text-muted= t('.tile_check_ins', default: 'CHECK-INS')
   .row
     .col-lg-6
       .ibox
@@ -54,11 +55,11 @@
           .table-responsive
             %table.table.table-striped.m-b-none
               %tbody
-                - ProgramStream.order(:name).each do |ps|
+                - @program_rows.each do |ps, enrolled_count|
                   %tr
                     %td= link_to_if (can? :read, ProgramStream), ps.name, info_program_stream_path(ps)
                     %td.text-right
-                      %span.badge.text-bg-primary= ps.client_enrollments.active.for_active_clients.count
+                      %span.badge.text-bg-primary= enrolled_count
     .col-lg-6
       .ibox
         .ibox-title
@@ -67,10 +68,10 @@
           .table-responsive
             %table.table.table-striped.m-b-none
               %tbody
-                - Family.order(:name).each do |fam|
+                - @family_rows.each do |fam, member_count|
                   %tr
                     %td= link_to_if (can? :read, Family), fam.name, family_path(fam)
-                    %td.text-right= pluralize(fam.clients.count, t('.member_noun', default: 'member'))
+                    %td.text-right= pluralize(member_count, t('.member_noun', default: 'member'))
   .row
     .col-lg-12
       .ibox
@@ -86,7 +87,7 @@
                   %th= t('.col_update', default: 'Update')
                   %th.text-right= t('.col_logged', default: 'Logged')
               %tbody
-                - ClientEnrollmentTracking.order(entry_date: :desc, created_at: :desc).limit(8).each do |cet|
+                - @recent_activity.each do |cet|
                   - ce = cet.client_enrollment
                   - next if ce.nil?
                   %tr

@@ -29,6 +29,31 @@ class ClientEnrollment < ActiveRecord::Base
   has_paper_trail skip: %i[properties]
   include RedactedUpdateVersions  # properties-only saves still write a values-free who/when version
 
+  # OCA 2026-08-26 -- COHORT IDENTITY.
+  # `cohort` was added by the Casebook import (20260818000002) but had exactly one writer and no
+  # readers, so every enrollment rule counted a program's ENTIRE lifetime history. That is what
+  # blocked new enrollments once a program had ever had `quantity` active clients, and what stopped
+  # a youth Active in last term's cohort from joining this term's.
+  #
+  # The key is derived from the enrollment form's Site + Term (seeded by youth:seed_programs) so the
+  # app and Casebook::Applier cannot drift apart. A blank key is the single default bucket, which is
+  # where the historic import lives -- so imported history never blocks a real new cohort.
+  COHORT_SEPARATOR = ' · '
+
+  def self.cohort_key(site, term)
+    [site, term].map { |v| v.to_s.strip }.reject(&:empty?).join(COHORT_SEPARATOR)
+  end
+
+  # Computed, NOT the persisted column: Pundit authorizes an unsaved record, so the policy has to be
+  # able to ask for the cohort before the row exists.
+  def derived_cohort_key
+    props = properties.is_a?(Hash) ? properties : {}
+    self.class.cohort_key(props['Site'], props['Term'])
+  end
+
+  before_validation :assign_cohort_key
+
+  scope :in_cohort,                   ->(key)            { where(cohort: key.to_s) }
   scope :enrollments_by,              ->(client)         { where(client_id: client) }
   scope :find_by_program_stream_id,   ->(value)          { where(program_stream_id: value) }
   scope :active,                      ->                 { where(status: 'Active') }
@@ -76,5 +101,11 @@ class ClientEnrollment < ActiveRecord::Base
     return if client.active_case? || client.client_enrollments.active.any?
 
     client.update(status: 'Referred')
+  end
+
+  private
+
+  def assign_cohort_key
+    self.cohort = derived_cohort_key
   end
 end
