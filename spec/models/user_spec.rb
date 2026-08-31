@@ -264,6 +264,16 @@ describe User, 'scopes' do
 end
 
 describe User, 'methods' do
+  # Month-boundary guard (unrelated to any feature; found 2026-08-31). The assessment fixtures
+  # below anchor on `Time.zone.today << 6`, and Client#next_assessment_date adds 6.months back.
+  # That round trip is NOT symmetric when the day-of-month gets clamped: on Aug 31 it becomes
+  # Feb 28, and Feb 28 + 6.months is Aug 28 — three days BEFORE today, so a 'due today' fixture
+  # silently became 'overdue' and these examples failed on the 29th-31st of some months. No date
+  # is exactly six months before Aug 31, so the fixture is unsatisfiable on those days rather
+  # than merely wrong. Pin the clock to mid-month, where the arithmetic round-trips exactly.
+  before { travel_to(Time.zone.today.change(day: 15)) }
+  after  { travel_back }
+
   let!(:admin){ create(:user, roles: 'admin') }
   let!(:case_worker){ create(:user, roles: 'case worker', first_name: 'First Name', last_name: 'Last Name') }
   let!(:unknown_user){ create(:user, first_name: '', last_name: '') }

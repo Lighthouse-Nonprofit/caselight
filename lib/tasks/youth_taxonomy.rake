@@ -329,12 +329,40 @@ namespace :youth do
           { name: 'Session Attendance', frequency: 'Weekly', fields: session_attendance.call },
           { name: 'Council / Campaign Activity', frequency: nil, fields: council_campaign }
         ] },
-      { name: 'Sembradores Youth Council',
-        description: 'Youth council: a leadership-development curriculum plus a youth council advancing campaigns, advocacy, and community organizing.',
+      # PILLAR 3 on the OCA Youth Programming Map. Araceli 2026-08-28: "the program pillar name is
+      # Sembradores and within this pillar is: Youth Council, Civics Education Workshops, Civic
+      # Internships. Previously it lived under RAICES because we only had the SYC." Naming follows
+      # the programming map she attached. The pillar is a container -- youth enrol in the programs
+      # beneath it, not in the pillar itself.
+      { name: 'Sembradores',
+        description: 'Sembradores pillar (Araceli 2026-08-28): Youth Council, Civic Education Series, Civic Internships.',
+        enrollment: [pf.call('select', 'Site', values: SITES)],
+        trackings: [] },
+      { name: 'Youth Council',
+        parent: 'Sembradores',
+        description: 'Youth council: a leadership-development curriculum plus a council advancing campaigns, advocacy, and community organizing.',
         enrollment: cohort_enrollment,
         trackings: [
           { name: 'Session Attendance', frequency: 'Weekly', fields: session_attendance.call },
           { name: 'Council / Campaign Activity', frequency: nil, fields: council_campaign }
+        ] },
+      # These two are NEW programs Araceli named. They get the standard curriculum shape --
+      # cohort enrollment (Site/Term) + Session Attendance -- the same as every other curriculum
+      # program. Deliberately no bespoke field vocabulary: she named the programs, not their
+      # forms, and the config layer is how staff add fields once they know what they need.
+      { name: 'Civic Education Series',
+        parent: 'Sembradores',
+        description: 'Civic education workshops (Sembradores pillar).',
+        enrollment: cohort_enrollment,
+        trackings: [
+          { name: 'Session Attendance', frequency: 'Weekly', fields: session_attendance.call }
+        ] },
+      { name: 'Civic Internships',
+        parent: 'Sembradores',
+        description: 'Civic internships (Sembradores pillar).',
+        enrollment: cohort_enrollment,
+        trackings: [
+          { name: 'Session Attendance', frequency: 'Weekly', fields: session_attendance.call }
         ] }
     ]
 
@@ -367,8 +395,11 @@ namespace :youth do
     # survey* (Q7, Q8), which reads as one survey per youth rather than one per program. If she
     # confirms that, this moves to a client-level assessment instead of a per-program tracking.
     # Tracking upsert is find_or_initialize_by(name:), so re-running updates in place.
+    # Top-level programs only. Sembradores replaces the old 'Sembradores Youth Council' entry --
+    # the Pre/Post belongs on the PILLAR, so a youth in two civic programs is not asked the same
+    # ten statements twice.
     PRE_POST_PROGRAMS = ['¡Por Vida!', 'Stop The Hate', 'Elevate Youth Prevention',
-                         'R.A.I.C.E.S.', 'El Camino Concilio', 'Sembradores Youth Council'].freeze
+                         'R.A.I.C.E.S.', 'El Camino Concilio', 'Sembradores'].freeze
     programs = programs.map do |spec|
       next spec unless PRE_POST_PROGRAMS.include?(spec[:name])
 
@@ -379,8 +410,27 @@ namespace :youth do
     Apartment::Tenant.switch(tenant) do
       ngo = (Organization.find_by(short_name: tenant).try(:full_name).presence) || 'One Community Action'
       created = updated = 0
+      # One-time rename (Araceli 2026-08-28): the youth council is now a program INSIDE the
+      # Sembradores pillar rather than a top-level program named after it. Idempotent -- it only
+      # fires while the target name is still free, so a re-run is a no-op.
+      legacy_syc = ProgramStream.find_by(name: 'Sembradores Youth Council')
+      if legacy_syc && ProgramStream.where(name: 'Youth Council').none?
+        legacy_syc.update_columns(name: 'Youth Council')
+        puts "  renamed 'Sembradores Youth Council' -> 'Youth Council' (now inside the Sembradores pillar)"
+      end
+
+      # Parents before children, so a child's `parent:` always resolves.
+      programs = programs.sort_by { |spec| spec[:parent].present? ? 1 : 0 }
       programs.each do |spec|
-        ps = ProgramStream.find_or_initialize_by(name: spec[:name])
+        parent_record = spec[:parent].present? ? ProgramStream.find_by(name: spec[:parent], parent_id: nil) : nil
+        abort "youth:seed_programs: parent program '#{spec[:parent]}' not found for '#{spec[:name]}'" if spec[:parent].present? && parent_record.nil?
+
+        # Name uniqueness is scoped to the parent (20260826000001), so the lookup is too. The
+        # second lookup ADOPTS a same-named program that predates the nesting (the renamed youth
+        # council) instead of creating a duplicate beside it.
+        ps = ProgramStream.find_by(name: spec[:name], parent_id: parent_record&.id)
+        ps ||= ProgramStream.find_by(name: spec[:name], parent_id: nil) if parent_record
+        ps ||= ProgramStream.new(name: spec[:name])
         was_new = ps.new_record?
         # NO quantity here (OCA 2026-08-26). This used to stamp `quantity: 30` on EVERY youth
         # program; combined with the (then) lifetime-wide enrollment count that hard-blocked any
@@ -389,7 +439,8 @@ namespace :youth do
         # data alone was never enough. Capacity is now a deliberate per-program decision made in
         # the UI, and it is enforced per COHORT.
         ps.assign_attributes(description: spec[:description], enrollment: spec[:enrollment],
-                             exit_program: exit_form, ngo_name: ngo, tracking_required: false)
+                             exit_program: exit_form, ngo_name: ngo, tracking_required: false,
+                             parent_id: parent_record&.id)
         ps.save!
         spec[:trackings].each do |tspec|
           tr = ps.trackings.find_or_initialize_by(name: tspec[:name])

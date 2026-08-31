@@ -69,10 +69,12 @@ RSpec.describe 'youth taxonomy seeds' do
   describe 'youth:seed_programs' do
     before { run_task('youth:seed_programs') }
 
-    it 'creates 12 programs, all completed (wizard gate bypassed)' do
+    it 'creates every declared program, all completed (wizard gate bypassed)' do
       names = ['¡Por Vida!', 'Stop The Hate', 'Elevate Youth Prevention', 'R.A.I.C.E.S.',
                'El Joven Noble', 'Girasol', 'Cara y Corazón', 'Nurturing Our Futures',
-               'Susto y Limpia', 'Mi Palabra', 'El Camino Concilio', 'Sembradores Youth Council']
+               'Susto y Limpia', 'Mi Palabra', 'El Camino Concilio',
+               # Sembradores pillar + its three programs (Araceli 2026-08-28)
+               'Sembradores', 'Youth Council', 'Civic Education Series', 'Civic Internships']
       names.each do |n|
         ps = ProgramStream.find_by(name: n)
         expect(ps).to be_present, "missing program #{n}"
@@ -80,12 +82,38 @@ RSpec.describe 'youth taxonomy seeds' do
       end
     end
 
-    it 'gives the youth councils BOTH a curriculum (Session Attendance) and a Council / Campaign Activity tracking' do
-      ['El Camino Concilio', 'Sembradores Youth Council'].each do |n|
-        ps = ProgramStream.find_by(name: n)
-        expect(ps.trackings.pluck(:name)).to match_array(['Session Attendance', 'Council / Campaign Activity',
-                                                           'Pre/Post Program Assessment'])
+    # Araceli 2026-08-28: "the program pillar name is Sembradores and within this pillar is:
+    # Youth Council, Civics Education Workshops, Civic Internships. Previously it lived under
+    # RAICES because we only had the SYC."
+    describe 'the Sembradores pillar' do
+      it 'is top level and holds the three civic programs' do
+        pillar = ProgramStream.find_by(name: 'Sembradores')
+        expect(pillar.parent_id).to be_nil
+        expect(pillar.curricula.pluck(:name))
+          .to match_array(['Youth Council', 'Civic Education Series', 'Civic Internships'])
       end
+
+      it 'renames the old top-level Sembradores Youth Council instead of leaving a duplicate' do
+        expect(ProgramStream.find_by(name: 'Sembradores Youth Council')).to be_nil
+        expect(ProgramStream.where(name: 'Youth Council').count).to eq(1)
+      end
+
+      it 'puts the Pre/Post on the pillar, not on each civic program' do
+        expect(ProgramStream.find_by(name: 'Sembradores').trackings.pluck(:name))
+          .to include('Pre/Post Program Assessment')
+        ['Youth Council', 'Civic Education Series', 'Civic Internships'].each do |n|
+          expect(ProgramStream.find_by(name: n).trackings.pluck(:name))
+            .not_to include('Pre/Post Program Assessment')
+        end
+      end
+    end
+
+    it 'gives the youth council BOTH a curriculum (Session Attendance) and a Council / Campaign Activity tracking' do
+      expect(ProgramStream.find_by(name: 'Youth Council').trackings.pluck(:name))
+        .to match_array(['Session Attendance', 'Council / Campaign Activity'])
+      expect(ProgramStream.find_by(name: 'El Camino Concilio').trackings.pluck(:name))
+        .to match_array(['Session Attendance', 'Council / Campaign Activity',
+                         'Pre/Post Program Assessment'])
     end
 
     it 'adds the sequential-goal fields to the ¡Por Vida! SMART Goals Review tracking' do

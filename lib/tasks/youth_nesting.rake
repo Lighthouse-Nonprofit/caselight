@@ -11,8 +11,25 @@
 # EVIDENCE FOR the table below — it is not the mechanism. Production parentage is set from a list a
 # human confirmed, never from a similarity score.
 #
-# STATUS: ⚠ the map below is a DRAFT pending Araceli's written confirmation. Until then the task
-# refuses to run without CONFIRM=1, and reports what it would do with DRY_RUN=1.
+# STATUS: CONFIRMED by Araceli 2026-08-28 (email). Her exact words on the two open questions:
+#   * "Correct Cara y Corazon is specific to parents and can be its own."
+#   * "the program pillar name is Sembradoes and within this pillar is: Youth Council / Civics
+#      Education Workshops / Civic Internships. Previously it lived under RAICES because we only
+#      had the SYC."
+# The Sembradores pillar and its three programs are seeded by youth:seed_programs (they are
+# declared taxonomy, not imported data); this task only places the IMPORTED Casebook curricula.
+#
+# The 8 ¡Por Vida! curricula below are from the nesting list she sent 2026-08-26 and are unchanged.
+# CONFIRM=1 is still required to write, and DRY_RUN=1 still previews -- parentage on a production
+# box should never be a single unreviewed command.
+#
+# NOT YET PLACED (deliberately left top level; she has not said where they go):
+#   El Camino Concilio, Elevate Youth Prevention, ¡Por Vida!, R.A.I.C.E.S., Stop The Hate.
+# Her "OCA Youth Services Programming" map shows a FOUR-PILLAR architecture
+# (Sanando / Cultura / Sembradores / Familia) that differs from the Por Vida-led list above --
+# e.g. it places JN/Girasol under Cultura, not ¡Por Vida!. Only the Sembradores pillar is applied
+# here, because that is the only part she dictated. The wider pillar restructure is an open
+# question with her.
 namespace :youth do
   # Curriculum name => top-level program name. nil means "stays top level".
   CURRICULUM_PARENTS = {
@@ -24,8 +41,10 @@ namespace :youth do
     'Mi Palabra'            => '¡Por Vida!',
     'Susto y Limpia'        => '¡Por Vida!',
     'Nurturing Our Futures' => '¡Por Vida!',
-    # Cara y Corazón is the parents/adults curriculum — 0 of its 58 participants are in ¡Por Vida!,
-    # so it is deliberately NOT nested there. Awaiting Araceli on whether it stands alone.
+    # Cara y Corazón stands alone — CONFIRMED by Araceli 2026-08-28: "Cara y Corazon is specific
+    # to parents and can be its own." Consistent with the data: 0 of its 58 participants are in
+    # ¡Por Vida!. (Her programming map has a FAMILIA parent pillar that may eventually be its home;
+    # she said "its own", so it stays top level until she says otherwise.)
     'Cara y Corazón'        => nil
   }.freeze
 
@@ -36,8 +55,9 @@ namespace :youth do
     dry_run = ENV['DRY_RUN'] == '1'
 
     unless dry_run || ENV['CONFIRM'] == '1'
-      abort 'youth:nest_curricula — refusing to run. The parent map is a DRAFT pending OCA ' \
-            'confirmation. Re-run with DRY_RUN=1 to preview, or CONFIRM=1 once confirmed.'
+      abort 'youth:nest_curricula — refusing to run without CONFIRM=1. The map is confirmed ' \
+            '(Araceli 2026-08-28) but this writes parentage on a production box. ' \
+            'Re-run with DRY_RUN=1 to preview, or CONFIRM=1 to apply.'
     end
 
     Apartment::Tenant.switch(tenant) do
@@ -87,7 +107,11 @@ namespace :youth do
       # Anything still top level that is not a known parent is worth a human look — it is either a
       # genuine top-level program or a curriculum nobody has placed yet.
       known_parents = CURRICULUM_PARENTS.values.compact.uniq
-      unplaced = ProgramStream.top_level.where.not(name: known_parents + CURRICULUM_PARENTS.keys)
+      # Sembradores and its children are declared taxonomy (youth:seed_programs), not imported
+      # curricula, so they are not "unplaced" — exclude them from the nudge list.
+      seeded_structure = ['Sembradores', 'Youth Council', 'Civic Education Series', 'Civic Internships']
+      unplaced = ProgramStream.top_level
+                              .where.not(name: known_parents + CURRICULUM_PARENTS.keys + seeded_structure)
       if unplaced.any?
         puts '  UNPLACED (top level, not in the map — confirm with the org):'
         unplaced.order(:name).each { |ps| puts "    - #{ps.name}" }
