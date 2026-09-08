@@ -29,7 +29,10 @@ module LeastPrivilegeShadow
     # flip to ON stops shadow logging -> no split-brain.
     return if EnforcementSetting.enabled?(:enforce_least_privilege,
                                           config_default: Rails.application.config.x.enforce_least_privilege == true)
-    return unless current_user && response.successful?
+    # observability_actor, NOT current_user: on a Devise controller current_user runs the Warden
+    # strategies against the sign-in params and increments :lockable for MFA accounts (see
+    # ApplicationController#observability_actor). Shadow logging must never affect auth state.
+    return unless observability_actor && response.successful?
 
     # CHEAP GATE FIRST: confirm this (controller, action, role) is one the narrowing touches
     # BEFORE building the throwaway narrowed Ability (which, for a manager, costs 2 SQL queries).

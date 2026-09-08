@@ -39,7 +39,12 @@ class AccessLog
 
   # event_type taxonomy (the ONE coherent vocabulary shared by every write path):
   #   "read"             — a successful show/index of a sensitive resource
-  #   "login_failure"    — a failed authentication attempt
+  #   "login_failure"    — a failed authentication attempt. metadata["factor"] separates a bad
+  #                        password ("password") from a bad OTP/recovery code ("second_factor").
+  #   "session_timeout"  — an idle session expired (devise :timeoutable). NOT an auth failure: no
+  #                        credential was presented. Split out so AC-7 unsuccessful-logon evidence
+  #                        is not inflated by benign expiries. Always unattributed (see
+  #                        config/initializers/warden_audit.rb).
   #   "account_locked"   — the attempted account is now locked out
   #   "access_denied"    — an authenticated user was refused (CanCan/Pundit)
   #   "record_destroyed" — a successful destroy of a primary record (Phase 6, AU-2; values-free)

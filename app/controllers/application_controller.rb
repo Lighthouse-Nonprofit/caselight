@@ -120,6 +120,13 @@ class ApplicationController < ActionController::Base
   # admin who flips require_mfa ON can still enroll AND still reach the panel to flip it back. With
   # require_mfa unset AND config.x.enforce_mfa_for_privileged OFF, nobody is nudged => byte-identical to today.
   def require_mfa_for_privileged
+    # Devise controllers are exempt anyway (the reachability escape hatch below), so bail BEFORE
+    # touching `user_signed_in?`. That predicate is `warden.authenticate?`, which RUNS THE WARDEN
+    # STRATEGIES when the session has no user — on POST /users/sign_in the credentials are still in
+    # params, so it re-attempts the login, and for an MFA account every failing strategy increments
+    # :lockable's failed_attempts. Asking the question early was itself locking users out; see the
+    # comment on SessionsController#session_user.
+    return if devise_controller?
     return unless user_signed_in?
     return if current_user.two_factor_enabled? # already enrolled -> nothing to nudge
 
@@ -139,10 +146,23 @@ class ApplicationController < ActionController::Base
   # Audit context for the structured (lograge) request log — FedRAMP AU-3. Rails calls this for every
   # request's process_action instrumentation; lograge reads these payload keys (see
   # config/initializers/lograge.rb) to tag each log line with who/what/where/when.
+  # AC-7 — the actor for OBSERVABILITY hooks (audit payloads, shadow logging). Never `current_user`
+  # on a Devise controller: that is `warden.authenticate`, which RUNS THE WARDEN STRATEGIES when the
+  # session has no user, and on a credential-bearing request (POST /users/sign_in) it re-attempts the
+  # login. For an MFA account every failing strategy increments :lockable's failed_attempts, so
+  # merely *observing* a login was locking real users out. See SessionsController#session_user.
+  # Off the Devise controllers this is exactly `current_user`, so remember-me and other strategies
+  # still resolve normally and log attribution is unchanged.
+  def observability_actor
+    return current_user unless devise_controller?
+
+    warden.authenticated?(:user) ? warden.user(:user) : nil
+  end
+
   def append_info_to_payload(payload)
     super
     payload[:request_id] = request.request_id
-    payload[:user_id]    = current_user&.id
+    payload[:user_id]    = observability_actor&.id
     payload[:tenant]     = (Apartment::Tenant.current rescue nil)
     payload[:remote_ip]  = request.remote_ip
   end
