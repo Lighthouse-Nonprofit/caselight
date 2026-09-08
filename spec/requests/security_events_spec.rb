@@ -82,4 +82,71 @@ RSpec.describe "Security events (AU-2 / AC-7)", type: :request do
       expect(AccessLog.where(event_type: "login_failure").count).to eq(1)
     end
   end
+
+  # A failed SECOND factor renders instead of throwing to Warden, so before_failure never sees it.
+  # Until this was fixed, wrong OTP/recovery codes produced NO audit row at all -- an AC-7 blind
+  # spot that made real lockout investigations impossible to reconcile (the counter ran ahead of
+  # the recorded failures). SessionsController#verify_otp writes the row itself.
+  describe "failed second factor" do
+    let(:password) { "SecurePass123!" }
+    let(:mfa_user) do
+      create(:user, password: password, password_confirmation: password).tap do |u|
+        u.update!(otp_secret: User.generate_otp_secret, otp_required_for_login: true)
+      end
+    end
+
+    before do
+      post user_session_path, params: { user: { email: mfa_user.email, password: password } }
+      AccessLog.delete_all # drop anything the first factor emitted; isolate the OTP step
+    end
+
+    it "records a login_failure tagged factor=second_factor on a wrong OTP" do
+      expect {
+        post verify_two_factor_path, params: { otp_attempt: "000000" }
+      }.to change { AccessLog.where(event_type: "login_failure").count }.by(1)
+
+      log = AccessLog.where(event_type: "login_failure").last
+      expect(log.metadata["factor"]).to eq("second_factor")
+      expect(log.user_id).to eq(mfa_user.id)
+      expect(log.tenant).to eq("app")
+    end
+
+    it "does NOT record a failure when the OTP is correct" do
+      code = ROTP::TOTP.new(mfa_user.otp_secret).now
+      expect {
+        post verify_two_factor_path, params: { otp_attempt: code }
+      }.not_to change { AccessLog.where(event_type: "login_failure").count }
+    end
+
+    # A wrong OTP must not count toward :lockable -- only passwords do. Pinning this keeps a future
+    # change from silently making authenticator fumbles lock people out.
+    it "leaves failed_attempts untouched on a wrong OTP" do
+      expect {
+        post verify_two_factor_path, params: { otp_attempt: "000000" }
+      }.not_to change { mfa_user.reload.failed_attempts }
+    end
+  end
+
+  # devise :timeoutable also throws into before_failure, but an idle expiry is NOT an
+  # unsuccessful logon attempt -- nothing was presented. Filing it as login_failure inflated the
+  # AC-7 evidence with benign, unattributable rows.
+  describe "idle session timeout" do
+    # NB: sign in through the REAL login POST. `sign_in` in this file resolves to the project's
+    # DeviseTokenAuthHelpers, not Devise::Test::IntegrationHelpers, and a token-auth session does
+    # not exercise :timeoutable.
+    it "records session_timeout, NOT login_failure" do
+      pw = "SecurePass123!"
+      user = create(:user, password: pw, password_confirmation: pw)
+      post user_session_path, params: { user: { email: user.email, password: pw } }
+      get "/dashboards"
+      AccessLog.delete_all
+
+      travel((user.timeout_in || Devise.timeout_in) + 1.minute) do
+        get "/dashboards"
+      end
+
+      expect(AccessLog.where(event_type: "session_timeout").count).to eq(1)
+      expect(AccessLog.where(event_type: "login_failure").count).to eq(0)
+    end
+  end
 end

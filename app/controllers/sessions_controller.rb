@@ -9,7 +9,10 @@ class SessionsController < Devise::SessionsController
   before_action :set_whodunnit, :set_current_ngo, :detect_browser
   # The Visit row is recorded only once the user is ACTUALLY signed in — for MFA accounts that is
   # the verify_otp step, not the (deferred) first-factor create; for passkeys, the passkey_callback step.
-  after_action :increase_visit_count, only: [:create, :verify_otp, :passkey_callback], if: :user_signed_in?
+  # `if: :session_user` (NOT :user_signed_in?) — see the comment on #session_user: the Devise
+  # predicate runs the Warden strategies against the still-present sign-in params and corrupts the
+  # :lockable counter on MFA accounts.
+  after_action :increase_visit_count, only: [:create, :verify_otp, :passkey_callback], if: :session_user
 
   # POST /users/sign_in — first factor (email + password).
   #
@@ -22,6 +25,16 @@ class SessionsController < Devise::SessionsController
   def create
     creds = params.fetch(resource_name, {})
     user  = resource_class.find_for_database_authentication(email: creds[:email].to_s.strip)
+
+    # AC-7 — RESTORE Devise's expired-lock cleanup on this path. Devise clears BOTH `locked_at` and
+    # the accumulated `failed_attempts` inside `valid_for_authentication?` (`unlock_access! if
+    # lock_expired?`), but the MFA branch below deliberately bypasses that method by calling
+    # `valid_password?` directly — so without this, an expired lock leaves a stale `locked_at` and an
+    # inflated counter behind. The counter is then already at/over `maximum_attempts`, and the next
+    # single mistyped password re-locks the account instantly, for another full unlock window.
+    # `locked_at` present while `access_locked?` is false is precisely "the unlock window elapsed"
+    # (`access_locked?` == `locked_at && !lock_expired?`), using only Devise's public API.
+    user.unlock_access! if user&.persisted? && user.locked_at.present? && !user.access_locked?
 
     if user&.otp_required_for_login && !user.access_locked? && user.valid_password?(creds[:password].to_s)
       # The pending-2FA window MUST be fully unauthenticated. sign_out here drops any existing session
@@ -66,6 +79,18 @@ class SessionsController < Devise::SessionsController
       set_flash_message!(:notice, :signed_in)
       redirect_to after_sign_in_path_for(user)
     else
+      # AC-7 — a failed SECOND factor never reaches Warden: we render instead of throwing, so the
+      # `Warden::Manager.before_failure` hook in config/initializers/warden_audit.rb (the only other
+      # place login failures are recorded) cannot see it. Without this write, wrong OTP and recovery
+      # codes are COMPLETELY INVISIBLE in the audit trail — an unsuccessful-logon-attempt gap, and the
+      # reason a real lockout investigation found a counter far ahead of the recorded failures.
+      # `factor: second_factor` matches the discriminator the Warden hook already computes.
+      AccessLog.security_event!(
+        event_type: 'login_failure',
+        request: request,
+        user: user,
+        metadata: { 'attempted_email' => user.email, 'factor' => 'second_factor' }
+      )
       flash.now[:alert] = t('two_factor.invalid_code',
                             default: 'That code was not valid — check the time on your authenticator and try again, or use a recovery code.')
       render :two_factor_challenge, status: :unprocessable_entity
@@ -134,11 +159,40 @@ class SessionsController < Devise::SessionsController
     render json: { error: e.message }, status: :unprocessable_entity
   end
 
+  # AC-7 — NEVER call `current_user` / `user_signed_in?` in this controller's filters.
+  #
+  # Devise's `current_user` is `warden.authenticate(scope: :user)`, which RUNS THE WARDEN STRATEGIES
+  # whenever no user is in the session. On POST /users/sign_in the credentials are still sitting in
+  # `params`, so the strategies consider themselves valid and attempt a REAL authentication. For an
+  # MFA account they all fail — the OTP is not in params — and Devise :lockable increments
+  # `failed_attempts` once per failing strategy. Net effect before this fix: a perfectly CORRECT
+  # first-factor password silently added **+4** to the lock counter, so two clean logins tripped a
+  # 5-attempt threshold and locked the user out. Non-MFA accounts authenticate successfully in that
+  # same call, which is why only MFA users were affected. Worse, `warden.authenticate` does not
+  # `throw(:warden)`, so the before_failure audit hook never fired and the increments were invisible.
+  #
+  # `warden.authenticated?` reads the SESSION only (Warden::Proxy#user -> session_serializer.fetch)
+  # and never runs a strategy, so it is the safe way to ask "is someone already signed in?" here.
+  # It still sees a user established earlier in THIS request (Devise's sign_in populates warden),
+  # so the post-login Visit row and whodunnit backfill keep working.
+  def session_user
+    warden.authenticated?(:user) ? warden.user(:user) : nil
+  end
+  helper_method :session_user
+
+  # PaperTrail's `set_paper_trail_whodunnit` before_action (ApplicationController) calls this, and
+  # its DEFAULT implementation is `current_user` — another strategy trigger on the sign-in POST.
+  # PasswordsController already overrides it for the same reason.
+  def user_for_paper_trail
+    session_user&.id
+  end
+
   def set_whodunnit
-    if current_user
-      PaperTrail::Version.where(item_id: current_user.id, whodunnit: nil).each do |v|
-        v.update(whodunnit: current_user.id)
-      end
+    actor = session_user
+    return unless actor
+
+    PaperTrail::Version.where(item_id: actor.id, whodunnit: nil).each do |v|
+      v.update(whodunnit: actor.id)
     end
   end
 
@@ -155,7 +209,7 @@ class SessionsController < Devise::SessionsController
   end
 
   def increase_visit_count
-    Visit.create(user: current_user)
+    Visit.create(user: session_user)
   end
 
   private

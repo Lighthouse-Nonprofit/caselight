@@ -28,6 +28,21 @@ Warden::Manager.before_failure do |env, opts|
     # contents, so no PII is added.
     phase = request.path.to_s.include?("two_factor") ? "second_factor" : "password"
 
+    # NOT every before_failure is an authentication failure. Devise :timeoutable throws
+    # `message: :timeout` when an idle session expires -- no credential was ever presented, so
+    # recording it as "login_failure" both inflated the AC-7 unsuccessful-logon evidence with benign
+    # events and filed them UNATTRIBUTED (a timeout carries no user[email] for the resolver below to
+    # match, and warden has already dropped the user). It gets its own event_type instead.
+    # Known limitation: the actor cannot be recovered at this point, so user stays nil by design.
+    if (opts && opts[:message]).to_s == "timeout"
+      AccessLog.security_event!(
+        event_type: "session_timeout",
+        request: request,
+        metadata: { "scope" => ((opts && opts[:scope]) || :user).to_s }
+      )
+      next
+    end
+
     # The attempted identifier. Devise nests sign-in params under the auth scope
     # (default :user). Fall back to a top-level :email if the scope is absent.
     scope  = (opts && opts[:scope]) || :user
