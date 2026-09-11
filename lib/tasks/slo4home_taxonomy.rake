@@ -47,7 +47,12 @@ namespace :slo4home do
         mk.call('text',     'Email'),
         mk.call('text',     'WhatsApp'),
         mk.call('textarea', 'Mailing Address'),
-        mk.call('textarea', 'Emergency Contacts (name / relationship / phone)')
+        mk.call('textarea', 'Emergency Contacts (name / relationship / phone)'),
+        # --- Intake-sheet columns (their own workbook records these per HOUSEHOLD) ---
+        # Free text, deliberately: the source values are prose ("Text only, translate to
+        # Dari"), and squeezing them into a select would lose the instruction.
+        mk.call('text',     'Contact Preference (call or text)'),
+        mk.call('text',     'Support Status')
       ] },
       { entity_type: 'Family', form_title: 'Housing', fields: [
         filef.call('Lease', 1, multiple: true),
@@ -56,7 +61,10 @@ namespace :slo4home do
         mk.call('text', 'Water - Provider'),       mk.call('text', 'Water - Account #'),       mk.call('select', 'Water - Status', values: util_status),
         mk.call('text', 'Trash - Provider'),       mk.call('text', 'Trash - Account #'),       mk.call('select', 'Trash - Status', values: util_status),
         mk.call('text', 'Phone - Provider'),       mk.call('text', 'Phone - Account #'),       mk.call('select', 'Phone - Status', values: util_status),
-        mk.call('text', 'Internet - Provider'),    mk.call('text', 'Internet - Account #'),    mk.call('select', 'Internet - Status', values: util_status)
+        mk.call('text', 'Internet - Provider'),    mk.call('text', 'Internet - Account #'),    mk.call('select', 'Internet - Status', values: util_status),
+        # Intake-sheet column. Text, not date: the workbook records these as month names
+        # ("March 2024") as often as real dates, and coercing them would invent a day.
+        mk.call('text', 'Last Rental Support Month')
       ] },
       { entity_type: 'Family', form_title: 'Income', fields: [
         mk.call('textarea', 'Income Sources'),
@@ -76,7 +84,9 @@ namespace :slo4home do
       { entity_type: 'Family', form_title: 'Immigration', fields: [
         mk.call('text',     'Immigration Status'),
         filef.call('Immigration Documents', 1, multiple: true),
-        mk.call('textarea', 'Applications and Milestones')
+        mk.call('textarea', 'Applications and Milestones'),
+        # Intake-sheet column. Household-level in the org's own workbook.
+        mk.call('text',     'Arrival Date in the US')
       ] },
       { entity_type: 'Family', form_title: 'Vehicle', fields: [
         mk.call('text', 'Make / Model / Year'),
@@ -91,6 +101,14 @@ namespace :slo4home do
       { entity_type: 'Client', form_title: 'Member: Wellness & Goals', fields: [
         mk.call('textarea', 'Wellness Concerns - READ FIRST'),
         mk.call('textarea', 'Individual Summary and Goals')
+      ] },
+      # Language is the single most-populated column in the org's intake workbook (51 of 52
+      # members), and it drives every contact decision — it earns its own form rather than
+      # being wedged into a wellness or identity one. `standard` sensitivity: a spoken
+      # language is not a restricted attribute, and burying it would make staff work harder
+      # to do the basic right thing (bring the correct interpreter).
+      { entity_type: 'Client', form_title: 'Member: Language & Communication', fields: [
+        mk.call('text', 'Primary Language')
       ] },
       { entity_type: 'Client', form_title: 'Member: Identity Documents', fields: [
         filef.call("Driver's License / State ID (adult)", 1),
@@ -129,13 +147,24 @@ namespace :slo4home do
         mk.call('textarea', 'Vocational Rehabilitation'),
         mk.call('textarea', 'Social Services Employment Plan'),
         mk.call('textarea', 'Community Employment Supports'),
-        mk.call('textarea', 'Volunteer Work')
+        mk.call('textarea', 'Volunteer Work'),
+        # --- Intake-sheet columns (per MEMBER in the org's own workbook) ---
+        # 'Employable?' is free text on purpose: the source answers are "Y", "N, disabled",
+        # "N child", "N, age, English skills" — the QUALIFIER is the useful part, and a
+        # yes/no select would throw it away.
+        mk.call('text',     'Profession (pre-arrival)'),
+        mk.call('text',     'Employable?'),
+        mk.call('textarea', 'Employment Barriers'),
+        mk.call('text',     'First Job in the US')
       ] },
       { entity_type: 'Client', form_title: 'Adult: Education', fields: [
         mk.call('textarea', 'ESL / English Classes / Tutoring'),
         mk.call('textarea', 'Vocational Training'),
         mk.call('textarea', 'GED / College Classes'),
-        mk.call('textarea', 'Financial Aid')
+        mk.call('textarea', 'Financial Aid'),
+        # Intake-sheet column: schooling completed BEFORE arrival, distinct from the
+        # in-programme study the other four fields track.
+        mk.call('textarea', 'Education Background (pre-arrival)')
       ] },
       { entity_type: 'Client', form_title: 'Child: Education', fields: [
         mk.call('text',     'Current School'),
