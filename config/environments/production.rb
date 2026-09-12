@@ -69,16 +69,38 @@ Rails.application.configure do
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.delivery_method = :smtp
 
+  # Transactional SMTP — Postmark by default (2026-09-12), replacing SES.
+  #
+  # WHY THE SWITCH: the SES account could not be moved out of the sandbox, and a sandboxed SES
+  # account can only deliver to pre-verified addresses — which makes password resets useless for
+  # exactly the people who need them. No box ever held SES credentials, so nothing was lost.
+  #
+  # WHAT WAS BROKEN BEFORE: this block set `:ssl`/`:tls` (IMPLICIT TLS, port 465) *and*
+  # `:enable_starttls_auto` (an explicit STARTTLS upgrade, port 587) at the same time. Those are two
+  # different connection styles and mail >= 2.8 raises
+  #   ArgumentError: :enable_starttls and :tls are mutually exclusive
+  # on EVERY delivery. On a tenanted box that 500 renders the themed error page in the public
+  # schema, so the tenant-boundary enforcement turns it into a **409** — which is why a password
+  # reset on slo4home reported a conflict rather than a mail error (2026-09-12). It stayed hidden
+  # for as long as it did only because no box had credentials, so nothing ever attempted a send.
+  # spec/lib/tasks/smtp_settings_guard_spec.rb now pins the mutual exclusivity.
+  #
+  # Postmark authenticates with the **Server API Token as BOTH the username and the password** —
+  # that is not a copy-paste slip, it is how their SMTP endpoint works.
+  #
+  # Certificate verification is VERIFY_PEER. The previous VERIFY_NONE accepted ANY certificate,
+  # making the TLS decorative against an active network attacker — and these messages carry client
+  # names and password-reset links.
+  #
+  # Every value is env-overridable, so pointing a box at a different provider needs no code change.
   config.action_mailer.smtp_settings = {
-    address:               'email-smtp.us-east-1.amazonaws.com',
-    authentication:        :login,
-    user_name:             ENV['AWS_SES_USER_NAME'],
-    password:              ENV['AWS_SES_PASSWORD'],
-    enable_starttls_auto:  true,
-    port:                  465,
-    openssl_verify_mode:   OpenSSL::SSL::VERIFY_NONE,
-    ssl:                   true,
-    tls:                   true
+    address:              ENV['SMTP_ADDRESS'].presence || 'smtp.postmarkapp.com',
+    port:                 (ENV['SMTP_PORT'].presence || 587).to_i,
+    user_name:            ENV['SMTP_USER_NAME'].presence  || ENV['POSTMARK_API_TOKEN'],
+    password:             ENV['SMTP_PASSWORD'].presence   || ENV['POSTMARK_API_TOKEN'],
+    authentication:       :plain,
+    enable_starttls_auto: true,
+    openssl_verify_mode:  OpenSSL::SSL::VERIFY_PEER
   }
   # `config.assets.precompile` and `config.assets.version` have moved to config/initializers/assets.rb
 
