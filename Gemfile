@@ -123,14 +123,14 @@ gem 'friendly_id',            '~> 5.7.0'
 # wicked_pdf + the wkhtmltox .deb were REMOVED with the unrouted Cambodia government-reports
 # feature (POAM-019 closeout, PR B1) — the archived Qt-WebKit engine is off the box entirely.
 # PDF generation now rides the Chromium/Ferrum PdfRenderer surface (PR B2):
-gem 'ferrum',                 '~> 0.17' # headless-Chromium CDP driver (same engine cuprite runs the
+gem 'ferrum',                 '~> 0.18' # headless-Chromium CDP driver (same engine cuprite runs the
 # feature suite on; test-group cuprite pins the same line, so the two resolve to one version)
 gem 'browser',                '~> 6.2'  # was ~> 2.1 (PR #25); firefox?/platform.mac? unchanged, vestigial modern? spec-stub removed
-gem 'whenever',               '~> 1.1.2'
+gem 'whenever',               '~> 1.1.3'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 17.0'
 gem 'carrierwave',            '~> 3.1'
-gem 'mini_magick',            '~> 5.3'  # 5.0 reworked the API, but this app touches it only via
+gem 'mini_magick',            '~> 5.4'  # 5.0 reworked the API, but this app touches it only via
 # carrierwave's CarrierWave::MiniMagick processor (resize_to_fill in the 4 uploaders), no direct
 # MiniMagick calls -- carrierwave 3.1 supports mini_magick 5.
 # font-awesome-rails removed (POAM-017e R9b): the gem shipped only a .css.erb (sprockets
@@ -161,7 +161,7 @@ gem 'connection_pool',        '~> 3.0'
 # combo. Driver stays mongo 2.x unpinned (9.0 requires >= 2.18; >= 2.21 covers server 8.0;
 # the lock already resolves the newest 2.x). No mongoid.yml changes: the app deliberately
 # carries zero Mongoid feature-flag config, so the 9.x defaults apply wholesale.
-gem 'mongoid', '~> 9.1.0'
+gem 'mongoid', '~> 9.1.1'
 
 group :development, :test do
   gem 'pry'
@@ -198,7 +198,7 @@ end
 
 group :development do
   gem 'letter_opener',        '~> 1.10.0'
-  gem 'rubocop',              '~> 1.90.0', require: false
+  gem 'rubocop',              '~> 1.91.0', require: false
 end
 
 group :test do
