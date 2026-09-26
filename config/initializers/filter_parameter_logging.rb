@@ -7,7 +7,8 @@
 # encryption in Phase 4; this protects the obvious identifiers from the request/parameter logs.
 Rails.application.config.filter_parameters += [
   # Credentials & secrets
-  :passw, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :private_key,
+  # (:pin_number, not :pin -- substring matching would also blank keys like 'mapping'.)
+  :passw, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :private_key, :pin_number, :credential,
   # Government / financial identifiers
   :ssn, :social_security, :national_id, :passport, :tax_id, :account_number, :routing,
   # Date of birth

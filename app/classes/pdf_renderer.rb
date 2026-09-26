@@ -37,7 +37,7 @@ class PdfRenderer
         browser = Ferrum::Browser.new(
           headless: true,
           timeout: 60,
-          process_timeout: 30,
+          process_timeout: 60, # a cold Chromium on a loaded CI runner can take >30s (the reports_show flake)
           browser_path: browser_path,
           browser_options: { 'no-sandbox' => nil, 'disable-gpu' => nil, 'disable-dev-shm-usage' => nil }
         )
@@ -59,7 +59,8 @@ class PdfRenderer
     end
 
     # True when a Chromium/Chrome binary is resolvable — the smoke spec skips (rather than
-    # fails) on runners without one (the CI subset has no browser; the image and dev do).
+    # fails) on runners without one. NOTE: GitHub's ubuntu runner DOES ship /usr/bin/google-chrome,
+    # so the CI subset renders for real (and is sensitive to runner load); the image and dev do too.
     def available?
       browser_path.present?
     end
