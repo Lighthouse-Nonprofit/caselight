@@ -119,13 +119,13 @@ your fork's source accordingly.
 | Component | Version | Notes |
 |---|---|---|
 | Ruby | 4.0.5 | runs inside the Docker image (`ruby:4.0`, Debian Trixie) |
-| Rails | 8.1.3 | Rack 3 |
+| Rails | 8.1.3.1 | Rack 3 |
 | PostgreSQL | 17 | primary relational store (pg 1.6) |
-| MongoDB | 8.0 | change / audit history (Mongoid 9.0) |
+| MongoDB | 8.0 | change / audit history (Mongoid 9.1) |
 | Redis + Sidekiq | redis 7 / sidekiq 8.1 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |
 | App server | puma 8 | behind a TLS reverse proxy (force_ssl + HSTS); replaced thin 2026-07 |
-| Asset pipeline | Sprockets 4.2 + dart-sass + ES2015+ (build-time), haml 7.2 | modernized rung-by-rung 2026-07 (POAM-017e closed) |
+| Asset pipeline | Sprockets 4.4 + dart-sass + ES2015+ (build-time), haml 7.5 | modernized rung-by-rung 2026-07 (POAM-017e closed) |
 | Frontend | jQuery 4.0.0, **Bootstrap 5.3.8 + in-house `caselight_theme`** (POAM-017g closed; INSPINIA removed), Trix 2.1, Tom Select 2.6, FullCalendar 6.1, formBuilder 3.23, Chart.js 4.4, vanillajs-datepicker 1.3.4, fileinput 5.5.4, Font Awesome 6.7 (v4 shims) | whole POAM-017 family closed (a–g); eval-free rule builder; **enforced nonce-based CSP** |
 
 ## Quickstart
