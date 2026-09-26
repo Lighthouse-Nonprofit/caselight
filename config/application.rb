@@ -58,7 +58,8 @@ module CifWeb
     # Use the Rails 7.1 cache serialization format (the 6.1 default is deprecated, removed in 7.2).
     config.active_support.cache_format_version = 7.1
 
-    config.middleware.use Apartment::Elevators::SubdomainWithLocalhost
+    # Once, ahead of Warden. (A second `middleware.use` of the same elevator sat after Warden and
+    # switched the tenant twice per request -- confirmed with `bin/rails middleware`.)
     config.middleware.insert_before Warden::Manager, Apartment::Elevators::SubdomainWithLocalhost
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers

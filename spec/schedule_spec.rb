@@ -72,12 +72,6 @@ RSpec.describe 'Scheduler (config/schedule.rb cron jobs)' do
     end
   end
 
-  describe 'Cambodian Families Usage Report' do
-    it 'runs the ngo_usage_report:generate rake task every month at 00:00 am' do
-      expect(scheduled?(task: 'ngo_usage_report:generate', every: :month, at: '00:00 am')).to be true
-    end
-  end
-
   # POAM-015 (closed): the archive-gated retention pipeline is SCHEDULED — weekly
   # archive -> verify -> purge, with the purges carrying CONFIRM=1 (safe: the code gate refuses
   # any purge whose window lacks a verified archive).

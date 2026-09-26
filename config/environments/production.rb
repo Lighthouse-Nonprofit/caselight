@@ -38,9 +38,9 @@ Rails.application.configure do
   # NGINX, varnish or squid.
   # config.action_dispatch.rack_cache = true
 
-  # Disable serving static files from the `/public` folder by default since
-  # Apache or NGINX already handles this.
-  config.serve_static_files = ENV['RAILS_SERVE_STATIC_FILES'].present?
+  # Puma serves /public directly (Caddy only proxies), so keep Rails' static file server ON.
+  # (`config.serve_static_files` was the Rails 4 spelling and has been silently ignored since 5.1.)
+  config.public_file_server.enabled = true
 
   # Compress JavaScripts and CSS with Terser (ES2015+-native). Replaced Uglifier.new(harmony: true)
   # in Unit 11: even harmony-mode uglifier (ES5 UglifyJS) aborts on Chart.js v4's modern syntax
@@ -63,7 +63,6 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV['APP_HOST'].presence || 'localhost' }
   config.assets.digest = true
   config.assets.enabled = true
-  config.assets.initialize_on_precompile = true
 
   config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = true
@@ -120,6 +119,12 @@ Rails.application.configure do
   # Info-level logs in production (FedRAMP AU-3 / SI-11): :debug is verbose and can echo
   # parameter/SQL detail that may include sensitive data. Pair with filter_parameters redaction.
   config.log_level = :info
+
+  # Exceptions that Rails maps to a 4xx (RoutingError -> 404, RecordNotFound -> 404, ParameterMissing
+  # -> 400) are not failures of ours: internet scanners probing /phpinfo.php, /.env and /wp-json
+  # wrote a FATAL block per hit, which the hosting agents' health probe counted as application
+  # errors and escalated. The lograge line still records every one of them with its status.
+  config.action_dispatch.log_rescued_responses = false
 
   # Prepend all log lines with the following tags.
   # config.log_tags = [ :subdomain, :uuid ]

@@ -42,7 +42,7 @@ honest — when they drift, CI fails before this page lies:
 | Collection | Contents (post-Phase-6) | Protection | Retention |
 |---|---|---|---|
 | client_histories (+ embedded agency/case/case_worker/custom_field_property/family/quantitative histories) | ids / statuses / dates / association keys ONLY — `HistoryPiiFilter` strips encrypted attributes + staff credential/IP metadata at write (U3); pre-existing rows scrubbed (U4) | Tenant default_scope; write-only (no reader); purged on client destroy (U6) | `retention:purge_client_histories` (365-day floor) |
-| task_histories (+ embedded case_worker histories) | Same contract; StaffMonthlyReport reads only completion_date/completed/user_ids | As above | As above |
+| task_histories (+ embedded case_worker histories) | Same contract; only completion_date/completed/user_ids are read downstream | As above | As above |
 | access_logs | Values-free event rows: ids/types + denormalized user_email (the one allowed identifier) | Append-only (raise on update/destroy); tenant default_scope | `audit:purge` — 90d online / ≥1yr WORM (`audit-retention.md`) |
 
 ## 3. Filesystem — `public/uploads` (Docker volume on the encrypted EBS root)

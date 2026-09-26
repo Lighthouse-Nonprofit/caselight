@@ -33,11 +33,6 @@ every :day, at: '01:00 am' do
   rake 'accounts:disable_inactive CONFIRM=1', output: 'log/whenever.log'
 end
 
-every :month, at: '00:00 am' do
-  rake 'ngo_usage_report:generate', output: 'log/whenever.log'
-  rake 'staff_monthly_report:generate', output: 'log/whenever.log'
-end
-
 # POAM-015 (closed) — archive-gated retention, now SCHEDULED. Weekly order matters:
 # archive (02:00) -> verify (02:30) -> purges (03:00). A purge whose window has no VERIFIED archive
 # REFUSES in code, so a failed archive/verify simply skips that week's purge — fail-safe.

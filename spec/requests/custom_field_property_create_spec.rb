@@ -31,4 +31,28 @@ RSpec.describe 'CustomFieldProperty create via the form (properties params)', ty
     expect(cfp.properties['Diagnosis']).to eq('PTSD')
     expect(cfp.properties['Notes']).to eq('stable')
   end
+
+  # Regression (OCA production, 2026-09-24, seven retries): a custom-form save WITH a file attached
+  # merged the nested form_builder_attachments_attributes hash while it was still UNPERMITTED, so the
+  # model cast raised ActionController::UnfilteredParameters -> 500. attachment_params now permits
+  # the sub-hash exactly like properties_params.
+  it 'persists a file attached to the form (no UnfilteredParameters on the nested attachments)' do
+    upload = Rack::Test::UploadedFile.new(Rails.root.join('spec/supports/download_image.png'), 'image/png')
+
+    expect {
+      post client_custom_field_properties_path(client, custom_field_id: cf.id), params: {
+        custom_field_id: cf.id,
+        custom_field_property: {
+          properties: { 'Diagnosis' => 'PTSD' },
+          form_builder_attachments_attributes: { '0' => { name: 'Photo', file: [upload] } }
+        }
+      }
+    }.to change(CustomFieldProperty, :count).by(1)
+
+    expect(response).to have_http_status(:found)
+    attachments = CustomFieldProperty.last.form_builder_attachments
+    expect(attachments.pluck(:name)).to eq(['Photo'])
+    expect(attachments.first.file.size).to eq(1)
+  end
+
 end

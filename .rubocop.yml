@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 4.0
   Exclude:
     - 'bin/**/*'
     - 'config/**/*'
@@ -15,7 +15,6 @@ AllCops:
     - 'app/grids/*'
     - 'Guardfile'
     - 'Gemfile'
-    - 'Capfile'
   DisplayCopNames: true
   DisplayStyleGuide: true
 

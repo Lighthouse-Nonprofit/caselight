@@ -1,4 +1,4 @@
-# docker-compose.yml - CaseLight pilot stack (Ruby 4.0 / Rails 8.0 / Mongo 8.0 / Postgres 17).
+# docker-compose.yml - CaseLight pilot stack (Ruby 4.0 / Rails 8.1 / Mongo 8.0 / Postgres 17).
 # Datastores are NOT published to the host; the app is published only on 127.0.0.1:3000
 # (reach it via the SSM/SSH tunnel). For public HTTPS, enable the Dockerized "caddy"
 # service via the "proxy" profile (set APP_HOST in .env first). See OPERATIONS.md / SECURITY.md.
@@ -28,6 +28,16 @@ services:
     # Postgres, Redis, the app and sidekiq, and the history store is tiny. 0.25 GB is mongod's
     # documented minimum.
     command: ["--wiredTigerCacheSizeGB", "0.25"]
+    environment:
+      # mongod refuses to start on Linux kernels 6.19-7.0.13 (its vendored TCMalloc trips on the
+      # rseq ABI change; MongoDB SERVER-121912). The mongo:8.0 image itself ships
+      # GLIBC_TUNABLES=glibc.pthread.rseq=0, which still refuses. Setting it to 1 makes glibc
+      # register rseq first so TCMalloc never takes the broken path and the startup guard does not
+      # fire. Cost: TCMalloc loses per-CPU caching — irrelevant for this small history/audit store.
+      # Proven on the demo box on kernel 7.0.0-1014 (5-day soak, 0 restarts, 2026-09-21..26).
+      # Harmless on the pinned 6.17 kernels; it means an accidental 7.x boot no longer takes the
+      # history store down. UNSUPPORTED by MongoDB — re-test without it after each image bump.
+      GLIBC_TUNABLES: glibc.pthread.rseq=1
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ping:1}).ok"]
       interval: 10s

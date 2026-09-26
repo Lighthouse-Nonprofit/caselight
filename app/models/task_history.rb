@@ -13,8 +13,8 @@ class TaskHistory
 
   def self.initial(task)
     # Phase 6 (SC-28 / POAM-SC28-HIST): scrub encrypted attributes from the snapshot (a no-op for
-    # Task today; future-proof). StaffMonthlyReport reads object.completion_date / completed /
-    # user_ids — all non-PII, all preserved.
+    # Task today; future-proof). completion_date / completed / user_ids — all non-PII — are
+    # preserved (the retired staff monthly report read exactly those; keep the contract).
     attributes = HistoryPiiFilter.scrub(Task, task.attributes)
     attributes = attributes.merge('user_ids' => task.user_ids) if task.user_ids.any?
     create(object: attributes)

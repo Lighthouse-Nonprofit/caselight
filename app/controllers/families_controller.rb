@@ -6,7 +6,7 @@ class FamiliesController < AdminController
   before_action :find_family, only: [:show, :edit, :update, :destroy]
 
   def index
-    @family_grid = FamilyGrid.new(sanitized_grid_order(FamilyGrid, params[:family_grid]))
+    @family_grid = FamilyGrid.new(sanitized_grid_params(FamilyGrid, params[:family_grid]))
     respond_to do |f|
       f.html do
         # UX round 3 (B4/R10 — closes POAM-022): the HTML branch is ability-scoped like the
@@ -44,7 +44,7 @@ class FamiliesController < AdminController
   def show
     # UX round 3 (B1): the form dropdowns' ivars (@group_family_custom_fields /
     # @free_family_forms) moved to FormsController#index with the hub's Forms tab.
-    @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(family_id: @family.id))
+    @client_grid = ClientGrid.new(sanitized_grid_params(ClientGrid, params.fetch(:client_grid, {})).merge!(family_id: @family.id))
     # Phase 5.3 — bulk grid gets the RECORD-LESS set (emergency never unlocked). Guard with respond_to?
     # so this is order-independent of the client_grid.rb attr_accessor edit.
     @client_grid.visible_custom_field_ids = visible_custom_field_ids if @client_grid.respond_to?(:visible_custom_field_ids=)

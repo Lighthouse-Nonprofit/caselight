@@ -57,4 +57,25 @@ RSpec.describe 'Tracking + program-exit creation (modern family)', type: :reques
       expect(enrollment.reload.status).to eq('Exited')
     end
   end
+
+  describe 'tracking creation with a file attached' do
+    # Same UnfilteredParameters shape as the custom-form regression (2026-09-24): the enrollment,
+    # tracking and program-exit concerns merged the raw nested attachments hash on create.
+    it 'persists the tracking and its attachment' do
+      upload = Rack::Test::UploadedFile.new(Rails.root.join('spec/supports/download_image.png'), 'image/png')
+
+      expect do
+        post client_client_enrollment_client_enrollment_trackings_path(client, enrollment),
+             params: { client_enrollment_tracking: {
+                         properties: properties,
+                         form_builder_attachments_attributes: { '0' => { name: 'Receipt', file: [upload] } }
+                       },
+                       tracking_id: tracking.id }
+      end.to change(ClientEnrollmentTracking, :count).by(1)
+
+      expect(response).to have_http_status(:redirect)
+      expect(ClientEnrollmentTracking.order(:created_at).last.form_builder_attachments.pluck(:name)).to eq(['Receipt'])
+    end
+  end
+
 end

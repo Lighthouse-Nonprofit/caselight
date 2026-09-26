@@ -37,8 +37,9 @@ class ProgramStreamDecorator < Draper::Decorator
 
   # Currently-enrolled (active) clients — always the real count now (was gated on the config
   # flag, which showed blank for not-yet-fully-built programs).
+  # Memoized: the program card reads it three times per card (badge, "+N more" guard and label).
   def active_enrollment_count
-    model.client_enrollments.active.for_active_clients.size
+    @active_enrollment_count ||= model.client_enrollments.active.for_active_clients.size
   end
 
   # Cohort-scoped + excludes blank-status historic imports, so the badge and

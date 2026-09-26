@@ -175,13 +175,36 @@ class ApplicationController < ActionController::Base
   # Pre-production polish: an order param naming a column a grid no longer has must degrade
   # to unordered, not 500 (datagrid raises) — stale bookmarks carry removed columns (the
   # province/State columns left 2026-07-31). Shared by users/partners/families grids;
-  # ClientGrid has its own richer version in ClientGridOptions#client_grid_params.
-  def sanitized_grid_order(grid_class, grid_params)
-    return grid_params unless grid_params.present? && grid_params[:order].present?
+  # ClientGrid has its own richer version in ClientGridOptions#client_grid_params (which
+  # calls coerce_range_filter_params itself).
+  def sanitized_grid_params(grid_class, grid_params)
+    return grid_params unless grid_params.present?
+    grid_params = coerce_range_filter_params(grid_class, grid_params.dup)
+    return grid_params unless grid_params[:order].present?
     return grid_params if grid_class.column_by_name(grid_params[:order]).present?
     grid_params.except(:order, :descending)
   end
-  helper_method :sanitized_grid_order
+  helper_method :sanitized_grid_params
+
+  # datagrid 2.0.9: RangedFilter#parse_values stores a plain String scalar AS-IS (only Hash/Array/
+  # Range become a Range), and the filter FORM then calls value.begin -> NoMethodError -> 500 on a
+  # hand-edited or stale URL like ?family_grid[household_income]=5 (OCA, 2026-09-24). Coerce a scalar
+  # to [v, v] (datagrid's own single-point-range semantics) and clamp >2-element arrays, which datagrid
+  # rejects with ArgumentError. Applies to every grid with `range: true` filters.
+  def coerce_range_filter_params(grid_class, grid_params)
+    return grid_params unless grid_params.present?
+    grid_class.filters.each do |filter|
+      next unless filter.respond_to?(:range?) && filter.range?
+      value = grid_params[filter.name]
+      case value
+      when nil, Hash, ActionController::Parameters, Range then next
+      when Array then grid_params[filter.name] = value.first(2) if value.size > 2
+      when String then grid_params[filter.name] = [value, value] unless value.blank? || value.match?(/\.{2,3}/)
+      else grid_params[filter.name] = [value, value]
+      end
+    end
+    grid_params
+  end
 
   def set_locale
     locale = I18n.available_locales.include?(params[:locale].to_sym) ? params[:locale] : I18n.locale if params[:locale].present?

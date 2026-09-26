@@ -92,7 +92,7 @@ namespace :slo4home do
       puts "== slo4home:import_intake ==  tenant=#{tenant}  #{confirm ? 'APPLYING' : 'DRY RUN (set CONFIRM=1 to write)'}"
       puts "   source:        #{payload['source']}"
       puts "   parsed at:     #{payload['parsed_at']}"
-      puts "   case worker:   #{staff.email} (id=#{staff.id})"
+      puts "   case worker:   id=#{staff.id}"  # never the email: Run Command output ships to CloudWatch
       puts "   prospective:   #{include_prospective ? 'INCLUDED' : 'skipped (set INCLUDE_PROSPECTIVE=1 to import)'}"
       puts
 

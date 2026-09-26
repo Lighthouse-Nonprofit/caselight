@@ -13,7 +13,7 @@ module ClientEnrollmentConcern
 
     default_params = params.require(:client_enrollment).permit(:enrollment_date).merge!(program_stream_id: params[:program_stream_id])
     default_params = default_params.merge!(properties: properties_params) if properties_params.present?
-    default_params = default_params.merge!(form_builder_attachments_attributes: params[:client_enrollment][:form_builder_attachments_attributes]) if action_name == 'create' && attachment_params.present?
+    default_params = default_params.merge!(form_builder_attachments_attributes: attachment_params) if action_name == 'create' && attachment_params.present?
     default_params
   end
 
@@ -23,19 +23,6 @@ module ClientEnrollmentConcern
 
   def client_filtered
     AdvancedSearches::ClientAdvancedSearch.new(@program_stream.rules, Client.all).filter
-  end
-
-  def ordered_program
-    column = params[:order]
-    descending = params[:descending] == 'true'
-    if column.present? && column != 'status'
-      ordered = program_stream_order_by_enrollment.sort_by{ |ps| ps.send(column).to_s.downcase }
-      descending ? ordered.reverse : ordered
-    elsif column.present? && column == 'status'
-      descending ? program_stream_order_by_enrollment.reverse : program_stream_order_by_enrollment
-    else
-      program_stream_order_by_enrollment
-    end
   end
 
   def valid_client?
