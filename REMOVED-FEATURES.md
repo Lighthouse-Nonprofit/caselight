@@ -1,5 +1,18 @@
 # Removed features
 
+## 2026-09-26 — monthly NGO-usage + staff-performance report mails (weekly maintenance)
+
+Two upstream (Children in Families) monthly jobs went: `ngo_usage_report:generate` (a
+whole-platform usage spreadsheet mailed to `CIF1_EMAIL`/`CIF2_EMAIL`) and
+`staff_monthly_report:generate` (a per-staff task spreadsheet whose mailer hard-coded two
+`childreninfamilies.org` addresses in cc). Neither could have worked on the Docker layout —
+the rake task wrote the `.xls` under `tmp/` in the app container and the Sidekiq worker then
+`File.read` it in the sidekiq container, which shares only `uploads/` and `archives/` — and now
+that Postmark delivery is wired up they would have started mailing an internal staff report to
+the upstream org. Deleted: the two rake tasks, services, workers, mailers + views, the
+`StaffMonthlyReport` aggregate PORO and its spec, and the `DEV_EMAIL`/`CIF1_EMAIL`/`CIF2_EMAIL`
+env keys. `TaskHistory.initial` still preserves completion_date/completed/user_ids.
+
 ## 2026-07-30 — Departments HIDDEN for the pilot (data-task batch, D2)
 
 Not removed — hidden. The `Department` model, table, `users.department_id` column and

@@ -118,10 +118,7 @@ jobs:
       # AbleScreeningMailer `to: ENV['ABLE_MANAGER_EMAIL']`). Unset -> blank from -> ArgumentError on deliver_now.
       # CI-only placeholder addresses, not secrets.
       SENDER_EMAIL: ci-noreply@example.test
-      DEV_EMAIL: ci-dev@example.test
       ABLE_MANAGER_EMAIL: ci-able@example.test
-      CIF1_EMAIL: ci-cif1@example.test
-      CIF2_EMAIL: ci-cif2@example.test
     services:
       postgres:
         image: postgres:17

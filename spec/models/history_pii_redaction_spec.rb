@@ -76,7 +76,7 @@ RSpec.describe 'Mongo history PII redaction', type: :model do
     let!(:client) { create(:client, users: [worker]) }
     let!(:task)   { create(:task, client: client, name: 'Follow up', completion_date: Date.current) }
 
-    it 'keeps the StaffMonthlyReport contract keys and scrubs the staff snapshot' do
+    it 'keeps the completion_date/completed/user_ids contract keys and scrubs the staff snapshot' do
       TaskHistory.delete_all rescue nil
       TaskHistory.initial(task)
 
