@@ -130,7 +130,9 @@ class ProgramStreamsController < AdminController
 
   def set_attributes
     @another_program_stream.id = nil
-    @another_program_stream.trackings.map{ |t| t.id = nil, t.program_stream_id=nil }
+    # (was `map { |t| t.id = nil, t.program_stream_id = nil }`, which parses as `t.id = [nil, nil]`
+    # and only worked because the integer cast turns an Array into nil.)
+    @another_program_stream.trackings.each { |t| t.id = nil; t.program_stream_id = nil }
   end
 
   def authorize_program
@@ -139,25 +141,30 @@ class ProgramStreamsController < AdminController
     end
   end
 
+  # The only columns the sort links (_order partial) offer. params[:order] used to reach `send`
+  # unchecked on the all_ngo tab -- `?order=destroy` would have called #destroy on every tenant's
+  # programs -- and an unknown column on the current tab 500ed inside the SQL ORDER BY.
+  SORTABLE_COLUMNS = %w[name quantity ngo_name].freeze
+
+  def sort_column
+    column = params[:order].to_s
+    SORTABLE_COLUMNS.include?(column) ? column : nil
+  end
+
+  def sort_direction
+    params[:descending] == 'true' ? 'desc' : 'asc'
+  end
+
   def column_order
-    order_string = 'name'
-    order_string unless params[:tab] == 'current'
-
-    column = params[:order]
-    sort_by = params[:descending] == 'true' ? 'desc' : 'asc'
-    (order_string = "#{column} #{sort_by}") if column.present?
-
-    ProgramStream.ordered_by(order_string)
+    ProgramStream.ordered_by(sort_column ? "#{sort_column} #{sort_direction}" : 'name')
   end
 
   def all_ngos_ordered
-    programs = program_streams_all_organizations.sort_by(&:name)
-    column = params[:order]
-    return programs unless params[:tab] == 'all_ngo' && column
+    programs = program_streams_all_organizations # one tenant sweep, not two
+    return programs.sort_by(&:name) unless params[:tab] == 'all_ngo' && sort_column
 
-    ordered = program_streams_all_organizations.sort_by{ |p| p.send(column).to_s.downcase }
-    programs = (column.present? && params[:descending] == 'true' ? ordered.reverse : ordered)
-    programs
+    ordered = programs.sort_by { |p| p.public_send(sort_column).to_s.downcase }
+    sort_direction == 'desc' ? ordered.reverse : ordered
   end
 
   def delete_select_option_empty

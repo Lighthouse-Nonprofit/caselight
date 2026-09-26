@@ -4,7 +4,7 @@
 # See NOTES.md findings #6 and #7.
 if ENV['PRECOMPILE_ASSETS'] == 'true'
   # (1) devise_token_auth probes the schema via table_exists? at class-load when User
-  #     loads (thredded engine forces this). Degrade it to false with no DB reachable.
+  #     loads. Degrade it to false with no DB reachable.
   module OscarPrecompileNoDb
     def table_exists?(*)
       super

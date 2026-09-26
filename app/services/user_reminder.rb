@@ -27,7 +27,9 @@ class UserReminder
       if manager_id.present?
         manager = User.find manager_id
         manager_ids = manager.manager_ids.present? ? manager.manager_ids : Array(manager.id)
-        return if main_manager_id == manager_ids.last
+        # `return` here (the original) aborted the whole method as soon as a second group shared a
+        # top manager, so every later manager chain and the no-manager branch went unreminded.
+        next if main_manager_id == manager_ids.last
         if manager_ids.any?
           user_ids = User.where('manager_ids && ARRAY[?]::integer[]', manager_ids).map(&:id)
           user_ids.push(manager_ids.last)

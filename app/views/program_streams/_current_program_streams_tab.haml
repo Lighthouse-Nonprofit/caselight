@@ -7,15 +7,16 @@
   .row
     - @program_streams.each do |program_stream|
       - ps = program_stream.decorate
-      - active_ces = ps.client_enrollments.active.for_active_clients.includes(:client)
+      - active_ces = ps.client_enrollments.active.for_active_clients.includes(:client).limit(10).to_a
+      - domains = ps.domains_format
       .col-12.col-lg-6.mb-3
         .card.h-100.program-stream-card
           .card-header.d-flex.justify-content-between.align-items-start
             .pe-2
               %h5.mb-1= link_to ps.name, program_stream_path(ps), class: 'text-decoration-none'
               = cl_badge(ps.lifecycle_status, ps.lifecycle_variant)
-              - if ps.domains.any?
-                %span.text-muted.small.ms-2= ps.domains_format.join(', ')
+              - if domains.any?
+                %span.text-muted.small.ms-2= domains.join(', ')
             .dropdown.flex-shrink-0
               %button.btn.btn-outline-secondary.btn-sm.dropdown-toggle{ 'data-bs-toggle': 'dropdown', type: 'button', 'aria-expanded': 'false' }
                 = t('.actions')
@@ -23,11 +24,11 @@
                 %li= link_to t('shared.actions.view', default: 'View'), program_stream_path(ps), class: 'dropdown-item'
                 - if can? :update, ProgramStream
                   %li= link_to t('shared.actions.edit', default: 'Edit'), edit_program_stream_path(ps), class: 'dropdown-item'
-                  - if ps.client_enrollments.blank?
-                    %li= link_to t('shared.actions.delete', default: 'Delete'), program_stream_path(ps), method: 'delete', data: { confirm: t('program_streams.actions.are_you_sure', default: 'Are you sure?') }, class: 'dropdown-item text-danger'
-                  - else
+                  - if ps.client_enrollments.exists?
                     %li
                       %span.dropdown-item.disabled{ 'aria-disabled': 'true', title: t('.delete_blocked', default: 'Has enrollments — cannot delete') }= t('shared.actions.delete', default: 'Delete')
+                  - else
+                    %li= link_to t('shared.actions.delete', default: 'Delete'), program_stream_path(ps), method: 'delete', data: { confirm: t('program_streams.actions.are_you_sure', default: 'Are you sure?') }, class: 'dropdown-item text-danger'
           .card-body
             %p.small.text-muted.mb-2
               = t('.enrolled')
@@ -36,7 +37,7 @@
                 %span.text-muted= "/ #{ps.quantity}"
             - if active_ces.any?
               %ul.list-inline.mb-2
-                - active_ces.first(10).each do |ce|
+                - active_ces.each do |ce|
                   - if ce.client
                     %li.list-inline-item.mb-1= link_to entity_name(ce.client), client_path(ce.client), class: 'badge text-bg-light text-decoration-none'
                 - if ps.active_enrollment_count > 10
