@@ -6,7 +6,7 @@ class UsersController < AdminController
   before_action :find_association, except: [:index, :destroy]
 
   def index
-    @user_grid = UserGrid.new(sanitized_grid_order(UserGrid, params[:user_grid]))
+    @user_grid = UserGrid.new(sanitized_grid_params(UserGrid, params[:user_grid]))
     respond_to do |f|
       f.html do
         @results = @user_grid.scope { |scope| scope.accessible_by(current_ability) }.assets.size
@@ -45,7 +45,7 @@ class UsersController < AdminController
                                      .where(custom_field_id: visible.to_a)
                                      .group_by(&:custom_field_id)
 
-    @client_grid = ClientGrid.new(params.fetch(:client_grid, {}).merge!(current_user: @user))
+    @client_grid = ClientGrid.new(sanitized_grid_params(ClientGrid, params.fetch(:client_grid, {})).merge!(current_user: @user))
     # Phase 5.3 — mask the embedded grid to the CURRENT VIEWER (current_user), NOT @user. respond_to?
     # guard keeps this order-independent of the client_grid.rb attr_accessor edit.
     @client_grid.visible_custom_field_ids = visible_custom_field_ids if @client_grid.respond_to?(:visible_custom_field_ids=)

@@ -17,6 +17,10 @@ class AttachmentsController < AdminController
       attachments = params[:attachments]
       Attachment.destroy(attachments)
     end
-    render json: [], status: 200
+    # A bare `[]` goes through ActiveModel::Serializer::CollectionSerializer, which cannot infer a
+    # root key for an empty collection under the :json adapter (active_model_serializers.rb) and
+    # raised CannotInferRootKeyError on every progress-note save with an attachment (OCA, 2026-09).
+    # A Hash bypasses AMS; the caller (progress_notes/form.js) never reads the body.
+    render json: { attachments: [] }, status: :ok
   end
 end

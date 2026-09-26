@@ -29,15 +29,23 @@ module FormBuilderAttachments
   end
 
   def attachment_params
-    if controller_name == 'client_enrollments'
-      params[:client_enrollment][:form_builder_attachments_attributes]
-    elsif controller_name == 'client_enrollment_trackings'
-      params[:client_enrollment_tracking][:form_builder_attachments_attributes]
-    elsif controller_name == 'leave_programs'
-      params[:leave_program][:form_builder_attachments_attributes]
-    elsif controller_name == 'custom_field_properties'
-      params[:custom_field_property][:form_builder_attachments_attributes]
-    end
+    raw =
+      if controller_name == 'client_enrollments'
+        params[:client_enrollment][:form_builder_attachments_attributes]
+      elsif controller_name == 'client_enrollment_trackings'
+        params[:client_enrollment_tracking][:form_builder_attachments_attributes]
+      elsif controller_name == 'leave_programs'
+        params[:leave_program][:form_builder_attachments_attributes]
+      elsif controller_name == 'custom_field_properties'
+        params[:custom_field_property][:form_builder_attachments_attributes]
+      end
+    # Same shape problem as properties_params below: the row-indexed nested hash
+    # ({ '0' => { name:, file: [uploads] } }) arrives as UNPERMITTED ActionController::Parameters and the
+    # create actions merge it into permitted params, so the model cast raised
+    # ActionController::UnfilteredParameters on every custom-form save WITH a file (OCA, 2026-09-24,
+    # seven retries). FormBuilderAttachment has only name/file, so permitting the whole sub-hash adds
+    # no mass-assignment surface. permit! mutates in place, so the concerns' merges see it too.
+    raw.respond_to?(:permit!) ? raw.permit! : raw
   end
 
   def properties_params

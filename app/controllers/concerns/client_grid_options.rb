@@ -18,7 +18,7 @@ module ClientGridOptions
   # select's selected option + the sort form's hidden-field replay). XLS exports come through
   # here too, so a name order never reaches the export path (stays status-ordered).
   def client_grid_params
-    grid_params = sanitize_dynamic_filters(params.fetch(:client_grid, {}))
+    grid_params = coerce_range_filter_params(ClientGrid, sanitize_dynamic_filters(params.fetch(:client_grid, {})))
     order = grid_params[:order].to_s
     if ClientGrid::NAME_ORDERS.key?(order)
       @name_sort = ClientGrid::NAME_ORDERS[order]

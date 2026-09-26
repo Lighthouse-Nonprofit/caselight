@@ -11,7 +11,7 @@ class ProgressNotesController < AdminController
   before_action :find_association, only: [:new, :create, :edit, :update]
 
   def index
-    @progress_note_grid = ProgressNoteGrid.new(params.fetch(:progress_note_grid, {}).merge!(current_client: @client))
+    @progress_note_grid = ProgressNoteGrid.new(sanitized_grid_params(ProgressNoteGrid, params.fetch(:progress_note_grid, {})).merge!(current_client: @client))
     respond_to do |f|
       f.html do
         # Phase 6 (U1): + accessible_by — a no-op while the ProgressNote rule is broad, but the
