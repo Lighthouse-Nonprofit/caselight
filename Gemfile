@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 8.1.0'  # POAM-020: on 8.1.x. 8.0.x was security-only, EOL 2026-11-07; this rung
+gem 'rails', '~> 8.1.4'  # POAM-020: on 8.1.x. 8.0.x was security-only, EOL 2026-11-07; this rung
 # lands the 8.1 hop ahead of Brakeman's ~2026-09-08 pending-EOL warning (target was 2026-10-31).
 # 8.2 is a future rung, capped out for now by mongoid 9.1 (activemodel < 8.2) / ros-apartment / devise-two-factor
 # (all activemodel/AR < 8.2). Prior: 7.2 closed POAM-005b; 8.0.5 closed POAM-018.
