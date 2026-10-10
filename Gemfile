@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 8.1.0'  # POAM-020: on 8.1.x. 8.0.x was security-only, EOL 2026-11-07; this rung
+gem 'rails', '~> 8.1.4'  # POAM-020: on 8.1.x. 8.0.x was security-only, EOL 2026-11-07; this rung
 # lands the 8.1 hop ahead of Brakeman's ~2026-09-08 pending-EOL warning (target was 2026-10-31).
 # 8.2 is a future rung, capped out for now by mongoid 9.1 (activemodel < 8.2) / ros-apartment / devise-two-factor
 # (all activemodel/AR < 8.2). Prior: 7.2 closed POAM-005b; 8.0.5 closed POAM-018.
@@ -17,7 +17,7 @@ gem 'benchmark'  # POAM-020: Ruby 4.0 dropped benchmark from default gems and Ra
 gem 'erubis'
 # Rails 7's postgresql adapter requires pg >= 1.1; pg 1.5/1.6 run on Ruby 3.3 and still support
 # the pinned PostgreSQL 9.6 server (libpq 9.3+).
-gem 'pg', '~> 1.5'
+gem 'pg', '~> 1.7'
 # jquery-rails removed (R12D): jQuery 4.0.0 is vendored (the gem ships no jquery4 asset);
 # rails-ujs comes from actionview, jquery-ui from jquery-ui-rails below.
 gem 'jquery-ui-rails'
@@ -90,7 +90,7 @@ gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on 
 # Redis.new). Previously an implicit transitive dep of sidekiq 4; sidekiq 7 switched to redis-client,
 # so without this line the redis gem would silently drop out of the bundle and break rack-attack.
 gem 'redis', '~> 6.0'
-gem 'lograge', '~> 0.14'      # Phase 3: structured (JSON) request logging with audit tags (AU-3)
+gem 'lograge', '~> 0.15'      # Phase 3: structured (JSON) request logging with audit tags (AU-3)
 gem 'rails-erd'
 gem 'phony_rails',            '~> 0.15.0'
 gem 'typhoeus'
