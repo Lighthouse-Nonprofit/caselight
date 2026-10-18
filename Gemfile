@@ -179,7 +179,7 @@ group :development, :test do
   # months-old JS/CSS under the specs; it hid the whole BS5 bundle once)
   gem 'cuprite',              '~> 0.17' # js feature-spec driver (Ferrum/CDP)
   gem 'shoulda-whenever',     '~> 0.0.2'
-  gem 'bullet', '~> 8.2'             # 7.x hard-raises on Mongoid 9 at boot (runtime version
+  gem 'bullet', '~> 8.3'             # 7.x hard-raises on Mongoid 9 at boot (runtime version
                                      # sniff, invisible to gemspec audits); 8.x supports it.
                                      # (was ~> 7.0; before that ~> 6.0 — 6.x rejected AR 7.0)
   gem 'mongoid-rspec', '~> 4.2'      # was < 4.2
@@ -198,7 +198,7 @@ end
 
 group :development do
   gem 'letter_opener',        '~> 1.10.0'
-  gem 'rubocop',              '~> 1.91.0', require: false
+  gem 'rubocop',              '~> 1.92.0', require: false
 end
 
 group :test do
