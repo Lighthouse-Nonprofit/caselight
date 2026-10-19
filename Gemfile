@@ -95,7 +95,7 @@ gem 'rails-erd'
 gem 'phony_rails',            '~> 0.15.0'
 gem 'typhoeus'
 gem 'foreman',                '~> 0.87'
-gem 'cancancan', '~> 3.0'
+gem 'cancancan', '~> 3.7'
 gem 'pundit', '~> 2.0'
 # tinymce-rails (~> 4.5) removed (POAM-017a): TinyMCE 4 hit EOL in 2022 — an unpatchable rich-text
 # editor on the clinical-notes path. Replaced by Trix 2 (MIT, 37signals), vendored under
@@ -182,7 +182,7 @@ group :development, :test do
   gem 'bullet', '~> 8.3'             # 7.x hard-raises on Mongoid 9 at boot (runtime version
                                      # sniff, invisible to gemspec audits); 8.x supports it.
                                      # (was ~> 7.0; before that ~> 6.0 — 6.x rejected AR 7.0)
-  gem 'mongoid-rspec', '~> 4.2'      # was < 4.2
+  gem 'mongoid-rspec', '~> 4.4'      # was < 4.2
   # Security scanning (Phase 0 hardening; run in CI + locally, not required at boot):
   gem 'brakeman',      require: false  # SAST — Rails static security analysis
   gem 'bundler-audit', require: false  # dependency CVE scanning vs the ruby-advisory-db

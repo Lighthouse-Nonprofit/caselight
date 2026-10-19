@@ -110,7 +110,7 @@ GEM
     bundler-audit (0.9.3)
       bundler (>= 1.2.0)
       thor (~> 1.0)
-    cancancan (3.6.1)
+    cancancan (3.7.0)
     capybara (3.40.0)
       addressable
       matrix
@@ -383,10 +383,10 @@ GEM
       concurrent-ruby (>= 1.0.5, < 2.0)
       mongo (>= 2.18.0, < 3.0.0)
       ostruct
-    mongoid-compatibility (1.0.0)
+    mongoid-compatibility (1.1.0)
       activesupport
       mongoid (>= 2.0)
-    mongoid-rspec (4.2.0)
+    mongoid-rspec (4.4.0)
       mongoid (>= 3.0, < 10.0)
       mongoid-compatibility (>= 0.5.1)
     multi_json (1.21.2)
@@ -680,7 +680,7 @@ DEPENDENCIES
   browser (~> 6.2)
   bullet (~> 8.3)
   bundler-audit
-  cancancan (~> 3.0)
+  cancancan (~> 3.7)
   capybara (~> 3.0)
   carrierwave (~> 3.1)
   cocoon (~> 1.2, >= 1.2.9)
@@ -720,7 +720,7 @@ DEPENDENCIES
   mail_interceptor (~> 0.0.7)
   mini_magick (~> 5.4)
   mongoid (~> 9.1.1)
-  mongoid-rspec (~> 4.2)
+  mongoid-rspec (~> 4.4)
   nokogiri (~> 1.16)
   paper_trail (~> 17.0)
   pg (~> 1.7)
