@@ -47,7 +47,9 @@ class DataTrackersController < AdminController
   def filter_custom_field_versions
     PaperTrail::Version
       .where(item_type: @item_type)
-      .where("object ILIKE '%custom_formable_type: #{@form_type}%' OR object_changes ILIKE '%custom_formable_type:\n- \n- #{@form_type}%'")
+      .where('object ILIKE :obj OR object_changes ILIKE :chg',
+             obj: "%custom_formable_type: #{PaperTrail::Version.sanitize_sql_like(@form_type.to_s)}%",
+             chg: "%custom_formable_type:\n- \n- #{PaperTrail::Version.sanitize_sql_like(@form_type.to_s)}%")
   end
 
 end

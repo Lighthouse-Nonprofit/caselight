@@ -163,7 +163,13 @@ class Case < ActiveRecord::Base
     client.cases.active.to_a.each do |sibling|
       sibling.update_columns(exited_from_cif: true, exited: true, exit_date: exit_date, exit_note: exit_note)
     end
-    ClientMailer.exited_notification(client, User.managers.pluck(:email)).deliver_now
+    # Mail must never roll back the exit: with raise_delivery_errors a dead SMTP server used to 500
+    # the save and leave the sibling cases half-updated. Log and carry on.
+    begin
+      ClientMailer.exited_notification(client, User.managers.pluck(:email)).deliver_now
+    rescue StandardError => e
+      Rails.logger.error("[Case#update_cases_to_exited_from_cif] exit notification not sent: #{e.class}: #{e.message}")
+    end
   end
 
   def create_client_history

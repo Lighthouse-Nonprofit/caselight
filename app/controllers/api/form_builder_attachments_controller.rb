@@ -10,11 +10,12 @@ module Api
     # ACTUALLY closes the cross-caseload IDOR a class-level :manage CustomField would not. GATED behind
     # enforce_authorization? so flag-OFF is byte-identical (SHADOW-FIRST). Fail-closed if the parent is missing.
     def destroy
-      if enforce_authorization?
-        buildable = @attachment&.form_buildable
-        raise CanCan::AccessDenied.new('Not authorized', :destroy, :form_builder_attachment) if buildable.nil?
-        authorize! :update, buildable
-      end
+      return head :not_found if @attachment.nil?
+      # Record-scoped parent authorization, unconditionally (enforcement has been the production
+      # default since 2026-07; the shadow gate here left the delete open whenever the flag was off).
+      buildable = @attachment.form_buildable
+      raise CanCan::AccessDenied.new('Not authorized', :destroy, :form_builder_attachment) if buildable.nil?
+      authorize! :update, buildable
       index = params[:file_index].to_i
       remain_file  = @attachment.file
       deleted_file = remain_file.delete_at(index)

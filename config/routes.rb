@@ -107,7 +107,7 @@ Rails.application.routes.draw do
     resources :users do
       resources :custom_field_properties
       get 'version' => 'users#version'
-      get 'disable' => 'users#disable'
+      patch 'disable' => 'users#disable'   # state change: never a GET (CSRF)
       # Admin user management (owner ask 2026-08): clear a lockout / reset another user's password.
       patch 'unlock' => 'users#unlock'
       patch 'reset_password' => 'users#reset_password'

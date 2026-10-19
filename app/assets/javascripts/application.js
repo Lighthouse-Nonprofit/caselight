@@ -45,12 +45,11 @@
 // style-src 'unsafe-inline' + font-src data: the policy already keeps for FullCalendar 6;
 // (2) en-US strings are compiled in -- no runtime .lang fetch (verified; do not pass
 // i18n.locale without vendoring lang files first); (3) eval gate: zero eval(/new Function;
-// the single Function( occurrence is lodash's unreachable global-this fallback, identical
-// to the one in our standalone vendored lodash below; (4) requires jQuery + jQuery UI
+// the single Function( occurrence is the unreachable global-this fallback of the lodash copy
+// bundled inside form-builder (the app's own vendored lodash went 2026-10-18); (4) requires jQuery + jQuery UI
 // sortable, both loaded above.
 //= require form-builder.min.js
 //= require stickyfill.js
-//= require lodash/lodash.min.js
 
 // POAM-017a: Trix 2 (vendored) replaced the EOL TinyMCE 4. rich_text holds the app-wide
 // Trix config (attachments disabled — the render sanitizer denies <img>; Dropzone is the
@@ -62,9 +61,8 @@
 // runtime <style> element, so the CSP enforce flip (POAM-017f) must keep
 // style-src 'unsafe-inline' unless a style-nonce pass is added.
 //= require fullcalendar
-// POAM-017g flip: krajee bootstrap-fileinput 5.5.4 (BS5) replaced 4.4.1. purify (DOMPurify)
-// is the optional preview-HTML sanitizer fileinput uses; kept, moved to the vendor JS root.
-//= require purify.min
+// POAM-017g flip: krajee bootstrap-fileinput 5.5.4 (BS5) replaced 4.4.1. (The vendored DOMPurify
+// 0.7.4 went 2026-10-18: fileinput 5.5.4 never calls it and 0.7.4 predates a decade of mXSS fixes.)
 //= require bootstrap_file_input5/fileinput.js
 //= require bootstrap_file_input5/themes/fa4-theme.js
 //= require bootstrap_file_input5/themes/explorer-fa4-theme.js
@@ -107,6 +105,7 @@
 //= require clients/index
 //= require report_creator
 //= require reports/index
+//= require reports/show
 //= require clients/show
 //= require clients/form
 //= require families/form

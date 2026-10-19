@@ -79,7 +79,7 @@ class FamiliesController < AdminController
 
   def version
     page      = params[:per_page] || 20
-    @family   = Family.find(params[:family_id])
+    @family   = Family.accessible_by(current_ability).find(params[:family_id])
     relation  = @family.versions.reorder(created_at: :desc)
     kept_ids  = SensitiveVersionScope.visible_version_ids(relation, user: current_user, break_glass: [])
     @versions = relation.where(id: kept_ids).reorder(created_at: :desc).page(params[:page]).per(page.to_i)
@@ -114,6 +114,6 @@ class FamiliesController < AdminController
   end
 
   def client_associations
-    @family.client_ids.uniq - params[:family][:client_ids].map{|a| a.to_i }
+    @family.client_ids.uniq - Array(params.dig(:family, :client_ids)).map { |a| a.to_i }
   end
 end

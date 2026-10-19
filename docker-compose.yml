@@ -3,6 +3,13 @@
 # (reach it via the SSM/SSH tunnel). For public HTTPS, enable the Dockerized "caddy"
 # service via the "proxy" profile (set APP_HOST in .env first). See OPERATIONS.md / SECURITY.md.
 
+# Every service logs through docker's json-file driver with rotation; the app writes its Rails +
+# lograge stream to STDOUT (production.rb), so `docker compose logs app` is the application log
+# that the hosting agents' health probe reads (before 2026-10-18 it only saw puma's own lines).
+x-logging: &default-logging
+  driver: json-file
+  options: { max-size: "20m", max-file: "5" }
+
 services:
   db:
     # postgres:17 (migrated from 9.6 via dump/restore). PG data dirs are incompatible across major
@@ -15,6 +22,7 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
     volumes: [pg:/var/lib/postgresql/data]
     restart: unless-stopped
+    logging: *default-logging
 
   mongo:
     # mongo:8.0 (migrated from 6.0 via dump/restore, same playbook as postgres above): an
@@ -35,8 +43,9 @@ services:
       # register rseq first so TCMalloc never takes the broken path and the startup guard does not
       # fire. Cost: TCMalloc loses per-CPU caching — irrelevant for this small history/audit store.
       # Proven on the demo box on kernel 7.0.0-1014 (5-day soak, 0 restarts, 2026-09-21..26).
-      # Harmless on the pinned 6.17 kernels; it means an accidental 7.x boot no longer takes the
-      # history store down. UNSUPPORTED by MongoDB — re-test without it after each image bump.
+      # LOAD-BEARING since the 6.17 kernel pin was lifted fleet-wide on 2026-10-10: every box boots
+      # the newest Ubuntu kernel. UNSUPPORTED by MongoDB — re-test without it after each image bump
+      # (the documented upstream fix is a kernel >= 7.0.14).
       GLIBC_TUNABLES: glibc.pthread.rseq=1
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ping:1}).ok"]
@@ -45,6 +54,7 @@ services:
       retries: 12
     volumes: [mongo:/data/db]
     restart: unless-stopped
+    logging: *default-logging
 
   redis:
     # redis 7: sidekiq 7's redis-client requires Redis server >= 6.2 (HELLO/RESP3). RDB is
@@ -53,6 +63,7 @@ services:
     image: redis:7
     volumes: [redis:/data]
     restart: unless-stopped
+    logging: *default-logging
 
   app:
     build: .
@@ -73,6 +84,7 @@ services:
       - uploads:/app/public/uploads
       - archives:/app/archives
     restart: unless-stopped
+    logging: *default-logging
 
   sidekiq:
     build: .
@@ -86,6 +98,7 @@ services:
       - uploads:/app/public/uploads
       - archives:/app/archives
     restart: unless-stopped
+    logging: *default-logging
 
   # Optional TLS-terminating reverse proxy. Off by default (profile "proxy"); enable with
   #   docker compose --profile proxy up -d caddy
@@ -103,6 +116,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     restart: unless-stopped
+    logging: *default-logging
 
 volumes:
   pg: {}

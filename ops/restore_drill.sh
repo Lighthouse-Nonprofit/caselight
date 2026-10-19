@@ -26,7 +26,7 @@ APP_DIR="${APP_DIR:-$HOME/oscar}"
 cd "$APP_DIR"
 
 TENANT="${TENANT:-$(grep -E '^TENANT_SHORT=' .env 2>/dev/null | cut -d= -f2- || true)}"
-TENANT="${TENANT:-slo4home}"
+TENANT="${TENANT:-cases}"   # bootstrap.sh's default; the prod boxes pin TENANT_SHORT in .env
 SCRATCH_PG="${SCRATCH_PG:-drill_restore}"
 SCRATCH_MONGO="${SCRATCH_MONGO:-drill_history}"
 

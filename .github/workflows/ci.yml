@@ -8,10 +8,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   security:
     name: Security scans (SAST + dependency CVEs)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       BUNDLE_WITHOUT: "staging demo production"
     steps:
@@ -48,6 +53,7 @@ jobs:
   secrets:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -60,6 +66,7 @@ jobs:
   assets:
     name: Assets precompile (production env, mirrors the image build)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       # Match the production image build exactly (Dockerfile ARG BUNDLE_WITHOUT="development test").
       # Do NOT reuse the test job's "staging demo production" — RAILS_ENV=production Bundler.require
@@ -103,6 +110,7 @@ jobs:
   test:
     name: Test suite (PG 17 / Mongo 8 / Redis)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       RAILS_ENV: test
       BUNDLE_WITHOUT: "staging demo production"
@@ -164,4 +172,4 @@ jobs:
       - name: Build the dart-sass stylesheet
         run: bundle exec rails dartsass:build
       - name: RSpec (non-feature suite)
-        run: bundle exec rspec spec/models spec/serializers spec/decorators spec/helpers spec/mailers spec/requests spec/controllers spec/lib spec/services spec/views spec/schedule_spec.rb
+        run: bundle exec rspec spec/models spec/policies spec/serializers spec/decorators spec/helpers spec/mailers spec/requests spec/controllers spec/lib spec/services spec/views spec/schedule_spec.rb

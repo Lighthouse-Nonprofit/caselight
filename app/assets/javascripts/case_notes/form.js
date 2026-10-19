@@ -186,7 +186,7 @@ CIF.Case_notesNew =
           $('#task_domain_id').html('');
 
           return domains.map((domain) =>
-            $('#task_domain_id').append(`<option value='${domain[0]}'>${domain[1]}</option>`),
+            $('#task_domain_id').append(new Option(domain[1], domain[0])), // domain names are tenant-authored
           );
         });
 
@@ -221,7 +221,8 @@ CIF.Case_notesNew =
       var _initNotification = function (message) {
         const messageOption = {
           closeButton: true,
-          debug: true,
+          debug: false,
+          escapeHtml: true,
           progressBar: true,
           positionClass: 'toast-top-center',
           showDuration: '400',

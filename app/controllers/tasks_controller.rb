@@ -31,7 +31,11 @@ class TasksController < AdminController
     User.self_and_subordinates(current_user)
   end
 
+  # ?user_id= may only name the caller or a subordinate (self_and_subordinates is nil for case
+  # workers, who can therefore only ever list their own); anything else 404s instead of listing
+  # an arbitrary user's tasks.
   def task_of_user
-    params[:user_id].present? ? User.find(params[:user_id]) : current_user
+    return current_user if params[:user_id].blank?
+    (find_users || User.where(id: current_user.id)).find(params[:user_id])
   end
 end

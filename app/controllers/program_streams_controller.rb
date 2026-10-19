@@ -94,7 +94,7 @@ class ProgramStreamsController < AdminController
   end
 
   def program_without_tracking?
-    params[:program_stream][:tracking_required].to_i == 1
+    params.dig(:program_stream, :tracking_required).to_i == 1
   end
 
   def find_ngo
@@ -168,8 +168,8 @@ class ProgramStreamsController < AdminController
   end
 
   def delete_select_option_empty
-    program_exclusive = params[:program_stream][:program_exclusive]
-    mutual_dependence = params[:program_stream][:mutual_dependence]
+    program_exclusive = params.dig(:program_stream, :program_exclusive)
+    mutual_dependence = params.dig(:program_stream, :mutual_dependence)
     program_exclusive.delete('') if program_exclusive.present?
     mutual_dependence.delete('') if mutual_dependence.present?
   end

@@ -79,18 +79,21 @@ class UsersController < AdminController
 
   def version
     page = params[:per_page] || 20
-    @user     = User.find(params[:user_id])
+    @user     = User.accessible_by(current_ability).find(params[:user_id])
     @versions = @user.versions.reorder(created_at: :desc).page(params[:page]).per(page)
   end
 
   def disable
-    @user = User.find(params[:user_id])
+    @user = User.accessible_by(current_ability).find(params[:user_id])
     redirect_to users_path, notice: t('.successfully_disable') if @user.update(disable: !@user.disable)
   end
 
+  # These member-ish routes carry :user_id, not :id, so load_and_authorize_resource only runs the
+  # CLASS check — which a manager's conditional `can :manage, User, id: [...]` passes. Every lookup
+  # therefore goes through accessible_by (a manager could reset an admin's password before 2026-10-18).
   # Admin: clear a Devise lockout (AC-7) so the user can sign in again.
   def unlock
-    @user = User.find(params[:user_id])
+    @user = User.accessible_by(current_ability).find(params[:user_id])
     @user.unlock_access!
     redirect_to user_path(@user), notice: t('.unlocked', default: 'Account unlocked — the user can sign in again.')
   end
@@ -99,7 +102,7 @@ class UsersController < AdminController
   # not wired for the pilot), so the temp password is shown ONCE to the admin to hand off securely;
   # it is force-expired so the user must change it at next sign-in.
   def reset_password
-    @user = User.find(params[:user_id])
+    @user = User.accessible_by(current_ability).find(params[:user_id])
     temp = "#{SecureRandom.alphanumeric(14)}A9!"
     if @user.update(password: temp, password_confirmation: temp)
       @user.unlock_access! if @user.respond_to?(:access_locked?) && @user.access_locked?

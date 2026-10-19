@@ -1,11 +1,11 @@
 {
   "scan_info": {
     "app_path": "/app",
-    "rails_version": "8.0.5",
-    "security_warnings": 8,
-    "start_time": "2026-07-12 18:24:32 +0000",
-    "end_time": "2026-07-12 18:24:42 +0000",
-    "duration": 9.32099549,
+    "rails_version": "8.1.4",
+    "security_warnings": 3,
+    "start_time": "2026-10-19 00:27:11 +0000",
+    "end_time": "2026-10-19 00:27:23 +0000",
+    "duration": 12.510222913,
     "checks_performed": [
       "BasicAuth",
       "BasicAuthTimingAttack",
@@ -87,11 +87,11 @@
       "XMLDoS",
       "YAMLParsing"
     ],
-    "number_of_controllers": 69,
-    "number_of_models": 69,
-    "number_of_templates": 350,
-    "ruby_version": "4.0.5",
-    "brakeman_version": "8.0.5"
+    "number_of_controllers": 71,
+    "number_of_models": 76,
+    "number_of_templates": 348,
+    "ruby_version": "4.0.7",
+    "brakeman_version": "8.1.0"
   },
   "warnings": [
     {
@@ -101,7 +101,7 @@
       "check_name": "Redirect",
       "message": "Possible unprotected redirect",
       "file": "app/controllers/clients_controller.rb",
-      "line": 94,
+      "line": 104,
       "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
       "code": "redirect_to(Client.accessible_by(current_ability).friendly.find(params[:id]).decorate, :notice => t(\".successfully_updated\"))",
       "render_path": null,
@@ -138,94 +138,6 @@
       ]
     },
     {
-      "warning_type": "Dynamic Render Path",
-      "warning_code": 15,
-      "fingerprint": "7dde07344436da69a43b27baa83a38bceaec6a95cd2c95034e6e46f9de6f8e7c",
-      "check_name": "Render",
-      "message": "Render path contains parameter value",
-      "file": "app/controllers/errors_controller.rb",
-      "line": 9,
-      "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
-      "code": "render(action => (params[:code] or 500).to_s, { :status => ((params[:code] or 500)) })",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "ErrorsController",
-        "method": "show"
-      },
-      "user_input": "params[:code]",
-      "confidence": "High",
-      "cwe_id": [
-        22
-      ]
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "84159ce16d4eb969abab3fd39e687418b7d0cf49b5306007f6cf1d19786022e9",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/controllers/data_trackers_controller.rb",
-      "line": 50,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "PaperTrail::Version.where(:item_type => params[:item_type]).where(\"object ILIKE '%custom_formable_type: #{params[:formable_type]}%' OR object_changes ILIKE '%custom_formable_type:\\n- \\n- #{params[:formable_type]}%'\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "DataTrackersController",
-        "method": "filter_custom_field_versions"
-      },
-      "user_input": "params[:formable_type]",
-      "confidence": "Medium",
-      "cwe_id": [
-        89
-      ]
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "a2fabc5b0b33b333c6f7c93e827a83eb6dc0c6c29af99337e1490bc4b6c06d73",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/grids/client_grid.rb",
-      "line": 234,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "Assessment.joins(:assessment_domains).where(\"score#{operation} ? AND domain_id= ?\", value, domain_id)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "ClientGrid",
-        "method": "self.client_by_domain"
-      },
-      "user_input": "operation",
-      "confidence": "Medium",
-      "cwe_id": [
-        89
-      ]
-    },
-    {
-      "warning_type": "Dangerous Send",
-      "warning_code": 23,
-      "fingerprint": "af06f2d1a4902f214ce103dbc0d900d62f7a7a091d26b69a1a6a74534f87a01c",
-      "check_name": "Send",
-      "message": "User controlled method execution",
-      "file": "app/controllers/program_streams_controller.rb",
-      "line": 151,
-      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_send/",
-      "code": "p.send(params[:order])",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "ProgramStreamsController",
-        "method": "all_ngos_ordered"
-      },
-      "user_input": "params[:order]",
-      "confidence": "High",
-      "cwe_id": [
-        77
-      ]
-    },
-    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "b3b33e6ff653b5ca6d9ca33058d9f5de8d478fec1bd4c3da9b536c24aa76a915",
@@ -245,28 +157,6 @@
       "confidence": "Medium",
       "cwe_id": [
         22
-      ]
-    },
-    {
-      "warning_type": "Dangerous Send",
-      "warning_code": 23,
-      "fingerprint": "dd6f757db3fb852608703c6d8f8fc3428e71ab8f8f8329b0af67d70662515ccc",
-      "check_name": "Send",
-      "message": "User controlled method execution",
-      "file": "app/controllers/concerns/client_enrollment_concern.rb",
-      "line": 32,
-      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_send/",
-      "code": "ps.send(params[:order])",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "ClientEnrollmentConcern",
-        "method": "ordered_program"
-      },
-      "user_input": "params[:order]",
-      "confidence": "High",
-      "cwe_id": [
-        77
       ]
     }
   ],

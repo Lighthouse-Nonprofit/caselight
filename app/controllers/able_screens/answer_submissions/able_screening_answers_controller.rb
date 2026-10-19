@@ -32,13 +32,13 @@ module AbleScreens
       private
 
       def set_client
-        @client = Client.friendly.find(params[:client_id])
+        @client = Client.accessible_by(current_ability, :update).friendly.find(params[:client_id])
       end
 
       def answer_params
         params.require(:client)
               .permit(answers_attributes:
-                      [:id, :description, :able_screening_question_id, :client_id, :question_type])
+                      [:id, :description, :able_screening_question_id, :question_type])
       end
     end
   end
