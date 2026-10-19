@@ -70,7 +70,9 @@ CIF.ClientsNew =
                 // name strings by side effect) — a Set dedupe keeps insertion order
                 organizations[0] = [...new Set(organizations[0])];
                 const modalText = [];
-                for (var organization of organizations[0]) {
+                const escapeHtml = (value) => $('<div>').text(String(value)).html();
+                for (var organizationName of organizations[0]) {
+                  const organization = escapeHtml(organizationName);
                   modalText.push(
                     `<p>${modalTextFirst} ${organization}${modalTextSecond} ${organization} ${modalTextThird}<p/>`,
                   );

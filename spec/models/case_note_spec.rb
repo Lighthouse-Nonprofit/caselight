@@ -77,8 +77,8 @@ describe CaseNote, 'methods' do
   context 'complete tasks' do
     let!(:domain_group){ create(:domain_group) }
     let!(:case_note_domain_group){ create(:case_note_domain_group, domain_group: domain_group, case_note: case_note) }
-    let!(:task){ create(:task) }
-    let!(:other_task){ create(:task) }
+    let!(:task){ create(:task, client: case_note.client) }        # 2026-10-18: complete_tasks is scoped to the note's client
+    let!(:other_task){ create(:task, client: case_note.client) }
     let!(:task_ids){ [task.id, other_task.id] }
     before do
       case_note.complete_tasks(

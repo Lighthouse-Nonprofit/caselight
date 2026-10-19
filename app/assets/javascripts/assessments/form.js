@@ -333,7 +333,8 @@ CIF.AssessmentsNew =
       var _initNotification = function (message) {
         const messageOption = {
           closeButton: true,
-          debug: true,
+          debug: false,
+          escapeHtml: true,
           progressBar: true,
           positionClass: 'toast-top-center',
           showDuration: '400',

@@ -8,7 +8,7 @@
           = form_tag referrals_path, method: :get, class: 'd-inline' do
             = select_tag :status,
               options_for_select([[t('.all_statuses', default: 'All statuses'), '']] + Referral::STATUSES.map { |s| [s, s] }, params[:status]),
-              class: 'form-select form-select-sm d-inline w-auto', onchange: 'this.form.submit()'
+              class: 'form-select form-select-sm d-inline w-auto', data: { auto_submit: true }
           -# A referral is per-client, so creation starts by choosing the client (their Referrals tab
           -# has the form). This button sends you to the searchable client list to pick one.
           - if can? :manage, Referral

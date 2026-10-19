@@ -185,7 +185,7 @@ CIF.Client_advanced_searchesIndex = (function () {
       // was select2 v3's element.choice.text — recover the removed option's label natively
       const programName = CIF.Select.optionText(selectEl, removedValue);
       const programStreamKeyword = ['Enrollment', 'Tracking', 'Exit Program'];
-      _.forEach(programStreamKeyword, function (value) {
+      programStreamKeyword.forEach(function (value) {
         const headerClass = _formatSpecialCharacter(`${programName.trim()} ${value}`);
         return _removeCheckboxColumnPicker('#program-stream-column', headerClass);
       });
@@ -278,14 +278,21 @@ CIF.Client_advanced_searchesIndex = (function () {
 
   const _addFieldToColumnPicker = function (element, fieldList) {
     const customFormColumnPicker = $(`${element} ul.append-child`);
-    const fieldsGroupByOptgroup = _.groupBy(fieldList, 'optgroup');
+    // (lodash removed 2026-10-18 — these four calls were its only users in the app)
+    const fieldsGroupByOptgroup = {};
+    fieldList.forEach(function (field) {
+      if (!fieldsGroupByOptgroup[field.optgroup]) fieldsGroupByOptgroup[field.optgroup] = [];
+      fieldsGroupByOptgroup[field.optgroup].push(field);
+    });
 
-    return _.forEach(fieldsGroupByOptgroup, function (values, key) {
+    return Object.keys(fieldsGroupByOptgroup).forEach(function (key) {
+      const values = fieldsGroupByOptgroup[key];
       const headerClass = _formBuiderFormatHeader(key);
-      $(customFormColumnPicker).append(`<li class='dropdown-header ${headerClass}'>${key}</li>`);
-      return _.forEach(values, function (value) {
+      // form titles are tenant-authored: build the node, never interpolate into HTML
+      $(customFormColumnPicker).append($('<li>', { class: `dropdown-header ${headerClass}`, text: key }));
+      return values.forEach(function (value) {
         const fieldName = value.id;
-        const keyword = _.first(fieldName.split('_'));
+        const keyword = fieldName.split('_')[0];
         if (keyword !== 'enrollmentdate' && keyword !== 'programexitdate') {
           const checkField = _formatSpecialCharacter(fieldName);
           const { label } = value;
@@ -298,8 +305,8 @@ CIF.Client_advanced_searchesIndex = (function () {
 
   var _formBuiderFormatHeader = function (value) {
     const keyWords = value.split('|');
-    const name = _.first(keyWords).trim();
-    const label = _.last(keyWords).trim();
+    const name = keyWords[0].trim();
+    const label = keyWords[keyWords.length - 1].trim();
     const combine = `${name} ${label}`;
     return _formatSpecialCharacter(combine);
   };
@@ -315,13 +322,15 @@ CIF.Client_advanced_searchesIndex = (function () {
   var _removeCheckboxColumnPicker = (element, name) =>
     $(`${element} ul.append-child li.${name}`).remove();
 
+  var _escapeHtml = (value) => $('<div>').text(String(value)).html();
+
   var _checkboxElement = (field, name, label) => `<li class='visibility checkbox-margin ${name}'> \
 <input type='checkbox' name='${field}_' id='${field}_' value='${field}' class='form-check-input' style='position: absolute; opacity: 0;'> \
-<label for='${field}_'>${label}</label> \
+<label for='${field}_'>${_escapeHtml(label)}</label> \
 </li>`;
 
   var _addCustomBuildersFields = function (ids, url) {
-    const action = _.last(url.split('/'));
+    const action = url.split('/').pop();
     const element =
       action === 'get_custom_field' ? '#custom-form-column' : '#program-stream-column';
     return $.ajax({
