@@ -13,7 +13,21 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+  # postgres:17 / mongo:8.0 / redis:7 / caddy:2 live in the compose file, not the Dockerfile. Major
+  # PG/Mongo bumps need the dump/restore playbook, so only minor/patch arrive as PRs.
+  - package-ecosystem: docker-compose
+    directory: "/"
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: "postgres"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "mongo"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]

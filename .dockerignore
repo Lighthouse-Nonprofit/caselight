@@ -1,0 +1,24 @@
+# Keep the build context to what the image needs. Before 2026-10-18 `COPY . .` baked the nightly
+# dumps (backups/, real client data), .env (SECRET_KEY_BASE + DB password), log/, .git and the spec
+# suite into every image layer — and every changed dump busted the asset cache.
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+backups/
+log/
+tmp/
+archives/
+public/uploads/
+node_modules/
+spec/
+qa/
+docs/
+coverage/
+.seeded
+.flavor_seeded*
+.flavor_demo_seeded*
+docker-compose*.yml
+*.md
+!README.md

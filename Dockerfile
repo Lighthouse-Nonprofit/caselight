@@ -41,6 +41,9 @@ ENV BUNDLE_WITHOUT=${BUNDLE_WITHOUT}
 RUN bundle install --jobs 4 --retry 3
 
 COPY . .
+# log/ and tmp/ are excluded from the build context (.dockerignore, 2026-10-18): the app logs to
+# STDOUT now, but Rails/Sprockets still expect the directories to exist.
+RUN mkdir -p log tmp/pids tmp/cache
 
 # Precompile assets in the image so the small instance never runs the
 # memory-hungry pipeline at deploy time. The dummy secret is build-only.

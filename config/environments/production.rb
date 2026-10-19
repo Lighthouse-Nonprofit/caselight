@@ -129,8 +129,11 @@ Rails.application.configure do
   # Prepend all log lines with the following tags.
   # config.log_tags = [ :subdomain, :uuid ]
 
-  # Use a different logger for distributed setups.
-  # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
+  # Log to STDOUT so the docker json-file driver owns rotation and `docker compose logs app` carries the
+  # Rails + lograge stream (the hosting agents' health probe reads exactly that; the old in-container
+  # log/production.log was unrotated, invisible to docker logs, and lost on every recreate).
+  $stdout.sync = true
+  config.logger = ActiveSupport::TaggedLogging.logger($stdout)
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store

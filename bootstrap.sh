@@ -243,8 +243,15 @@ docker compose up -d app sidekiq
 #    fail-safe.
 echo "==> installing the whenever crontab (app schedule + archive-gated retention)"
 mkdir -p log
-docker compose run --rm app bundle exec whenever | crontab -
-echo "    installed $(crontab -l | grep -c "docker compose exec") cron job(s)"
+# Never pipe straight into `crontab -`: if whenever fails, an EMPTY crontab replaces the one holding
+# the nightly backup. Capture first, install only a non-empty schedule, then prove the dump is in it.
+cron_text="$(docker compose run --rm -T app bundle exec whenever)"
+if [ -z "$cron_text" ] || ! echo "$cron_text" | grep -q nightly_dump.sh; then
+  echo "!! whenever produced no schedule (or no nightly_dump line) — crontab left untouched" >&2
+  exit 1
+fi
+printf '%s\n' "$cron_text" | crontab -
+echo "    installed $(crontab -l | grep -c "docker compose exec") cron job(s); nightly_dump lines: $(crontab -l | grep -c nightly_dump.sh)"
 
 echo "==> done. App on 127.0.0.1:3000 (reach via the SSM/SSH tunnel)."
 echo "    Public HTTPS: set APP_HOST in .env, point DNS at this box, open SG 80/443, then"

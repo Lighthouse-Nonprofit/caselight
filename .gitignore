@@ -44,3 +44,8 @@ vendor/data
 
 # per-box compose experiments (the dev overlay is docker-compose.dev.yml, tracked)
 docker-compose.override.yml
+
+# box-side deploy state + nightly dumps (ops/nightly_dump.sh writes under backups/)
+.flavor_seeded*
+.flavor_demo_seeded*
+/backups/
