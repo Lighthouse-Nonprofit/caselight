@@ -68,7 +68,7 @@ class AssessmentsController < AdminController
   end
 
   def update
-    params[:assessment][:assessment_domains_attributes].each do |assessment_domain|
+    (params.dig(:assessment, :assessment_domains_attributes) || {}).each do |assessment_domain|
       add_more_attachments(assessment_domain.second[:attachments], assessment_domain.second[:id])
     end
     if @assessment.update(assessment_params)
@@ -117,7 +117,7 @@ class AssessmentsController < AdminController
   end
 
   def remove_attachment_at_index(index)
-    assessment_domain = AssessmentDomain.find(params[:assessment_domain])
+    assessment_domain = @client.assessments.find(params[:id]).assessment_domains.find(params[:assessment_domain])
     remain_attachment = assessment_domain.attachments
     deleted_attachment = remain_attachment.delete_at(index)
     deleted_attachment.try(:remove!)
@@ -127,7 +127,7 @@ class AssessmentsController < AdminController
 
   def add_more_attachments(new_file, assessment_domain_id)
     if new_file.present?
-      assessment_domain = AssessmentDomain.find(assessment_domain_id)
+      assessment_domain = @assessment.assessment_domains.find(assessment_domain_id)
       files = assessment_domain.attachments
       files += new_file
       assessment_domain.attachments = files

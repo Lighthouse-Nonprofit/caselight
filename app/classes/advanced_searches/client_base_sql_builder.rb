@@ -13,7 +13,8 @@ module AdvancedSearches
       @clients     = clients
       @values      = []
       @sql_string  = []
-      @condition    = rules['condition']
+      # Request-controlled (JSON.parse of the search form): only ever AND / OR, never raw SQL.
+      @condition    = rules['condition'].to_s.casecmp?('OR') ? 'OR' : 'AND'
       @basic_rules  = rules['rules'] || []
 
       @columns_visibility = []
@@ -38,30 +39,35 @@ module AdvancedSearches
 
         elsif form_builder.first == 'enrollment'
           program_stream = ProgramStream.find_by(name: form_builder.second)
+          next if program_stream.nil? # stale saved search naming a renamed/deleted program (was a NoMethodError 500)
           enrollment_fields = AdvancedSearches::EnrollmentSqlBuilder.new(program_stream.id, rule).get_sql
           @sql_string << enrollment_fields[:id]
           @values << enrollment_fields[:values]
 
         elsif form_builder.first == 'enrollmentdate'
           program_stream = ProgramStream.find_by(name: form_builder.second)
+          next if program_stream.nil? # stale saved search naming a renamed/deleted program (was a NoMethodError 500)
           enrollment_date = AdvancedSearches::EnrollmentDateSqlBuilder.new(program_stream.id, rule).get_sql
           @sql_string << enrollment_date[:id]
           @values << enrollment_date[:values]
 
         elsif form_builder.first == 'tracking'
           tracking = Tracking.joins(:program_stream).where(program_streams: {name: form_builder.second}, trackings: {name: form_builder.third}).last
+          next if tracking.nil?
           tracking_fields = AdvancedSearches::TrackingSqlBuilder.new(tracking.id, rule).get_sql
           @sql_string << tracking_fields[:id]
           @values << tracking_fields[:values]
 
         elsif form_builder.first == 'exitprogram'
           program_stream = ProgramStream.find_by(name: form_builder.second)
+          next if program_stream.nil? # stale saved search naming a renamed/deleted program (was a NoMethodError 500)
           exit_program_fields = AdvancedSearches::ExitProgramSqlBuilder.new(program_stream.id, rule).get_sql
           @sql_string << exit_program_fields[:id]
           @values << exit_program_fields[:values]
 
         elsif form_builder.first == 'programexitdate'
           program_stream = ProgramStream.find_by(name: form_builder.second)
+          next if program_stream.nil? # stale saved search naming a renamed/deleted program (was a NoMethodError 500)
           exit_date = AdvancedSearches::ProgramExitDateSqlBuilder.new(program_stream.id, rule).get_sql
           @sql_string << exit_date[:id]
           @values << exit_date[:values]

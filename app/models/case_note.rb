@@ -37,7 +37,7 @@ class CaseNote < ActiveRecord::Base
       case_note_domain_group = case_note_domain_groups.find_by(domain_group_id: param[:domain_group_id])
       next if case_note_domain_group.nil? # D1: section rejected as blank / not submitted
       task_ids = param[:task_ids] || []
-      case_note_domain_group.tasks = Task.where(id: task_ids)
+      case_note_domain_group.tasks = client.tasks.where(id: task_ids) # never another client's tasks
       case_note_domain_group.tasks.set_complete
       case_note_domain_group.save
     end

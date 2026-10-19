@@ -98,7 +98,7 @@ class ClientsController < AdminController
   def update
     if @client.update(client_params)
       if params[:client][:assessment_id]
-        @assessment = Assessment.find(params[:client][:assessment_id])
+        @assessment = @client.assessments.find(params[:client][:assessment_id])
         redirect_to client_assessment_path(@client, @assessment), notice: t('.assessment_successfully_created')
       else
         redirect_to @client, notice: t('.successfully_updated')

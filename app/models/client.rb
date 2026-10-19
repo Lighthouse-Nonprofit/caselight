@@ -244,7 +244,8 @@ class Client < ActiveRecord::Base
     query = query.where(family_name: options[:family_name])             if options[:family_name].present?
     query = query.where(local_given_name: options[:local_given_name])   if options[:local_given_name].present?
     query = query.where(local_family_name: options[:local_family_name]) if options[:local_family_name].present?
-    query = query.where("EXTRACT(MONTH FROM date_of_birth) = ? AND EXTRACT(YEAR FROM date_of_birth) = ?", Date.parse(options[:date_of_birth]).month, Date.parse(options[:date_of_birth]).year)  if options[:date_of_birth].present?
+    dob = (Date.parse(options[:date_of_birth].to_s) rescue nil) if options[:date_of_birth].present?
+    query = query.where("EXTRACT(MONTH FROM date_of_birth) = ? AND EXTRACT(YEAR FROM date_of_birth) = ?", dob.month, dob.year) if dob
 
 
     query = query.where(birth_province_id: options[:birth_province_id])   if options[:birth_province_id].present?

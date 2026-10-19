@@ -92,7 +92,7 @@ class CaseNotesController < AdminController
   end
 
   def remove_attachment_at_index(index)
-    case_note_domain_group = CaseNoteDomainGroup.find(params[:case_note_domain_group_id])
+    case_note_domain_group = @client.case_notes.find(params[:id]).case_note_domain_groups.find(params[:case_note_domain_group_id])
     remain_attachment = case_note_domain_group.attachments
     deleted_attachment = remain_attachment.delete_at(index)
     deleted_attachment.try(:remove!)

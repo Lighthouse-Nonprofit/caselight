@@ -110,11 +110,11 @@ class CustomFieldPropertiesController < AdminController
     if params[:client_id].present?
       @custom_formable = Client.accessible_by(current_ability).friendly.find(params[:client_id])
     elsif params[:family_id].present?
-      @custom_formable = Family.find(params[:family_id])
+      @custom_formable = Family.accessible_by(current_ability).find(params[:family_id])
     elsif params[:partner_id].present?
-      @custom_formable = Partner.find(params[:partner_id])
+      @custom_formable = Partner.accessible_by(current_ability).find(params[:partner_id])
     elsif params[:user_id].present?
-      @custom_formable = User.find(params[:user_id])
+      @custom_formable = User.accessible_by(current_ability).find(params[:user_id])
     end
   end
 

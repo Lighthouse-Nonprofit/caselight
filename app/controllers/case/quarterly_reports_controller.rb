@@ -19,6 +19,6 @@ class Case::QuarterlyReportsController < AdminController
   end
 
   def find_case
-    @case = Case.find(params[:case_id])
+    @case = Client.accessible_by(current_ability).friendly.find(params[:client_id]).cases.find(params[:case_id])
   end
 end

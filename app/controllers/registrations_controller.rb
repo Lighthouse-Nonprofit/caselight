@@ -26,7 +26,7 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def after_update_path_for(resource)
-    if params[:user][:program_warning].present?
+    if params.dig(:user, :program_warning).present?
       flash[:notice] = nil
       program_streams_path
     else
