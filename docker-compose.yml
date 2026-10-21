@@ -31,7 +31,7 @@ services:
     # at FCV 8.0 directly, so a major bump means: mongodump --archive -> wipe the volume ->
     # fresh image -> mongorestore (see the Rung C runbook / OPERATIONS.md). Mongoid 9 supports
     # server 3.6-8.2.
-    image: mongo:8.0
+    image: mongo:8.3
     # Cap WiredTiger's cache (default = ~50% of host RAM) — this box shares its memory with
     # Postgres, Redis, the app and sidekiq, and the history store is tiny. 0.25 GB is mongod's
     # documented minimum.
