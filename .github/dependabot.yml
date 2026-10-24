@@ -14,7 +14,9 @@ updates:
     schedule:
       interval: weekly
   # postgres:17 / mongo:8.0 / redis:7 / caddy:2 live in the compose file, not the Dockerfile. Major
-  # PG/Mongo bumps need the dump/restore playbook, so only minor/patch arrive as PRs.
+  # PG/Mongo bumps need the dump/restore playbook, so only minor/patch arrive as PRs — except mongo:
+  # 8.0 is the LTS line and 8.1+ are rapid releases (short support, no downgrade back to 8.0 without a
+  # dump/restore), so mongo minors are ignored too and only 8.0.x patches are proposed (#331, 2026-10-24).
   - package-ecosystem: docker-compose
     directory: "/"
     schedule:
@@ -23,7 +25,7 @@ updates:
       - dependency-name: "postgres"
         update-types: ["version-update:semver-major"]
       - dependency-name: "mongo"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
