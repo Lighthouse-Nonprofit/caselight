@@ -143,7 +143,7 @@ GEM
     cose (1.3.1)
       cbor (~> 0.5.9)
       openssl-signature_algorithm (~> 1.0)
-    crass (1.0.7)
+    crass (1.0.8)
     csv (3.3.6)
     cuprite (0.18)
       capybara (~> 3.0)
