@@ -60,7 +60,7 @@ gem 'rqrcode', '~> 3.0'             # QR codes for TOTP enrollment (uses as_svg 
 # than via devise-passkeys' :passkey_authenticatable module — the app's custom two-step
 # SessionsController (#create/#verify_otp) owns the login flow, and hand-wiring new ceremony
 # endpoints keeps passkeys strictly ADDITIVE without re-touching the password/OTP devise strategy.
-gem 'webauthn', '~> 3.4'
+gem 'webauthn', '~> 3.5'
 # R11 (haml 6) / Dependabot #69 (haml 7.2, same Hamlit lineage). The R11 exposure audit was
 # audited before the bump: zero haml_tag/haml_concat/capture_haml/succeed/precede/object-ref
 # usage, filters limited to :javascript/:css (both in haml 6 core), no Haml::Options config.
@@ -198,7 +198,7 @@ end
 
 group :development do
   gem 'letter_opener',        '~> 1.10.0'
-  gem 'rubocop',              '~> 1.92.0', require: false
+  gem 'rubocop',              '~> 1.92.1', require: false
 end
 
 group :test do

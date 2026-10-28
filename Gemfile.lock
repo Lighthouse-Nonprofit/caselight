@@ -104,7 +104,7 @@ GEM
     browser (6.2.0)
     bson (5.2.0)
     builder (3.3.0)
-    bullet (8.3.0)
+    bullet (8.3.1)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11)
     bundler-audit (0.9.3)
@@ -422,7 +422,7 @@ GEM
       activerecord (>= 7.1)
       request_store (~> 1.4)
     parallel (1.28.0)
-    parser (3.3.12.0)
+    parser (3.3.13.0)
       ast (~> 2.4.1)
       racc
     pg (1.7.0)
@@ -568,7 +568,7 @@ GEM
       rspec-mocks (~> 3.0)
       sidekiq (>= 5, < 9)
     rspec-support (3.13.7)
-    rubocop (1.92.0)
+    rubocop (1.92.1)
       json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -630,7 +630,7 @@ GEM
     thor (1.5.0)
     tilt (2.9.0)
     timeout (0.6.1)
-    tpm-key_attestation (0.14.1)
+    tpm-key_attestation (0.14.2)
       bindata (~> 2.4)
       openssl (> 2.0)
       openssl-signature_algorithm (~> 1.0)
@@ -650,7 +650,7 @@ GEM
     useragent (0.16.11)
     warden (1.2.9)
       rack (>= 2.0.9)
-    webauthn (3.4.3)
+    webauthn (3.5.0)
       android_key_attestation (~> 0.3.0)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
@@ -739,7 +739,7 @@ DEPENDENCIES
   rspec-activemodel-mocks
   rspec-rails (~> 8.0)
   rspec-sidekiq
-  rubocop (~> 1.92.0)
+  rubocop (~> 1.92.1)
   shoulda-matchers
   shoulda-whenever (~> 0.0.2)
   sidekiq (~> 8.1)
@@ -750,7 +750,7 @@ DEPENDENCIES
   terser (~> 1.2)
   tilt (~> 2.9)
   typhoeus
-  webauthn (~> 3.4)
+  webauthn (~> 3.5)
   whenever (~> 1.1.4)
 
 BUNDLED WITH
