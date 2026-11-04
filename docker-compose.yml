@@ -60,7 +60,7 @@ services:
     # redis 7: sidekiq 7's redis-client requires Redis server >= 6.2 (HELLO/RESP3). RDB is
     # forward-compatible (7 loads 5's dump) and the redis volume holds only transient queue +
     # throttle counters anyway.
-    image: redis:7
+    image: redis:8
     volumes: [redis:/data]
     restart: unless-stopped
     logging: *default-logging
