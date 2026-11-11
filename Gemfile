@@ -166,7 +166,7 @@ gem 'mongoid', '~> 9.1.1'
 group :development, :test do
   gem 'pry'
   # Test stack bumped for Rails 7.0 / Ruby 3.3 (the old caps don't support either):
-  gem 'rspec-rails', '~> 8.0'        # was ~> 3.5 -> 6.0 -> 8.0 (PR #20); needs config.fixture_paths (done)
+  gem 'rspec-rails', '~> 8.1'        # was ~> 3.5 -> 6.0 -> 8.0 (PR #20); needs config.fixture_paths (done)
   gem 'factory_bot_rails', '~> 6.0'  # was ~> 4.8
   gem 'launchy',              '~> 3.1'
   gem 'capybara',             '~> 3.0' # was ~> 2.5
@@ -177,7 +177,7 @@ group :development, :test do
   #   docker compose ... exec app bundle exec rake assets:precompile RAILS_ENV=test
   # (the second matters: test serves public/assets DIGESTED — a stale manifest silently runs
   # months-old JS/CSS under the specs; it hid the whole BS5 bundle once)
-  gem 'cuprite',              '~> 0.17' # js feature-spec driver (Ferrum/CDP)
+  gem 'cuprite',              '~> 0.20' # js feature-spec driver (Ferrum/CDP)
   gem 'shoulda-whenever',     '~> 0.0.2'
   gem 'bullet', '~> 8.3'             # 7.x hard-raises on Mongoid 9 at boot (runtime version
                                      # sniff, invisible to gemspec audits); 8.x supports it.
