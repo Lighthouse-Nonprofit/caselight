@@ -58,7 +58,7 @@ services:
 
   redis:
     # redis 8: sidekiq 8.1 / redis-client require Redis server >= 6.2 (HELLO/RESP3). RDB is
-    # forward-compatible (8 loads 7.s dump; NOT backward - a rollback to redis:7 needs a fresh
+    # forward-compatible (8 loads 7's dump; NOT backward - a rollback to redis:7 needs a fresh
     # redis volume) and the volume holds only transient queue +
     # throttle counters anyway.
     image: redis:8
