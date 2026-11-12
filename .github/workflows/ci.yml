@@ -140,6 +140,11 @@ jobs:
       mongo:
         image: mongo:8.0
         ports: ["27017:27017"]
+        # ubuntu-latest moved to Ubuntu 26.04 (kernel >= 6.19) on 2026-10-21 and mongod refuses to start
+        # there ("known incompatibility" with glibc rseq) — the same refusal the boxes hit on kernel 7.x.
+        # Same fix as docker-compose.yml: the tunable keeps the service container booting.
+        env:
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
         options: >-
           --health-cmd "mongosh --quiet --eval 'db.runCommand({ping:1}).ok'" --health-interval 5s --health-timeout 5s --health-retries 20
       redis:

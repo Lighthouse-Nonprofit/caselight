@@ -60,14 +60,14 @@ gem 'rqrcode', '~> 3.0'             # QR codes for TOTP enrollment (uses as_svg 
 # than via devise-passkeys' :passkey_authenticatable module — the app's custom two-step
 # SessionsController (#create/#verify_otp) owns the login flow, and hand-wiring new ceremony
 # endpoints keeps passkeys strictly ADDITIVE without re-touching the password/OTP devise strategy.
-gem 'webauthn', '~> 3.4'
+gem 'webauthn', '~> 3.5'
 # R11 (haml 6) / Dependabot #69 (haml 7.2, same Hamlit lineage). The R11 exposure audit was
 # audited before the bump: zero haml_tag/haml_concat/capture_haml/succeed/precede/object-ref
 # usage, filters limited to :javascript/:css (both in haml 6 core), no Haml::Options config.
 gem 'haml', '~> 7.5'
 gem 'haml-rails', '~> 3.1'
 gem 'dotenv-rails', '~> 3.0'  # no Dotenv.* API usage in-app (auto-load of .env only)
-gem 'roo',                    '~> 3.0'
+gem 'roo',                    '~> 4.0'
 # Ruby 3.4+/4.0 dropped csv from the default gems; roo (and CSV report exports)
 # require it, so it must be an explicit dependency now (Ruby 4 migration).
 gem 'csv'
@@ -95,7 +95,7 @@ gem 'rails-erd'
 gem 'phony_rails',            '~> 0.15.0'
 gem 'typhoeus'
 gem 'foreman',                '~> 0.87'
-gem 'cancancan', '~> 3.0'
+gem 'cancancan', '~> 3.7'
 gem 'pundit', '~> 2.0'
 # tinymce-rails (~> 4.5) removed (POAM-017a): TinyMCE 4 hit EOL in 2022 — an unpatchable rich-text
 # editor on the clinical-notes path. Replaced by Trix 2 (MIT, 37signals), vendored under
@@ -115,7 +115,7 @@ gem 'jquery-validation-rails'
 # vendored FullCalendar 6 standard bundle (vendor/assets/javascripts/fullcalendar.js) —
 # jQuery/moment-free. moment's only call sites were inside calendars/index.js and died here.
 gem 'google-apis-calendar_v3', require: false # Task -> Google Calendar sync (re-added; see REMOVED-FEATURES.md)
-gem 'kaminari', '~> 1.1'
+gem 'kaminari', '~> 1.3'
 # jquery-datatables-rails removed (POAM-017e R9b): its DataTables asset was already shadowed
 # by the vendored 1.13.11 (R5, jQuery-3 floor), and the gem's sass-rails dependency would pin
 # `sprockets < 4.0` in the lock even after the compiler swap.
@@ -123,10 +123,10 @@ gem 'friendly_id',            '~> 5.7.0'
 # wicked_pdf + the wkhtmltox .deb were REMOVED with the unrouted Cambodia government-reports
 # feature (POAM-019 closeout, PR B1) — the archived Qt-WebKit engine is off the box entirely.
 # PDF generation now rides the Chromium/Ferrum PdfRenderer surface (PR B2):
-gem 'ferrum',                 '~> 0.18' # headless-Chromium CDP driver (same engine cuprite runs the
+gem 'ferrum',                 '~> 0.20' # headless-Chromium CDP driver (same engine cuprite runs the
 # feature suite on; test-group cuprite pins the same line, so the two resolve to one version)
 gem 'browser',                '~> 6.2'  # was ~> 2.1 (PR #25); firefox?/platform.mac? unchanged, vestigial modern? spec-stub removed
-gem 'whenever',               '~> 1.1.3'
+gem 'whenever',               '~> 1.1.4'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 17.0'
 gem 'carrierwave',            '~> 3.1'
@@ -182,7 +182,7 @@ group :development, :test do
   gem 'bullet', '~> 8.3'             # 7.x hard-raises on Mongoid 9 at boot (runtime version
                                      # sniff, invisible to gemspec audits); 8.x supports it.
                                      # (was ~> 7.0; before that ~> 6.0 — 6.x rejected AR 7.0)
-  gem 'mongoid-rspec', '~> 4.2'      # was < 4.2
+  gem 'mongoid-rspec', '~> 4.4'      # was < 4.2
   # Security scanning (Phase 0 hardening; run in CI + locally, not required at boot):
   gem 'brakeman',      require: false  # SAST — Rails static security analysis
   gem 'bundler-audit', require: false  # dependency CVE scanning vs the ruby-advisory-db
@@ -198,7 +198,7 @@ end
 
 group :development do
   gem 'letter_opener',        '~> 1.10.0'
-  gem 'rubocop',              '~> 1.92.0', require: false
+  gem 'rubocop',              '~> 1.92.2', require: false
 end
 
 group :test do
