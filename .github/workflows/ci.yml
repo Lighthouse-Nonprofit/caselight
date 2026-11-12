@@ -87,7 +87,7 @@ jobs:
           # execjs/terser runtime; matches the image's pinned Node 24 LTS (Dockerfile).
           node-version: "24"
       - name: assets:precompile (same flags as the Dockerfile precompile step)
-        # Dummy creds/flags mirror Dockerfile:56-60 — see the comments there for why each exists
+        # Dummy creds/flags mirror the Dockerfile precompile step — see the comments there for why each exists
         # (carrierwave/fog eager-load, PRECOMPILE_ASSETS DB-skip, asset_sync upload hook off).
         run: |
           SECRET_KEY_BASE=dummy RAILS_ENV=production PRECOMPILE_ASSETS=true \

@@ -15,8 +15,7 @@ gem 'benchmark'  # POAM-020: Ruby 4.0 dropped benchmark from default gems and Ra
 # ffi + concurrent-ruby unpinned on Ruby 3.3 (the < 1.17 / 1.3.4 caps were for Ruby 2.7). The
 # require "logger" in application.rb still guards the concurrent-ruby/Logger boot NameError (Rails 7.0).
 gem 'erubis'
-# Rails 7's postgresql adapter requires pg >= 1.1; pg 1.5/1.6 run on Ruby 3.3 and still support
-# the pinned PostgreSQL 9.6 server (libpq 9.3+).
+# pg 1.7 on Ruby 4.0 against the PostgreSQL 17 server (migrated 9.6 -> 17, 2026-07).
 gem 'pg', '~> 1.7'
 # jquery-rails removed (R12D): jQuery 4.0.0 is vendored (the gem ships no jquery4 asset);
 # rails-ujs comes from actionview, jquery-ui from jquery-ui-rails below.

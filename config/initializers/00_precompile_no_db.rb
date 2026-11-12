@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 # Build-time only (PRECOMPILE_ASSETS=true); no DB or S3 is reachable during the Docker
 # image asset precompile. NO runtime effect (the flag is unset at runtime).
-# See NOTES.md findings #6 and #7.
+# (History: the EOL-era build log, findings #6 and #7, lives owner-side.)
 if ENV['PRECOMPILE_ASSETS'] == 'true'
-  # (1) devise_token_auth probes the schema via table_exists? at class-load when User
-  #     loads. Degrade it to false with no DB reachable.
+  # (1) class-load schema probes (table_exists?, originally devise_token_auth, since removed)
+  #     degrade to false with no DB reachable.
   module OscarPrecompileNoDb
     def table_exists?(*)
       super
