@@ -87,12 +87,6 @@ GEM
     addressable (2.9.2)
       public_suffix (>= 2.0.2, < 8.0)
     android_key_attestation (0.3.0)
-    asset_sync (2.19.4)
-      activemodel (>= 4.1.0)
-      cgi
-      fog-core
-      mime-types (>= 2.99)
-      unf
     ast (2.4.3)
     base64 (0.3.0)
     bcrypt (3.1.22)
@@ -130,7 +124,6 @@ GEM
     case_transform (0.2)
       activesupport
     cbor (0.5.10.3)
-    cgi (0.5.2)
     childprocess (5.1.0)
       logger (~> 1.5)
     choice (0.2.0)
@@ -627,7 +620,6 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
-    unf (0.2.0)
     unicode-display_width (3.3.0)
       unicode-emoji (~> 4.3)
     unicode-emoji (4.3.0)
@@ -660,7 +652,6 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.10.0)
-  asset_sync
   benchmark
   brakeman
   browser (~> 6.2)

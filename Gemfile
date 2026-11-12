@@ -182,10 +182,6 @@ group :development, :test do
   gem 'bundler-audit', require: false  # dependency CVE scanning vs the ruby-advisory-db
 end
 
-group :staging, :demo, :production do
-  gem 'asset_sync'
-end
-
 group :development do
   gem 'rails-erd'                    # `rake erd` diagram generator; dev-only tooling
   gem 'letter_opener',        '~> 1.10.0'
