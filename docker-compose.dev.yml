@@ -45,8 +45,8 @@ services:
 
   # POAM-017e (R9c): dart-sass compiles application.scss OUTSIDE sprockets, so the dev
   # server no longer recompiles scss on the fly — this watcher rebuilds
-  # app/assets/builds/application.css on every stylesheet edit. Own service (not foreman
-  # inside `app`) so its logs stay separate and the app server keeps its PTY for byebug.
+  # app/assets/builds/application.css on every stylesheet edit. Own service (not a second
+  # process inside `app`) so its logs stay separate and the app server keeps its PTY for byebug.
   css:
     build:
       context: .

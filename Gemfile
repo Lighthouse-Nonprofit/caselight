@@ -14,7 +14,6 @@ gem 'benchmark'  # POAM-020: Ruby 4.0 dropped benchmark from default gems and Ra
 # (mini_magick 4.x, etc.) raise LoadError on boot. Declared explicitly. (Same class as the logger pin.)
 # ffi + concurrent-ruby unpinned on Ruby 3.3 (the < 1.17 / 1.3.4 caps were for Ruby 2.7). The
 # require "logger" in application.rb still guards the concurrent-ruby/Logger boot NameError (Rails 7.0).
-gem 'erubis'
 # pg 1.7 on Ruby 4.0 against the PostgreSQL 17 server (migrated 9.6 -> 17, 2026-07).
 gem 'pg', '~> 1.7'
 # jquery-rails removed (R12D): jQuery 4.0.0 is vendored (the gem ships no jquery4 asset);
@@ -43,7 +42,6 @@ gem 'terser',                 '~> 1.2'
 # coffee-rails removed (POAM-017e): all 61 .coffee files were decaffeinated to ES2015+
 # (mechanical conversion, semantics-preserving; sprockets requires are extensionless so
 # the manifest needed no changes). execjs stays for terser.
-gem 'jbuilder',               '~> 2.0'
 gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q-gxcg-73hx)
 # bootstrap-sass (~> 3.4.1) removed (POAM-017g — THE FLIP): the Bootstrap 3.4.1 SCSS is
 # retired. Bootstrap 5.3.8 SCSS is vendored under vendor/assets/stylesheets/bootstrap5/
@@ -90,10 +88,7 @@ gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on 
 # so without this line the redis gem would silently drop out of the bundle and break rack-attack.
 gem 'redis', '~> 6.0'
 gem 'lograge', '~> 0.15'      # Phase 3: structured (JSON) request logging with audit tags (AU-3)
-gem 'rails-erd'
 gem 'phony_rails',            '~> 0.15.0'
-gem 'typhoeus'
-gem 'foreman',                '~> 0.87'
 gem 'cancancan', '~> 3.7'
 gem 'pundit', '~> 2.0'
 # tinymce-rails (~> 4.5) removed (POAM-017a): TinyMCE 4 hit EOL in 2022 — an unpatchable rich-text
@@ -191,11 +186,8 @@ group :staging, :demo, :production do
   gem 'asset_sync'
 end
 
-group :staging do
-  gem 'mail_interceptor', '~> 0.0.7'
-end
-
 group :development do
+  gem 'rails-erd'                    # `rake erd` diagram generator; dev-only tooling
   gem 'letter_opener',        '~> 1.10.0'
   gem 'rubocop',              '~> 1.92.2', require: false
 end
