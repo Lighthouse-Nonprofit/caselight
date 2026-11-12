@@ -32,8 +32,6 @@
 // Keep new component partials in sorted position within their directory block, and keep
 // 'refresh_polish' the literally-last import (cascade priority).
 
-@import 'case/quarterly_reports/index';
-@import 'case/quarterly_reports/show';
 @import 'sessions/new';
 @import 'cases/form';
 @import 'cases/index';

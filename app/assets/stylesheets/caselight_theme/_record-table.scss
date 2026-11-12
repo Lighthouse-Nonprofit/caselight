@@ -4,7 +4,7 @@
 // The datagrid-table variant of the .record-grid visual DNA the clients/families
 // indexes ship (clients/_grid.scss): hairline rows, uppercase micro-label header,
 // quiet hover — replacing the boxy `table-bordered table-striped` treatment on the
-// Tier-B grids (users/partners/progress-notes/quarterly-reports/trackings/
+// Tier-B grids (users/partners/progress-notes/trackings/
 // families#show/users#show/advanced-search). Pairs with .cl-table-scroll
 // (_tables.scss), which owns overflow + the sticky positioning; this partial owns
 // the LOOK. Imported after 'tables' so its header colors win the tie with
