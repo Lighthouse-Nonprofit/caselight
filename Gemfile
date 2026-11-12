@@ -71,7 +71,6 @@ gem 'csv'
 # fog-aws only (was the `fog` meta-gem): fog pulls every provider, and fog-rackspace 0.1.6
 # fails to load on Ruby 3.3. carrierwave's optional S3 path uses provider 'AWS' = fog-aws.
 gem 'fog-aws'
-gem 'ffaker',                 '~> 2.25.0'
 gem 'draper', '~> 4.0'
 # datagrid 2.x (deps program Phase 1): major bump off 1.4.4. Drives every index/report grid;
 # migration touches the to_xls monkeypatch (config/initializers/datagrid.rb) + the 7 template
@@ -159,6 +158,7 @@ gem 'mongoid', '~> 9.1.1'
 
 group :development, :test do
   gem 'pry'
+  gem 'ffaker',               '~> 2.25.0' # fake data for the spec factories only (no app/lib/seed code uses it)
   # Test stack bumped for Rails 7.0 / Ruby 3.3 (the old caps don't support either):
   gem 'rspec-rails', '~> 8.0'        # was ~> 3.5 -> 6.0 -> 8.0 (PR #20); needs config.fixture_paths (done)
   gem 'factory_bot_rails', '~> 6.0'  # was ~> 4.8
