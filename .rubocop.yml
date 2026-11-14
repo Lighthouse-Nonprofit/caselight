@@ -9,7 +9,6 @@ AllCops:
     - 'public/**/*'
     - 'log/**/*'
     - 'lib/tasks/*'
-    - 'app/services/importer.rb'
     - 'db/**/*'
     - 'spec/**/*'
     - 'app/grids/*'

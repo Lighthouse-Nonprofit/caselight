@@ -34,7 +34,7 @@ WORKDIR /app
 COPY Gemfile Gemfile.lock ./
 # Build-time bundle groups to skip. Default (prod) skips development+test -> a lean
 # runtime image. The dev/test image overrides this via the docker-compose.dev.yml build
-# arg ("staging demo production") so rspec/capybara/factories are baked in and survive
+# arg (empty = skip nothing) so rspec/capybara/factories are baked in and survive
 # rebuilds, giving a repeatable per-rung test loop.
 ARG BUNDLE_WITHOUT="development test"
 ENV BUNDLE_WITHOUT=${BUNDLE_WITHOUT}
@@ -54,19 +54,13 @@ RUN mkdir -p log tmp/pids tmp/cache
 # aborts with ArgumentError. Supply build-only dummy creds (same idea as the
 # dummy SECRET_KEY_BASE). Fog only checks the keys are present at init; it makes
 # no network call, so no real S3 is contacted. Runtime gets matching dummies
-# from .env. Real S3-vs-local-disk storage is an open org decision (see NOTES).
+# from .env. Real S3-vs-local-disk storage is an open org decision.
 # PRECOMPILE_ASSETS=true: there is no DB reachable during the build, but the prod
-# env load force-loads the User model (eager_load + the thredded initializer), and
-# devise_token_auth runs a table_exists? DB query at class-load -> PG::ConnectionBad.
-# bootstrap.sh guards both triggers behind this flag so precompile skips the DB while
-# runtime stays unchanged. See NOTES.md finding #6.
-# ASSET_SYNC_ENABLED=false: the asset_sync gem hooks assets:precompile and tries to
-# UPLOAD the compiled assets to an S3 bucket (it auto-configures from the dummy
-# FOG_DIRECTORY/AWS vars above), which 403s with dummy creds. We don't use S3 for the
-# pilot, and asset_sync only runs at precompile, so disabling it here is correct and
-# has no runtime effect. AssetSync.sync early-returns `unless enabled?`. See NOTES #7.
+# env load force-loads the User model (eager_load), and anything that probes the schema
+# at class-load (table_exists?) would raise PG::ConnectionBad.
+# config/initializers/00_precompile_no_db.rb guards that behind this flag so precompile skips the DB while
+# runtime stays unchanged.
 RUN SECRET_KEY_BASE=dummy RAILS_ENV=production PRECOMPILE_ASSETS=true \
-    ASSET_SYNC_ENABLED=false \
     AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy \
     FOG_DIRECTORY=dummy FOG_REGION=us-east-1 \
     bundle exec rake assets:precompile
