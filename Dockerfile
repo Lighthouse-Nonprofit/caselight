@@ -18,8 +18,14 @@ RUN apt-get update \
 # version pinned and independent of apt. Pinned to Node 24 "Krypton" — the current
 # active LTS (supported into 2028). Bump within an active LTS line at each refresh;
 # do NOT drift back to an EOL line.
-RUN curl -fsSL https://nodejs.org/dist/v24.18.0/node-v24.18.0-linux-x64.tar.xz \
-      | tar -xJ -C /usr/local --strip-components=1
+# The tarball is sha256-verified against nodejs.org's SHASUMS256.txt: bump NODE_VERSION and
+# NODE_SHA256 together (Dependabot does not track this download).
+ARG NODE_VERSION=24.22.3
+ARG NODE_SHA256=4f2b175a6d53a5c617a80dba2676238a0688cef28c6da4eba35c7d844e66fcfb
+RUN curl -fsSLo /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
+    && echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - \
+    && tar -xJ -C /usr/local --strip-components=1 -f /tmp/node.tar.xz \
+    && rm /tmp/node.tar.xz
 
 # (The wkhtmltox .deb that lived here was REMOVED with wicked_pdf and the unrouted
 # government-reports feature — POAM-019 closeout, PR B1. The archived Qt-WebKit engine is
