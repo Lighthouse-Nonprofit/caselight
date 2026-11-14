@@ -5,8 +5,8 @@
 //
 // Census (2026-07-12, recursive grep of vendor/ + app/ assets — see the guard spec, which
 // pins this list and bans growth):
-//   jQuery.isFunction — iCheck (login checkboxes), footable, jquery.infinitescroll
-//   jQuery.proxy      — bootstrap_file_input (x10), metisMenu, jquery.infinitescroll
+//   jQuery.isFunction — footable
+//   jQuery.proxy      — bootstrap_file_input (x10), metisMenu
 //   jQuery.trim       — bootstrap_file_input (x4), footable
 //   jQuery.camelCase  — form-builder.min (formBuilder 3.23)
 //

@@ -14,9 +14,7 @@ gem 'benchmark'  # POAM-020: Ruby 4.0 dropped benchmark from default gems and Ra
 # (mini_magick 4.x, etc.) raise LoadError on boot. Declared explicitly. (Same class as the logger pin.)
 # ffi + concurrent-ruby unpinned on Ruby 3.3 (the < 1.17 / 1.3.4 caps were for Ruby 2.7). The
 # require "logger" in application.rb still guards the concurrent-ruby/Logger boot NameError (Rails 7.0).
-gem 'erubis'
-# Rails 7's postgresql adapter requires pg >= 1.1; pg 1.5/1.6 run on Ruby 3.3 and still support
-# the pinned PostgreSQL 9.6 server (libpq 9.3+).
+# pg 1.7 on Ruby 4.0 against the PostgreSQL 17 server (migrated 9.6 -> 17, 2026-07).
 gem 'pg', '~> 1.7'
 # jquery-rails removed (R12D): jQuery 4.0.0 is vendored (the gem ships no jquery4 asset);
 # rails-ujs comes from actionview, jquery-ui from jquery-ui-rails below.
@@ -44,7 +42,6 @@ gem 'terser',                 '~> 1.2'
 # coffee-rails removed (POAM-017e): all 61 .coffee files were decaffeinated to ES2015+
 # (mechanical conversion, semantics-preserving; sprockets requires are extensionless so
 # the manifest needed no changes). execjs stays for terser.
-gem 'jbuilder',               '~> 2.0'
 gem 'simple_form', '~> 5.4'  # 5.4.1 closes POAM-002 (CVE-2019-16676 / GHSA-r74q-gxcg-73hx)
 # bootstrap-sass (~> 3.4.1) removed (POAM-017g — THE FLIP): the Bootstrap 3.4.1 SCSS is
 # retired. Bootstrap 5.3.8 SCSS is vendored under vendor/assets/stylesheets/bootstrap5/
@@ -74,7 +71,6 @@ gem 'csv'
 # fog-aws only (was the `fog` meta-gem): fog pulls every provider, and fog-rackspace 0.1.6
 # fails to load on Ruby 3.3. carrierwave's optional S3 path uses provider 'AWS' = fog-aws.
 gem 'fog-aws'
-gem 'ffaker',                 '~> 2.25.0'
 gem 'draper', '~> 4.0'
 # datagrid 2.x (deps program Phase 1): major bump off 1.4.4. Drives every index/report grid;
 # migration touches the to_xls monkeypatch (config/initializers/datagrid.rb) + the 7 template
@@ -91,10 +87,7 @@ gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on 
 # so without this line the redis gem would silently drop out of the bundle and break rack-attack.
 gem 'redis', '~> 6.0'
 gem 'lograge', '~> 0.15'      # Phase 3: structured (JSON) request logging with audit tags (AU-3)
-gem 'rails-erd'
-gem 'phony_rails',            '~> 0.15.0'
-gem 'typhoeus'
-gem 'foreman',                '~> 0.87'
+gem 'phony_rails',            '~> 0.15'
 gem 'cancancan', '~> 3.7'
 gem 'pundit', '~> 2.0'
 # tinymce-rails (~> 4.5) removed (POAM-017a): TinyMCE 4 hit EOL in 2022 — an unpatchable rich-text
@@ -119,14 +112,14 @@ gem 'kaminari', '~> 1.3'
 # jquery-datatables-rails removed (POAM-017e R9b): its DataTables asset was already shadowed
 # by the vendored 1.13.11 (R5, jQuery-3 floor), and the gem's sass-rails dependency would pin
 # `sprockets < 4.0` in the lock even after the compiler swap.
-gem 'friendly_id',            '~> 5.7.0'
+gem 'friendly_id',            '~> 5.7'
 # wicked_pdf + the wkhtmltox .deb were REMOVED with the unrouted Cambodia government-reports
 # feature (POAM-019 closeout, PR B1) — the archived Qt-WebKit engine is off the box entirely.
 # PDF generation now rides the Chromium/Ferrum PdfRenderer surface (PR B2):
 gem 'ferrum',                 '~> 0.20' # headless-Chromium CDP driver (same engine cuprite runs the
 # feature suite on; test-group cuprite pins the same line, so the two resolve to one version)
 gem 'browser',                '~> 6.2'  # was ~> 2.1 (PR #25); firefox?/platform.mac? unchanged, vestigial modern? spec-stub removed
-gem 'whenever',               '~> 1.1.4'
+gem 'whenever',               '~> 1.1'
 gem 'cocoon',                 '~> 1.2', '>= 1.2.9'
 gem 'paper_trail', '~> 17.0'
 gem 'carrierwave',            '~> 3.1'
@@ -136,10 +129,10 @@ gem 'mini_magick',            '~> 5.4'  # 5.0 reworked the API, but this app tou
 # font-awesome-rails removed (POAM-017e R9b): the gem shipped only a .css.erb (sprockets
 # font-path helpers dart-sass can't evaluate) + fonts. Now vendored as plain css
 # (vendor/assets/stylesheets/font-awesome.css) + undigested fonts (public/fonts/font-awesome/).
-gem 'spreadsheet',            '~> 1.3.5'
+gem 'spreadsheet',            '~> 1.3'
 # ros-apartment 3.x supports Rails 7.0/7.1; on Ruby 3.3 the 3.1+ Ruby-version caps no longer bind.
 gem 'ros-apartment', '~> 3.1', require: 'apartment'
-gem 'dropzonejs-rails',       '~> 0.8.5'
+gem 'dropzonejs-rails',       '~> 0.8'
 # bourbon (~> 4.2) + neat (~> 1.8) removed: they were imported in application.scss but no
 # mixins/functions were ever used, and bourbon 4.x pins thor ~> 0.19, which conflicts with
 # Rails 6's railties (thor >= 0.20.3). Dropping the dead imports unblocks the thor bump.
@@ -165,6 +158,7 @@ gem 'mongoid', '~> 9.1.1'
 
 group :development, :test do
   gem 'pry'
+  gem 'ffaker',               '~> 2.25' # fake data for the spec factories only (no app/lib/seed code uses it)
   # Test stack bumped for Rails 7.0 / Ruby 3.3 (the old caps don't support either):
   gem 'rspec-rails', '~> 8.1'        # was ~> 3.5 -> 6.0 -> 8.0 (PR #20); needs config.fixture_paths (done)
   gem 'factory_bot_rails', '~> 6.0'  # was ~> 4.8
@@ -188,17 +182,10 @@ group :development, :test do
   gem 'bundler-audit', require: false  # dependency CVE scanning vs the ruby-advisory-db
 end
 
-group :staging, :demo, :production do
-  gem 'asset_sync'
-end
-
-group :staging do
-  gem 'mail_interceptor', '~> 0.0.7'
-end
-
 group :development do
-  gem 'letter_opener',        '~> 1.10.0'
-  gem 'rubocop',              '~> 1.92.2', require: false
+  gem 'rails-erd'                    # `rake erd` diagram generator; dev-only tooling
+  gem 'letter_opener',        '~> 1.10'
+  gem 'rubocop',              '~> 1.92', require: false
 end
 
 group :test do

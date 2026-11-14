@@ -8,10 +8,9 @@
 // jQuery UI 1.14 below is 4.0-compatible (>= 1.13.3 required).
 //= require jquery4.min
 //= require jquery4_compat
-// UNIT 12: rails-ujs (bundled in actionview 7.2) replaced the legacy jquery_ujs (jquery-rails).
+// UNIT 12: rails-ujs (bundled in actionview) replaced the legacy jquery_ujs (jquery-rails).
 // Same data-method/data-confirm/data-remote CSRF layer + auto-start, but jQuery-free and the
-// supported path on Rails 7. Drop-in: no ajax:* handlers and no $.rails API use in this app.
-// (jquery-rails still provides the `jquery` asset above; only its UJS shim is retired.)
+// supported path on current Rails. Drop-in: no ajax:* handlers and no $.rails API use in this app.
 //= require rails-ujs
 // POAM-017g flip: Bootstrap 5.3 JS bundle (vendored, Popper included). Replaces
 // bootstrap-sprockets (BS3). Loaded right after rails-ujs so the components (modal, dropdown,
@@ -35,7 +34,6 @@
 // shared/date_picker.js adapter (required in the LOAD MODULE block below).
 //= require vanillajs-datepicker/datepicker-full.min
 //= require vanillajs-datepicker/en-GB
-//= require cocoon
 //= require metisMenu/jquery.metisMenu.js
 //= require chart.umd
 //= require dropzone

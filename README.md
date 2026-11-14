@@ -119,8 +119,8 @@ your fork's source accordingly.
 | Component | Version | Notes |
 |---|---|---|
 | Ruby | 4.0.5 | runs inside the Docker image (`ruby:4.0`, Debian Trixie) |
-| Rails | 8.1.3.1 | Rack 3 |
-| PostgreSQL | 17 | primary relational store (pg 1.6) |
+| Rails | 8.1.4.1 | Rack 3 |
+| PostgreSQL | 17 | primary relational store (pg 1.7) |
 | MongoDB | 8.0 | change / audit history (Mongoid 9.1) |
 | Redis + Sidekiq | redis 7 / sidekiq 8.1 | background jobs |
 | Auth | Devise 5 + MFA | TOTP (devise-two-factor) + WebAuthn passkeys (webauthn), password policy (devise-security) |

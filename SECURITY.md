@@ -28,7 +28,7 @@ full privacy/data-lifecycle (retention, deletion, subject-access export), and th
 ## Hard rule for the pilot
 
 **Synthetic or representative data only.** No real client records on the evaluation box during the
-pilot. `ffaker` is a dependency; generate realistic fake families. This removes the breach blast radius
+pilot. `ffaker` is a dev/test dependency; generate realistic fake families. This removes the breach blast radius
 while fit is assessed and lets staff test workflows honestly.
 
 ## Pilot baseline (meet all before even synthetic go-live with staff)
