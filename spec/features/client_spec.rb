@@ -414,19 +414,6 @@ describe 'Client' do
     end
   end
 
-  feature 'Qualify Report' do
-    let!(:accepted_client){ create(:client, state: 'accepted', users: [user]) }
-    let!(:client_case){ create(:case, case_type: 'KC', client: accepted_client) }
-    let!(:quarterly_report){ create(:quarterly_report, case: client_case) }
-    before do
-      login_as(admin)
-      visit client_path(accepted_client)
-    end
-    scenario 'view link' do
-      expect(page).to have_link('Legacy Quarterly Reports')
-    end
-  end
-
   feature 'Exit Case' do
     let(:accepted_client) { create(:client, state: 'accepted', users: [user]) }
     let!(:client_case) { create(:case, case_type: ['EC', 'FC', 'KC'].sample, client: accepted_client) }

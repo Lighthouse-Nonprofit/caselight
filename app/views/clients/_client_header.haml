@@ -94,8 +94,6 @@
                 %li= link_to t('clients.client_header.new_referral', default: 'New Referral (out)'), new_client_referral_path(client), class: 'dropdown-item'
               - if can_read_client_progress_note?(client)
                 %li= link_to t('clients.show.progress_note'), client_progress_notes_path(client), class: 'dropdown-item'
-              - if client.has_any_quarterly_reports? && (can? :manage, QuarterlyReport)
-                %li= link_to t('clients.show.view_legacy_quarterly_reports'), client_case_quarterly_reports_path(client, client.latest_case), class: 'dropdown-item'
               - if client.cases.exclude_referred.inactive.present?
                 - if client.cases.exclude_referred.emergencies.inactive.present? && (ec_manageable || strategic_overviewer?)
                   %li= link_to t('clients.show.view_ec_history_btn_link'), client_cases_path(client, case_type: 'EC'), class: 'dropdown-item'
