@@ -229,11 +229,7 @@ Rails.application.routes.draw do
           to: 'assessments#download_attachment', as: :download_attachment, on: :member
     end
     resources :case_notes
-    resources :cases do
-      scope module: 'case' do
-        resources :quarterly_reports, only: [:index, :show]
-      end
-    end
+    resources :cases
     scope module: 'client' do
       resources :tasks do
         member { patch :complete } # toggle completed

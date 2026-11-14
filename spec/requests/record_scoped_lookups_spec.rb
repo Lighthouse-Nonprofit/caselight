@@ -58,14 +58,6 @@ RSpec.describe 'Record-scoped lookups on :foo_id routes', type: :request do
 
     before { sign_in_as(worker) }
 
-    it 'quarterly reports: own client renders, another worker\'s client 404s' do
-      get client_case_quarterly_reports_path(mine, my_case)
-      expect(response).to have_http_status(:ok)
-
-      get client_case_quarterly_reports_path(theirs, their_case)
-      expect(response).to have_http_status(:not_found)
-    end
-
     it 'able screening answers: another worker\'s client 404s instead of opening the form' do
       get able_screens_answer_submissions_client_able_screening_answers_new_path(theirs)
       expect(response).to have_http_status(:not_found)

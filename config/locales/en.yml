@@ -504,32 +504,6 @@ en:
   cannot_be_lower: can't be lower than %{count}
   cannot_remove: cannot be removed
   cannot_remove_or_update: cannot be removed/updated since it is already in use.
-  case:
-    quarterly_reports:
-      index:
-        back: Back
-        legacy_quarterly_reports_for: Legacy Quarterly Reports for
-      show:
-        back: Back
-        child_school_attendance_or_progress: What is the Child's school attendance/progress
-        date_of_visit: Date Of Visit
-        describe_the_family_current_situation: Describe the family's current situation…
-        general_appearance_of_home: Describe General Appearance of Home
-        general_health_or_appearance: Describe general Health/Appearance
-        has_the_situation_changed_from_the_previous_visit: Has the situation changed from the previous visit?
-        how_are_they_being_misused: If no, how are they being misused?
-        how_did_i_encourage_the_client: How did I encourage the client?
-        id: ID
-        if_yes: If yes, desribe..
-        kc_name: KC Name
-        money_and_supplies_being_used_appropriately: Money and supplies being used appropriately?
-        observations_of_drug_alchohol_abuse: Describe any observations of drug, alchohol, abuse, etc.
-        quarterly_report_information_for: Quarterly Report Information for
-        spiritual_developments_with_the_child_or_family: Any Spiritual developments with the child or family?
-        staff_information: Staff Information
-        what_future_teachings_or_trainings_could_help_the_client: What future teachings/trainings could help the client?
-        what_is_my_plan_for_the_next_visit_to_the_client: What is my plan for the next visit to the client?
-        with_id: With ID
   case_notes:
     attachment_fields:
       are_you_sure: Are you sure you want to delete?
@@ -1027,7 +1001,6 @@ en:
     new:
       new_client_title: New Individual
     placement:
-      view_legacy_quarterly_reports: View Legacy Quarterly Reports
     remaining_programs:
       close: Close
       warning: Warning
@@ -1138,7 +1111,6 @@ en:
       view_ec_history_btn_link: Case History
       view_fc_history_btn_link: Case History
       view_kc_history_btn_link: Case History
-      view_legacy_quarterly_reports: Legacy Quarterly Reports
       view_tasks: Tasks
       village: Neighborhood
     state:
@@ -1516,13 +1488,6 @@ en:
         response: Activities & Response
         staff: ABLE / ABLE Staff Name
         view: View
-      quarterly_reports:
-        code: Code
-        fc_name: FC Name
-        general_health_or_appearance: Describe General Health/Appearance
-        kc_name: KC Name
-        staff_information: Staff Information
-        visit_date: Date Of Visit
       reason_for_family_separation: Reason for Family Separation
       rejected_note: Rejected Note
       select_columns: Select Columns
@@ -2995,7 +2960,6 @@ en:
       enrollment_amount: Active enrollments
       data_tools: Data tools
       domain_score: Domain Scores
-      legacy_note: Legacy quarterly reports live on each individual record (Actions menu).
       library: Report library
       tier_worker: My caseload
       tier_manager: Operations

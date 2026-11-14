@@ -32,7 +32,6 @@ class Ability
     alias_action :info, to: :read
     can :manage, Agency
     can :manage, ReferralSource
-    can :manage, QuarterlyReport
     can :read, ProgramStream
     can :preview, ProgramStream
     # Phase 5.4 — break-glass: any signed-in user may ATTEMPT a self-elevation. The controller
@@ -58,7 +57,6 @@ class Ability
       cannot :manage, AbleScreeningQuestion
       cannot :manage, Agency
       cannot :manage, ReferralSource
-      cannot :manage, QuarterlyReport
       cannot :manage, CustomFieldProperty
 
       can :read, :all
