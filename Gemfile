@@ -86,7 +86,7 @@ gem 'rack-attack', '~> 6.7'   # Phase 2: brute-force / rate-limit throttling on 
 # Redis.new). Previously an implicit transitive dep of sidekiq 4; sidekiq 7 switched to redis-client,
 # so without this line the redis gem would silently drop out of the bundle and break rack-attack.
 gem 'redis', '~> 6.0'
-gem 'lograge', '~> 0.15'      # Phase 3: structured (JSON) request logging with audit tags (AU-3)
+gem 'lograge', '~> 0.16'      # Phase 3: structured (JSON) request logging with audit tags (AU-3)
 gem 'phony_rails',            '~> 0.15'
 gem 'cancancan', '~> 3.7'
 gem 'pundit', '~> 2.0'
@@ -154,7 +154,7 @@ gem 'connection_pool',        '~> 3.0'
 # combo. Driver stays mongo 2.x unpinned (9.0 requires >= 2.18; >= 2.21 covers server 8.0;
 # the lock already resolves the newest 2.x). No mongoid.yml changes: the app deliberately
 # carries zero Mongoid feature-flag config, so the 9.x defaults apply wholesale.
-gem 'mongoid', '~> 9.1.1'
+gem 'mongoid', '~> 9.1.2'
 
 group :development, :test do
   gem 'pry'
@@ -203,4 +203,4 @@ end
 # maintenance; puma is the Rails-default, actively-maintained server (threaded; optional
 # clustered workers via WEB_CONCURRENCY for when the box grows). Config in config/puma.rb;
 # stays in the default group so the production image installs it (the old NOTES #8 rationale).
-gem 'puma', '~> 8.0'
+gem 'puma', '~> 8.1'
